@@ -13,7 +13,6 @@ from ..errors.forbidden_error import ForbiddenError
 from ..types.api_role import ApiRole
 from ..types.app_client import AppClient
 from ..types.bad_request_error_body import BadRequestErrorBody
-from ..types.create_app_client_request import CreateAppClientRequest
 from ..types.error import Error
 from ..types.list_app_clients_response import ListAppClientsResponse
 
@@ -71,56 +70,6 @@ class ApplicationClientsClient:
         )
         if 200 <= _response.status_code < 300:
             return pydantic_v1.parse_obj_as(ListAppClientsResponse, _response.json())  # type: ignore
-        if _response.status_code == 400:
-            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-        try:
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
-
-    def create_app_client(
-        self, *, request: CreateAppClientRequest, request_options: typing.Optional[RequestOptions] = None
-    ) -> AppClient:
-        """
-        An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
-
-        Parameters
-        ----------
-        request : CreateAppClientRequest
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AppClient
-            An App Client object, used to query the Vectara API with the assigned roles.
-
-        Examples
-        --------
-        from vectara import CreateAppClientRequest_ClientCredentials
-        from vectara.client import Vectara
-
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
-        )
-        client.application_clients.create_app_client(
-            request=CreateAppClientRequest_ClientCredentials(
-                name="string",
-                description="string",
-                api_roles=["owner"],
-            ),
-        )
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            "v2/app_clients", method="POST", json=request, request_options=request_options, omit=OMIT
-        )
-        if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(AppClient, _response.json())  # type: ignore
         if _response.status_code == 400:
             raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
         if _response.status_code == 403:
@@ -320,56 +269,6 @@ class AsyncApplicationClientsClient:
         )
         if 200 <= _response.status_code < 300:
             return pydantic_v1.parse_obj_as(ListAppClientsResponse, _response.json())  # type: ignore
-        if _response.status_code == 400:
-            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-        try:
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
-
-    async def create_app_client(
-        self, *, request: CreateAppClientRequest, request_options: typing.Optional[RequestOptions] = None
-    ) -> AppClient:
-        """
-        An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
-
-        Parameters
-        ----------
-        request : CreateAppClientRequest
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AppClient
-            An App Client object, used to query the Vectara API with the assigned roles.
-
-        Examples
-        --------
-        from vectara import CreateAppClientRequest_ClientCredentials
-        from vectara.client import AsyncVectara
-
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
-        )
-        await client.application_clients.create_app_client(
-            request=CreateAppClientRequest_ClientCredentials(
-                name="string",
-                description="string",
-                api_roles=["owner"],
-            ),
-        )
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            "v2/app_clients", method="POST", json=request, request_options=request_options, omit=OMIT
-        )
-        if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(AppClient, _response.json())  # type: ignore
         if _response.status_code == 400:
             raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
         if _response.status_code == 403:

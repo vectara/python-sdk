@@ -12,7 +12,6 @@ from .corpora.client import AsyncCorporaClient, CorporaClient
 from .documents.client import AsyncDocumentsClient, DocumentsClient
 from .encoders.client import AsyncEncodersClient, EncodersClient
 from .environment import VectaraEnvironment
-from .index.client import AsyncIndexClient, IndexClient
 from .jobs.client import AsyncJobsClient, JobsClient
 from .large_language_models.client import AsyncLargeLanguageModelsClient, LargeLanguageModelsClient
 from .queries.client import AsyncQueriesClient, QueriesClient
@@ -87,7 +86,6 @@ class Vectara:
         self.corpora = CorporaClient(client_wrapper=self._client_wrapper)
         self.upload = UploadClient(client_wrapper=self._client_wrapper)
         self.documents = DocumentsClient(client_wrapper=self._client_wrapper)
-        self.index = IndexClient(client_wrapper=self._client_wrapper)
         self.chats = ChatsClient(client_wrapper=self._client_wrapper)
         self.large_language_models = LargeLanguageModelsClient(client_wrapper=self._client_wrapper)
         self.encoders = EncodersClient(client_wrapper=self._client_wrapper)
@@ -164,7 +162,6 @@ class AsyncVectara:
         self.corpora = AsyncCorporaClient(client_wrapper=self._client_wrapper)
         self.upload = AsyncUploadClient(client_wrapper=self._client_wrapper)
         self.documents = AsyncDocumentsClient(client_wrapper=self._client_wrapper)
-        self.index = AsyncIndexClient(client_wrapper=self._client_wrapper)
         self.chats = AsyncChatsClient(client_wrapper=self._client_wrapper)
         self.large_language_models = AsyncLargeLanguageModelsClient(client_wrapper=self._client_wrapper)
         self.encoders = AsyncEncodersClient(client_wrapper=self._client_wrapper)
