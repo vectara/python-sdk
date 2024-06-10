@@ -101,6 +101,7 @@ from .errors import BadRequestError, ForbiddenError, NotFoundError
 from . import (
     api_keys,
     application_clients,
+    auth,
     chats,
     corpora,
     documents,
@@ -112,6 +113,7 @@ from . import (
     upload,
     users,
 )
+from .auth import AuthResponse
 from .environment import VectaraEnvironment
 from .queries import SearchCorpusParameters
 from .version import __version__
@@ -123,6 +125,7 @@ __all__ = [
     "ApiPolicy",
     "ApiRole",
     "AppClient",
+    "AuthResponse",
     "BadRequestError",
     "BadRequestErrorBody",
     "Chat",
@@ -220,6 +223,7 @@ __all__ = [
     "__version__",
     "api_keys",
     "application_clients",
+    "auth",
     "chats",
     "corpora",
     "documents",

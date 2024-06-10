@@ -53,6 +53,7 @@ class LlmsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.llms.list()
@@ -115,6 +116,7 @@ class AsyncLlmsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.llms.list()

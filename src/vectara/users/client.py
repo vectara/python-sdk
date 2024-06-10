@@ -58,6 +58,7 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.users.list()
@@ -115,6 +116,7 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.users.create(
@@ -164,6 +166,7 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.users.get(
@@ -208,6 +211,7 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.users.delete(
@@ -266,6 +270,7 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.users.update(
@@ -314,6 +319,7 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.users.reset_password(
@@ -372,6 +378,7 @@ class AsyncUsersClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.users.list()
@@ -429,6 +436,7 @@ class AsyncUsersClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.users.create(
@@ -478,6 +486,7 @@ class AsyncUsersClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.users.get(
@@ -522,6 +531,7 @@ class AsyncUsersClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.users.delete(
@@ -580,6 +590,7 @@ class AsyncUsersClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.users.update(
@@ -628,6 +639,7 @@ class AsyncUsersClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.users.reset_password(

@@ -6,6 +6,7 @@ import httpx
 
 from .api_keys.client import ApiKeysClient, AsyncApiKeysClient
 from .application_clients.client import ApplicationClientsClient, AsyncApplicationClientsClient
+from .auth.client import AsyncAuthClient, AuthClient
 from .chats.client import AsyncChatsClient, ChatsClient
 from .core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from .corpora.client import AsyncCorporaClient, CorporaClient
@@ -39,7 +40,8 @@ class Vectara:
 
 
     api_key : str
-    token : typing.Union[str, typing.Callable[[], str]]
+    client_key : str
+    token : typing.Optional[typing.Union[str, typing.Callable[[], str]]]
     timeout : typing.Optional[float]
         The timeout to be used, in seconds, for requests. By default the timeout is 60 seconds, unless a custom httpx client is used, in which case this default is not enforced.
 
@@ -55,6 +57,7 @@ class Vectara:
 
     client = Vectara(
         api_key="YOUR_API_KEY",
+        client_key="YOUR_CLIENT_KEY",
         token="YOUR_TOKEN",
     )
     """
@@ -65,7 +68,8 @@ class Vectara:
         base_url: typing.Optional[str] = None,
         environment: VectaraEnvironment = VectaraEnvironment.DEFAULT,
         api_key: str,
-        token: typing.Union[str, typing.Callable[[], str]],
+        client_key: str,
+        token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         timeout: typing.Optional[float] = None,
         follow_redirects: typing.Optional[bool] = True,
         httpx_client: typing.Optional[httpx.Client] = None
@@ -74,6 +78,7 @@ class Vectara:
         self._client_wrapper = SyncClientWrapper(
             base_url=_get_base_url(base_url=base_url, environment=environment),
             api_key=api_key,
+            client_key=client_key,
             token=token,
             httpx_client=httpx_client
             if httpx_client is not None
@@ -82,18 +87,19 @@ class Vectara:
             else httpx.Client(timeout=_defaulted_timeout),
             timeout=_defaulted_timeout,
         )
-        self.queries = QueriesClient(client_wrapper=self._client_wrapper)
-        self.corpora = CorporaClient(client_wrapper=self._client_wrapper)
-        self.upload = UploadClient(client_wrapper=self._client_wrapper)
-        self.documents = DocumentsClient(client_wrapper=self._client_wrapper)
-        self.chats = ChatsClient(client_wrapper=self._client_wrapper)
-        self.llms = LlmsClient(client_wrapper=self._client_wrapper)
-        self.encoders = EncodersClient(client_wrapper=self._client_wrapper)
-        self.rerankers = RerankersClient(client_wrapper=self._client_wrapper)
-        self.jobs = JobsClient(client_wrapper=self._client_wrapper)
-        self.users = UsersClient(client_wrapper=self._client_wrapper)
         self.api_keys = ApiKeysClient(client_wrapper=self._client_wrapper)
         self.application_clients = ApplicationClientsClient(client_wrapper=self._client_wrapper)
+        self.auth = AuthClient(client_wrapper=self._client_wrapper)
+        self.chats = ChatsClient(client_wrapper=self._client_wrapper)
+        self.corpora = CorporaClient(client_wrapper=self._client_wrapper)
+        self.documents = DocumentsClient(client_wrapper=self._client_wrapper)
+        self.encoders = EncodersClient(client_wrapper=self._client_wrapper)
+        self.jobs = JobsClient(client_wrapper=self._client_wrapper)
+        self.llms = LlmsClient(client_wrapper=self._client_wrapper)
+        self.queries = QueriesClient(client_wrapper=self._client_wrapper)
+        self.rerankers = RerankersClient(client_wrapper=self._client_wrapper)
+        self.upload = UploadClient(client_wrapper=self._client_wrapper)
+        self.users = UsersClient(client_wrapper=self._client_wrapper)
 
 
 class AsyncVectara:
@@ -115,7 +121,8 @@ class AsyncVectara:
 
 
     api_key : str
-    token : typing.Union[str, typing.Callable[[], str]]
+    client_key : str
+    token : typing.Optional[typing.Union[str, typing.Callable[[], str]]]
     timeout : typing.Optional[float]
         The timeout to be used, in seconds, for requests. By default the timeout is 60 seconds, unless a custom httpx client is used, in which case this default is not enforced.
 
@@ -131,6 +138,7 @@ class AsyncVectara:
 
     client = AsyncVectara(
         api_key="YOUR_API_KEY",
+        client_key="YOUR_CLIENT_KEY",
         token="YOUR_TOKEN",
     )
     """
@@ -141,7 +149,8 @@ class AsyncVectara:
         base_url: typing.Optional[str] = None,
         environment: VectaraEnvironment = VectaraEnvironment.DEFAULT,
         api_key: str,
-        token: typing.Union[str, typing.Callable[[], str]],
+        client_key: str,
+        token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         timeout: typing.Optional[float] = None,
         follow_redirects: typing.Optional[bool] = True,
         httpx_client: typing.Optional[httpx.AsyncClient] = None
@@ -150,6 +159,7 @@ class AsyncVectara:
         self._client_wrapper = AsyncClientWrapper(
             base_url=_get_base_url(base_url=base_url, environment=environment),
             api_key=api_key,
+            client_key=client_key,
             token=token,
             httpx_client=httpx_client
             if httpx_client is not None
@@ -158,18 +168,19 @@ class AsyncVectara:
             else httpx.AsyncClient(timeout=_defaulted_timeout),
             timeout=_defaulted_timeout,
         )
-        self.queries = AsyncQueriesClient(client_wrapper=self._client_wrapper)
-        self.corpora = AsyncCorporaClient(client_wrapper=self._client_wrapper)
-        self.upload = AsyncUploadClient(client_wrapper=self._client_wrapper)
-        self.documents = AsyncDocumentsClient(client_wrapper=self._client_wrapper)
-        self.chats = AsyncChatsClient(client_wrapper=self._client_wrapper)
-        self.llms = AsyncLlmsClient(client_wrapper=self._client_wrapper)
-        self.encoders = AsyncEncodersClient(client_wrapper=self._client_wrapper)
-        self.rerankers = AsyncRerankersClient(client_wrapper=self._client_wrapper)
-        self.jobs = AsyncJobsClient(client_wrapper=self._client_wrapper)
-        self.users = AsyncUsersClient(client_wrapper=self._client_wrapper)
         self.api_keys = AsyncApiKeysClient(client_wrapper=self._client_wrapper)
         self.application_clients = AsyncApplicationClientsClient(client_wrapper=self._client_wrapper)
+        self.auth = AsyncAuthClient(client_wrapper=self._client_wrapper)
+        self.chats = AsyncChatsClient(client_wrapper=self._client_wrapper)
+        self.corpora = AsyncCorporaClient(client_wrapper=self._client_wrapper)
+        self.documents = AsyncDocumentsClient(client_wrapper=self._client_wrapper)
+        self.encoders = AsyncEncodersClient(client_wrapper=self._client_wrapper)
+        self.jobs = AsyncJobsClient(client_wrapper=self._client_wrapper)
+        self.llms = AsyncLlmsClient(client_wrapper=self._client_wrapper)
+        self.queries = AsyncQueriesClient(client_wrapper=self._client_wrapper)
+        self.rerankers = AsyncRerankersClient(client_wrapper=self._client_wrapper)
+        self.upload = AsyncUploadClient(client_wrapper=self._client_wrapper)
+        self.users = AsyncUsersClient(client_wrapper=self._client_wrapper)
 
 
 def _get_base_url(*, base_url: typing.Optional[str] = None, environment: VectaraEnvironment) -> str:

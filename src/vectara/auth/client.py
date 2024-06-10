@@ -5,36 +5,37 @@ from json.decoder import JSONDecodeError
 
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
-from ..core.jsonable_encoder import jsonable_encoder
 from ..core.pydantic_utilities import pydantic_v1
 from ..core.request_options import RequestOptions
-from ..errors.forbidden_error import ForbiddenError
-from ..errors.not_found_error import NotFoundError
-from ..types.error import Error
-from ..types.job import Job
-from ..types.not_found_error_body import NotFoundErrorBody
+from .types.auth_response import AuthResponse
+
+# this is used as the default value for optional parameters
+OMIT = typing.cast(typing.Any, ...)
 
 
-class JobsClient:
+class AuthClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def get(self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Job:
+    def get_token(
+        self, *, client_id: str, client_secret: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> AuthResponse:
         """
-        Get a job by a specific ID. Jobs are backgrouond processes like replacing the filterable metadata attributes.
+        Hit the auth endpoint to get a bearer token
 
         Parameters
         ----------
-        job_id : str
-            The ID of job to get.
+        client_id : str
+
+        client_secret : str
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        Job
-            A job.
+        AuthResponse
+            OK
 
         Examples
         --------
@@ -45,19 +46,20 @@ class JobsClient:
             client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
-        client.jobs.get(
-            job_id="job_id",
+        client.auth.get_token(
+            client_id="string",
+            client_secret="string",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/jobs/{jsonable_encoder(job_id)}", method="GET", request_options=request_options
+            "oauth/token",
+            method="POST",
+            json={"client_id": client_id, "client_secret": client_secret, "grant_type": "client_credentials"},
+            request_options=request_options,
+            omit=OMIT,
         )
         if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(Job, _response.json())  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-        if _response.status_code == 404:
-            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
+            return pydantic_v1.parse_obj_as(AuthResponse, _response.json())  # type: ignore
         try:
             _response_json = _response.json()
         except JSONDecodeError:
@@ -65,26 +67,29 @@ class JobsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
 
-class AsyncJobsClient:
+class AsyncAuthClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def get(self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Job:
+    async def get_token(
+        self, *, client_id: str, client_secret: str, request_options: typing.Optional[RequestOptions] = None
+    ) -> AuthResponse:
         """
-        Get a job by a specific ID. Jobs are backgrouond processes like replacing the filterable metadata attributes.
+        Hit the auth endpoint to get a bearer token
 
         Parameters
         ----------
-        job_id : str
-            The ID of job to get.
+        client_id : str
+
+        client_secret : str
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        Job
-            A job.
+        AuthResponse
+            OK
 
         Examples
         --------
@@ -95,19 +100,20 @@ class AsyncJobsClient:
             client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
-        await client.jobs.get(
-            job_id="job_id",
+        await client.auth.get_token(
+            client_id="string",
+            client_secret="string",
         )
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/jobs/{jsonable_encoder(job_id)}", method="GET", request_options=request_options
+            "oauth/token",
+            method="POST",
+            json={"client_id": client_id, "client_secret": client_secret, "grant_type": "client_credentials"},
+            request_options=request_options,
+            omit=OMIT,
         )
         if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(Job, _response.json())  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-        if _response.status_code == 404:
-            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
+            return pydantic_v1.parse_obj_as(AuthResponse, _response.json())  # type: ignore
         try:
             _response_json = _response.json()
         except JSONDecodeError:

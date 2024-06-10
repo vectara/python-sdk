@@ -64,6 +64,7 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.chats.list()
@@ -134,6 +135,7 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         response = client.chats.create(
@@ -221,6 +223,7 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.chats.get(
@@ -264,6 +267,7 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.chats.delete(
@@ -310,6 +314,7 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.chats.list_turns(
@@ -386,6 +391,7 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         response = client.chats.create_turns(
@@ -477,6 +483,7 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.chats.get_turn(
@@ -528,6 +535,7 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.chats.delete_turn(
@@ -590,6 +598,7 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.chats.update_turn(
@@ -653,6 +662,7 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.chats.list()
@@ -723,6 +733,7 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         response = await client.chats.create(
@@ -810,6 +821,7 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.chats.get(
@@ -853,6 +865,7 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.chats.delete(
@@ -899,6 +912,7 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.chats.list_turns(
@@ -975,6 +989,7 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         response = await client.chats.create_turns(
@@ -1068,6 +1083,7 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.chats.get_turn(
@@ -1119,6 +1135,7 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.chats.delete_turn(
@@ -1181,6 +1198,7 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.chats.update_turn(
