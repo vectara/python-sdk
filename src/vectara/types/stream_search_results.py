@@ -5,23 +5,18 @@ import typing
 
 from ..core.datetime_utils import serialize_datetime
 from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
-from .chat_parameters import ChatParameters
-from .generation_parameters import GenerationParameters
-from .search_corpora_parameters import SearchCorporaParameters
+from .individual_search_result import IndividualSearchResult
 
 
-class ChatRequest(pydantic_v1.BaseModel):
-    query: str = pydantic_v1.Field()
+class StreamSearchResults(pydantic_v1.BaseModel):
     """
-    The chat message or question.
+    The search response results.
     """
 
-    search: SearchCorporaParameters
-    generation: typing.Optional[GenerationParameters] = None
-    chat: typing.Optional[ChatParameters] = None
-    stream_response: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    type: typing.Literal["search_results"] = "search_results"
+    search_results: typing.Optional[typing.List[IndividualSearchResult]] = pydantic_v1.Field(default=None)
     """
-    Indicates whether the response should be streamed or not.
+    The ranked search results.
     """
 
     def json(self, **kwargs: typing.Any) -> str:

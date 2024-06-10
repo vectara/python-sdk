@@ -16,6 +16,7 @@ from ..types.bad_request_error_body import BadRequestErrorBody
 from ..types.chat import Chat
 from ..types.chat_full_response import ChatFullResponse
 from ..types.chat_parameters import ChatParameters
+from ..types.chat_streamed_response import ChatStreamedResponse
 from ..types.error import Error
 from ..types.generation_parameters import GenerationParameters
 from ..types.list_chat_turns_response import ListChatTurnsResponse
@@ -84,16 +85,15 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create(
+    def create_stream(
         self,
         *,
         query: str,
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.Iterator[ChatFullResponse]:
+    ) -> typing.Iterator[ChatStreamedResponse]:
         """
         Create a chat while specifying the default retrieval parameters used by the prompt.
 
@@ -108,16 +108,13 @@ class ChatsClient:
 
         chat : typing.Optional[ChatParameters]
 
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.Iterator[ChatFullResponse]
-            A response to a chat request.
+        typing.Iterator[ChatStreamedResponse]
+
 
         Examples
         --------
@@ -125,11 +122,11 @@ class ChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
+            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
-            SearchReranker_CustomerReranker,
         )
         from vectara.client import Vectara
 
@@ -138,14 +135,14 @@ class ChatsClient:
             client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
-        response = client.chats.create(
+        response = client.chats.create_stream(
             query="string",
             search=SearchCorporaParameters(
                 corpora=[KeyedSearchCorpus()],
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=SearchReranker_CustomerReranker(),
+                reranker=CustomerSpecificReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -162,8 +159,9 @@ class ChatsClient:
                 citations=CitationParameters(),
                 enable_factual_consistency_score=True,
             ),
-            chat=ChatParameters(),
-            stream_response=True,
+            chat=ChatParameters(
+                store=True,
+            ),
         )
         for chunk in response:
             yield chunk
@@ -171,13 +169,7 @@ class ChatsClient:
         with self._client_wrapper.httpx_client.stream(
             "v2/chats",
             method="POST",
-            json={
-                "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
-                "stream_response": stream_response,
-            },
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
             request_options=request_options,
             omit=OMIT,
         ) as _response:
@@ -185,7 +177,7 @@ class ChatsClient:
                 for _text in _response.iter_lines():
                     if len(_text) == 0:
                         continue
-                    yield pydantic_v1.parse_obj_as(ChatFullResponse, json.loads(_text))  # type: ignore
+                    yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_text))  # type: ignore
                 return
             _response.read()
             if _response.status_code == 400:
@@ -199,6 +191,73 @@ class ChatsClient:
             except JSONDecodeError:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def create(
+        self,
+        *,
+        query: str,
+        search: SearchCorporaParameters,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        chat: typing.Optional[ChatParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ChatFullResponse:
+        """
+        Create a chat while specifying the default retrieval parameters used by the prompt.
+
+        Parameters
+        ----------
+        query : str
+            The chat message or question.
+
+        search : SearchCorporaParameters
+
+        generation : typing.Optional[GenerationParameters]
+
+        chat : typing.Optional[ChatParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ChatFullResponse
+
+
+        Examples
+        --------
+        from vectara import SearchCorporaParameters
+        from vectara.client import Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
+            token="YOUR_TOKEN",
+        )
+        client.chats.create(
+            query="How can I use the Vectara platform?",
+            search=SearchCorporaParameters(),
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v2/chats",
+            method="POST",
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
+            request_options=request_options,
+            omit=OMIT,
+        )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ChatFullResponse, _response.json())  # type: ignore
+        if _response.status_code == 400:
+            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
+        try:
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
 
     def get(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Chat:
         """
@@ -336,7 +395,7 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_turns(
+    def create_turns_stream(
         self,
         chat_id: str,
         *,
@@ -344,9 +403,8 @@ class ChatsClient:
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.Iterator[ChatFullResponse]:
+    ) -> typing.Iterator[ChatStreamedResponse]:
         """
         Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs tha make up the dialog.
 
@@ -364,16 +422,13 @@ class ChatsClient:
 
         chat : typing.Optional[ChatParameters]
 
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.Iterator[ChatFullResponse]
-            A response to a chat request.
+        typing.Iterator[ChatStreamedResponse]
+
 
         Examples
         --------
@@ -381,11 +436,11 @@ class ChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
+            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
-            SearchReranker_CustomerReranker,
         )
         from vectara.client import Vectara
 
@@ -394,7 +449,7 @@ class ChatsClient:
             client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
-        response = client.chats.create_turns(
+        response = client.chats.create_turns_stream(
             chat_id="string",
             query="string",
             search=SearchCorporaParameters(
@@ -402,7 +457,7 @@ class ChatsClient:
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=SearchReranker_CustomerReranker(),
+                reranker=CustomerSpecificReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -419,8 +474,9 @@ class ChatsClient:
                 citations=CitationParameters(),
                 enable_factual_consistency_score=True,
             ),
-            chat=ChatParameters(),
-            stream_response=True,
+            chat=ChatParameters(
+                store=True,
+            ),
         )
         for chunk in response:
             yield chunk
@@ -428,13 +484,7 @@ class ChatsClient:
         with self._client_wrapper.httpx_client.stream(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
             method="POST",
-            json={
-                "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
-                "stream_response": stream_response,
-            },
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
             request_options=request_options,
             omit=OMIT,
         ) as _response:
@@ -442,7 +492,7 @@ class ChatsClient:
                 for _text in _response.iter_lines():
                     if len(_text) == 0:
                         continue
-                    yield pydantic_v1.parse_obj_as(ChatFullResponse, json.loads(_text))  # type: ignore
+                    yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_text))  # type: ignore
                 return
             _response.read()
             if _response.status_code == 400:
@@ -456,6 +506,78 @@ class ChatsClient:
             except JSONDecodeError:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def create_turns(
+        self,
+        chat_id: str,
+        *,
+        query: str,
+        search: SearchCorporaParameters,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        chat: typing.Optional[ChatParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ChatFullResponse:
+        """
+        Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs tha make up the dialog.
+
+        Parameters
+        ----------
+        chat_id : str
+            The ID of the chat.
+
+        query : str
+            The chat message or question.
+
+        search : SearchCorporaParameters
+
+        generation : typing.Optional[GenerationParameters]
+
+        chat : typing.Optional[ChatParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ChatFullResponse
+
+
+        Examples
+        --------
+        from vectara import SearchCorporaParameters
+        from vectara.client import Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
+            token="YOUR_TOKEN",
+        )
+        client.chats.create_turns(
+            chat_id="chat_id",
+            query="How can I use the Vectara platform?",
+            search=SearchCorporaParameters(),
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            method="POST",
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
+            request_options=request_options,
+            omit=OMIT,
+        )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ChatFullResponse, _response.json())  # type: ignore
+        if _response.status_code == 400:
+            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
+        try:
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
 
     def get_turn(self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Turn:
         """
@@ -682,16 +804,15 @@ class AsyncChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create(
+    async def create_stream(
         self,
         *,
         query: str,
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.AsyncIterator[ChatFullResponse]:
+    ) -> typing.AsyncIterator[ChatStreamedResponse]:
         """
         Create a chat while specifying the default retrieval parameters used by the prompt.
 
@@ -706,16 +827,13 @@ class AsyncChatsClient:
 
         chat : typing.Optional[ChatParameters]
 
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.AsyncIterator[ChatFullResponse]
-            A response to a chat request.
+        typing.AsyncIterator[ChatStreamedResponse]
+
 
         Examples
         --------
@@ -723,11 +841,11 @@ class AsyncChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
+            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
-            SearchReranker_CustomerReranker,
         )
         from vectara.client import AsyncVectara
 
@@ -736,14 +854,14 @@ class AsyncChatsClient:
             client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
-        response = await client.chats.create(
+        response = await client.chats.create_stream(
             query="string",
             search=SearchCorporaParameters(
                 corpora=[KeyedSearchCorpus()],
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=SearchReranker_CustomerReranker(),
+                reranker=CustomerSpecificReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -760,8 +878,9 @@ class AsyncChatsClient:
                 citations=CitationParameters(),
                 enable_factual_consistency_score=True,
             ),
-            chat=ChatParameters(),
-            stream_response=True,
+            chat=ChatParameters(
+                store=True,
+            ),
         )
         async for chunk in response:
             yield chunk
@@ -769,13 +888,7 @@ class AsyncChatsClient:
         async with self._client_wrapper.httpx_client.stream(
             "v2/chats",
             method="POST",
-            json={
-                "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
-                "stream_response": stream_response,
-            },
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
             request_options=request_options,
             omit=OMIT,
         ) as _response:
@@ -783,7 +896,7 @@ class AsyncChatsClient:
                 async for _text in _response.aiter_lines():
                     if len(_text) == 0:
                         continue
-                    yield pydantic_v1.parse_obj_as(ChatFullResponse, json.loads(_text))  # type: ignore
+                    yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_text))  # type: ignore
                 return
             await _response.aread()
             if _response.status_code == 400:
@@ -797,6 +910,73 @@ class AsyncChatsClient:
             except JSONDecodeError:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def create(
+        self,
+        *,
+        query: str,
+        search: SearchCorporaParameters,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        chat: typing.Optional[ChatParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ChatFullResponse:
+        """
+        Create a chat while specifying the default retrieval parameters used by the prompt.
+
+        Parameters
+        ----------
+        query : str
+            The chat message or question.
+
+        search : SearchCorporaParameters
+
+        generation : typing.Optional[GenerationParameters]
+
+        chat : typing.Optional[ChatParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ChatFullResponse
+
+
+        Examples
+        --------
+        from vectara import SearchCorporaParameters
+        from vectara.client import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
+            token="YOUR_TOKEN",
+        )
+        await client.chats.create(
+            query="How can I use the Vectara platform?",
+            search=SearchCorporaParameters(),
+        )
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v2/chats",
+            method="POST",
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
+            request_options=request_options,
+            omit=OMIT,
+        )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ChatFullResponse, _response.json())  # type: ignore
+        if _response.status_code == 400:
+            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
+        try:
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
 
     async def get(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Chat:
         """
@@ -934,7 +1114,7 @@ class AsyncChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_turns(
+    async def create_turns_stream(
         self,
         chat_id: str,
         *,
@@ -942,9 +1122,8 @@ class AsyncChatsClient:
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.AsyncIterator[ChatFullResponse]:
+    ) -> typing.AsyncIterator[ChatStreamedResponse]:
         """
         Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs tha make up the dialog.
 
@@ -962,16 +1141,13 @@ class AsyncChatsClient:
 
         chat : typing.Optional[ChatParameters]
 
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.AsyncIterator[ChatFullResponse]
-            A response to a chat request.
+        typing.AsyncIterator[ChatStreamedResponse]
+
 
         Examples
         --------
@@ -979,11 +1155,11 @@ class AsyncChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
+            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
-            SearchReranker_CustomerReranker,
         )
         from vectara.client import AsyncVectara
 
@@ -992,7 +1168,7 @@ class AsyncChatsClient:
             client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
-        response = await client.chats.create_turns(
+        response = await client.chats.create_turns_stream(
             chat_id="string",
             query="string",
             search=SearchCorporaParameters(
@@ -1000,7 +1176,7 @@ class AsyncChatsClient:
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=SearchReranker_CustomerReranker(),
+                reranker=CustomerSpecificReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -1017,8 +1193,9 @@ class AsyncChatsClient:
                 citations=CitationParameters(),
                 enable_factual_consistency_score=True,
             ),
-            chat=ChatParameters(),
-            stream_response=True,
+            chat=ChatParameters(
+                store=True,
+            ),
         )
         async for chunk in response:
             yield chunk
@@ -1026,13 +1203,7 @@ class AsyncChatsClient:
         async with self._client_wrapper.httpx_client.stream(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
             method="POST",
-            json={
-                "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
-                "stream_response": stream_response,
-            },
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
             request_options=request_options,
             omit=OMIT,
         ) as _response:
@@ -1040,7 +1211,7 @@ class AsyncChatsClient:
                 async for _text in _response.aiter_lines():
                     if len(_text) == 0:
                         continue
-                    yield pydantic_v1.parse_obj_as(ChatFullResponse, json.loads(_text))  # type: ignore
+                    yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_text))  # type: ignore
                 return
             await _response.aread()
             if _response.status_code == 400:
@@ -1054,6 +1225,78 @@ class AsyncChatsClient:
             except JSONDecodeError:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def create_turns(
+        self,
+        chat_id: str,
+        *,
+        query: str,
+        search: SearchCorporaParameters,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        chat: typing.Optional[ChatParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ChatFullResponse:
+        """
+        Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs tha make up the dialog.
+
+        Parameters
+        ----------
+        chat_id : str
+            The ID of the chat.
+
+        query : str
+            The chat message or question.
+
+        search : SearchCorporaParameters
+
+        generation : typing.Optional[GenerationParameters]
+
+        chat : typing.Optional[ChatParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ChatFullResponse
+
+
+        Examples
+        --------
+        from vectara import SearchCorporaParameters
+        from vectara.client import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
+            token="YOUR_TOKEN",
+        )
+        await client.chats.create_turns(
+            chat_id="chat_id",
+            query="How can I use the Vectara platform?",
+            search=SearchCorporaParameters(),
+        )
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            method="POST",
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
+            request_options=request_options,
+            omit=OMIT,
+        )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ChatFullResponse, _response.json())  # type: ignore
+        if _response.status_code == 400:
+            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
+        try:
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
 
     async def get_turn(
         self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None

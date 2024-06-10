@@ -6,6 +6,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.jsonable_encoder import jsonable_encoder
+from ..core.pagination import AsyncPager, SyncPager
 from ..core.pydantic_utilities import pydantic_v1
 from ..core.request_options import RequestOptions
 from ..errors.bad_request_error import BadRequestError
@@ -36,7 +37,7 @@ class CorporaClient:
         filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListCorporaResponse:
+    ) -> SyncPager[Corpus]:
         """
         List corpora in the account. The corpus objects that are returned are less
         detailed than the direct corpus retrieval operation.
@@ -57,7 +58,7 @@ class CorporaClient:
 
         Returns
         -------
-        ListCorporaResponse
+        SyncPager[Corpus]
             List of corpora.
 
         Examples
@@ -78,7 +79,17 @@ class CorporaClient:
             request_options=request_options,
         )
         if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(ListCorporaResponse, _response.json())  # type: ignore
+            _parsed_response = pydantic_v1.parse_obj_as(ListCorporaResponse, _response.json())  # type: ignore
+            _has_next = False
+            _get_next = None
+            if _parsed_response.metadata is not None:
+                _parsed_next = _parsed_response.metadata.page_key
+                _has_next = _parsed_next is not None
+                _get_next = lambda: self.list(
+                    limit=limit, filter=filter, page_key=_parsed_next, request_options=request_options
+                )
+            _items = _parsed_response.corpora
+            return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
         if _response.status_code == 403:
             raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
@@ -456,7 +467,7 @@ class AsyncCorporaClient:
         filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListCorporaResponse:
+    ) -> AsyncPager[Corpus]:
         """
         List corpora in the account. The corpus objects that are returned are less
         detailed than the direct corpus retrieval operation.
@@ -477,7 +488,7 @@ class AsyncCorporaClient:
 
         Returns
         -------
-        ListCorporaResponse
+        AsyncPager[Corpus]
             List of corpora.
 
         Examples
@@ -498,7 +509,17 @@ class AsyncCorporaClient:
             request_options=request_options,
         )
         if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(ListCorporaResponse, _response.json())  # type: ignore
+            _parsed_response = pydantic_v1.parse_obj_as(ListCorporaResponse, _response.json())  # type: ignore
+            _has_next = False
+            _get_next = None
+            if _parsed_response.metadata is not None:
+                _parsed_next = _parsed_response.metadata.page_key
+                _has_next = _parsed_next is not None
+                _get_next = lambda: self.list(
+                    limit=limit, filter=filter, page_key=_parsed_next, request_options=request_options
+                )
+            _items = _parsed_response.corpora
+            return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
         if _response.status_code == 403:
             raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:

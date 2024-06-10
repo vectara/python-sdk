@@ -54,7 +54,12 @@ class AuthClient:
         _response = self._client_wrapper.httpx_client.request(
             "oauth/token",
             method="POST",
-            json={"client_id": client_id, "client_secret": client_secret, "grant_type": "client_credentials"},
+            json={
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "audience": "vectara.com",
+                "grant_type": "client_credentials",
+            },
             request_options=request_options,
             omit=OMIT,
         )
@@ -108,7 +113,12 @@ class AsyncAuthClient:
         _response = await self._client_wrapper.httpx_client.request(
             "oauth/token",
             method="POST",
-            json={"client_id": client_id, "client_secret": client_secret, "grant_type": "client_credentials"},
+            json={
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "audience": "vectara.com",
+                "grant_type": "client_credentials",
+            },
             request_options=request_options,
             omit=OMIT,
         )

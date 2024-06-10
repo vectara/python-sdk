@@ -13,6 +13,7 @@ class CoreDocument(pydantic_v1.BaseModel):
     The document structure that most closely corresponds to Vectara's internal document data model.
     """
 
+    type: typing.Literal["core"] = "core"
     id: str = pydantic_v1.Field()
     """
     The Document ID, must be unique within the corpus.

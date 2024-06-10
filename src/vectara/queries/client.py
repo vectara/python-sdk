@@ -18,6 +18,7 @@ from ..types.error import Error
 from ..types.generation_parameters import GenerationParameters
 from ..types.not_found_error_body import NotFoundErrorBody
 from ..types.query_full_response import QueryFullResponse
+from ..types.query_streamed_response import QueryStreamedResponse
 from ..types.search_corpora_parameters import SearchCorporaParameters
 from .types.search_corpus_parameters import SearchCorpusParameters
 
@@ -29,15 +30,14 @@ class QueriesClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def get_corpora(
+    def get_corpora_stream(
         self,
         *,
         query: str,
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.Iterator[QueryFullResponse]:
+    ) -> typing.Iterator[QueryStreamedResponse]:
         """
         Perform a multi-purpose query that can retrieve relevant information from one or more corpora and generate a response using RAG.
 
@@ -50,27 +50,24 @@ class QueriesClient:
 
         generation : typing.Optional[GenerationParameters]
 
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.Iterator[QueryFullResponse]
-            A response to a query.
+        typing.Iterator[QueryStreamedResponse]
+
 
         Examples
         --------
         from vectara import (
             CitationParameters,
             ContextConfiguration,
+            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
-            SearchReranker_CustomerReranker,
         )
         from vectara.client import Vectara
 
@@ -79,14 +76,14 @@ class QueriesClient:
             client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
-        response = client.queries.get_corpora(
+        response = client.queries.get_corpora_stream(
             query="string",
             search=SearchCorporaParameters(
                 corpora=[KeyedSearchCorpus()],
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=SearchReranker_CustomerReranker(),
+                reranker=CustomerSpecificReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -103,7 +100,6 @@ class QueriesClient:
                 citations=CitationParameters(),
                 enable_factual_consistency_score=True,
             ),
-            stream_response=True,
         )
         for chunk in response:
             yield chunk
@@ -111,7 +107,7 @@ class QueriesClient:
         with self._client_wrapper.httpx_client.stream(
             "v2/query",
             method="POST",
-            json={"query": query, "search": search, "generation": generation, "stream_response": stream_response},
+            json={"query": query, "search": search, "generation": generation, "stream_response": True},
             request_options=request_options,
             omit=OMIT,
         ) as _response:
@@ -119,7 +115,7 @@ class QueriesClient:
                 for _text in _response.iter_lines():
                     if len(_text) == 0:
                         continue
-                    yield pydantic_v1.parse_obj_as(QueryFullResponse, json.loads(_text))  # type: ignore
+                    yield pydantic_v1.parse_obj_as(QueryStreamedResponse, json.loads(_text))  # type: ignore
                 return
             _response.read()
             if _response.status_code == 400:
@@ -133,6 +129,70 @@ class QueriesClient:
             except JSONDecodeError:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def get_corpora(
+        self,
+        *,
+        query: str,
+        search: SearchCorporaParameters,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> QueryFullResponse:
+        """
+        Perform a multi-purpose query that can retrieve relevant information from one or more corpora and generate a response using RAG.
+
+        Parameters
+        ----------
+        query : str
+            The query to receive an answer on.
+
+        search : SearchCorporaParameters
+
+        generation : typing.Optional[GenerationParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        QueryFullResponse
+
+
+        Examples
+        --------
+        from vectara import SearchCorporaParameters
+        from vectara.client import Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
+            token="YOUR_TOKEN",
+        )
+        client.queries.get_corpora(
+            query="Am I allowed to bring pets to work?",
+            search=SearchCorporaParameters(),
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v2/query",
+            method="POST",
+            json={"query": query, "search": search, "generation": generation, "stream_response": False},
+            request_options=request_options,
+            omit=OMIT,
+        )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(QueryFullResponse, _response.json())  # type: ignore
+        if _response.status_code == 400:
+            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
+        try:
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
 
     def search_corpus(
         self,
@@ -202,16 +262,15 @@ class QueriesClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def get_corpus(
+    def get_corpus_stream(
         self,
         corpus_key: CorpusKey,
         *,
         query: str,
         search: typing.Optional[SearchCorpusParameters] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.Iterator[QueryFullResponse]:
+    ) -> typing.Iterator[QueryStreamedResponse]:
         """
         Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrival Augmented Generation.
 
@@ -228,26 +287,23 @@ class QueriesClient:
 
         generation : typing.Optional[GenerationParameters]
 
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.Iterator[QueryFullResponse]
-            A response to a query.
+        typing.Iterator[QueryStreamedResponse]
+
 
         Examples
         --------
         from vectara import (
             CitationParameters,
             ContextConfiguration,
+            CustomerSpecificReranker,
             GenerationParameters,
             ModelParameters,
             SearchCorpusParameters,
-            SearchReranker_CustomerReranker,
         )
         from vectara.client import Vectara
 
@@ -256,7 +312,7 @@ class QueriesClient:
             client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
-        response = client.queries.get_corpus(
+        response = client.queries.get_corpus_stream(
             corpus_key="string",
             query="string",
             search=SearchCorpusParameters(
@@ -267,7 +323,7 @@ class QueriesClient:
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=SearchReranker_CustomerReranker(),
+                reranker=CustomerSpecificReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -284,7 +340,6 @@ class QueriesClient:
                 citations=CitationParameters(),
                 enable_factual_consistency_score=True,
             ),
-            stream_response=True,
         )
         for chunk in response:
             yield chunk
@@ -292,7 +347,7 @@ class QueriesClient:
         with self._client_wrapper.httpx_client.stream(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
             method="POST",
-            json={"query": query, "search": search, "generation": generation, "stream_response": stream_response},
+            json={"query": query, "search": search, "generation": generation, "stream_response": True},
             request_options=request_options,
             omit=OMIT,
         ) as _response:
@@ -300,7 +355,7 @@ class QueriesClient:
                 for _text in _response.iter_lines():
                     if len(_text) == 0:
                         continue
-                    yield pydantic_v1.parse_obj_as(QueryFullResponse, json.loads(_text))  # type: ignore
+                    yield pydantic_v1.parse_obj_as(QueryStreamedResponse, json.loads(_text))  # type: ignore
                 return
             _response.read()
             if _response.status_code == 400:
@@ -315,20 +370,87 @@ class QueriesClient:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
+    def get_corpus(
+        self,
+        corpus_key: CorpusKey,
+        *,
+        query: str,
+        search: typing.Optional[SearchCorpusParameters] = OMIT,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> QueryFullResponse:
+        """
+        Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrival Augmented Generation.
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus to query.
+
+        query : str
+            The query to receive an answer on.
+
+        search : typing.Optional[SearchCorpusParameters]
+            The parameters to search one corpus.
+
+        generation : typing.Optional[GenerationParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        QueryFullResponse
+
+
+        Examples
+        --------
+        from vectara.client import Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
+            token="YOUR_TOKEN",
+        )
+        client.queries.get_corpus(
+            corpus_key="my-corpus",
+            query="query",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            method="POST",
+            json={"query": query, "search": search, "generation": generation, "stream_response": False},
+            request_options=request_options,
+            omit=OMIT,
+        )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(QueryFullResponse, _response.json())  # type: ignore
+        if _response.status_code == 400:
+            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
+        try:
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
 
 class AsyncQueriesClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def get_corpora(
+    async def get_corpora_stream(
         self,
         *,
         query: str,
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.AsyncIterator[QueryFullResponse]:
+    ) -> typing.AsyncIterator[QueryStreamedResponse]:
         """
         Perform a multi-purpose query that can retrieve relevant information from one or more corpora and generate a response using RAG.
 
@@ -341,27 +463,24 @@ class AsyncQueriesClient:
 
         generation : typing.Optional[GenerationParameters]
 
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.AsyncIterator[QueryFullResponse]
-            A response to a query.
+        typing.AsyncIterator[QueryStreamedResponse]
+
 
         Examples
         --------
         from vectara import (
             CitationParameters,
             ContextConfiguration,
+            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
-            SearchReranker_CustomerReranker,
         )
         from vectara.client import AsyncVectara
 
@@ -370,14 +489,14 @@ class AsyncQueriesClient:
             client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
-        response = await client.queries.get_corpora(
+        response = await client.queries.get_corpora_stream(
             query="string",
             search=SearchCorporaParameters(
                 corpora=[KeyedSearchCorpus()],
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=SearchReranker_CustomerReranker(),
+                reranker=CustomerSpecificReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -394,7 +513,6 @@ class AsyncQueriesClient:
                 citations=CitationParameters(),
                 enable_factual_consistency_score=True,
             ),
-            stream_response=True,
         )
         async for chunk in response:
             yield chunk
@@ -402,7 +520,7 @@ class AsyncQueriesClient:
         async with self._client_wrapper.httpx_client.stream(
             "v2/query",
             method="POST",
-            json={"query": query, "search": search, "generation": generation, "stream_response": stream_response},
+            json={"query": query, "search": search, "generation": generation, "stream_response": True},
             request_options=request_options,
             omit=OMIT,
         ) as _response:
@@ -410,7 +528,7 @@ class AsyncQueriesClient:
                 async for _text in _response.aiter_lines():
                     if len(_text) == 0:
                         continue
-                    yield pydantic_v1.parse_obj_as(QueryFullResponse, json.loads(_text))  # type: ignore
+                    yield pydantic_v1.parse_obj_as(QueryStreamedResponse, json.loads(_text))  # type: ignore
                 return
             await _response.aread()
             if _response.status_code == 400:
@@ -424,6 +542,70 @@ class AsyncQueriesClient:
             except JSONDecodeError:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def get_corpora(
+        self,
+        *,
+        query: str,
+        search: SearchCorporaParameters,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> QueryFullResponse:
+        """
+        Perform a multi-purpose query that can retrieve relevant information from one or more corpora and generate a response using RAG.
+
+        Parameters
+        ----------
+        query : str
+            The query to receive an answer on.
+
+        search : SearchCorporaParameters
+
+        generation : typing.Optional[GenerationParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        QueryFullResponse
+
+
+        Examples
+        --------
+        from vectara import SearchCorporaParameters
+        from vectara.client import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
+            token="YOUR_TOKEN",
+        )
+        await client.queries.get_corpora(
+            query="Am I allowed to bring pets to work?",
+            search=SearchCorporaParameters(),
+        )
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v2/query",
+            method="POST",
+            json={"query": query, "search": search, "generation": generation, "stream_response": False},
+            request_options=request_options,
+            omit=OMIT,
+        )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(QueryFullResponse, _response.json())  # type: ignore
+        if _response.status_code == 400:
+            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
+        try:
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
 
     async def search_corpus(
         self,
@@ -493,16 +675,15 @@ class AsyncQueriesClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def get_corpus(
+    async def get_corpus_stream(
         self,
         corpus_key: CorpusKey,
         *,
         query: str,
         search: typing.Optional[SearchCorpusParameters] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.AsyncIterator[QueryFullResponse]:
+    ) -> typing.AsyncIterator[QueryStreamedResponse]:
         """
         Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrival Augmented Generation.
 
@@ -519,26 +700,23 @@ class AsyncQueriesClient:
 
         generation : typing.Optional[GenerationParameters]
 
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.AsyncIterator[QueryFullResponse]
-            A response to a query.
+        typing.AsyncIterator[QueryStreamedResponse]
+
 
         Examples
         --------
         from vectara import (
             CitationParameters,
             ContextConfiguration,
+            CustomerSpecificReranker,
             GenerationParameters,
             ModelParameters,
             SearchCorpusParameters,
-            SearchReranker_CustomerReranker,
         )
         from vectara.client import AsyncVectara
 
@@ -547,7 +725,7 @@ class AsyncQueriesClient:
             client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
-        response = await client.queries.get_corpus(
+        response = await client.queries.get_corpus_stream(
             corpus_key="string",
             query="string",
             search=SearchCorpusParameters(
@@ -558,7 +736,7 @@ class AsyncQueriesClient:
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=SearchReranker_CustomerReranker(),
+                reranker=CustomerSpecificReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -575,7 +753,6 @@ class AsyncQueriesClient:
                 citations=CitationParameters(),
                 enable_factual_consistency_score=True,
             ),
-            stream_response=True,
         )
         async for chunk in response:
             yield chunk
@@ -583,7 +760,7 @@ class AsyncQueriesClient:
         async with self._client_wrapper.httpx_client.stream(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
             method="POST",
-            json={"query": query, "search": search, "generation": generation, "stream_response": stream_response},
+            json={"query": query, "search": search, "generation": generation, "stream_response": True},
             request_options=request_options,
             omit=OMIT,
         ) as _response:
@@ -591,7 +768,7 @@ class AsyncQueriesClient:
                 async for _text in _response.aiter_lines():
                     if len(_text) == 0:
                         continue
-                    yield pydantic_v1.parse_obj_as(QueryFullResponse, json.loads(_text))  # type: ignore
+                    yield pydantic_v1.parse_obj_as(QueryStreamedResponse, json.loads(_text))  # type: ignore
                 return
             await _response.aread()
             if _response.status_code == 400:
@@ -605,3 +782,71 @@ class AsyncQueriesClient:
             except JSONDecodeError:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def get_corpus(
+        self,
+        corpus_key: CorpusKey,
+        *,
+        query: str,
+        search: typing.Optional[SearchCorpusParameters] = OMIT,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> QueryFullResponse:
+        """
+        Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrival Augmented Generation.
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus to query.
+
+        query : str
+            The query to receive an answer on.
+
+        search : typing.Optional[SearchCorpusParameters]
+            The parameters to search one corpus.
+
+        generation : typing.Optional[GenerationParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        QueryFullResponse
+
+
+        Examples
+        --------
+        from vectara.client import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_key="YOUR_CLIENT_KEY",
+            token="YOUR_TOKEN",
+        )
+        await client.queries.get_corpus(
+            corpus_key="my-corpus",
+            query="query",
+        )
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            method="POST",
+            json={"query": query, "search": search, "generation": generation, "stream_response": False},
+            request_options=request_options,
+            omit=OMIT,
+        )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(QueryFullResponse, _response.json())  # type: ignore
+        if _response.status_code == 400:
+            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
+        try:
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)

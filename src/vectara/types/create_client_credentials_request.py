@@ -13,6 +13,7 @@ class CreateClientCredentialsRequest(pydantic_v1.BaseModel):
     Create an App Client which allows you to call Vectara APIs using OAuth 2.0 client credentials.
     """
 
+    type: typing.Literal["client_credentials"] = "client_credentials"
     name: str = pydantic_v1.Field()
     """
     Name of the client credentials.
