@@ -32,7 +32,7 @@ class ChatsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def list_chats(
+    def list(
         self,
         *,
         limit: typing.Optional[int] = None,
@@ -66,7 +66,7 @@ class ChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.chats.list_chats()
+        client.chats.list()
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/chats", method="GET", params={"limit": limit, "page_key": page_key}, request_options=request_options
@@ -83,7 +83,7 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_chat(
+    def create(
         self,
         *,
         query: str,
@@ -136,7 +136,7 @@ class ChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        response = client.chats.create_chat(
+        response = client.chats.create(
             query="string",
             search=SearchCorporaParameters(
                 corpora=[KeyedSearchCorpus()],
@@ -198,7 +198,7 @@ class ChatsClient:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def get_chat(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Chat:
+    def get(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Chat:
         """
         Get a chat summary to view what started the chat, but not subsequent turns.
 
@@ -223,7 +223,7 @@ class ChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.chats.get_chat(
+        client.chats.get(
             chat_id="chat_id",
         )
         """
@@ -242,7 +242,7 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def delete_chat(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    def delete(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Delete a chat and any turns it contains permanently.
 
@@ -266,7 +266,7 @@ class ChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.chats.delete_chat(
+        client.chats.delete(
             chat_id="chat_id",
         )
         """
@@ -285,7 +285,7 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def list_chat_turns(
+    def list_turns(
         self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> ListChatTurnsResponse:
         """
@@ -312,7 +312,7 @@ class ChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.chats.list_chat_turns(
+        client.chats.list_turns(
             chat_id="chat_id",
         )
         """
@@ -331,7 +331,7 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_chat_turn(
+    def create_turns(
         self,
         chat_id: str,
         *,
@@ -388,7 +388,7 @@ class ChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        response = client.chats.create_chat_turn(
+        response = client.chats.create_turns(
             chat_id="string",
             query="string",
             search=SearchCorporaParameters(
@@ -451,9 +451,7 @@ class ChatsClient:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def get_chat_turn(
-        self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> Turn:
+    def get_turn(self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Turn:
         """
         Get a specific turn from a chat, which is a message and response pair from the conversation.
 
@@ -481,7 +479,7 @@ class ChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.chats.get_chat_turn(
+        client.chats.get_turn(
             chat_id="chat_id",
             turn_id="turn_id",
         )
@@ -503,7 +501,7 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def delete_chat_turn(
+    def delete_turn(
         self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
@@ -532,7 +530,7 @@ class ChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.chats.delete_chat_turn(
+        client.chats.delete_turn(
             chat_id="chat_id",
             turn_id="turn_id",
         )
@@ -554,7 +552,7 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def update_chat_turn(
+    def update_turn(
         self,
         chat_id: str,
         turn_id: str,
@@ -594,7 +592,7 @@ class ChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.chats.update_chat_turn(
+        client.chats.update_turn(
             chat_id="chat_id",
             turn_id="turn_id",
         )
@@ -623,7 +621,7 @@ class AsyncChatsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def list_chats(
+    async def list(
         self,
         *,
         limit: typing.Optional[int] = None,
@@ -657,7 +655,7 @@ class AsyncChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.chats.list_chats()
+        await client.chats.list()
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/chats", method="GET", params={"limit": limit, "page_key": page_key}, request_options=request_options
@@ -674,7 +672,7 @@ class AsyncChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_chat(
+    async def create(
         self,
         *,
         query: str,
@@ -727,7 +725,7 @@ class AsyncChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        response = await client.chats.create_chat(
+        response = await client.chats.create(
             query="string",
             search=SearchCorporaParameters(
                 corpora=[KeyedSearchCorpus()],
@@ -789,7 +787,7 @@ class AsyncChatsClient:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def get_chat(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Chat:
+    async def get(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Chat:
         """
         Get a chat summary to view what started the chat, but not subsequent turns.
 
@@ -814,7 +812,7 @@ class AsyncChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.chats.get_chat(
+        await client.chats.get(
             chat_id="chat_id",
         )
         """
@@ -833,7 +831,7 @@ class AsyncChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def delete_chat(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    async def delete(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Delete a chat and any turns it contains permanently.
 
@@ -857,7 +855,7 @@ class AsyncChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.chats.delete_chat(
+        await client.chats.delete(
             chat_id="chat_id",
         )
         """
@@ -876,7 +874,7 @@ class AsyncChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def list_chat_turns(
+    async def list_turns(
         self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> ListChatTurnsResponse:
         """
@@ -903,7 +901,7 @@ class AsyncChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.chats.list_chat_turns(
+        await client.chats.list_turns(
             chat_id="chat_id",
         )
         """
@@ -922,7 +920,7 @@ class AsyncChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_chat_turn(
+    async def create_turns(
         self,
         chat_id: str,
         *,
@@ -979,7 +977,7 @@ class AsyncChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        response = await client.chats.create_chat_turn(
+        response = await client.chats.create_turns(
             chat_id="string",
             query="string",
             search=SearchCorporaParameters(
@@ -1042,7 +1040,7 @@ class AsyncChatsClient:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def get_chat_turn(
+    async def get_turn(
         self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> Turn:
         """
@@ -1072,7 +1070,7 @@ class AsyncChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.chats.get_chat_turn(
+        await client.chats.get_turn(
             chat_id="chat_id",
             turn_id="turn_id",
         )
@@ -1094,7 +1092,7 @@ class AsyncChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def delete_chat_turn(
+    async def delete_turn(
         self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
@@ -1123,7 +1121,7 @@ class AsyncChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.chats.delete_chat_turn(
+        await client.chats.delete_turn(
             chat_id="chat_id",
             turn_id="turn_id",
         )
@@ -1145,7 +1143,7 @@ class AsyncChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def update_chat_turn(
+    async def update_turn(
         self,
         chat_id: str,
         turn_id: str,
@@ -1185,7 +1183,7 @@ class AsyncChatsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.chats.update_chat_turn(
+        await client.chats.update_turn(
             chat_id="chat_id",
             turn_id="turn_id",
         )

@@ -16,7 +16,7 @@ class EncodersClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def list_encoders(
+    def list(
         self,
         *,
         filter: typing.Optional[str] = None,
@@ -54,7 +54,7 @@ class EncodersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.encoders.list_encoders(
+        client.encoders.list(
             filter="vectara.*",
         )
         """
@@ -79,7 +79,7 @@ class AsyncEncodersClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def list_encoders(
+    async def list(
         self,
         *,
         filter: typing.Optional[str] = None,
@@ -117,7 +117,7 @@ class AsyncEncodersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.encoders.list_encoders(
+        await client.encoders.list(
             filter="vectara.*",
         )
         """

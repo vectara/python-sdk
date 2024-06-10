@@ -16,7 +16,7 @@ class RerankersClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def list_rerankers(
+    def list(
         self,
         *,
         filter: typing.Optional[str] = None,
@@ -54,7 +54,7 @@ class RerankersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.rerankers.list_rerankers(
+        client.rerankers.list(
             filter="vectara.*",
         )
         """
@@ -79,7 +79,7 @@ class AsyncRerankersClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def list_rerankers(
+    async def list(
         self,
         *,
         filter: typing.Optional[str] = None,
@@ -117,7 +117,7 @@ class AsyncRerankersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.rerankers.list_rerankers(
+        await client.rerankers.list(
             filter="vectara.*",
         )
         """

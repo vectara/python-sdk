@@ -13,7 +13,7 @@ from .documents.client import AsyncDocumentsClient, DocumentsClient
 from .encoders.client import AsyncEncodersClient, EncodersClient
 from .environment import VectaraEnvironment
 from .jobs.client import AsyncJobsClient, JobsClient
-from .large_language_models.client import AsyncLargeLanguageModelsClient, LargeLanguageModelsClient
+from .llms.client import AsyncLlmsClient, LlmsClient
 from .queries.client import AsyncQueriesClient, QueriesClient
 from .rerankers.client import AsyncRerankersClient, RerankersClient
 from .upload.client import AsyncUploadClient, UploadClient
@@ -87,7 +87,7 @@ class Vectara:
         self.upload = UploadClient(client_wrapper=self._client_wrapper)
         self.documents = DocumentsClient(client_wrapper=self._client_wrapper)
         self.chats = ChatsClient(client_wrapper=self._client_wrapper)
-        self.large_language_models = LargeLanguageModelsClient(client_wrapper=self._client_wrapper)
+        self.llms = LlmsClient(client_wrapper=self._client_wrapper)
         self.encoders = EncodersClient(client_wrapper=self._client_wrapper)
         self.rerankers = RerankersClient(client_wrapper=self._client_wrapper)
         self.jobs = JobsClient(client_wrapper=self._client_wrapper)
@@ -163,7 +163,7 @@ class AsyncVectara:
         self.upload = AsyncUploadClient(client_wrapper=self._client_wrapper)
         self.documents = AsyncDocumentsClient(client_wrapper=self._client_wrapper)
         self.chats = AsyncChatsClient(client_wrapper=self._client_wrapper)
-        self.large_language_models = AsyncLargeLanguageModelsClient(client_wrapper=self._client_wrapper)
+        self.llms = AsyncLlmsClient(client_wrapper=self._client_wrapper)
         self.encoders = AsyncEncodersClient(client_wrapper=self._client_wrapper)
         self.rerankers = AsyncRerankersClient(client_wrapper=self._client_wrapper)
         self.jobs = AsyncJobsClient(client_wrapper=self._client_wrapper)

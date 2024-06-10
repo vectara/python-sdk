@@ -26,7 +26,7 @@ class UsersClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def list_users(
+    def list(
         self,
         *,
         limit: typing.Optional[int] = None,
@@ -60,7 +60,7 @@ class UsersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.users.list_users()
+        client.users.list()
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/users", method="GET", params={"limit": limit, "page_key": page_key}, request_options=request_options
@@ -75,7 +75,7 @@ class UsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_user(
+    def create(
         self,
         *,
         email: str,
@@ -117,7 +117,7 @@ class UsersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.users.create_user(
+        client.users.create(
             email="email",
         )
         """
@@ -140,7 +140,7 @@ class UsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def get_user(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> User:
+    def get(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> User:
         """
         Get a user and view details like the email, username, and roles associated with a user.
 
@@ -166,7 +166,7 @@ class UsersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.users.get_user(
+        client.users.get(
             username="username",
         )
         """
@@ -185,7 +185,7 @@ class UsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def delete_user(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    def delete(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Delete a user from the account.
 
@@ -210,7 +210,7 @@ class UsersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.users.delete_user(
+        client.users.delete(
             username="username",
         )
         """
@@ -229,7 +229,7 @@ class UsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def update_user(
+    def update(
         self,
         username: str,
         *,
@@ -268,7 +268,7 @@ class UsersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.users.update_user(
+        client.users.update(
             username="username",
         )
         """
@@ -291,7 +291,7 @@ class UsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def reset_user_password(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    def reset_password(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Reset the password for a user.
 
@@ -316,7 +316,7 @@ class UsersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.users.reset_user_password(
+        client.users.reset_password(
             username="username",
         )
         """
@@ -340,7 +340,7 @@ class AsyncUsersClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def list_users(
+    async def list(
         self,
         *,
         limit: typing.Optional[int] = None,
@@ -374,7 +374,7 @@ class AsyncUsersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.users.list_users()
+        await client.users.list()
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/users", method="GET", params={"limit": limit, "page_key": page_key}, request_options=request_options
@@ -389,7 +389,7 @@ class AsyncUsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_user(
+    async def create(
         self,
         *,
         email: str,
@@ -431,7 +431,7 @@ class AsyncUsersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.users.create_user(
+        await client.users.create(
             email="email",
         )
         """
@@ -454,7 +454,7 @@ class AsyncUsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def get_user(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> User:
+    async def get(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> User:
         """
         Get a user and view details like the email, username, and roles associated with a user.
 
@@ -480,7 +480,7 @@ class AsyncUsersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.users.get_user(
+        await client.users.get(
             username="username",
         )
         """
@@ -499,7 +499,7 @@ class AsyncUsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def delete_user(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    async def delete(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Delete a user from the account.
 
@@ -524,7 +524,7 @@ class AsyncUsersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.users.delete_user(
+        await client.users.delete(
             username="username",
         )
         """
@@ -543,7 +543,7 @@ class AsyncUsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def update_user(
+    async def update(
         self,
         username: str,
         *,
@@ -582,7 +582,7 @@ class AsyncUsersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.users.update_user(
+        await client.users.update(
             username="username",
         )
         """
@@ -605,9 +605,7 @@ class AsyncUsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def reset_user_password(
-        self, username: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> None:
+    async def reset_password(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Reset the password for a user.
 
@@ -632,7 +630,7 @@ class AsyncUsersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.users.reset_user_password(
+        await client.users.reset_password(
             username="username",
         )
         """

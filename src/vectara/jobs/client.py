@@ -19,7 +19,7 @@ class JobsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def get_job(self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Job:
+    def get(self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Job:
         """
         Get a job by a specific ID. Jobs are backgrouond processes like replacing the filterable metadata attributes.
 
@@ -44,7 +44,7 @@ class JobsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.jobs.get_job(
+        client.jobs.get(
             job_id="job_id",
         )
         """
@@ -68,7 +68,7 @@ class AsyncJobsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def get_job(self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Job:
+    async def get(self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Job:
         """
         Get a job by a specific ID. Jobs are backgrouond processes like replacing the filterable metadata attributes.
 
@@ -93,7 +93,7 @@ class AsyncJobsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.jobs.get_job(
+        await client.jobs.get(
             job_id="job_id",
         )
         """

@@ -12,11 +12,11 @@ from ..types.error import Error
 from ..types.list_ll_ms_response import ListLlMsResponse
 
 
-class LargeLanguageModelsClient:
+class LlmsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def list_ll_ms(
+    def list(
         self,
         *,
         filter: typing.Optional[str] = None,
@@ -55,7 +55,7 @@ class LargeLanguageModelsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.large_language_models.list_ll_ms()
+        client.llms.list()
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/llms",
@@ -74,11 +74,11 @@ class LargeLanguageModelsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
 
-class AsyncLargeLanguageModelsClient:
+class AsyncLlmsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def list_ll_ms(
+    async def list(
         self,
         *,
         filter: typing.Optional[str] = None,
@@ -117,7 +117,7 @@ class AsyncLargeLanguageModelsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.large_language_models.list_ll_ms()
+        await client.llms.list()
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/llms",

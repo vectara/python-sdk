@@ -29,7 +29,7 @@ class QueriesClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def query(
+    def get_corpora(
         self,
         *,
         query: str,
@@ -78,7 +78,7 @@ class QueriesClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        response = client.queries.query(
+        response = client.queries.get_corpora(
             query="string",
             search=SearchCorporaParameters(
                 corpora=[KeyedSearchCorpus()],
@@ -200,7 +200,7 @@ class QueriesClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def query_corpus(
+    def get_corpus(
         self,
         corpus_key: CorpusKey,
         *,
@@ -253,7 +253,7 @@ class QueriesClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        response = client.queries.query_corpus(
+        response = client.queries.get_corpus(
             corpus_key="string",
             query="string",
             search=SearchCorpusParameters(
@@ -317,7 +317,7 @@ class AsyncQueriesClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def query(
+    async def get_corpora(
         self,
         *,
         query: str,
@@ -366,7 +366,7 @@ class AsyncQueriesClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        response = await client.queries.query(
+        response = await client.queries.get_corpora(
             query="string",
             search=SearchCorporaParameters(
                 corpora=[KeyedSearchCorpus()],
@@ -488,7 +488,7 @@ class AsyncQueriesClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def query_corpus(
+    async def get_corpus(
         self,
         corpus_key: CorpusKey,
         *,
@@ -541,7 +541,7 @@ class AsyncQueriesClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        response = await client.queries.query_corpus(
+        response = await client.queries.get_corpus(
             corpus_key="string",
             query="string",
             search=SearchCorpusParameters(

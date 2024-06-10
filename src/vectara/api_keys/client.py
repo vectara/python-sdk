@@ -25,7 +25,7 @@ class ApiKeysClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def list_api_keys(
+    def list(
         self,
         *,
         limit: typing.Optional[int] = None,
@@ -57,7 +57,7 @@ class ApiKeysClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.api_keys.list_api_keys()
+        client.api_keys.list()
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/api_keys", method="GET", params={"limit": limit, "page_key": page_key}, request_options=request_options
@@ -74,7 +74,7 @@ class ApiKeysClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_api_key(
+    def create(
         self,
         *,
         name: str,
@@ -114,7 +114,7 @@ class ApiKeysClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.api_keys.create_api_key(
+        client.api_keys.create(
             name="name",
             api_key_role="serving",
         )
@@ -138,7 +138,7 @@ class ApiKeysClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def get_api_key(self, api_key_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> ApiKey:
+    def get(self, api_key_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> ApiKey:
         """
         Parameters
         ----------
@@ -161,7 +161,7 @@ class ApiKeysClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.api_keys.get_api_key(
+        client.api_keys.get(
             api_key_id="api_key_id",
         )
         """
@@ -178,7 +178,7 @@ class ApiKeysClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def delete_api_key(self, api_key_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    def delete(self, api_key_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Delete API keys to help you manage the security and lifecycle of API keys in your application.
 
@@ -202,7 +202,7 @@ class ApiKeysClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.api_keys.delete_api_key(
+        client.api_keys.delete(
             api_key_id="api_key_id",
         )
         """
@@ -219,7 +219,7 @@ class ApiKeysClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def update_api_key(
+    def update(
         self,
         api_key_id: str,
         *,
@@ -253,7 +253,7 @@ class ApiKeysClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.api_keys.update_api_key(
+        client.api_keys.update(
             api_key_id="api_key_id",
         )
         """
@@ -279,7 +279,7 @@ class AsyncApiKeysClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def list_api_keys(
+    async def list(
         self,
         *,
         limit: typing.Optional[int] = None,
@@ -311,7 +311,7 @@ class AsyncApiKeysClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.api_keys.list_api_keys()
+        await client.api_keys.list()
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/api_keys", method="GET", params={"limit": limit, "page_key": page_key}, request_options=request_options
@@ -328,7 +328,7 @@ class AsyncApiKeysClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_api_key(
+    async def create(
         self,
         *,
         name: str,
@@ -368,7 +368,7 @@ class AsyncApiKeysClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.api_keys.create_api_key(
+        await client.api_keys.create(
             name="name",
             api_key_role="serving",
         )
@@ -392,7 +392,7 @@ class AsyncApiKeysClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def get_api_key(self, api_key_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> ApiKey:
+    async def get(self, api_key_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> ApiKey:
         """
         Parameters
         ----------
@@ -415,7 +415,7 @@ class AsyncApiKeysClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.api_keys.get_api_key(
+        await client.api_keys.get(
             api_key_id="api_key_id",
         )
         """
@@ -432,7 +432,7 @@ class AsyncApiKeysClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def delete_api_key(self, api_key_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    async def delete(self, api_key_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Delete API keys to help you manage the security and lifecycle of API keys in your application.
 
@@ -456,7 +456,7 @@ class AsyncApiKeysClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.api_keys.delete_api_key(
+        await client.api_keys.delete(
             api_key_id="api_key_id",
         )
         """
@@ -473,7 +473,7 @@ class AsyncApiKeysClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def update_api_key(
+    async def update(
         self,
         api_key_id: str,
         *,
@@ -507,7 +507,7 @@ class AsyncApiKeysClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.api_keys.update_api_key(
+        await client.api_keys.update(
             api_key_id="api_key_id",
         )
         """

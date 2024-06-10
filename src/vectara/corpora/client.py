@@ -29,7 +29,7 @@ class CorporaClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def list_corpora(
+    def list(
         self,
         *,
         limit: typing.Optional[int] = None,
@@ -68,7 +68,7 @@ class CorporaClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.corpora.list_corpora()
+        client.corpora.list()
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/corpora",
@@ -86,7 +86,7 @@ class CorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_corpus(
+    def create(
         self,
         *,
         key: CorpusKey,
@@ -149,7 +149,7 @@ class CorporaClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.corpora.create_corpus(
+        client.corpora.create(
             key="my-corpus",
         )
         """
@@ -181,7 +181,7 @@ class CorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def get_corpus(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> Corpus:
+    def get(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> Corpus:
         """
         Get metadata about a corpus. This operation is not a method of searching a corpus.
 
@@ -206,7 +206,7 @@ class CorporaClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.corpora.get_corpus(
+        client.corpora.get(
             corpus_key="my-corpus",
         )
         """
@@ -225,7 +225,7 @@ class CorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def delete_corpus(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    def delete(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Delete a corpus and all the data that it contains.
 
@@ -249,7 +249,7 @@ class CorporaClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.corpora.delete_corpus(
+        client.corpora.delete(
             corpus_key="my-corpus",
         )
         """
@@ -268,7 +268,7 @@ class CorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def update_corpus(
+    def update(
         self,
         corpus_key: CorpusKey,
         *,
@@ -302,7 +302,7 @@ class CorporaClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.corpora.update_corpus(
+        client.corpora.update(
             corpus_key="my-corpus",
         )
         """
@@ -325,7 +325,7 @@ class CorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def reset_corpus(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    def reset(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Resets a corpus, which removes all documents and data from the specified corpus, while keeping the corpus itself.
 
@@ -349,7 +349,7 @@ class CorporaClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.corpora.reset_corpus(
+        client.corpora.reset(
             corpus_key="my-corpus",
         )
         """
@@ -442,7 +442,7 @@ class AsyncCorporaClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def list_corpora(
+    async def list(
         self,
         *,
         limit: typing.Optional[int] = None,
@@ -481,7 +481,7 @@ class AsyncCorporaClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.corpora.list_corpora()
+        await client.corpora.list()
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/corpora",
@@ -499,7 +499,7 @@ class AsyncCorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_corpus(
+    async def create(
         self,
         *,
         key: CorpusKey,
@@ -562,7 +562,7 @@ class AsyncCorporaClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.corpora.create_corpus(
+        await client.corpora.create(
             key="my-corpus",
         )
         """
@@ -594,9 +594,7 @@ class AsyncCorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def get_corpus(
-        self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> Corpus:
+    async def get(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> Corpus:
         """
         Get metadata about a corpus. This operation is not a method of searching a corpus.
 
@@ -621,7 +619,7 @@ class AsyncCorporaClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.corpora.get_corpus(
+        await client.corpora.get(
             corpus_key="my-corpus",
         )
         """
@@ -640,9 +638,7 @@ class AsyncCorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def delete_corpus(
-        self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> None:
+    async def delete(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Delete a corpus and all the data that it contains.
 
@@ -666,7 +662,7 @@ class AsyncCorporaClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.corpora.delete_corpus(
+        await client.corpora.delete(
             corpus_key="my-corpus",
         )
         """
@@ -685,7 +681,7 @@ class AsyncCorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def update_corpus(
+    async def update(
         self,
         corpus_key: CorpusKey,
         *,
@@ -719,7 +715,7 @@ class AsyncCorporaClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.corpora.update_corpus(
+        await client.corpora.update(
             corpus_key="my-corpus",
         )
         """
@@ -742,9 +738,7 @@ class AsyncCorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def reset_corpus(
-        self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> None:
+    async def reset(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Resets a corpus, which removes all documents and data from the specified corpus, while keeping the corpus itself.
 
@@ -768,7 +762,7 @@ class AsyncCorporaClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.corpora.reset_corpus(
+        await client.corpora.reset(
             corpus_key="my-corpus",
         )
         """

@@ -20,7 +20,7 @@ class DocumentsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def list_corpus_documents(
+    def list(
         self,
         corpus_key: CorpusKey,
         *,
@@ -56,7 +56,7 @@ class DocumentsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.documents.list_corpus_documents(
+        client.documents.list(
             corpus_key="my-corpus",
         )
         """
@@ -78,7 +78,7 @@ class DocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def delete_corpus_document(
+    def delete(
         self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
@@ -106,7 +106,7 @@ class DocumentsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.documents.delete_corpus_document(
+        client.documents.delete(
             corpus_key="my-corpus",
             document_id="document_id",
         )
@@ -133,7 +133,7 @@ class AsyncDocumentsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def list_corpus_documents(
+    async def list(
         self,
         corpus_key: CorpusKey,
         *,
@@ -169,7 +169,7 @@ class AsyncDocumentsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.documents.list_corpus_documents(
+        await client.documents.list(
             corpus_key="my-corpus",
         )
         """
@@ -191,7 +191,7 @@ class AsyncDocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def delete_corpus_document(
+    async def delete(
         self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
@@ -219,7 +219,7 @@ class AsyncDocumentsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.documents.delete_corpus_document(
+        await client.documents.delete(
             corpus_key="my-corpus",
             document_id="document_id",
         )

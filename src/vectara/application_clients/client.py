@@ -24,7 +24,7 @@ class ApplicationClientsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def list_app_client(
+    def list(
         self,
         *,
         limit: typing.Optional[int] = None,
@@ -60,7 +60,7 @@ class ApplicationClientsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.application_clients.list_app_client()
+        client.application_clients.list()
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/app_clients",
@@ -80,9 +80,7 @@ class ApplicationClientsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def get_app_client(
-        self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AppClient:
+    def get(self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> AppClient:
         """
         Parameters
         ----------
@@ -105,7 +103,7 @@ class ApplicationClientsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.application_clients.get_app_client(
+        client.application_clients.get(
             app_client_id="app_client_id",
         )
         """
@@ -122,7 +120,7 @@ class ApplicationClientsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def delete_app_client(self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    def delete(self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Parameters
         ----------
@@ -144,7 +142,7 @@ class ApplicationClientsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.application_clients.delete_app_client(
+        client.application_clients.delete(
             app_client_id="app_client_id",
         )
         """
@@ -161,7 +159,7 @@ class ApplicationClientsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def update_app_client(
+    def update(
         self,
         app_client_id: str,
         *,
@@ -197,7 +195,7 @@ class ApplicationClientsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        client.application_clients.update_app_client(
+        client.application_clients.update(
             app_client_id="app_client_id",
         )
         """
@@ -223,7 +221,7 @@ class AsyncApplicationClientsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def list_app_client(
+    async def list(
         self,
         *,
         limit: typing.Optional[int] = None,
@@ -259,7 +257,7 @@ class AsyncApplicationClientsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.application_clients.list_app_client()
+        await client.application_clients.list()
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/app_clients",
@@ -279,9 +277,7 @@ class AsyncApplicationClientsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def get_app_client(
-        self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> AppClient:
+    async def get(self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> AppClient:
         """
         Parameters
         ----------
@@ -304,7 +300,7 @@ class AsyncApplicationClientsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.application_clients.get_app_client(
+        await client.application_clients.get(
             app_client_id="app_client_id",
         )
         """
@@ -321,9 +317,7 @@ class AsyncApplicationClientsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def delete_app_client(
-        self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> None:
+    async def delete(self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Parameters
         ----------
@@ -345,7 +339,7 @@ class AsyncApplicationClientsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.application_clients.delete_app_client(
+        await client.application_clients.delete(
             app_client_id="app_client_id",
         )
         """
@@ -362,7 +356,7 @@ class AsyncApplicationClientsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def update_app_client(
+    async def update(
         self,
         app_client_id: str,
         *,
@@ -398,7 +392,7 @@ class AsyncApplicationClientsClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        await client.application_clients.update_app_client(
+        await client.application_clients.update(
             app_client_id="app_client_id",
         )
         """
