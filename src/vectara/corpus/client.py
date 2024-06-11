@@ -564,10 +564,10 @@ class CorpusClient:
         from vectara import (
             CitationParameters,
             ContextConfiguration,
+            CustomerSpecificReranker,
             GenerationParameters,
             ModelParameters,
             SearchCorpusParameters,
-            SearchReranker_CustomerReranker,
         )
         from vectara.client import Vectara
 
@@ -585,7 +585,7 @@ class CorpusClient:
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=SearchReranker_CustomerReranker(),
+                reranker=CustomerSpecificReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -1234,10 +1234,10 @@ class AsyncCorpusClient:
         from vectara import (
             CitationParameters,
             ContextConfiguration,
+            CustomerSpecificReranker,
             GenerationParameters,
             ModelParameters,
             SearchCorpusParameters,
-            SearchReranker_CustomerReranker,
         )
         from vectara.client import AsyncVectara
 
@@ -1255,7 +1255,7 @@ class AsyncCorpusClient:
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=SearchReranker_CustomerReranker(),
+                reranker=CustomerSpecificReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",

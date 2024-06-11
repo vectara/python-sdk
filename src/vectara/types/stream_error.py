@@ -12,6 +12,7 @@ class StreamError(pydantic_v1.BaseModel):
     Event signaling there was an error with the request.
     """
 
+    type: typing.Literal["error"] = "error"
     messages: typing.Optional[typing.List[str]] = pydantic_v1.Field(default=None)
     """
     The error messages.
