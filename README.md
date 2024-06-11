@@ -32,7 +32,7 @@ client = AsyncVectara(
 
 ## Authentication
 
-To use OAuth2 authentication (recommended), use `client_id` and `client_secret`. 
+To use OAuth2 authentication (recommended), use `client_id` and `client_secret`:
 
 ```python
 from vectara.client import Vectara
@@ -43,7 +43,7 @@ client = Vectara(
 )
 ```
 
-To use an API key, use `api_key`. 
+To use an API key, use `api_key`:
 
 ```python
 from vectara.client import Vectara
@@ -54,13 +54,9 @@ client = Vectara(
 ```
 
 ## Exception Handling
-All errors thrown by the SDK will be subclasses of [`ApiError`](./src/vectara/core/api_error.py).
+All errors thrown by the SDK will be subclasses of [`ApiError`](./src/vectara/core/api_error.py):
 
 ```python
-import corpora
-
-...
-
 try:
     client.corpora.list_corpora(...)
 except corpora.core.ApiError as e: # Handle all errors
@@ -69,7 +65,7 @@ except corpora.core.ApiError as e: # Handle all errors
 ```
 
 ## Streaming
-The SDK supports streaming endpoints. To take advantage of this feature for queries or chats, look for the `_stream` suffix. 
+The SDK supports streaming endpoints. To take advantage of this feature for queries or chats, look for the `_stream` suffix:
 
 ```python
 from vectara import (
@@ -98,7 +94,7 @@ response = client.chats.create_stream(
     generation=GenerationParameters(
         prompt_name="vectara-summary-ext-v1.2.0",
         max_used_search_results=10,
-        prompt_text="[\n  {\"role\": \"system\", \"content\": \"You are a helpful search assistant.\"},\n  #foreach ($qResult in $vectaraQueryResults)\n     {\"role\": \"user\", \"content\": \"Given the $vectaraIdxWord[$foreach.index] search result.\"},\n     {\"role\": \"assistant\", \"content\": \"${qResult.getText()}\" },\n  #end\n  {\"role\": \"user\", \"content\": \"Generate a summary for the query '\''${vectaraQuery}'\'' based on the above results.\"}\n]\n",
+        prompt_text="[\n ... {\"role\": \"user\", \"content\": \"Generate a summary for the query '\''${vectaraQuery}'\'' based on the above results.\"} ... \n] \n",
         max_response_characters=300,
         response_language="auto",
         model_parameters=ModelParameters(
@@ -123,7 +119,6 @@ for item in response:
 Paginated requests will return a `SyncPager` or `AsyncPager`, which can be used as generators for the underlying object. For example, `corpora.list` will return a generator over `Corpus` and handle the pagination behind the scenes:
 
 ```python
-...
 for corpus in client.corpora.list():
     print(corpus)
 ```
@@ -131,7 +126,6 @@ for corpus in client.corpora.list():
 you could also iterate page-by-page:
 
 ```python
-...
 for page in client.corpora.list().iter_pages():
     print(page.items)
 ```
@@ -139,7 +133,6 @@ for page in client.corpora.list().iter_pages():
 or manually: 
 
 ```python
-...
 pager = client.corpora.list()
 # First page
 print(pager.items)
