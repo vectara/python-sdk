@@ -62,7 +62,6 @@ class UploadClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.upload.file(
@@ -132,7 +131,6 @@ class AsyncUploadClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.upload.file(

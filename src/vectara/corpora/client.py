@@ -67,7 +67,6 @@ class CorporaClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.corpora.list()
@@ -159,7 +158,6 @@ class CorporaClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.corpora.create(
@@ -217,7 +215,6 @@ class CorporaClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.corpora.get(
@@ -261,7 +258,6 @@ class CorporaClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.corpora.delete(
@@ -315,7 +311,6 @@ class CorporaClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.corpora.update(
@@ -363,7 +358,6 @@ class CorporaClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.corpora.reset(
@@ -422,7 +416,6 @@ class CorporaClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.corpora.replace_filter_attributes(
@@ -497,7 +490,6 @@ class AsyncCorporaClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.corpora.list()
@@ -589,7 +581,6 @@ class AsyncCorporaClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.corpora.create(
@@ -647,7 +638,6 @@ class AsyncCorporaClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.corpora.get(
@@ -691,7 +681,6 @@ class AsyncCorporaClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.corpora.delete(
@@ -745,7 +734,6 @@ class AsyncCorporaClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.corpora.update(
@@ -793,7 +781,6 @@ class AsyncCorporaClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.corpora.reset(
@@ -852,7 +839,6 @@ class AsyncCorporaClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.corpora.replace_filter_attributes(

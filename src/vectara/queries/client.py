@@ -73,7 +73,6 @@ class QueriesClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         response = client.queries.get_corpora_stream(
@@ -165,7 +164,6 @@ class QueriesClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.queries.get_corpora(
@@ -234,7 +232,6 @@ class QueriesClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.queries.search_corpus(
@@ -309,7 +306,6 @@ class QueriesClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         response = client.queries.get_corpus_stream(
@@ -409,7 +405,6 @@ class QueriesClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.queries.get_corpus(
@@ -486,7 +481,6 @@ class AsyncQueriesClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         response = await client.queries.get_corpora_stream(
@@ -578,7 +572,6 @@ class AsyncQueriesClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.queries.get_corpora(
@@ -647,7 +640,6 @@ class AsyncQueriesClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.queries.search_corpus(
@@ -722,7 +714,6 @@ class AsyncQueriesClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         response = await client.queries.get_corpus_stream(
@@ -822,7 +813,6 @@ class AsyncQueriesClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.queries.get_corpus(

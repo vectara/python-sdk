@@ -12,13 +12,11 @@ class BaseClientWrapper:
         self,
         *,
         api_key: str,
-        client_key: str,
         token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         base_url: str,
         timeout: typing.Optional[float] = None,
     ):
         self._api_key = api_key
-        self._client_key = client_key
         self._token = token
         self._base_url = base_url
         self._timeout = timeout
@@ -30,7 +28,6 @@ class BaseClientWrapper:
             "X-Fern-SDK-Version": "0.0.0",
         }
         headers["x-api-key"] = self._api_key
-        headers["x-client-key"] = self._client_key
         token = self._get_token()
         if token is not None:
             headers["Authorization"] = f"Bearer {token}"
@@ -54,13 +51,12 @@ class SyncClientWrapper(BaseClientWrapper):
         self,
         *,
         api_key: str,
-        client_key: str,
         token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         base_url: str,
         timeout: typing.Optional[float] = None,
         httpx_client: httpx.Client,
     ):
-        super().__init__(api_key=api_key, client_key=client_key, token=token, base_url=base_url, timeout=timeout)
+        super().__init__(api_key=api_key, token=token, base_url=base_url, timeout=timeout)
         self.httpx_client = HttpClient(
             httpx_client=httpx_client,
             base_headers=self.get_headers(),
@@ -74,13 +70,12 @@ class AsyncClientWrapper(BaseClientWrapper):
         self,
         *,
         api_key: str,
-        client_key: str,
         token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         base_url: str,
         timeout: typing.Optional[float] = None,
         httpx_client: httpx.AsyncClient,
     ):
-        super().__init__(api_key=api_key, client_key=client_key, token=token, base_url=base_url, timeout=timeout)
+        super().__init__(api_key=api_key, token=token, base_url=base_url, timeout=timeout)
         self.httpx_client = AsyncHttpClient(
             httpx_client=httpx_client,
             base_headers=self.get_headers(),

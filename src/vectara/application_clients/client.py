@@ -58,7 +58,6 @@ class ApplicationClientsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.application_clients.list()
@@ -102,7 +101,6 @@ class ApplicationClientsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.application_clients.get(
@@ -142,7 +140,6 @@ class ApplicationClientsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.application_clients.delete(
@@ -196,7 +193,6 @@ class ApplicationClientsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         client.application_clients.update(
@@ -259,7 +255,6 @@ class AsyncApplicationClientsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.application_clients.list()
@@ -303,7 +298,6 @@ class AsyncApplicationClientsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.application_clients.get(
@@ -343,7 +337,6 @@ class AsyncApplicationClientsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.application_clients.delete(
@@ -397,7 +390,6 @@ class AsyncApplicationClientsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_key="YOUR_CLIENT_KEY",
             token="YOUR_TOKEN",
         )
         await client.application_clients.update(

@@ -40,7 +40,6 @@ class Vectara:
 
 
     api_key : str
-    client_key : str
     token : typing.Optional[typing.Union[str, typing.Callable[[], str]]]
     timeout : typing.Optional[float]
         The timeout to be used, in seconds, for requests. By default the timeout is 60 seconds, unless a custom httpx client is used, in which case this default is not enforced.
@@ -57,7 +56,6 @@ class Vectara:
 
     client = Vectara(
         api_key="YOUR_API_KEY",
-        client_key="YOUR_CLIENT_KEY",
         token="YOUR_TOKEN",
     )
     """
@@ -68,7 +66,6 @@ class Vectara:
         base_url: typing.Optional[str] = None,
         environment: VectaraEnvironment = VectaraEnvironment.DEFAULT,
         api_key: str,
-        client_key: str,
         token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         timeout: typing.Optional[float] = None,
         follow_redirects: typing.Optional[bool] = True,
@@ -78,7 +75,6 @@ class Vectara:
         self._client_wrapper = SyncClientWrapper(
             base_url=_get_base_url(base_url=base_url, environment=environment),
             api_key=api_key,
-            client_key=client_key,
             token=token,
             httpx_client=httpx_client
             if httpx_client is not None
@@ -121,7 +117,6 @@ class AsyncVectara:
 
 
     api_key : str
-    client_key : str
     token : typing.Optional[typing.Union[str, typing.Callable[[], str]]]
     timeout : typing.Optional[float]
         The timeout to be used, in seconds, for requests. By default the timeout is 60 seconds, unless a custom httpx client is used, in which case this default is not enforced.
@@ -138,7 +133,6 @@ class AsyncVectara:
 
     client = AsyncVectara(
         api_key="YOUR_API_KEY",
-        client_key="YOUR_CLIENT_KEY",
         token="YOUR_TOKEN",
     )
     """
@@ -149,7 +143,6 @@ class AsyncVectara:
         base_url: typing.Optional[str] = None,
         environment: VectaraEnvironment = VectaraEnvironment.DEFAULT,
         api_key: str,
-        client_key: str,
         token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         timeout: typing.Optional[float] = None,
         follow_redirects: typing.Optional[bool] = True,
@@ -159,7 +152,6 @@ class AsyncVectara:
         self._client_wrapper = AsyncClientWrapper(
             base_url=_get_base_url(base_url=base_url, environment=environment),
             api_key=api_key,
-            client_key=client_key,
             token=token,
             httpx_client=httpx_client
             if httpx_client is not None

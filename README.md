@@ -22,7 +22,6 @@ from vectara.client import Vectara
 
 client = Vectara(
     api_key="YOUR_API_KEY",
-    client_key="YOUR_CLIENT_KEY",
     token="YOUR_TOKEN",
 )
 ```
@@ -36,7 +35,6 @@ from vectara.client import AsyncVectara
 
 client = AsyncVectara(
     api_key="YOUR_API_KEY",
-    client_key="YOUR_CLIENT_KEY",
     token="YOUR_TOKEN",
 )
 ```
