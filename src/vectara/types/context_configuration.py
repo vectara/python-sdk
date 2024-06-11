@@ -3,44 +3,42 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 
 
-class ContextConfiguration(pydantic.BaseModel):
+class ContextConfiguration(pydantic_v1.BaseModel):
     """
     Configuration on the presentation of each document part in the result set.
     """
 
-    characters_before: typing.Optional[int] = pydantic.Field(default=None)
+    characters_before: typing.Optional[int] = pydantic_v1.Field(default=None)
     """
     The number of characters before the matching document part that are shown.
     This is useful to show the context of the document part in the wider document.
     Ignored if `sentences_before` is set.
     """
 
-    characters_after: typing.Optional[int] = pydantic.Field(default=None)
+    characters_after: typing.Optional[int] = pydantic_v1.Field(default=None)
     """
     The number of characters after the matching document part that are shown.
     This is useful to show the context of the document part in the wider document.
     Ignored if `sentences_after` is set.
     """
 
-    sentences_before: typing.Optional[int] = pydantic.Field(default=None)
+    sentences_before: typing.Optional[int] = pydantic_v1.Field(default=None)
     """
     The number of sentences before the matching document part that are shown.
     This is useful to show the context of the document part in the wider document.
     """
 
-    sentences_after: typing.Optional[int] = pydantic.Field(default=None)
+    sentences_after: typing.Optional[int] = pydantic_v1.Field(default=None)
     """
     The number of sentences after the matching document part that are shown.
     This is useful to show the context of the document part in the wider document.
     """
 
-    start_tag: typing.Optional[str] = pydantic.Field(default=None)
+    start_tag: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     The tag that wraps the document part at the start. This is often used to
     provide a start HTML/XML tag or some other delimiter you can use in an
@@ -48,7 +46,7 @@ class ContextConfiguration(pydantic.BaseModel):
     understand where the context before ends and the document part begins.
     """
 
-    end_tag: typing.Optional[str] = pydantic.Field(default=None)
+    end_tag: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     The tag that wraps the document part at the end. This is often used to
     provide a start HTML/XML tag or some other delimiter you can use in an
@@ -71,5 +69,5 @@ class ContextConfiguration(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

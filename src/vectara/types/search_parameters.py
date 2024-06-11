@@ -3,25 +3,23 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 from .context_configuration import ContextConfiguration
 from .search_reranker import SearchReranker
 
 
-class SearchParameters(pydantic.BaseModel):
+class SearchParameters(pydantic_v1.BaseModel):
     """
     Search parameters to retrieve knowledge for the query.
     """
 
-    offset: typing.Optional[int] = pydantic.Field(default=None)
+    offset: typing.Optional[int] = pydantic_v1.Field(default=None)
     """
     Specifies how many results into the result to skip. This is useful for pagination.
     """
 
-    limit: typing.Optional[int] = pydantic.Field(default=None)
+    limit: typing.Optional[int] = pydantic_v1.Field(default=None)
     """
     The maximum number of results returned.
     """
@@ -44,5 +42,5 @@ class SearchParameters(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

@@ -3,24 +3,22 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ...core.datetime_utils import serialize_datetime
-from ...core.pydantic_utilities import deep_union_pydantic_dicts
+from ...core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 
 
-class AuthResponse(pydantic.BaseModel):
-    access_token: str = pydantic.Field()
+class AuthResponse(pydantic_v1.BaseModel):
+    access_token: str = pydantic_v1.Field()
     """
     The bearer token you will pass in to subsequent API calls to authenticate.
     """
 
-    expires_in: int = pydantic.Field()
+    expires_in: int = pydantic_v1.Field()
     """
     Tells you how long (in seconds) until your bearer token expires.
     """
 
-    token_type: str = pydantic.Field()
+    token_type: str = pydantic_v1.Field()
     """
     Will always be "Bearer"
     """
@@ -40,5 +38,5 @@ class AuthResponse(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

@@ -3,18 +3,16 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 
 
-class StreamGenerationChunk(pydantic.BaseModel):
+class StreamGenerationChunk(pydantic_v1.BaseModel):
     """
     The chunk response from the generation, possibly a partial generation.
     """
 
-    generation_chunk: typing.Optional[str] = pydantic.Field(default=None)
+    generation_chunk: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     Part of the message from the generator. All summary chunks must be appended together in order
     to get the full summary.
@@ -35,5 +33,5 @@ class StreamGenerationChunk(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

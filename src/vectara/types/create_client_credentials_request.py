@@ -3,29 +3,27 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 from .api_role import ApiRole
 
 
-class CreateClientCredentialsRequest(pydantic.BaseModel):
+class CreateClientCredentialsRequest(pydantic_v1.BaseModel):
     """
     Create an App Client which allows you to call Vectara APIs using OAuth 2.0 client credentials.
     """
 
-    name: str = pydantic.Field()
+    name: str = pydantic_v1.Field()
     """
     Name of the client credentials.
     """
 
-    description: typing.Optional[str] = pydantic.Field(default=None)
+    description: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     Description of the client credentials.
     """
 
-    api_roles: typing.Optional[typing.List[ApiRole]] = pydantic.Field(default=None)
+    api_roles: typing.Optional[typing.List[ApiRole]] = pydantic_v1.Field(default=None)
     """
     API roles that the client credentials will have.
     """
@@ -45,5 +43,5 @@ class CreateClientCredentialsRequest(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

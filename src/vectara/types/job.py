@@ -3,43 +3,41 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 from .corpus_key import CorpusKey
 from .job_state import JobState
 from .job_type import JobType
 
 
-class Job(pydantic.BaseModel):
-    id: typing.Optional[str] = pydantic.Field(default=None)
+class Job(pydantic_v1.BaseModel):
+    id: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     The ID of the job.
     """
 
-    type: typing.Optional[JobType] = pydantic.Field(default=None)
+    type: typing.Optional[JobType] = pydantic_v1.Field(default=None)
     """
     The type of job.
     """
 
-    corpus_keys: typing.Optional[typing.List[CorpusKey]] = pydantic.Field(default=None)
+    corpus_keys: typing.Optional[typing.List[CorpusKey]] = pydantic_v1.Field(default=None)
     """
     The corpora that this job belongs to. It may not belong to any corpora.
     """
 
     state: typing.Optional[JobState] = None
-    created_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)
+    created_at: typing.Optional[dt.datetime] = pydantic_v1.Field(default=None)
     """
     Specifies when the job was created.
     """
 
-    started_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)
+    started_at: typing.Optional[dt.datetime] = pydantic_v1.Field(default=None)
     """
     Specifies when the job was started.
     """
 
-    completed_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)
+    completed_at: typing.Optional[dt.datetime] = pydantic_v1.Field(default=None)
     """
     Specifies when the job was completed.
     """
@@ -59,5 +57,5 @@ class Job(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

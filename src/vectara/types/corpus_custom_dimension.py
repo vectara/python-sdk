@@ -3,24 +3,22 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 
 
-class CorpusCustomDimension(pydantic.BaseModel):
+class CorpusCustomDimension(pydantic_v1.BaseModel):
     """
     Custom dimensions attached to all document parts in a corpus. Allows arbitrary
     modification of the score for many purposes.
     """
 
-    name: str = pydantic.Field()
+    name: str = pydantic_v1.Field()
     """
     The name of the custom dimension.
     """
 
-    indexing_default: typing.Optional[float] = pydantic.Field(default=None)
+    indexing_default: typing.Optional[float] = pydantic_v1.Field(default=None)
     """
     Default value of a custom dimension on a document part if the custom
     dimension value is not specified when the document part is indexed.
@@ -28,7 +26,7 @@ class CorpusCustomDimension(pydantic.BaseModel):
     A value of 0 means that custom dimension is not considered.
     """
 
-    querying_default: typing.Optional[float] = pydantic.Field(default=None)
+    querying_default: typing.Optional[float] = pydantic_v1.Field(default=None)
     """
     Default value of a custom dimension for a query if the value
     of the custom dimension is not specified when querying the corpus.
@@ -51,5 +49,5 @@ class CorpusCustomDimension(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

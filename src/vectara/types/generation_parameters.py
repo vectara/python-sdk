@@ -3,32 +3,30 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 from .citation_parameters import CitationParameters
 from .language import Language
 from .model_parameters import ModelParameters
 
 
-class GenerationParameters(pydantic.BaseModel):
+class GenerationParameters(pydantic_v1.BaseModel):
     """
     The parameters to control generation.
     """
 
-    prompt_name: typing.Optional[str] = pydantic.Field(default=None)
+    prompt_name: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     The prompt to use to feed the query results and other context to the model. By specifying the
     prompt name you also specify the model and other `model_parameter` defaults.
     """
 
-    max_used_search_results: typing.Optional[int] = pydantic.Field(default=None)
+    max_used_search_results: typing.Optional[int] = pydantic_v1.Field(default=None)
     """
     The maximum number of search results to be available to the prompt.
     """
 
-    prompt_text: typing.Optional[str] = pydantic.Field(default=None)
+    prompt_text: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     Vectara manages both system and user roles and prompts for the generative
     LLM out of the box by default. However, Scale customers can override the
@@ -39,7 +37,7 @@ class GenerationParameters(pydantic.BaseModel):
     See https://vectara.com/pricing/ for more details on becoming a Scale customer.
     """
 
-    max_response_characters: typing.Optional[int] = pydantic.Field(default=None)
+    max_response_characters: typing.Optional[int] = pydantic_v1.Field(default=None)
     """
     Controls the length of the generated output.
     This is a rough estimate and not a hard limit: the end output can be longer or shorter
@@ -48,7 +46,7 @@ class GenerationParameters(pydantic.BaseModel):
     """
 
     response_language: typing.Optional[Language] = None
-    model_parameters: typing.Optional[ModelParameters] = pydantic.Field(default=None)
+    model_parameters: typing.Optional[ModelParameters] = pydantic_v1.Field(default=None)
     """
     The parameters for the model. These are currently a Scale-only feature.
     See https://vectara.com/pricing/ for more details on becoming a Scale customer.
@@ -58,7 +56,7 @@ class GenerationParameters(pydantic.BaseModel):
     """
 
     citations: typing.Optional[CitationParameters] = None
-    enable_factual_consistency_score: typing.Optional[bool] = pydantic.Field(default=None)
+    enable_factual_consistency_score: typing.Optional[bool] = pydantic_v1.Field(default=None)
     """
     Enable returning the factual consistency score with query results.
     """
@@ -78,5 +76,5 @@ class GenerationParameters(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

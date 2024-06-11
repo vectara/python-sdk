@@ -3,14 +3,12 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 
 
-class ReplaceFilterAttributesResponse(pydantic.BaseModel):
-    job_id: str = pydantic.Field()
+class ReplaceFilterAttributesResponse(pydantic_v1.BaseModel):
+    job_id: str = pydantic_v1.Field()
     """
     Job that was created in order to replace filter attributes.
     """
@@ -30,5 +28,5 @@ class ReplaceFilterAttributesResponse(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

@@ -3,31 +3,29 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 from .individual_search_result import IndividualSearchResult
 from .language import Language
 
 
-class QueryFullResponse(pydantic.BaseModel):
+class QueryFullResponse(pydantic_v1.BaseModel):
     """
     The full response to a RAG query when the result is not streamed.
     """
 
-    summary: typing.Optional[str] = pydantic.Field(default=None)
+    summary: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     The summary of the search results.
     """
 
     response_language: typing.Optional[Language] = None
-    search_results: typing.Optional[typing.List[IndividualSearchResult]] = pydantic.Field(default=None)
+    search_results: typing.Optional[typing.List[IndividualSearchResult]] = pydantic_v1.Field(default=None)
     """
     The ranked search results.
     """
 
-    factual_consistency_score: typing.Optional[float] = pydantic.Field(default=None)
+    factual_consistency_score: typing.Optional[float] = pydantic_v1.Field(default=None)
     """
     The probability that the summary is factually consistent with the results.
     """
@@ -47,5 +45,5 @@ class QueryFullResponse(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

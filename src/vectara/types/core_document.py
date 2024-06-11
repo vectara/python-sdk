@@ -3,30 +3,28 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 from .core_document_part import CoreDocumentPart
 
 
-class CoreDocument(pydantic.BaseModel):
+class CoreDocument(pydantic_v1.BaseModel):
     """
     The document structure that most closely corresponds to Vectara's internal document data model.
     """
 
-    id: str = pydantic.Field()
+    id: str = pydantic_v1.Field()
     """
     The Document ID, must be unique within the corpus.
     """
 
-    metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
+    metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic_v1.Field(default=None)
     """
     Arbitrary object of document level metadata. Properties of this object
     can be used by document filter if defined as a corpus filter attribute.
     """
 
-    document_parts: typing.List[CoreDocumentPart] = pydantic.Field()
+    document_parts: typing.List[CoreDocumentPart] = pydantic_v1.Field()
     """
     Parts of the document that make up the document.
     """
@@ -46,5 +44,5 @@ class CoreDocument(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

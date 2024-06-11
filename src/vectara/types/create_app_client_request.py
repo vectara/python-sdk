@@ -5,14 +5,12 @@ from __future__ import annotations
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 from .api_role import ApiRole
 
 
-class CreateAppClientRequest_ClientCredentials(pydantic.BaseModel):
+class CreateAppClientRequest_ClientCredentials(pydantic_v1.BaseModel):
     name: str
     description: typing.Optional[str] = None
     api_roles: typing.Optional[typing.List[ApiRole]] = None
@@ -33,7 +31,7 @@ class CreateAppClientRequest_ClientCredentials(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 

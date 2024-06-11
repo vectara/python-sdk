@@ -3,29 +3,27 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 
 
-class CorpusLimits(pydantic.BaseModel):
-    used_bytes: typing.Optional[int] = pydantic.Field(default=None)
+class CorpusLimits(pydantic_v1.BaseModel):
+    used_bytes: typing.Optional[int] = pydantic_v1.Field(default=None)
     """
     The number of bytes contained in the corpus.
     """
 
-    max_bytes: typing.Optional[int] = pydantic.Field(default=None)
+    max_bytes: typing.Optional[int] = pydantic_v1.Field(default=None)
     """
     The maximum number of bytes the corpus can be.
     """
 
-    max_metadata_bytes: typing.Optional[int] = pydantic.Field(default=None)
+    max_metadata_bytes: typing.Optional[int] = pydantic_v1.Field(default=None)
     """
     The maximum size that metadata can be on documents.
     """
 
-    index_rate: typing.Optional[int] = pydantic.Field(default=None)
+    index_rate: typing.Optional[int] = pydantic_v1.Field(default=None)
     """
     The maximum per-second addition of new documents to corpus.
     """
@@ -45,5 +43,5 @@ class CorpusLimits(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

@@ -3,13 +3,11 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 
 
-class ModelParameters(pydantic.BaseModel):
+class ModelParameters(pydantic_v1.BaseModel):
     """
     The parameters for the model. These are currently a Scale-only feature.
     See https://vectara.com/pricing/ for more details on becoming a Scale customer.
@@ -18,24 +16,24 @@ class ModelParameters(pydantic.BaseModel):
     be set in the prompt definitions.
     """
 
-    max_tokens: typing.Optional[int] = pydantic.Field(default=None)
+    max_tokens: typing.Optional[int] = pydantic_v1.Field(default=None)
     """
     The maximum number of tokens to be returned by the model.
     """
 
-    temperature: typing.Optional[float] = pydantic.Field(default=None)
+    temperature: typing.Optional[float] = pydantic_v1.Field(default=None)
     """
     The sampling temperature to use. Higher values make the output more random, while lower
     values make it more focused and deterministic.
     """
 
-    frequency_penalty: typing.Optional[float] = pydantic.Field(default=None)
+    frequency_penalty: typing.Optional[float] = pydantic_v1.Field(default=None)
     """
     Higher values penalize new tokens based on their existing frequency in the text so far,
     decreasing the model's likelihood to repeat the same line verbatim.
     """
 
-    presence_penalty: typing.Optional[float] = pydantic.Field(default=None)
+    presence_penalty: typing.Optional[float] = pydantic_v1.Field(default=None)
     """
     Higher values penalize new tokens based on whether they appear in the text so far,
     increasing the model's likelihood to talk about new topics.
@@ -56,5 +54,5 @@ class ModelParameters(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

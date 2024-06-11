@@ -3,42 +3,40 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 from .custom_dimensions import CustomDimensions
 from .structured_document_section import StructuredDocumentSection
 
 
-class StructuredDocument(pydantic.BaseModel):
+class StructuredDocument(pydantic_v1.BaseModel):
     """
     A document with layout features.
     """
 
-    id: str = pydantic.Field()
+    id: str = pydantic_v1.Field()
     """
     The Document ID, must be unique within the corpus.
     """
 
-    title: typing.Optional[str] = pydantic.Field(default=None)
+    title: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     The title of the document.
     """
 
-    description: typing.Optional[str] = pydantic.Field(default=None)
+    description: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     The description of the document.
     """
 
-    metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
+    metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic_v1.Field(default=None)
     """
     The metadata for a document and is an arbitrary JSON object. Properties of this object
     can be used by document level filter attributes.
     """
 
     custom_dimensions: typing.Optional[CustomDimensions] = None
-    sections: typing.List[StructuredDocumentSection] = pydantic.Field()
+    sections: typing.List[StructuredDocumentSection] = pydantic_v1.Field()
     """
     The subsection of the document.
     """
@@ -58,5 +56,5 @@ class StructuredDocument(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

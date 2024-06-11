@@ -3,45 +3,43 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 from .individual_search_result import IndividualSearchResult
 from .language import Language
 
 
-class ChatFullResponse(pydantic.BaseModel):
+class ChatFullResponse(pydantic_v1.BaseModel):
     """
     Full response to a chat question when the result is not streamed.
     """
 
-    chat_id: typing.Optional[str] = pydantic.Field(default=None)
+    chat_id: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     If the chat response was stored, the ID of the chat.
     """
 
-    turn_id: typing.Optional[str] = pydantic.Field(default=None)
+    turn_id: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     If the chat response was stored, the ID of the turn.
     """
 
-    answer: typing.Optional[str] = pydantic.Field(default=None)
+    answer: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     The message from the chat model for the chat message.
     """
 
-    response_language: typing.Optional[Language] = pydantic.Field(default=None)
+    response_language: typing.Optional[Language] = pydantic_v1.Field(default=None)
     """
     The language that the answer is expected to be.
     """
 
-    search_results: typing.Optional[typing.List[IndividualSearchResult]] = pydantic.Field(default=None)
+    search_results: typing.Optional[typing.List[IndividualSearchResult]] = pydantic_v1.Field(default=None)
     """
     The ranked search results that the chat model used.
     """
 
-    factual_consistency_score: typing.Optional[float] = pydantic.Field(default=None)
+    factual_consistency_score: typing.Optional[float] = pydantic_v1.Field(default=None)
     """
     The probability that the summary is factually consistent with the results.
     """
@@ -61,5 +59,5 @@ class ChatFullResponse(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

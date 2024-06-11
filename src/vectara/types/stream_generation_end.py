@@ -3,13 +3,11 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 
 
-class StreamGenerationEnd(pydantic.BaseModel):
+class StreamGenerationEnd(pydantic_v1.BaseModel):
     """
     The end of generation. There may still be more information such as the
     factual consistency score, but generation has stopped.
@@ -30,5 +28,5 @@ class StreamGenerationEnd(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

@@ -3,42 +3,40 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 from .api_policy import ApiPolicy
 from .api_role import ApiRole
 
 
-class AppClient(pydantic.BaseModel):
-    id: typing.Optional[str] = pydantic.Field(default=None)
+class AppClient(pydantic_v1.BaseModel):
+    id: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     The Vectara App Client ID. This ID is not used during an OAuth
     flow but the ID used within the Vectara API.
     """
 
-    name: typing.Optional[str] = pydantic.Field(default=None)
+    name: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     The human-readable name of the App Client.
     """
 
-    description: typing.Optional[str] = pydantic.Field(default=None)
+    description: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     Descritpion of the App Client.
     """
 
-    client_id: typing.Optional[str] = pydantic.Field(default=None)
+    client_id: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     The client ID used with the OAuth flow.
     """
 
-    client_secret: typing.Optional[str] = pydantic.Field(default=None)
+    client_secret: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     The key used in API requests. Should be kept secure.
     """
 
-    api_roles: typing.Optional[typing.List[ApiRole]] = pydantic.Field(default=None)
+    api_roles: typing.Optional[typing.List[ApiRole]] = pydantic_v1.Field(default=None)
     """
     The API roles attached to the App Client.
     """
@@ -60,5 +58,5 @@ class AppClient(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

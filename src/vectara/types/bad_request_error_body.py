@@ -3,20 +3,18 @@
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 
 
-class BadRequestErrorBody(pydantic.BaseModel):
-    field_errors: typing.Optional[typing.Dict[str, str]] = pydantic.Field(default=None)
+class BadRequestErrorBody(pydantic_v1.BaseModel):
+    field_errors: typing.Optional[typing.Dict[str, str]] = pydantic_v1.Field(default=None)
     """
     The errors that relate to specific fields in the request.
     """
 
     messages: typing.Optional[typing.List[str]] = None
-    request_id: typing.Optional[str] = pydantic.Field(default=None)
+    request_id: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     The ID of the request that can be used to help Vectara support debug what went wrong.
     """
@@ -36,5 +34,5 @@ class BadRequestErrorBody(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

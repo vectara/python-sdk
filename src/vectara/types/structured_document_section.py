@@ -5,40 +5,38 @@ from __future__ import annotations
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 
 
-class StructuredDocumentSection(pydantic.BaseModel):
+class StructuredDocumentSection(pydantic_v1.BaseModel):
     """
     A logical section within a structured document.
     """
 
-    id: typing.Optional[int] = pydantic.Field(default=None)
+    id: typing.Optional[int] = pydantic_v1.Field(default=None)
     """
     The section ID. Gets converted to a metadata field.
     """
 
-    title: typing.Optional[str] = pydantic.Field(default=None)
+    title: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     The section title.
     """
 
-    text: str = pydantic.Field()
+    text: str = pydantic_v1.Field()
     """
     The text of the section.
     """
 
-    metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
+    metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic_v1.Field(default=None)
     """
     Arbitrary object that becomes document part level metadata on any document part created
     by this section. Properties of this object can be used by document part level
     filters if defined as a corpus filter attribute.
     """
 
-    sections: typing.Optional[typing.List[StructuredDocumentSection]] = pydantic.Field(default=None)
+    sections: typing.Optional[typing.List[StructuredDocumentSection]] = pydantic_v1.Field(default=None)
     """
     The sections that this section contains.
     """
@@ -58,7 +56,7 @@ class StructuredDocumentSection(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 

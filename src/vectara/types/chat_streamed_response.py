@@ -5,14 +5,12 @@ from __future__ import annotations
 import datetime as dt
 import typing
 
-import pydantic.v1 as pydantic
-
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 from .individual_search_result import IndividualSearchResult
 
 
-class ChatStreamedResponse_SearchResults(pydantic.BaseModel):
+class ChatStreamedResponse_SearchResults(pydantic_v1.BaseModel):
     """
     An individual event when the response is streamed.
     """
@@ -35,11 +33,11 @@ class ChatStreamedResponse_SearchResults(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
-class ChatStreamedResponse_ChatInfo(pydantic.BaseModel):
+class ChatStreamedResponse_ChatInfo(pydantic_v1.BaseModel):
     """
     An individual event when the response is streamed.
     """
@@ -63,11 +61,11 @@ class ChatStreamedResponse_ChatInfo(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
-class ChatStreamedResponse_GenerationChunk(pydantic.BaseModel):
+class ChatStreamedResponse_GenerationChunk(pydantic_v1.BaseModel):
     """
     An individual event when the response is streamed.
     """
@@ -90,11 +88,11 @@ class ChatStreamedResponse_GenerationChunk(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
-class ChatStreamedResponse_GenerationEnd(pydantic.BaseModel):
+class ChatStreamedResponse_GenerationEnd(pydantic_v1.BaseModel):
     """
     An individual event when the response is streamed.
     """
@@ -116,11 +114,11 @@ class ChatStreamedResponse_GenerationEnd(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
-class ChatStreamedResponse_FactualConsistencyScore(pydantic.BaseModel):
+class ChatStreamedResponse_FactualConsistencyScore(pydantic_v1.BaseModel):
     """
     An individual event when the response is streamed.
     """
@@ -143,11 +141,11 @@ class ChatStreamedResponse_FactualConsistencyScore(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
-class ChatStreamedResponse_End(pydantic.BaseModel):
+class ChatStreamedResponse_End(pydantic_v1.BaseModel):
     """
     An individual event when the response is streamed.
     """
@@ -169,11 +167,11 @@ class ChatStreamedResponse_End(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
-class ChatStreamedResponse_Error(pydantic.BaseModel):
+class ChatStreamedResponse_Error(pydantic_v1.BaseModel):
     """
     An individual event when the response is streamed.
     """
@@ -196,7 +194,7 @@ class ChatStreamedResponse_Error(pydantic.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic.Extra.allow
+        extra = pydantic_v1.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
