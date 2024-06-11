@@ -69,7 +69,11 @@ class ChatsClient:
         client.chats.list()
         """
         _response = self._client_wrapper.httpx_client.request(
-            "v2/chats", method="GET", params={"limit": limit, "page_key": page_key}, request_options=request_options
+            "v2/chats", 
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET", 
+            params={"limit": limit, "page_key": page_key}, 
+            request_options=request_options
         )
         if 200 <= _response.status_code < 300:
             return pydantic_v1.parse_obj_as(ListChatsResponse, _response.json())  # type: ignore
@@ -305,6 +309,7 @@ class ChatsClient:
         if stream_response: 
             with self._client_wrapper.httpx_client.stream(
                 "v2/chats",
+                base_url=self._client_wrapper.get_environment().default,
                 method="POST",
                 json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
                 request_options=request_options,
@@ -331,6 +336,7 @@ class ChatsClient:
         else: 
             _response = self._client_wrapper.httpx_client.request(
                 "v2/chats",
+                base_url=self._client_wrapper.get_environment().default,
                 method="POST",
                 json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
                 request_options=request_options,
@@ -379,7 +385,10 @@ class ChatsClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}", method="GET", request_options=request_options
+            f"v2/chats/{jsonable_encoder(chat_id)}", 
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET", 
+            request_options=request_options
         )
         if 200 <= _response.status_code < 300:
             return pydantic_v1.parse_obj_as(Chat, _response.json())  # type: ignore
@@ -421,7 +430,10 @@ class ChatsClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}", method="DELETE", request_options=request_options
+            f"v2/chats/{jsonable_encoder(chat_id)}", 
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE", 
+            request_options=request_options
         )
         if 200 <= _response.status_code < 300:
             return
@@ -466,7 +478,10 @@ class ChatsClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns", method="GET", request_options=request_options
+            f"v2/chats/{jsonable_encoder(chat_id)}/turns", 
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET", 
+            request_options=request_options
         )
         if 200 <= _response.status_code < 300:
             return pydantic_v1.parse_obj_as(ListChatTurnsResponse, _response.json())  # type: ignore
@@ -716,6 +731,7 @@ class ChatsClient:
         if stream_response: 
             with self._client_wrapper.httpx_client.stream(
                 f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+                base_url=self._client_wrapper.get_environment().default,
                 method="POST",
                 json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
                 request_options=request_options,
@@ -742,6 +758,7 @@ class ChatsClient:
         else: 
             _response = self._client_wrapper.httpx_client.request(
                 "v2/chats",
+                base_url=self._client_wrapper.get_environment().default,
                 method="POST",
                 json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
                 request_options=request_options,
@@ -795,6 +812,7 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -845,6 +863,7 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -906,6 +925,7 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"enabled": enabled},
             request_options=request_options,
@@ -964,7 +984,11 @@ class AsyncChatsClient:
         await client.chats.list()
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "v2/chats", method="GET", params={"limit": limit, "page_key": page_key}, request_options=request_options
+            "v2/chats", 
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET", 
+            params={"limit": limit, "page_key": page_key}, 
+            request_options=request_options
         )
         if 200 <= _response.status_code < 300:
             return pydantic_v1.parse_obj_as(ListChatsResponse, _response.json())  # type: ignore
@@ -1059,6 +1083,7 @@ class AsyncChatsClient:
         """
         async with self._client_wrapper.httpx_client.stream(
             "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
             request_options=request_options,
@@ -1129,6 +1154,7 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
             request_options=request_options,
@@ -1177,7 +1203,10 @@ class AsyncChatsClient:
         )
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}", method="GET", request_options=request_options
+            f"v2/chats/{jsonable_encoder(chat_id)}", 
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET", 
+            request_options=request_options
         )
         if 200 <= _response.status_code < 300:
             return pydantic_v1.parse_obj_as(Chat, _response.json())  # type: ignore
@@ -1219,7 +1248,10 @@ class AsyncChatsClient:
         )
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}", method="DELETE", request_options=request_options
+            f"v2/chats/{jsonable_encoder(chat_id)}", 
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE", 
+            request_options=request_options
         )
         if 200 <= _response.status_code < 300:
             return
@@ -1264,7 +1296,10 @@ class AsyncChatsClient:
         )
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns", method="GET", request_options=request_options
+            f"v2/chats/{jsonable_encoder(chat_id)}/turns", 
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET", 
+            request_options=request_options
         )
         if 200 <= _response.status_code < 300:
             return pydantic_v1.parse_obj_as(ListChatTurnsResponse, _response.json())  # type: ignore
@@ -1364,6 +1399,7 @@ class AsyncChatsClient:
         """
         async with self._client_wrapper.httpx_client.stream(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
             request_options=request_options,
@@ -1439,6 +1475,7 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
             request_options=request_options,
@@ -1494,6 +1531,7 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -1544,6 +1582,7 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -1605,6 +1644,7 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"enabled": enabled},
             request_options=request_options,

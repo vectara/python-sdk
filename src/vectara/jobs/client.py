@@ -48,7 +48,10 @@ class JobsClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/jobs/{jsonable_encoder(job_id)}", method="GET", request_options=request_options
+            f"v2/jobs/{jsonable_encoder(job_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         if 200 <= _response.status_code < 300:
             return pydantic_v1.parse_obj_as(Job, _response.json())  # type: ignore
@@ -96,7 +99,10 @@ class AsyncJobsClient:
         )
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/jobs/{jsonable_encoder(job_id)}", method="GET", request_options=request_options
+            f"v2/jobs/{jsonable_encoder(job_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         if 200 <= _response.status_code < 300:
             return pydantic_v1.parse_obj_as(Job, _response.json())  # type: ignore
