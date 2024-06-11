@@ -142,21 +142,21 @@ except corpora.core.ApiError as e: # Handle all errors
 Paginated requests will return a `SyncPager` or `AsyncPager`, which can be used as generators for the underlying object. For example, `corpora.list` will return a generator over `Corpus` and handle the pagination behind the scenes:
 
 ```python
-for corpus in client.corpus.list():
-    print(corpus)
+for corpura in client.corpura.list():
+    print(corpura)
 ```
 
 you could also iterate page-by-page:
 
 ```python
-for page in client.corpus.list().iter_pages():
+for page in client.corpura.list().iter_pages():
     print(page.items)
 ```
 
 or manually: 
 
 ```python
-pager = client.corpus.list()
+pager = client.corpura.list()
 # First page
 print(pager.items)
 # Second page
