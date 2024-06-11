@@ -31,7 +31,7 @@ from .types.search_corpus_parameters import SearchCorpusParameters
 OMIT = typing.cast(typing.Any, ...)
 
 
-class CorpusClient:
+class CorporaClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -73,7 +73,7 @@ class CorpusClient:
         client = Vectara(
             api_key="YOUR_API_KEY",
         )
-        client.corpus.list()
+        client.corpora.list()
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/corpora",
@@ -164,7 +164,7 @@ class CorpusClient:
         client = Vectara(
             api_key="YOUR_API_KEY",
         )
-        client.corpus.create(
+        client.corpora.create(
             key="my-corpus",
         )
         """
@@ -221,7 +221,7 @@ class CorpusClient:
         client = Vectara(
             api_key="YOUR_API_KEY",
         )
-        client.corpus.get(
+        client.corpora.get(
             corpus_key="my-corpus",
         )
         """
@@ -266,7 +266,7 @@ class CorpusClient:
         client = Vectara(
             api_key="YOUR_API_KEY",
         )
-        client.corpus.delete(
+        client.corpora.delete(
             corpus_key="my-corpus",
         )
         """
@@ -321,7 +321,7 @@ class CorpusClient:
         client = Vectara(
             api_key="YOUR_API_KEY",
         )
-        client.corpus.update(
+        client.corpora.update(
             corpus_key="my-corpus",
         )
         """
@@ -368,7 +368,7 @@ class CorpusClient:
         client = Vectara(
             api_key="YOUR_API_KEY",
         )
-        client.corpus.reset(
+        client.corpora.reset(
             corpus_key="my-corpus",
         )
         """
@@ -428,7 +428,7 @@ class CorpusClient:
         client = Vectara(
             api_key="YOUR_API_KEY",
         )
-        client.corpus.replace_filter_attributes(
+        client.corpora.replace_filter_attributes(
             corpus_key="my-corpus",
             filter_attributes=[
                 FilterAttribute(
@@ -500,7 +500,7 @@ class CorpusClient:
         client = Vectara(
             api_key="YOUR_API_KEY",
         )
-        client.corpus.search(
+        client.corpora.search(
             corpus_key="my-corpus",
             query="query",
         )
@@ -574,7 +574,7 @@ class CorpusClient:
         client = Vectara(
             api_key="YOUR_API_KEY",
         )
-        response = client.corpus.stream_query(
+        response = client.corpora.stream_query(
             corpus_key="string",
             query="string",
             search=SearchCorpusParameters(
@@ -673,7 +673,7 @@ class CorpusClient:
         client = Vectara(
             api_key="YOUR_API_KEY",
         )
-        client.corpus.query(
+        client.corpora.query(
             corpus_key="my-corpus",
             query="query",
         )
@@ -701,7 +701,7 @@ class CorpusClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
 
-class AsyncCorpusClient:
+class AsyncCorporaClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -743,7 +743,7 @@ class AsyncCorpusClient:
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
         )
-        await client.corpus.list()
+        await client.corpora.list()
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/corpora",
@@ -834,7 +834,7 @@ class AsyncCorpusClient:
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
         )
-        await client.corpus.create(
+        await client.corpora.create(
             key="my-corpus",
         )
         """
@@ -891,7 +891,7 @@ class AsyncCorpusClient:
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
         )
-        await client.corpus.get(
+        await client.corpora.get(
             corpus_key="my-corpus",
         )
         """
@@ -936,7 +936,7 @@ class AsyncCorpusClient:
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
         )
-        await client.corpus.delete(
+        await client.corpora.delete(
             corpus_key="my-corpus",
         )
         """
@@ -991,7 +991,7 @@ class AsyncCorpusClient:
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
         )
-        await client.corpus.update(
+        await client.corpora.update(
             corpus_key="my-corpus",
         )
         """
@@ -1038,7 +1038,7 @@ class AsyncCorpusClient:
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
         )
-        await client.corpus.reset(
+        await client.corpora.reset(
             corpus_key="my-corpus",
         )
         """
@@ -1098,7 +1098,7 @@ class AsyncCorpusClient:
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
         )
-        await client.corpus.replace_filter_attributes(
+        await client.corpora.replace_filter_attributes(
             corpus_key="my-corpus",
             filter_attributes=[
                 FilterAttribute(
@@ -1170,7 +1170,7 @@ class AsyncCorpusClient:
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
         )
-        await client.corpus.search(
+        await client.corpora.search(
             corpus_key="my-corpus",
             query="query",
         )
@@ -1244,7 +1244,7 @@ class AsyncCorpusClient:
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
         )
-        response = await client.corpus.stream_query(
+        response = await client.corpora.stream_query(
             corpus_key="string",
             query="string",
             search=SearchCorpusParameters(
@@ -1343,7 +1343,7 @@ class AsyncCorpusClient:
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
         )
-        await client.corpus.query(
+        await client.corpora.query(
             corpus_key="my-corpus",
             query="query",
         )
