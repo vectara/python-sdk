@@ -1,0 +1,48 @@
+docs: List available encoders for embedding such as Boomerang
+imports:
+  root: __package__.yml
+service:
+  auth: false
+  url: Default
+  display-name: Encoders
+  base-path: ''
+  endpoints:
+    list:
+      docs: Encoders are used to store and retrieve from a corpus.
+      method: GET
+      display-name: List the available encoders
+      path: /v2/encoders
+      auth: true
+      request:
+        name: EncodersListRequest
+        query-parameters:
+          filter:
+            type: optional<string>
+            docs: A regular expression against encoder names and descriptions.
+          limit:
+            type: optional<integer>
+            docs: The maximum number of results to return in the list.
+          page_key:
+            type: optional<string>
+            docs: >-
+              Used to the retrieve the next page of encoders after the limit has
+              been reached.
+      response:
+        docs: List of encoders.
+        type: root.ListEncodersResponse
+      errors:
+        - root.ForbiddenError
+      examples:
+        - query-parameters:
+            filter: vectara.*
+          response:
+            body:
+              encoders:
+                - id: enc_1
+                  name: boomerang
+                  output_dimensions: 768
+                  description: description
+                  default: true
+                  enabled: true
+              metadata:
+                page_key: page_key

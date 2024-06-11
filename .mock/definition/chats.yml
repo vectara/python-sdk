@@ -1,0 +1,377 @@
+docs: >-
+  Create, manage, and interact with chat sessions for conversational AI and
+  administrative monitoring
+imports:
+  root: __package__.yml
+service:
+  auth: false
+  url: Default
+  display-name: Chats
+  base-path: ''
+  endpoints:
+    list:
+      docs: Retrieve a list of previous chats in the Vectara account.
+      method: GET
+      display-name: List chats
+      path: /v2/chats
+      auth: true
+      request:
+        name: ChatsListRequest
+        query-parameters:
+          limit:
+            type: optional<integer>
+            docs: The maximum number of results to return in the list.
+          page_key:
+            type: optional<string>
+            docs: >-
+              Used to the retrieve the next page of chats after the limit has
+              been reached.
+      response:
+        docs: List of chats.
+        type: root.ListChatsResponse
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - response:
+            body:
+              chats:
+                - id: id
+                  first_query: first_query
+                  first_answer: first_answer
+                  enabled: true
+                  created_at: '2024-01-15T09:30:00Z'
+              metadata:
+                page_key: page_key
+    create_stream:
+      docs: >-
+        Create a chat while specifying the default retrieval parameters used by
+        the prompt.
+      method: POST
+      display-name: Start a chat
+      path: /v2/chats
+      auth: true
+      request:
+        name: ChatCreateRequestStream
+        body:
+          properties:
+            query:
+              type: string
+              docs: The chat message or question.
+            search: root.SearchCorporaParameters
+            generation: optional<root.GenerationParameters>
+            chat: optional<root.ChatParameters>
+            stream_response:
+              type: literal<true>
+              docs: Indicates whether the response should be streamed or not.
+      response-stream:
+        docs: ''
+        type: root.ChatStreamedResponse
+        format: json
+      errors:
+        - root.BadRequestError
+        - root.ForbiddenError
+        - root.NotFoundError
+    create:
+      docs: >-
+        Create a chat while specifying the default retrieval parameters used by
+        the prompt.
+      method: POST
+      display-name: Start a chat
+      path: /v2/chats
+      auth: true
+      request:
+        name: ChatCreateRequest
+        body:
+          properties:
+            query:
+              type: string
+              docs: The chat message or question.
+            search: root.SearchCorporaParameters
+            generation: optional<root.GenerationParameters>
+            chat: optional<root.ChatParameters>
+            stream_response:
+              type: literal<false>
+              docs: Indicates whether the response should be streamed or not.
+      response:
+        docs: ''
+        type: root.ChatFullResponse
+      errors:
+        - root.BadRequestError
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - request:
+            query: How can I use the Vectara platform?
+            search: {}
+            stream_response: false
+          response:
+            body:
+              chat_id: chat_id
+              turn_id: turn_id
+              answer: answer
+              response_language: auto
+              search_results:
+                - text: text
+                  score: 1.1
+                  document_id: document_id
+                  request_corpora_index: 0
+              factual_consistency_score: 1.1
+    get:
+      docs: >-
+        Get a chat summary to view what started the chat, but not subsequent
+        turns.
+      method: GET
+      display-name: Get a chat
+      path: /v2/chats/{chat_id}
+      path-parameters:
+        chat_id:
+          type: string
+          docs: The ID of the chat.
+      auth: true
+      response:
+        docs: A chat.
+        type: root.Chat
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            chat_id: chat_id
+          response:
+            body:
+              id: id
+              first_query: first_query
+              first_answer: first_answer
+              enabled: true
+              created_at: '2024-01-15T09:30:00Z'
+    delete:
+      docs: Delete a chat and any turns it contains permanently.
+      method: DELETE
+      display-name: Delete a chat
+      path: /v2/chats/{chat_id}
+      path-parameters:
+        chat_id:
+          type: string
+          docs: The ID of the chat.
+      auth: true
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            chat_id: chat_id
+    listTurns:
+      docs: >-
+        List all turns in a chat to see all message and response pairs that make
+        up the dialog.
+      method: GET
+      display-name: List turns in a chat
+      path: /v2/chats/{chat_id}/turns
+      path-parameters:
+        chat_id:
+          type: string
+          docs: The ID of the chat.
+      auth: true
+      response:
+        docs: List of turns.
+        type: root.ListChatTurnsResponse
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            chat_id: chat_id
+          response:
+            body:
+              turns:
+                - id: id
+                  chat_id: chat_id
+                  query: How do a turn this widget?
+                  answer: The widget turns counter clockwise.
+                  enabled: true
+                  created_at: '2024-01-15T09:30:00Z'
+    createTurns_stream:
+      docs: >-
+        Create a new turn in the chat. Each conversation has a series of `turn`
+        objects, which are the sequence of message and response pairs tha make
+        up the dialog.
+      method: POST
+      display-name: Create a new turn in the chat
+      path: /v2/chats/{chat_id}/turns
+      path-parameters:
+        chat_id:
+          type: string
+          docs: The ID of the chat.
+      auth: true
+      request:
+        name: ChatTurnsRequestStream
+        body:
+          properties:
+            query:
+              type: string
+              docs: The chat message or question.
+            search: root.SearchCorporaParameters
+            generation: optional<root.GenerationParameters>
+            chat: optional<root.ChatParameters>
+            stream_response:
+              type: literal<true>
+              docs: Indicates whether the response should be streamed or not.
+      response-stream:
+        docs: ''
+        type: root.ChatStreamedResponse
+        format: json
+      errors:
+        - root.BadRequestError
+        - root.ForbiddenError
+        - root.NotFoundError
+    createTurns:
+      docs: >-
+        Create a new turn in the chat. Each conversation has a series of `turn`
+        objects, which are the sequence of message and response pairs tha make
+        up the dialog.
+      method: POST
+      display-name: Create a new turn in the chat
+      path: /v2/chats/{chat_id}/turns
+      path-parameters:
+        chat_id:
+          type: string
+          docs: The ID of the chat.
+      auth: true
+      request:
+        name: ChatRequest
+        body:
+          properties:
+            query:
+              type: string
+              docs: The chat message or question.
+            search: root.SearchCorporaParameters
+            generation: optional<root.GenerationParameters>
+            chat: optional<root.ChatParameters>
+            stream_response:
+              type: literal<false>
+              docs: Indicates whether the response should be streamed or not.
+      response:
+        docs: ''
+        type: root.ChatFullResponse
+      errors:
+        - root.BadRequestError
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            chat_id: chat_id
+          request:
+            query: How can I use the Vectara platform?
+            search: {}
+            stream_response: false
+          response:
+            body:
+              chat_id: chat_id
+              turn_id: turn_id
+              answer: answer
+              response_language: auto
+              search_results:
+                - text: text
+                  score: 1.1
+                  document_id: document_id
+                  request_corpora_index: 0
+              factual_consistency_score: 1.1
+    getTurn:
+      docs: >-
+        Get a specific turn from a chat, which is a message and response pair
+        from the conversation.
+      method: GET
+      display-name: Get a turn
+      path: /v2/chats/{chat_id}/turns/{turn_id}
+      path-parameters:
+        chat_id:
+          type: string
+          docs: The ID of the chat.
+        turn_id:
+          type: string
+          docs: The ID of the turn.
+      auth: true
+      response:
+        docs: The turn.
+        type: root.Turn
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            chat_id: chat_id
+            turn_id: turn_id
+          response:
+            body:
+              id: id
+              chat_id: chat_id
+              query: How do a turn this widget?
+              answer: The widget turns counter clockwise.
+              enabled: true
+              created_at: '2024-01-15T09:30:00Z'
+    deleteTurn:
+      docs: >-
+        Delete a turn from a chat. This will delete all subsequent turns in the
+        chat.
+      method: DELETE
+      display-name: Delete a turn
+      path: /v2/chats/{chat_id}/turns/{turn_id}
+      path-parameters:
+        chat_id:
+          type: string
+          docs: The ID of the chat.
+        turn_id:
+          type: string
+          docs: The ID of the turn.
+      auth: true
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            chat_id: chat_id
+            turn_id: turn_id
+    updateTurn:
+      docs: Update a turn; used to disable or enable a chat.
+      method: PATCH
+      display-name: Update a turn
+      path: /v2/chats/{chat_id}/turns/{turn_id}
+      path-parameters:
+        chat_id:
+          type: string
+          docs: The ID of the chat.
+        turn_id:
+          type: string
+          docs: The ID of the turn.
+      auth: true
+      request:
+        name: UpdateTurnRequest
+        body:
+          properties:
+            enabled:
+              type: optional<boolean>
+              docs: >
+                Indicates whether to disable a turn. It will disable this turn
+                and all subsequent turns.
+
+                Enabling a turn is not implemented.
+      response:
+        docs: Succcessfully modified the turn.
+        type: root.Turn
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            chat_id: chat_id
+            turn_id: turn_id
+          request: {}
+          response:
+            body:
+              id: id
+              chat_id: chat_id
+              query: How do a turn this widget?
+              answer: The widget turns counter clockwise.
+              enabled: true
+              created_at: '2024-01-15T09:30:00Z'

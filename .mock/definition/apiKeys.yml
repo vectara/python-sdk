@@ -1,0 +1,179 @@
+docs: Manage API keys for the account
+imports:
+  root: __package__.yml
+service:
+  auth: false
+  url: Default
+  display-name: API Keys
+  base-path: ''
+  endpoints:
+    list:
+      method: GET
+      display-name: List API keys
+      path: /v2/api_keys
+      auth: true
+      request:
+        name: ApiKeysListRequest
+        query-parameters:
+          limit:
+            type: optional<integer>
+            docs: Max number of API keys to return at one time.
+          page_key:
+            type: optional<string>
+            docs: >-
+              Used to the retrieve the next page of API keys after the limit has
+              been reached.
+      response:
+        docs: An array of API keys.
+        type: root.ListApiKeysResponse
+      errors:
+        - root.BadRequestError
+        - root.ForbiddenError
+      examples:
+        - response:
+            body:
+              api_keys:
+                - id: id
+                  name: name
+                  secret_key: secret_key
+                  enabled: true
+                  api_key_role: serving
+                  api_policy:
+                    name: name
+                    allowed_operations:
+                      allowed_operations:
+                        allow_any_resource: true
+              metadata:
+                page_key: page_key
+    create:
+      docs: An API key is to authenticate when calling Vectara APIs.
+      method: POST
+      display-name: Create an API key
+      path: /v2/api_keys
+      auth: true
+      request:
+        name: CreateApiKeyRequest
+        body:
+          properties:
+            name:
+              type: string
+              docs: The human-readable name of the API key.
+            api_key_role: root.ApiKeyRole
+            corpus_keys:
+              type: optional<list<root.CorpusKey>>
+              docs: >
+                Corpora this API key has roles on if it is not a Personal API
+                key.
+
+                This property should be null of missing if this `api_key_role`
+                is
+
+                `personal`.
+      response:
+        docs: >-
+          An API Key object, used to query the Vectara API with the assigned
+          roles.
+        type: root.ApiKey
+      errors:
+        - root.BadRequestError
+        - root.ForbiddenError
+      examples:
+        - request:
+            name: name
+            api_key_role: serving
+          response:
+            body:
+              id: id
+              name: name
+              secret_key: secret_key
+              enabled: true
+              api_key_role: serving
+              api_policy:
+                name: name
+                allowed_operations:
+                  allowed_operations:
+                    allow_any_resource: true
+    get:
+      method: GET
+      display-name: Get an API key
+      path: /v2/api_keys/{api_key_id}
+      path-parameters:
+        api_key_id:
+          type: string
+          docs: The name of the API key.
+      auth: true
+      response:
+        docs: The API key.
+        type: root.ApiKey
+      errors:
+        - root.ForbiddenError
+      examples:
+        - path-parameters:
+            api_key_id: api_key_id
+          response:
+            body:
+              id: id
+              name: name
+              secret_key: secret_key
+              enabled: true
+              api_key_role: serving
+              api_policy:
+                name: name
+                allowed_operations:
+                  allowed_operations:
+                    allow_any_resource: true
+    delete:
+      docs: >-
+        Delete API keys to help you manage the security and lifecycle of API
+        keys in your application.
+      method: DELETE
+      display-name: Delete an API key
+      path: /v2/api_keys/{api_key_id}
+      path-parameters:
+        api_key_id:
+          type: string
+          docs: The name of the API key.
+      auth: true
+      errors:
+        - root.ForbiddenError
+      examples:
+        - path-parameters:
+            api_key_id: api_key_id
+    update:
+      docs: Update an API key such as the roles attached to the key.
+      method: PATCH
+      display-name: Update an API key
+      path: /v2/api_keys/{api_key_id}
+      path-parameters:
+        api_key_id:
+          type: string
+          docs: The name of the API key.
+      auth: true
+      request:
+        name: UpdateApiKeyRequest
+        body:
+          properties:
+            enabled:
+              type: optional<boolean>
+              docs: Indicates whether to disable or enable an API key.
+      response:
+        docs: The API key.
+        type: root.ApiKey
+      errors:
+        - root.ForbiddenError
+      examples:
+        - path-parameters:
+            api_key_id: api_key_id
+          request: {}
+          response:
+            body:
+              id: id
+              name: name
+              secret_key: secret_key
+              enabled: true
+              api_key_role: serving
+              api_policy:
+                name: name
+                allowed_operations:
+                  allowed_operations:
+                    allow_any_resource: true

@@ -1,0 +1,47 @@
+imports:
+  root: __package__.yml
+service:
+  auth: false
+  url: Default
+  base-path: ''
+  endpoints:
+    list:
+      docs: List LLMs that can be used with query and chat endpoints.
+      method: GET
+      display-name: List LLMs.
+      path: /v2/llms
+      auth: true
+      request:
+        name: LlmsListRequest
+        query-parameters:
+          filter:
+            type: optional<string>
+            docs: A regular expression to match names and descriptions of the LLMs.
+          limit:
+            type: optional<integer>
+            docs: The maximum number of results to return in the list.
+          page_key:
+            type: optional<string>
+            docs: >
+              Used to the retrieve the next page of LLMs after the limit has
+              been reached.
+
+              This parameter is not needed for the first page of results.
+      response:
+        docs: List of LLMs.
+        type: root.ListLLMsResponse
+      errors:
+        - root.ForbiddenError
+      examples:
+        - response:
+            body:
+              llms:
+                - id: id
+                  name: name
+                  description: description
+                  enabled: true
+                  default: true
+                  prompts:
+                    key: value
+              metadata:
+                page_key: page_key

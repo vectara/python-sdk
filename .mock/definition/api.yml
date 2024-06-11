@@ -1,0 +1,29 @@
+name: api
+display-name: Vectara REST API v2
+imports:
+  auth: auth.yml
+auth: OAuthScheme
+auth-schemes:
+  OAuthScheme:
+    scheme: oauth
+    type: client-credentials
+    client-id-env: VECTARA_CLIENT_ID
+    client-secret-env: VECTARA_CLIENT_SECRET
+    get-token:
+      endpoint: auth.getToken
+      response-properties:
+        access-token: $response.access_token
+        expires-in: $response.expires_in
+headers:
+  x-api-key:
+    type: optional<string>
+    name: apiKey
+    env: VECTARA_API_KEY
+default-environment: Production
+environments:
+  Production:
+    urls:
+      Default: https://api.vectara.io
+      Auth: https://auth.vectara.io
+error-discrimination:
+  strategy: status-code

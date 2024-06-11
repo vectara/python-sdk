@@ -1,0 +1,225 @@
+docs: >-
+  Create, manage, and authenticate users within the platform for user
+  administration
+imports:
+  root: __package__.yml
+service:
+  auth: false
+  url: Default
+  display-name: Users
+  base-path: ''
+  endpoints:
+    list:
+      docs: Lists all users in the account.
+      method: GET
+      display-name: List users in the account
+      path: /v2/users
+      auth: true
+      request:
+        name: UsersListRequest
+        query-parameters:
+          limit:
+            type: optional<integer>
+            docs: The maximum number of users to return at one time.
+          page_key:
+            type: optional<string>
+            docs: >-
+              Used to the retrieve the next page of users after the limit has
+              been reached.
+      response:
+        docs: List of users.
+        type: root.ListUsersResponse
+      errors:
+        - root.ForbiddenError
+      examples:
+        - response:
+            body:
+              users:
+                - id: id
+                  email: email
+                  username: username
+                  enabled: true
+                  description: description
+                  created_at: '2024-01-15T09:30:00Z'
+                  updated_at: '2024-01-15T09:30:00Z'
+                  api_roles:
+                    - owner
+                  api_policy:
+                    name: name
+                    allowed_operations:
+                      allowed_operations:
+                        allow_any_resource: true
+              metadata:
+                page_key: page_key
+    create:
+      docs: Create a user for the current customer account.
+      method: POST
+      display-name: Create a user in the current customer account
+      path: /v2/users
+      auth: true
+      request:
+        name: CreateUserRequest
+        body:
+          properties:
+            email:
+              type: string
+              validation:
+                format: email
+              docs: The email address for the user.
+            username:
+              type: optional<string>
+              docs: The username for the user. The value defaults to the email.
+            description:
+              type: optional<string>
+              docs: The description for the user.
+            api_roles:
+              type: optional<list<root.ApiRole>>
+              docs: The role names assigned to the user.
+      response:
+        docs: The created user.
+        type: root.User
+      errors:
+        - root.BadRequestError
+        - root.ForbiddenError
+      examples:
+        - request:
+            email: email
+          response:
+            body:
+              id: id
+              email: email
+              username: username
+              enabled: true
+              description: description
+              created_at: '2024-01-15T09:30:00Z'
+              updated_at: '2024-01-15T09:30:00Z'
+              api_roles:
+                - owner
+              api_policy:
+                name: name
+                allowed_operations:
+                  allowed_operations:
+                    allow_any_resource: true
+    get:
+      docs: >
+        Get a user and view details like the email, username, and roles
+        associated with a user.
+      method: GET
+      display-name: Get a user
+      path: /v2/users/{username}
+      path-parameters:
+        username:
+          type: string
+          docs: |
+            Specifies the User ID that to retrieve.
+            Note the username must be percent encoded.
+      auth: true
+      response:
+        docs: A user.
+        type: root.User
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            username: username
+          response:
+            body:
+              id: id
+              email: email
+              username: username
+              enabled: true
+              description: description
+              created_at: '2024-01-15T09:30:00Z'
+              updated_at: '2024-01-15T09:30:00Z'
+              api_roles:
+                - owner
+              api_policy:
+                name: name
+                allowed_operations:
+                  allowed_operations:
+                    allow_any_resource: true
+    delete:
+      docs: Delete a user from the account.
+      method: DELETE
+      display-name: Delete a user
+      path: /v2/users/{username}
+      path-parameters:
+        username:
+          type: string
+          docs: |
+            Specifies the username to delete.
+            Note the username must be percent encoded.
+      auth: true
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            username: username
+    update:
+      docs: Update details about a user such as role names.
+      method: PATCH
+      display-name: Update a user
+      path: /v2/users/{username}
+      path-parameters:
+        username:
+          type: string
+          docs: |
+            Specifies the User ID to update.
+            Note the username must be percent encoded.
+      auth: true
+      request:
+        name: UpdateUserRequest
+        body:
+          properties:
+            enabled:
+              type: optional<boolean>
+              docs: Indicates whether to disable or disable the user.
+            api_roles:
+              type: optional<list<root.ApiRole>>
+              docs: The new role names of the user.
+      response:
+        docs: New user after modification.
+        type: root.User
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            username: username
+          request: {}
+          response:
+            body:
+              id: id
+              email: email
+              username: username
+              enabled: true
+              description: description
+              created_at: '2024-01-15T09:30:00Z'
+              updated_at: '2024-01-15T09:30:00Z'
+              api_roles:
+                - owner
+              api_policy:
+                name: name
+                allowed_operations:
+                  allowed_operations:
+                    allow_any_resource: true
+    resetPassword:
+      docs: Reset the password for a user.
+      method: POST
+      display-name: Reset the password for a user
+      path: /v2/users/{username}/reset_password
+      path-parameters:
+        username:
+          type: string
+          docs: |
+            Specifies the username to update.
+            Note the username must be percent encoded and URI safe.
+      auth: true
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            username: username

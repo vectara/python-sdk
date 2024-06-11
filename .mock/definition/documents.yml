@@ -1,0 +1,65 @@
+docs: Retrieve and manage documents stored in a corpus for administrative tasks
+imports:
+  root: __package__.yml
+service:
+  auth: false
+  url: Default
+  display-name: Documents
+  base-path: ''
+  endpoints:
+    list:
+      method: GET
+      display-name: List the documents in the corpus
+      path: /v2/corpora/{corpus_key}/documents
+      path-parameters:
+        corpus_key:
+          type: root.CorpusKey
+          docs: The unique key identifying the queried corpus.
+      auth: true
+      request:
+        name: DocumentsListRequest
+        query-parameters:
+          limit:
+            type: optional<integer>
+            docs: The maximum number of documents to return at one time.
+          page_key:
+            type: optional<string>
+            docs: >-
+              Used to the retrieve the next page of documents after the limit
+              has been reached.
+      response:
+        docs: List of documents.
+        type: root.ListDocumentsResponse
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            corpus_key: my-corpus
+          response:
+            body:
+              documents:
+                - id: id
+              metadata:
+                page_key: page_key
+    delete:
+      method: DELETE
+      display-name: Delete a document
+      path: /v2/corpora/{corpus_key}/documents/{document_id}
+      path-parameters:
+        corpus_key:
+          type: root.CorpusKey
+          docs: The unique key identifying the corpus with the document to delete.
+        document_id:
+          type: string
+          docs: |
+            The Document ID of the document to delete.
+            The `document_id` must be percent encoded.
+      auth: true
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            corpus_key: my-corpus
+            document_id: document_id

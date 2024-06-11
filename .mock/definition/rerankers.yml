@@ -1,0 +1,46 @@
+docs: List available rerankers for reranking search results
+imports:
+  root: __package__.yml
+service:
+  auth: false
+  url: Default
+  display-name: Rerankers
+  base-path: ''
+  endpoints:
+    list:
+      docs: Rerankers are used to improve the ranking (ordering) of search results.
+      method: GET
+      display-name: List the available rerankers
+      path: /v2/rerankers
+      auth: true
+      request:
+        name: RerankersListRequest
+        query-parameters:
+          filter:
+            type: optional<string>
+            docs: A regular expression against reranker names and descriptions.
+          limit:
+            type: optional<integer>
+            docs: The maximum number of rerankers to return in the list.
+          page_key:
+            type: optional<string>
+            docs: >-
+              Used to the retrieve the next page of rerankers after the limit
+              has been reached.
+      response:
+        docs: List of rerankers.
+        type: root.ListRerankersResponse
+      errors:
+        - root.ForbiddenError
+      examples:
+        - query-parameters:
+            filter: vectara.*
+          response:
+            body:
+              rerankers:
+                - id: id
+                  name: name
+                  description: description
+                  enabled: true
+              metadata:
+                page_key: page_key

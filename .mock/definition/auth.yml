@@ -1,0 +1,34 @@
+types:
+  AuthResponse:
+    properties:
+      access_token:
+        type: string
+        docs: >-
+          The bearer token you will pass in to subsequent API calls to
+          authenticate.
+      expires_in:
+        type: integer
+        docs: Tells you how long (in seconds) until your bearer token expires.
+      token_type:
+        type: string
+        docs: Will always be "Bearer"
+service:
+  auth: false
+  url: Auth
+  base-path: ''
+  endpoints:
+    getToken:
+      docs: Hit the auth endpoint to get a bearer token
+      method: POST
+      path: /oauth/token
+      auth: false
+      request:
+        name: getToken
+        body:
+          properties:
+            client_id: string
+            client_secret: string
+            grant_type: literal<"client_credentials">
+      response:
+        docs: OK
+        type: AuthResponse

@@ -1,0 +1,1408 @@
+types:
+  ReplaceFilterAttributesResponse:
+    properties:
+      job_id:
+        type: string
+        validation:
+          pattern: job_.+$
+        docs: Job that was created in order to replace filter attributes.
+  CorpusKey:
+    docs: A user-provided key for a corpus.
+    type: string
+    validation:
+      maxLength: 50
+      pattern: '[a-zA-Z0-9_\=\-]+$'
+  CorpusLimits:
+    properties:
+      used_bytes:
+        type: optional<integer>
+        docs: The number of bytes contained in the corpus.
+      max_bytes:
+        type: optional<integer>
+        docs: The maximum number of bytes the corpus can be.
+      max_metadata_bytes:
+        type: optional<integer>
+        docs: The maximum size that metadata can be on documents.
+      index_rate:
+        type: optional<integer>
+        docs: The maximum per-second addition of new documents to corpus.
+  Corpus:
+    properties:
+      id:
+        type: optional<string>
+        validation:
+          pattern: crp_[0-9]+$
+        docs: Vectara ID of the corpus.
+      key: optional<CorpusKey>
+      name:
+        type: optional<string>
+        docs: Name for the corpus. This value defaults to the key.
+      description:
+        type: optional<string>
+        docs: Corpus description.
+      enabled:
+        type: optional<boolean>
+        docs: Specifies whether the corpus is enabled or not.
+      chat_history_corpus:
+        type: optional<boolean>
+        docs: >-
+          Indicates that this corpus does not store documents amd stores chats
+          instead.
+      queries_are_answers:
+        type: optional<boolean>
+        docs: |
+          Queries made to this corpus are considered answers, and not questions.
+          This swaps the semantics of the encoder used at query time.
+      documents_are_questions:
+        type: optional<boolean>
+        docs: >
+          Documents inside this corpus are considered questions, and not
+          answers.
+
+          This swaps the semantics of the encoder used at indexing.
+      encoder_id:
+        type: optional<string>
+        validation:
+          pattern: enc_[0-9]+$
+        docs: The encoder used by the corpus.
+      filter_attributes:
+        type: optional<list<FilterAttribute>>
+        docs: The new filter attributes of the corpus.
+      custom_dimensions:
+        type: optional<list<CorpusCustomDimension>>
+        docs: The custom dimensions of all document parts inside the corpus.
+      limits: optional<CorpusLimits>
+      created_at:
+        type: optional<datetime>
+        docs: Indicates when the corpus was created.
+  CorpusCustomDimension:
+    docs: >
+      Custom dimensions attached to all document parts in a corpus. Allows
+      arbitrary
+
+      modification of the score for many purposes.
+    properties:
+      name:
+        type: string
+        docs: The name of the custom dimension.
+      indexing_default:
+        type: optional<double>
+        default: 0
+        docs: |
+          Default value of a custom dimension on a document part if the custom
+          dimension value is not specified when the document part is indexed.
+
+          A value of 0 means that custom dimension is not considered.
+      querying_default:
+        type: optional<double>
+        default: 0
+        docs: |
+          Default value of a custom dimension for a query if the value
+          of the custom dimension is not specified when querying the corpus.
+
+          A value of 0 means that custom dimension is not considered.
+  FilterAttributeLevel:
+    docs: Indicates whether this a document or document part metadata filter.
+    enum:
+      - document
+      - part
+  FilterAttributeType:
+    docs: The value type of the filter.
+    enum:
+      - integer
+      - real_number
+      - text
+      - boolean
+      - name: ListInteger
+        value: list[integer]
+      - name: ListRealNumber
+        value: list[real_number]
+      - name: ListText
+        value: list[text]
+  FilterAttribute:
+    properties:
+      name:
+        type: string
+        docs: >-
+          The JSON path of the filter attribute in a document or document part
+          metadata.
+      level:
+        type: FilterAttributeLevel
+        docs: Indicates whether this a document or document part metadata filter.
+      description:
+        type: optional<string>
+        docs: Description of the filter. May be omitted.
+      indexed:
+        type: optional<boolean>
+        docs: >-
+          Whether an index is created for the filter. Creating an index will
+          improve query latency when using the filter.
+      type:
+        type: FilterAttributeType
+        docs: The value type of the filter.
+  ListCorporaResponse:
+    properties:
+      corpora: optional<list<Corpus>>
+      metadata: optional<ListMetadata>
+  SearchParameters:
+    docs: Search parameters to retrieve knowledge for the query.
+    properties:
+      offset:
+        type: optional<integer>
+        default: 0
+        validation:
+          min: 0
+        docs: >-
+          Specifies how many results into the result to skip. This is useful for
+          pagination.
+      limit:
+        type: optional<integer>
+        default: 10
+        validation:
+          min: 1
+        docs: The maximum number of results returned.
+      context_configuration: optional<ContextConfiguration>
+      reranker: optional<SearchReranker>
+  ContextConfiguration:
+    docs: Configuration on the presentation of each document part in the result set.
+    properties:
+      characters_before:
+        type: optional<integer>
+        default: 0
+        validation:
+          min: 0
+        docs: >
+          The number of characters before the matching document part that are
+          shown.
+
+          This is useful to show the context of the document part in the wider
+          document.
+
+          Ignored if `sentences_before` is set.
+      characters_after:
+        type: optional<integer>
+        default: 0
+        validation:
+          min: 0
+        docs: >
+          The number of characters after the matching document part that are
+          shown. 
+
+          This is useful to show the context of the document part in the wider
+          document.
+
+          Ignored if `sentences_after` is set.
+      sentences_before:
+        type: optional<integer>
+        default: 0
+        validation:
+          min: 0
+        docs: >
+          The number of sentences before the matching document part that are
+          shown.
+
+          This is useful to show the context of the document part in the wider
+          document.
+      sentences_after:
+        type: optional<integer>
+        default: 0
+        validation:
+          min: 0
+        docs: >
+          The number of sentences after the matching document part that are
+          shown. 
+
+          This is useful to show the context of the document part in the wider
+          document.
+      start_tag:
+        type: optional<string>
+        docs: >
+          The tag that wraps the document part at the start. This is often used
+          to 
+
+          provide a start HTML/XML tag or some other delimiter you can use in
+          an 
+
+          application to understand where to provide highlighting in your UI
+          and 
+
+          understand where the context before ends and the document part begins.
+      end_tag:
+        type: optional<string>
+        docs: >
+          The tag that wraps the document part at the end. This is often used
+          to 
+
+          provide a start HTML/XML tag or some other delimiter you can use in
+          an 
+
+          application to understand where to provide highlighting in your UI
+          and 
+
+          understand where the context before ends and the document part begins.
+  ModelParameters:
+    docs: >
+      The parameters for the model.  These are currently a Scale-only feature.
+
+      See https://vectara.com/pricing/ for more details on becoming a Scale
+      customer.
+
+      WARNING: This is an experimental feature, and breakable at any point with
+      virtually no
+
+      notice. It is meant for experimentation to converge on optimal parameters
+      that can then
+
+      be set in the prompt definitions.
+    properties:
+      max_tokens:
+        type: optional<integer>
+        validation:
+          min: 0
+        docs: The maximum number of tokens to be returned by the model.
+      temperature:
+        type: optional<double>
+        docs: >
+          The sampling temperature to use. Higher values make the output more
+          random, while lower
+
+          values make it more focused and deterministic.
+      frequency_penalty:
+        type: optional<double>
+        docs: >
+          Higher values penalize new tokens based on their existing frequency in
+          the text so far,
+
+          decreasing the model's likelihood to repeat the same line verbatim.
+      presence_penalty:
+        type: optional<double>
+        docs: >
+          Higher values penalize new tokens based on whether they appear in the
+          text so far,
+
+          increasing the model's likelihood to talk about new topics.
+  GenerationParameters:
+    docs: The parameters to control generation.
+    properties:
+      prompt_name:
+        type: optional<string>
+        validation:
+          minLength: 1
+        docs: >
+          The prompt to use to feed the query results and other context to the
+          model. By specifying the
+
+          prompt name you also specify the model and other `model_parameter`
+          defaults.
+      max_used_search_results:
+        type: optional<integer>
+        default: 5
+        validation:
+          min: 0
+        docs: The maximum number of search results to be available to the prompt.
+      prompt_text:
+        type: optional<string>
+        docs: >
+          Vectara manages both system and user roles and prompts for the
+          generative
+
+          LLM out of the box by default. However, Scale customers can override
+          the
+
+          prompt_text via this variable. The prompt_text is in the form of an
+
+          Apache Velocity template. For more details on how to configure the
+
+          prompt_text, see the long-form documentation at
+
+          https://docs.vectara.com/docs/prompts/vectara-prompt-engine.
+
+          See https://vectara.com/pricing/ for more details on becoming a Scale
+          customer.
+      max_response_characters:
+        type: optional<integer>
+        validation:
+          min: 0
+        docs: >
+          Controls the length of the generated output.
+
+          This is a rough estimate and not a hard limit: the end output can be
+          longer or shorter
+
+          than this value.  This is currently a Scale-only feature.
+
+          See https://vectara.com/pricing/ for more details on becoming a Scale
+          customer.
+      response_language: optional<Language>
+      model_parameters:
+        type: optional<ModelParameters>
+        docs: >
+          The parameters for the model.  These are currently a Scale-only
+          feature.
+
+          See https://vectara.com/pricing/ for more details on becoming a Scale
+          customer.
+
+          WARNING: This is an experimental feature, and breakable at any point
+          with virtually no
+
+          notice. It is meant for experimentation to converge on optimal
+          parameters that can then
+
+          be set in the prompt definitions.
+      citations: optional<CitationParameters>
+      enable_factual_consistency_score:
+        type: optional<boolean>
+        docs: Enable returning the factual consistency score with query results.
+  CitationParametersStyle:
+    docs: >
+      The citation style to be used in summary.
+
+      Can be one of:
+
+      * `numeric` - Citations formatted as simple numerals: \[1\], \[2\] ...
+
+      * `none` - Citations removed from text.
+
+      * `html` - Citation formatted as url like `<a
+      href="url_pattern">text_pattern</a>`.
+
+      * `markdown` - Formatted as `[text_pattern](url_pattern)`.
+    enum:
+      - none
+      - numeric
+      - html
+      - markdown
+  CitationParameters:
+    docs: Style the generator should use when making citations.
+    properties:
+      style:
+        type: optional<CitationParametersStyle>
+        docs: >
+          The citation style to be used in summary.
+
+          Can be one of:
+
+          * `numeric` - Citations formatted as simple numerals: \[1\], \[2\] ...
+
+          * `none` - Citations removed from text.
+
+          * `html` - Citation formatted as url like `<a
+          href="url_pattern">text_pattern</a>`.
+
+          * `markdown` - Formatted as `[text_pattern](url_pattern)`.
+      url_pattern:
+        type: optional<string>
+        docs: |
+          The url pattern if the citation_style is set to `html` or `markdown`.
+          The pattern can access metadata attributes in the document or part.
+          e.g. `https://my.doc/foo/{doc.id}/{part.id}`
+
+          The default `url_pattern` is an empty string.
+      text_pattern:
+        type: optional<string>
+        docs: >
+          The text pattern if the citation_style is set to `html` or `markdown`.
+
+          This pattern sets the href for html or the text within `[]` in
+          markdown,
+
+          and defaults to N being the index of result if it is not set.
+
+
+          The default citation style looks like `[N](<url_pattern>)` for
+          markdown.
+
+
+          You can use metadata attributes in the `text_pattern`. For example,
+
+          the pattern `{doc.title}` with citation style `markdown` would result
+
+          in final citation output like `[Title](<url_pattern>)` when
+
+          the document's metadata includes `{"title":"Title"}`.
+  SearchCorporaParameters:
+    docs: The parameters to search one or more corpora.
+    extends:
+      - SearchParameters
+    properties:
+      corpora:
+        type: optional<list<KeyedSearchCorpus>>
+        docs: The corpora that you want to search.
+  SearchCorpus:
+    properties:
+      custom_dimensions: optional<CustomDimensions>
+      metadata_filter:
+        type: optional<string>
+        docs: >-
+          The filter string to narrow the search to according to metadata
+          attributes.
+      lexical_interpolation:
+        type: optional<double>
+        docs: >-
+          How much to weigh lexical scores compared to the embedding score. 0
+          means lexical search is not used at all, and 1 means only lexical
+          search is used.
+      semantics: optional<SearchSemantics>
+  SearchSemantics:
+    docs: >-
+      Indicates whether to consider a query against this corpus as a query or a
+      response.
+    enum:
+      - default
+      - query
+      - response
+  KeyedSearchCorpus:
+    extends:
+      - SearchCorpus
+    properties:
+      corpus_key: optional<CorpusKey>
+  SearchReranker:
+    union:
+      - CustomerSpecificReranker
+      - MMRReranker
+    discriminated: false
+  CustomerSpecificReranker:
+    docs: Reranker that is specific to the customer.
+    properties:
+      type: literal<"customer_reranker">
+      reranker_id:
+        type: string
+        validation:
+          pattern: rnk_(?!272725718)\d+
+        docs: >
+          The ID of the reranker. Current reranker that may be used by Scale
+          custmers is rnk_272725719.
+
+          Do not specify the MMR reranker ID here, and instead use the MMR
+          reranker object type.
+  MMRReranker:
+    properties:
+      type: literal<"mmr">
+      diversity_bias:
+        type: optional<double>
+        docs: The diversity bias. Higher values indicate more diversity.
+  QueryFullResponse:
+    docs: The full response to a RAG query when the result is not streamed.
+    properties:
+      summary:
+        type: optional<string>
+        docs: The summary of the search results.
+      response_language: optional<Language>
+      search_results:
+        type: optional<list<IndividualSearchResult>>
+        docs: The ranked search results.
+      factual_consistency_score:
+        type: optional<double>
+        docs: >
+          The probability that the summary is factually consistent with the
+          results.
+  IndividualSearchResult:
+    docs: An individual ranked search result from a query.
+    properties:
+      text:
+        type: optional<string>
+        docs: >-
+          The document part altered by the context configuration that matches
+          the query.
+      score:
+        type: optional<double>
+        docs: The score of the individual result.
+      part_metadata:
+        type: optional<map<string, unknown>>
+        docs: The metadata for the document part.
+      document_metadata:
+        type: optional<map<string, unknown>>
+        docs: The metadata for the document that contains the document part.
+      document_id:
+        type: optional<string>
+        docs: The ID of the document that contains the document part.
+      request_corpora_index:
+        type: optional<integer>
+        validation:
+          min: 0
+        docs: >
+          A query request can search over multiple corpora at a time. This
+          proprety 
+
+          is set to the index in the list of corpora in the original search
+          request that this
+
+          search result originated from.
+
+
+          If the query request is only over one corpus, this property is 0.
+  QueryStreamedResponse:
+    docs: An individual event sent with SSE when the query request is streamed.
+    union:
+      - StreamSearchResponse
+      - StreamGenerationChunk
+      - StreamGenerationEnd
+      - FactualConsistencyScore
+      - StreamError
+      - StreamResponseEnd
+    discriminated: false
+  StreamSearchResponse:
+    docs: The search response results.
+    properties:
+      type: literal<"search_results">
+      search_results:
+        type: optional<list<IndividualSearchResult>>
+        docs: The ranked search results.
+  StreamGenerationChunk:
+    docs: The chunk response from the generation, possibly a partial generation.
+    properties:
+      type: literal<"generation_chunk">
+      generation_chunk:
+        type: optional<string>
+        docs: >
+          Part of the message from the generator. All summary chunks must be
+          appended together in order
+
+          to get the full summary.
+  FactualConsistencyScore:
+    docs: Event containing the factual consistency score.
+    properties:
+      type: literal<"factual_consistency_score">
+      factual_consistency_score:
+        type: optional<double>
+        docs: >-
+          The probability that the summary is factually consistent with the
+          results.
+  StreamError:
+    docs: |
+      Event signaling there was an error with the request.
+    properties:
+      type: literal<"error">
+      messages:
+        type: optional<list<string>>
+        docs: The error messages.
+  StreamGenerationEnd:
+    docs: |
+      The end of generation. There may still be more information such as the
+      factual consistency score, but generation has stopped.
+    properties:
+      type: literal<"generation_end">
+  StreamResponseEnd:
+    docs: The end of a query response stream.
+    properties:
+      type: literal<"end">
+  CreateDocumentRequest:
+    docs: >
+      Creating a document using this endpoint can take multiple forms depending
+      on how much
+
+      control of the resulting document parts you desire. You can create a
+      document
+
+      with natural structure, and Vectara will use it's proprietary strategy to
+      create document parts.
+
+
+      Otherwise, you can create a document with all the document parts
+      explicitly specified.
+
+
+      A document part is the a search result item in search and retrieval
+      augmeneted generation endpoints.
+    base-properties: {}
+    union:
+      core: CoreDocument
+      structured: StructuredDocument
+    discriminant: type
+  StructuredDocument:
+    docs: A document with layout features.
+    properties:
+      id:
+        type: string
+        docs: The Document ID, must be unique within the corpus.
+      title:
+        type: optional<string>
+        docs: The title of the document.
+      description:
+        type: optional<string>
+        docs: The description of the document.
+      metadata:
+        type: optional<map<string, unknown>>
+        docs: >
+          The metadata for a document and is an arbitrary JSON object.
+          Properties of this object
+
+          can be used by document level filter attributes.
+      custom_dimensions: optional<CustomDimensions>
+      sections:
+        type: list<StructuredDocumentSection>
+        docs: The subsection of the document.
+  StructuredDocumentSection:
+    docs: A logical section within a structured document.
+    properties:
+      id:
+        type: optional<integer>
+        docs: The section ID. Gets converted to a metadata field.
+      title:
+        type: optional<string>
+        docs: The section title.
+      text:
+        type: string
+        docs: The text of the section.
+      metadata:
+        type: optional<map<string, unknown>>
+        docs: >
+          Arbitrary object that becomes document part level metadata on any
+          document part created 
+
+          by this section. Properties of this object can be used by document
+          part level 
+
+          filters if defined as a corpus filter attribute.
+      sections:
+        type: optional<list<StructuredDocumentSection>>
+        docs: The sections that this section contains.
+  CoreDocument:
+    docs: >-
+      The document structure that most closely corresponds to Vectara's internal
+      document data model.
+    properties:
+      id:
+        type: string
+        docs: The Document ID, must be unique within the corpus.
+      metadata:
+        type: optional<map<string, unknown>>
+        docs: >
+          Arbitrary object of document level metadata. Properties of this object
+
+          can be used by document filter if defined as a corpus filter
+          attribute.
+      document_parts:
+        type: list<CoreDocumentPart>
+        docs: Parts of the document that make up the document.
+  CoreDocumentPart:
+    docs: >-
+      A part of a document. This section gets converted into an embedding and
+      directly maps to a search result. Usually a sentence.
+    properties:
+      text:
+        type: string
+        docs: The text of the document part.
+      metadata:
+        type: optional<map<string, unknown>>
+        docs: >-
+          The metadata for a document part. Attributes matching corpus document
+          part filter attributes are used as document part filter attributes.
+      context:
+        type: optional<string>
+        docs: The context text for the document part.
+      custom_dimensions: optional<CustomDimensions>
+  CustomDimensions:
+    docs: The custom dimensions as additional weights.
+    type: map<string, double>
+  Document:
+    properties:
+      id:
+        type: optional<string>
+        docs: The Document ID.
+      metadata:
+        type: optional<map<string, unknown>>
+        docs: The document metadata.
+      storage_usage: optional<DocumentStorageUsage>
+  DocumentStorageUsage:
+    docs: >
+      How much storage the document used. This information is currently not
+      returned when
+
+      retrieving the document, and only returned when indexing document.
+    properties:
+      bytes_used:
+        type: optional<integer>
+        validation:
+          min: 0
+        docs: >
+          Number of bytes used by document counting towards maximum corpus size,
+          and
+
+          towards any billing plans.
+      metadata_bytes_used:
+        type: optional<integer>
+        validation:
+          min: 0
+        docs: |
+          Number of metadata bytes used by document metadata.
+  ListDocumentsResponse:
+    properties:
+      documents:
+        type: optional<list<Document>>
+        docs: List of documents.
+      metadata: optional<ListMetadata>
+  LLM:
+    docs: |
+      A LLM can be used to enhance query results with a response, and be used as
+      the responder during a chat.
+    properties:
+      id:
+        type: optional<string>
+        validation:
+          pattern: llm_.*
+        docs: The ID of the LLM. This is used as the model ID in a query.
+      name:
+        type: optional<string>
+        docs: Name of the LLM.
+      description:
+        type: optional<string>
+        docs: The description of the LLM.
+      enabled:
+        type: optional<boolean>
+        docs: Indicates whether the LLM is enabled.
+      default:
+        type: optional<boolean>
+        docs: |
+          If this is the default LLM, it is used in queries when the generator
+          is not specified.
+      prompts: optional<unknown>
+  Prompt:
+    docs: A prompt that can be used with an LLM.
+    properties:
+      id:
+        type: optional<string>
+        validation:
+          pattern: pmt_.*
+        docs: The ID of the prompt.
+      name:
+        type: optional<string>
+        docs: Name of the prompt. This is used as the prompt name in a query.
+      description:
+        type: optional<string>
+        docs: The description of the prompt.
+      enabled:
+        type: optional<boolean>
+        docs: Indicates whether the prompt is enabled.
+      default:
+        type: optional<boolean>
+        docs: Indicates if this prompt is the default prompt used with the LLM.
+  ListLLMsResponse:
+    properties:
+      llms:
+        type: optional<list<LLM>>
+        docs: List of LLMs.
+      metadata: optional<ListMetadata>
+  ChatParameters:
+    docs: Parameters to control chat behavior.
+    properties:
+      store:
+        type: optional<boolean>
+        docs: Indicates whether to store chat message and response message.
+  ChatFullResponse:
+    docs: Full response to a chat question when the result is not streamed.
+    properties:
+      chat_id:
+        type: optional<string>
+        docs: If the chat response was stored, the ID of the chat.
+      turn_id:
+        type: optional<string>
+        docs: If the chat response was stored, the ID of the turn.
+      answer:
+        type: optional<string>
+        docs: The message from the chat model for the chat message.
+      response_language:
+        type: optional<Language>
+        docs: The language that the answer is expected to be.
+      search_results:
+        type: optional<list<IndividualSearchResult>>
+        docs: The ranked search results that the chat model used.
+      factual_consistency_score:
+        type: optional<double>
+        docs: >
+          The probability that the summary is factually consistent with the
+          results.
+  ChatStreamedResponse:
+    union:
+      - StreamSearchResponse
+      - ChatInfoResponse
+      - StreamGenerationChunk
+      - StreamGenerationEnd
+      - FactualConsistencyScore
+      - StreamResponseEnd
+      - StreamError
+    discriminated: false
+  ChatInfoResponse:
+    docs: Information about the chat.
+    properties:
+      chat_id:
+        type: optional<string>
+        validation:
+          pattern: cht_.+$
+        docs: ID of the chat.
+      turn_id:
+        type: optional<string>
+        validation:
+          pattern: trn_.+$
+        docs: ID of the turn.
+  Chat:
+    properties:
+      id:
+        type: optional<string>
+        validation:
+          pattern: cht_.+$
+        docs: ID of the chat.
+      first_query:
+        type: optional<string>
+        docs: The first query of the chat.
+      first_answer:
+        type: optional<string>
+        docs: The first answer of the chat.
+      enabled:
+        type: optional<boolean>
+        docs: Indicates whether this chat is enabled and can have further turns.
+      created_at:
+        type: optional<datetime>
+        docs: Specifies when this chat was created.
+  ListChatsResponse:
+    properties:
+      chats:
+        type: optional<list<Chat>>
+        docs: List of chats.
+      metadata: optional<ListMetadata>
+  Turn:
+    properties:
+      id:
+        type: optional<string>
+        validation:
+          pattern: trn_.+$
+        docs: The ID of the turn.
+      chat_id:
+        type: optional<string>
+        validation:
+          pattern: cht_.+$
+        docs: The ID of the chat the turn resides in.
+      query:
+        type: optional<string>
+        docs: The query made to produce this turn.
+      answer:
+        type: optional<string>
+        docs: The response to the query.
+      enabled:
+        type: optional<boolean>
+        docs: >-
+          Indicates whether the turn is enabled and shown in futures turns of
+          the chat.
+      created_at:
+        type: optional<datetime>
+        docs: Specifies when the turn was created.
+  ListChatTurnsResponse:
+    properties:
+      turns:
+        type: optional<list<Turn>>
+        docs: List of turns.
+  ListEncodersResponse:
+    properties:
+      encoders: optional<list<Encoder>>
+      metadata: optional<ListMetadata>
+  ApiKey:
+    properties:
+      id:
+        type: optional<string>
+        validation:
+          pattern: aky_.*
+        docs: The ID of the API key.
+      name:
+        type: optional<string>
+        docs: The human-readable name of the API key.
+      secret_key:
+        type: optional<string>
+        docs: The key used in API requests. Should be kept secure.
+      enabled:
+        type: optional<boolean>
+        docs: If this API key is enabled.
+      api_key_role: optional<ApiKeyRole>
+      api_policy: optional<ApiPolicy>
+  ApiKeyRole:
+    docs: >
+      Role of the API key. 
+
+      A serving API key can only perform query type requests on its corpora. A
+      serving and
+
+      indexing key can perform both indexing and query type requests on its
+      corpora.
+
+      A personal API key has all the same permissions as the creator of the API
+      key.
+    enum:
+      - serving
+      - serving_and_indexing
+      - personal
+  ListApiKeysResponse:
+    properties:
+      api_keys:
+        type: optional<list<ApiKey>>
+        docs: List of API keys.
+      metadata: optional<ListMetadata>
+  CreateAppClientRequest:
+    base-properties: {}
+    union:
+      client_credentials: CreateClientCredentialsRequest
+    discriminant: type
+  CreateClientCredentialsRequest:
+    docs: >-
+      Create an App Client which allows you to call Vectara APIs using OAuth 2.0
+      client credentials.
+    properties:
+      name:
+        type: string
+        docs: Name of the client credentials.
+      description:
+        type: optional<string>
+        docs: Description of the client credentials.
+      api_roles:
+        type: optional<list<ApiRole>>
+        docs: API roles that the client credentials will have.
+  AppClient:
+    properties:
+      id:
+        type: optional<string>
+        validation:
+          pattern: app_.+$
+        docs: |
+          The Vectara App Client ID. This ID is not used during an OAuth
+          flow but the ID used within the Vectara API.
+      name:
+        type: optional<string>
+        docs: The human-readable name of the App Client.
+      description:
+        type: optional<string>
+        docs: Descritpion of the App Client.
+      client_id:
+        type: optional<string>
+        docs: The client ID used with the OAuth flow.
+      client_secret:
+        type: optional<string>
+        docs: The key used in API requests. Should be kept secure.
+      api_roles:
+        type: optional<list<ApiRole>>
+        docs: The API roles attached to the App Client.
+      api_policy: optional<ApiPolicy>
+  ListAppClientsResponse:
+    properties:
+      app_clients:
+        type: optional<list<AppClient>>
+        docs: List of App Clients.
+      metadata: optional<ListMetadata>
+  Encoder:
+    properties:
+      id:
+        type: optional<string>
+        validation:
+          pattern: enc_[0-9]+$
+        docs: The Encoder ID.
+      name:
+        type: optional<string>
+        docs: The encoder name.
+      output_dimensions:
+        type: optional<integer>
+        docs: >
+          When this encoder is used to create an embedding, it shows the count
+          of dimensions for the output embedding.
+
+          A high dimensionality will consume more storage space, but it allows
+          for an increase the quality of
+
+          the embedding.
+      description:
+        type: optional<string>
+        docs: The encoder description.
+      default:
+        type: optional<boolean>
+        docs: Indicates whether the encoder is default used when creating a corpus.
+      enabled:
+        type: optional<boolean>
+        docs: Indicates whether the encoder is enabled.
+  Reranker:
+    docs: >
+      A reranker can be used in query or chat endpoints to reorder the search
+      results.
+    properties:
+      id:
+        type: optional<string>
+        validation:
+          pattern: rnk_[0-9]+$
+        docs: The ID of the reranker.
+      name:
+        type: optional<string>
+        docs: The name of the reranker.
+      description:
+        type: optional<string>
+        docs: The description of the reranker.
+      enabled:
+        type: optional<boolean>
+        docs: Whether the reranker is enabled.
+  ListRerankersResponse:
+    properties:
+      rerankers:
+        type: optional<list<Reranker>>
+        docs: An array of rerankers.
+      metadata: optional<ListMetadata>
+  JobType:
+    docs: The type of job.
+    enum:
+      - rebuild_vector_index
+      - replace_filter_attributes
+      - unknown
+  Job:
+    properties:
+      id:
+        type: optional<string>
+        validation:
+          pattern: job_.+$
+        docs: The ID of the job.
+      type:
+        type: optional<JobType>
+        docs: The type of job.
+      corpus_keys:
+        type: optional<list<CorpusKey>>
+        docs: >-
+          The corpora that this job belongs to. It may not belong to any
+          corpora.
+      state: optional<JobState>
+      created_at:
+        type: optional<datetime>
+        docs: Specifies when the job was created.
+      started_at:
+        type: optional<datetime>
+        docs: Specifies when the job was started.
+      completed_at:
+        type: optional<datetime>
+        docs: Specifies when the job was completed.
+  JobState:
+    enum:
+      - unknown
+      - queued
+      - started
+      - completed
+      - failed
+      - failed_will_retry
+      - aborted
+  ListJobsResponse:
+    properties:
+      jobs:
+        type: optional<list<Job>>
+        docs: An array of jobs.
+      metadata: optional<ListMetadata>
+  User:
+    properties:
+      id:
+        type: optional<string>
+        validation:
+          pattern: usr_.+
+        docs: The Vectara ID for the user.
+      email:
+        type: optional<string>
+        validation:
+          format: email
+        docs: The email address for the user.
+      username:
+        type: optional<string>
+        docs: The username for the user.
+      enabled:
+        type: optional<boolean>
+        docs: Indicates whether the user is enabled or disabled.
+      description:
+        type: optional<string>
+        docs: The escription for the user.
+      created_at:
+        type: optional<datetime>
+        docs: When the user was created.
+      updated_at:
+        type: optional<datetime>
+        docs: When a user property was last updated.
+      api_roles:
+        type: optional<list<ApiRole>>
+        docs: The role names of the user.
+      api_policy: optional<ApiPolicy>
+  ListUsersResponse:
+    properties:
+      users:
+        type: optional<list<User>>
+        docs: List of users.
+      metadata: optional<ListMetadata>
+  ApiRole:
+    docs: Roles that a user or an app client can take on.
+    enum:
+      - owner
+      - administrator
+      - billing_administrator
+      - corpus_administrator
+  ApiPolicy:
+    docs: What actions a principal can take on the Vectara platform.
+    properties:
+      name:
+        type: string
+        docs: The name of the API role.
+      allowed_operations:
+        type: map<string, ApiOperationPolicy>
+        docs: >
+          Operations that are allowed by the API role. Each operation may only
+          allow
+
+          certain resources that are described by a resource path to resource
+          value
+
+          map. If the value is null, then the operation is allowed on any
+          resource.
+  ApiOperationPolicy:
+    docs: |
+      Policy to allow operations if only using the specified resource.
+    properties:
+      allow_any_resource:
+        type: boolean
+        docs: If any resource is allowed for the operation.
+      allowed_resources:
+        type: optional<map<string, list<string>>>
+        docs: |
+          Object with keys of resource paths to a list of allowed resources.
+          A resource path starts with either body, path, or implicit.
+          A body or path resource is within the operation body, and implicit
+          resource is a resource implied by the request.
+  Language:
+    docs: Languages that the Vectara platform supports.
+    enum:
+      - auto
+      - eng
+      - deu
+      - fra
+      - zho
+      - kor
+      - ara
+      - rus
+      - tha
+      - nld
+      - ita
+      - por
+      - spa
+      - jpn
+      - pol
+      - tur
+      - vie
+      - ind
+      - ces
+      - ukr
+      - ell
+      - heb
+      - fas
+      - hin
+      - urd
+      - swe
+      - ben
+      - msa
+      - ron
+  ListMetadata:
+    docs: The standard metadata in the response of a list operation.
+    properties:
+      page_key:
+        type: optional<string>
+        docs: >-
+          When requesting the next page of this list, this is needed as a query
+          parameter.
+  NotFoundErrorBody:
+    properties:
+      id:
+        type: optional<string>
+        docs: The ID cannot found.
+      messages: optional<list<string>>
+      request_id:
+        type: optional<string>
+        docs: >-
+          ID of the request that can be used to help Vectara support debug what
+          went wrong.
+  BadRequestErrorBody:
+    properties:
+      field_errors:
+        type: optional<map<string, string>>
+        docs: The errors that relate to specific fields in the request.
+      messages: optional<list<string>>
+      request_id:
+        type: optional<string>
+        docs: >-
+          The ID of the request that can be used to help Vectara support debug
+          what went wrong.
+  Error:
+    properties:
+      messages:
+        type: optional<list<string>>
+        docs: The messages describing why the error occured.
+      request_id:
+        type: optional<string>
+        docs: >-
+          The ID of the request that can be used to help Vectara support debug
+          what went wrong .
+service:
+  auth: false
+  url: Default
+  base-path: ''
+  endpoints:
+    stream_query:
+      docs: >-
+        Perform a multi-purpose query that can retrieve relevant information
+        from one or more corpora and generate a response using RAG.
+      method: POST
+      display-name: Query Corpora
+      path: /v2/query
+      auth: true
+      request:
+        name: StreamQueryRequest
+        body:
+          properties:
+            query:
+              type: string
+              docs: The query to receive an answer on.
+            search: SearchCorporaParameters
+            generation: optional<GenerationParameters>
+            stream_response:
+              type: literal<true>
+              docs: Indicates whether the response should be streamed or not.
+      response-stream:
+        docs: ''
+        type: QueryStreamedResponse
+        format: json
+      errors:
+        - BadRequestError
+        - ForbiddenError
+        - NotFoundError
+    query:
+      docs: >-
+        Perform a multi-purpose query that can retrieve relevant information
+        from one or more corpora and generate a response using RAG.
+      method: POST
+      display-name: Query Corpora
+      path: /v2/query
+      auth: true
+      request:
+        name: QueryRequest
+        body:
+          properties:
+            query:
+              type: string
+              docs: The query to receive an answer on.
+            search: SearchCorporaParameters
+            generation: optional<GenerationParameters>
+            stream_response:
+              type: literal<false>
+              docs: Indicates whether the response should be streamed or not.
+      response:
+        docs: ''
+        type: QueryFullResponse
+      errors:
+        - BadRequestError
+        - ForbiddenError
+        - NotFoundError
+      examples:
+        - request:
+            query: Am I allowed to bring pets to work?
+            search:
+              corpora:
+                - custom_dimensions: {}
+                  metadata_filter: doc.title = "Adventures of Huckleberry Finn"
+                  lexical_interpolation: 0.025
+                  semantics: default
+                  corpus_key: my-corpus
+              offset: 0
+              limit: 10
+              context_configuration:
+                characters_before: 30
+                characters_after: 30
+                sentences_before: 3
+                sentences_after: 3
+                start_tag: <em>
+                end_tag: </em>
+              reranker:
+                type: customer_reranker
+                reranker_id: rnk_272725719
+            generation:
+              prompt_name: vectara-summary-ext-v1.2.0
+              max_used_search_results: 5
+              prompt_text: |
+                [
+                  {"role": "system", "content": "You are a helpful search assistant."},
+                  #foreach ($qResult in $vectaraQueryResults)
+                    {"role": "user", "content": "Given the $vectaraIdxWord[$foreach.index] search result."},
+                    {"role": "assistant", "content": "${qResult.getText()}" },
+                  #end
+                  {"role": "user", "content": "Generate a summary for the query '${vectaraQuery}' based on the above results."}
+                ]
+              max_response_characters: 300
+              response_language: auto
+              model_parameters:
+                max_tokens: 0
+                temperature: 0
+                frequency_penalty: 0
+                presence_penalty: 0
+              citations:
+                style: none
+                url_pattern: https://vectara.com/documents/{doc.id}
+                text_pattern: '{doc.title}'
+              enable_factual_consistency_score: true
+            stream_response: false
+          response:
+            body:
+              summary: summary
+              response_language: auto
+              search_results:
+                - text: text
+                  score: 1.1
+                  document_id: document_id
+                  request_corpora_index: 0
+              factual_consistency_score: 1.1
+    upload:
+      docs: >-
+        Upload files such as PDFs and Word Documents. Vectara will attempt to
+        automatically extract text and any metadata.
+      method: POST
+      display-name: Upload a file to the corpus
+      path: /v2/corpora/{corpus_key}/upload_file
+      path-parameters:
+        corpus_key:
+          type: CorpusKey
+          docs: The unique key identifying the corpus of which to upload the file.
+      auth: true
+      request:
+        name: UploadFileRequest
+        content-type: multipart/form-data
+        body:
+          properties:
+            metadata:
+              type: optional<map<string, unknown>>
+              docs: >-
+                Arbitrary object that will be attached as document metadata to
+                the extracted document.
+            file: file
+      response:
+        docs: The extracted document havs been parsed and added to the corpus.
+        type: Document
+      errors:
+        - BadRequestError
+        - ForbiddenError
+        - NotFoundError
+      examples:
+        - path-parameters:
+            corpus_key: my-corpus
+          request: {}
+          response:
+            body:
+              id: id
+              metadata:
+                metadata:
+                  key: value
+              storage_usage:
+                bytes_used: 1
+                metadata_bytes_used: 1
+errors:
+  BadRequestError:
+    docs: Query request was malformed.
+    status-code: 400
+    type: BadRequestErrorBody
+  ForbiddenError:
+    docs: Permissions do not allow querying one or more corpora in the request.
+    status-code: 403
+    type: Error
+  NotFoundError:
+    docs: One or more of the corpora was not found.
+    status-code: 404
+    type: NotFoundErrorBody

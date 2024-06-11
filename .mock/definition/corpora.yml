@@ -1,0 +1,474 @@
+imports:
+  root: __package__.yml
+types:
+  SearchCorpusParameters:
+    docs: The parameters to search one corpus.
+    extends:
+      - root.SearchCorpus
+      - root.SearchParameters
+    properties: {}
+service:
+  auth: false
+  url: Default
+  base-path: ''
+  endpoints:
+    list:
+      docs: >
+        List corpora in the account. The corpus objects that are returned are
+        less
+
+        detailed than the direct corpus retrieval operation.
+      method: GET
+      display-name: List corpora
+      path: /v2/corpora
+      auth: true
+      request:
+        name: CorpusListRequest
+        query-parameters:
+          limit:
+            type: optional<integer>
+            docs: The maximum number of corpora to return at one time.
+          filter:
+            type: optional<string>
+            docs: >-
+              A regular expression to filter the corpora by their name or
+              summary.
+          page_key:
+            type: optional<string>
+            docs: >-
+              Used to retrieve the next page of corpora after the limit has been
+              reached.
+      response:
+        docs: List of corpora.
+        type: root.ListCorporaResponse
+      errors:
+        - root.ForbiddenError
+      examples:
+        - response:
+            body:
+              corpora:
+                - id: id
+                  key: my-corpus
+                  name: name
+                  description: description
+                  enabled: true
+                  chat_history_corpus: true
+                  queries_are_answers: true
+                  documents_are_questions: true
+                  encoder_id: encoder_id
+                  filter_attributes:
+                    - name: Title
+                      level: document
+                      description: The title of the docment.
+                      type: integer
+                  custom_dimensions:
+                    - name: importance
+                      indexing_default: 0
+                      querying_default: 0
+                  created_at: '2024-01-15T09:30:00Z'
+              metadata:
+                page_key: page_key
+      pagination:
+        cursor: $request.page_key
+        next_cursor: $response.metadata.page_key
+        results: $response.corpora
+    create:
+      docs: >-
+        Create a corpus, which is a container to store documents and associated
+        metadata.
+      method: POST
+      display-name: Create a corpus
+      path: /v2/corpora
+      auth: true
+      request:
+        name: CreateCorpusRequest
+        body:
+          properties:
+            key: root.CorpusKey
+            name:
+              type: optional<string>
+              docs: The name for the corpus. This value defaults to the key.
+            description:
+              type: optional<string>
+              docs: Description for the corpus.
+            queries_are_answers:
+              type: optional<boolean>
+              docs: >-
+                Queries made to this corpus are considered answers, and not
+                questions.
+            documents_are_questions:
+              type: optional<boolean>
+              docs: >-
+                Documents inside this corpus are considered questions, and not
+                answers.
+            encoder_id:
+              type: optional<string>
+              validation:
+                pattern: enc_[0-9]+$
+              docs: >-
+                The encoder used by the corpus. This value defaults to the most
+                recent Vectara encoder.
+            filter_attributes:
+              type: optional<list<root.FilterAttribute>>
+              docs: |
+                The new filter attributes of the corpus. 
+                If unset then the corpus will not have filter attributes.
+            custom_dimensions:
+              type: optional<list<root.CorpusCustomDimension>>
+              docs: >
+                A custom dimension is an additional numerical field attached to
+                a document part. You
+
+                can then multiply this numerical field with a query time custom
+                dimension of the same
+
+                name. This allows boosting (or deboosting) document parts for
+                arbitrary reasons.
+
+                This feature is only enabled for Scale customers.
+      response:
+        docs: The corpus has been created.
+        type: root.Corpus
+      errors:
+        - root.BadRequestError
+        - root.ForbiddenError
+      examples:
+        - request:
+            key: my-corpus
+          response:
+            body:
+              id: id
+              key: my-corpus
+              name: name
+              description: description
+              enabled: true
+              chat_history_corpus: true
+              queries_are_answers: true
+              documents_are_questions: true
+              encoder_id: encoder_id
+              filter_attributes:
+                - name: Title
+                  level: document
+                  description: The title of the docment.
+                  indexed: true
+                  type: integer
+              custom_dimensions:
+                - name: importance
+                  indexing_default: 0
+                  querying_default: 0
+              limits:
+                used_bytes: 1
+                max_bytes: 1
+                max_metadata_bytes: 1
+                index_rate: 1
+              created_at: '2024-01-15T09:30:00Z'
+    get:
+      docs: >-
+        Get metadata about a corpus. This operation is not a method of searching
+        a corpus.
+      method: GET
+      display-name: Retrieve metadata about a corpus
+      path: /v2/corpora/{corpus_key}
+      path-parameters:
+        corpus_key:
+          type: root.CorpusKey
+          docs: The unique key identifying the corpus to retrieve.
+      auth: true
+      response:
+        docs: A corpus.
+        type: root.Corpus
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            corpus_key: my-corpus
+          response:
+            body:
+              id: id
+              key: my-corpus
+              name: name
+              description: description
+              enabled: true
+              chat_history_corpus: true
+              queries_are_answers: true
+              documents_are_questions: true
+              encoder_id: encoder_id
+              filter_attributes:
+                - name: Title
+                  level: document
+                  description: The title of the docment.
+                  indexed: true
+                  type: integer
+              custom_dimensions:
+                - name: importance
+                  indexing_default: 0
+                  querying_default: 0
+              limits:
+                used_bytes: 1
+                max_bytes: 1
+                max_metadata_bytes: 1
+                index_rate: 1
+              created_at: '2024-01-15T09:30:00Z'
+    delete:
+      docs: Delete a corpus and all the data that it contains.
+      method: DELETE
+      display-name: Delete a corpus and all its data
+      path: /v2/corpora/{corpus_key}
+      path-parameters:
+        corpus_key:
+          type: root.CorpusKey
+          docs: The unique key identifying the corpus to delete
+      auth: true
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            corpus_key: my-corpus
+    update:
+      docs: Enable or disable a corpus.
+      method: PATCH
+      display-name: Update a corpus
+      path: /v2/corpora/{corpus_key}
+      path-parameters:
+        corpus_key:
+          type: root.CorpusKey
+          docs: The unique key identifying the corpus to update.
+      auth: true
+      request:
+        name: UpdateCorpusRequest
+        body:
+          properties:
+            enabled:
+              type: optional<boolean>
+              docs: >-
+                Set whether or not the corpus is enabled. If unset then the
+                corpus will remain in the same state.
+      response:
+        docs: Succcessfully modified the corpus.
+        type: root.Corpus
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            corpus_key: my-corpus
+          request: {}
+          response:
+            body:
+              id: id
+              key: my-corpus
+              name: name
+              description: description
+              enabled: true
+              chat_history_corpus: true
+              queries_are_answers: true
+              documents_are_questions: true
+              encoder_id: encoder_id
+              filter_attributes:
+                - name: Title
+                  level: document
+                  description: The title of the docment.
+                  indexed: true
+                  type: integer
+              custom_dimensions:
+                - name: importance
+                  indexing_default: 0
+                  querying_default: 0
+              limits:
+                used_bytes: 1
+                max_bytes: 1
+                max_metadata_bytes: 1
+                index_rate: 1
+              created_at: '2024-01-15T09:30:00Z'
+    reset:
+      docs: >-
+        Resets a corpus, which removes all documents and data from the specified
+        corpus, while keeping the corpus itself.
+      method: POST
+      display-name: Remove all documents and data in a corpus
+      path: /v2/corpora/{corpus_key}/reset
+      path-parameters:
+        corpus_key:
+          type: root.CorpusKey
+          docs: The unique key identifying the corpus to reset.
+      auth: true
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            corpus_key: my-corpus
+    replaceFilterAttributes:
+      docs: >
+        Replace the filter attributes of a corpus. This does not happen
+        immediately, but
+
+        instead creates a job and will complete when that job completes. Until
+        that
+
+        job completes, using new filter attributes will not work.
+
+
+        You can monitor the status of the filter change using the returned job
+        id.
+      method: POST
+      display-name: Replace the filter attributes of a corpus
+      path: /v2/corpora/{corpus_key}/replace_filter_attributes
+      path-parameters:
+        corpus_key:
+          type: root.CorpusKey
+          docs: Key of the corpus to have filters replaced.
+      auth: true
+      request:
+        name: ReplaceFilterAttributesRequest
+        body:
+          properties:
+            filter_attributes:
+              type: list<root.FilterAttribute>
+              docs: The new filter attributes.
+      response:
+        docs: Succesfully created a job that will replace the filter attributes.
+        type: root.ReplaceFilterAttributesResponse
+      errors:
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            corpus_key: my-corpus
+          request:
+            filter_attributes:
+              - name: Title
+                level: document
+                type: integer
+          response:
+            body:
+              job_id: job_id
+    search:
+      docs: Search a single corpus with a simple query request.
+      method: GET
+      display-name: Simple Corpus Query
+      path: /v2/corpora/{corpus_key}/query
+      path-parameters:
+        corpus_key:
+          type: root.CorpusKey
+          docs: The unique key identifying the corpus to query.
+      auth: true
+      request:
+        name: CorpusSearchRequest
+        query-parameters:
+          query:
+            type: string
+            docs: The search query string for the corpus.
+          limit:
+            type: optional<integer>
+            docs: Maximum number of results to return.
+          offset:
+            type: optional<integer>
+            docs: Position from which to start in the result set.
+      response:
+        docs: A response to a query.
+        type: root.QueryFullResponse
+      errors:
+        - root.BadRequestError
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            corpus_key: my-corpus
+          query-parameters:
+            query: query
+          response:
+            body:
+              summary: summary
+              response_language: auto
+              search_results:
+                - text: text
+                  score: 1.1
+                  document_id: document_id
+                  request_corpora_index: 0
+              factual_consistency_score: 1.1
+    stream_query:
+      docs: >-
+        Query a specific corpus and find relevant results, highlight relevant
+        snippets, and use Retrival Augmented Generation.
+      method: POST
+      display-name: Corpus Query
+      path: /v2/corpora/{corpus_key}/query
+      path-parameters:
+        corpus_key:
+          type: root.CorpusKey
+          docs: The unique key identifying the corpus to query.
+      auth: true
+      request:
+        name: StreamQueryCorpusRequest
+        body:
+          properties:
+            query:
+              type: string
+              docs: The query to receive an answer on.
+            search:
+              type: optional<SearchCorpusParameters>
+              docs: The parameters to search one corpus.
+            generation: optional<root.GenerationParameters>
+            stream_response:
+              type: literal<true>
+              docs: Indicates whether the response should be streamed or not.
+      response-stream:
+        docs: ''
+        type: root.QueryStreamedResponse
+        format: json
+      errors:
+        - root.BadRequestError
+        - root.ForbiddenError
+        - root.NotFoundError
+    query:
+      docs: >-
+        Query a specific corpus and find relevant results, highlight relevant
+        snippets, and use Retrival Augmented Generation.
+      method: POST
+      display-name: Corpus Query
+      path: /v2/corpora/{corpus_key}/query
+      path-parameters:
+        corpus_key:
+          type: root.CorpusKey
+          docs: The unique key identifying the corpus to query.
+      auth: true
+      request:
+        name: QueryCorpusRequest
+        body:
+          properties:
+            query:
+              type: string
+              docs: The query to receive an answer on.
+            search:
+              type: optional<SearchCorpusParameters>
+              docs: The parameters to search one corpus.
+            generation: optional<root.GenerationParameters>
+            stream_response:
+              type: literal<false>
+              docs: Indicates whether the response should be streamed or not.
+      response:
+        docs: ''
+        type: root.QueryFullResponse
+      errors:
+        - root.BadRequestError
+        - root.ForbiddenError
+        - root.NotFoundError
+      examples:
+        - path-parameters:
+            corpus_key: my-corpus
+          request:
+            query: query
+            stream_response: false
+          response:
+            body:
+              summary: summary
+              response_language: auto
+              search_results:
+                - text: text
+                  score: 1.1
+                  document_id: document_id
+                  request_corpora_index: 0
+              factual_consistency_score: 1.1
