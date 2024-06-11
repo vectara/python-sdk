@@ -58,6 +58,7 @@ class LlmsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/llms",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"filter": filter, "limit": limit, "page_key": page_key},
             request_options=request_options,
@@ -119,6 +120,7 @@ class AsyncLlmsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/llms",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"filter": filter, "limit": limit, "page_key": page_key},
             request_options=request_options,

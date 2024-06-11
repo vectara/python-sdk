@@ -61,6 +61,7 @@ class DocumentsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"limit": limit, "page_key": page_key},
             request_options=request_options,
@@ -111,6 +112,7 @@ class DocumentsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -172,6 +174,7 @@ class AsyncDocumentsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"limit": limit, "page_key": page_key},
             request_options=request_options,
@@ -222,6 +225,7 @@ class AsyncDocumentsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )

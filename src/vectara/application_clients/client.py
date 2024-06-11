@@ -63,6 +63,7 @@ class ApplicationClientsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/app_clients",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"limit": limit, "filter": filter, "page_key": page_key},
             request_options=request_options,
@@ -106,7 +107,10 @@ class ApplicationClientsClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}", method="GET", request_options=request_options
+            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         if 200 <= _response.status_code < 300:
             return pydantic_v1.parse_obj_as(AppClient, _response.json())  # type: ignore
@@ -144,7 +148,10 @@ class ApplicationClientsClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}", method="DELETE", request_options=request_options
+            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            request_options=request_options,
         )
         if 200 <= _response.status_code < 300:
             return
@@ -197,6 +204,7 @@ class ApplicationClientsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"description": description, "api_roles": api_roles},
             request_options=request_options,
@@ -256,6 +264,7 @@ class AsyncApplicationClientsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/app_clients",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"limit": limit, "filter": filter, "page_key": page_key},
             request_options=request_options,
@@ -299,7 +308,10 @@ class AsyncApplicationClientsClient:
         )
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}", method="GET", request_options=request_options
+            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         if 200 <= _response.status_code < 300:
             return pydantic_v1.parse_obj_as(AppClient, _response.json())  # type: ignore
@@ -337,7 +349,10 @@ class AsyncApplicationClientsClient:
         )
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}", method="DELETE", request_options=request_options
+            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            request_options=request_options,
         )
         if 200 <= _response.status_code < 300:
             return
@@ -390,6 +405,7 @@ class AsyncApplicationClientsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"description": description, "api_roles": api_roles},
             request_options=request_options,

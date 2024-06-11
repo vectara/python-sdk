@@ -87,7 +87,7 @@ class Vectara:
         self,
         *,
         base_url: typing.Optional[str] = None,
-        environment: VectaraEnvironment = VectaraEnvironment.DEFAULT,
+        environment: VectaraEnvironment = VectaraEnvironment.PRODUCTION,
         api_key: typing.Optional[str] = os.getenv("VECTARA_API_KEY"),
         client_id: typing.Optional[str] = os.getenv("VECTARA_CLIENT_ID"),
         client_secret: typing.Optional[str] = os.getenv("VECTARA_CLIENT_SECRET"),
@@ -109,7 +109,7 @@ class Vectara:
             client_id=client_id,
             client_secret=client_secret,
             client_wrapper=SyncClientWrapper(
-                base_url=_get_base_url(base_url=base_url, environment=environment),
+                environment=environment,
                 api_key=api_key,
                 httpx_client=httpx.Client(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
                 if follow_redirects is not None
@@ -118,7 +118,7 @@ class Vectara:
             ),
         )
         self._client_wrapper = SyncClientWrapper(
-            base_url=_get_base_url(base_url=base_url, environment=environment),
+            environment=environment,
             api_key=api_key,
             token=_token_getter_override if _token_getter_override is not None else oauth_token_provider.get_token,
             httpx_client=httpx_client
@@ -394,6 +394,7 @@ class Vectara:
         if stream_response: 
             with self._client_wrapper.httpx_client.stream(
                 "v2/query",
+                base_url=self._client_wrapper.get_environment().default,
                 method="POST",
                 json={"query": query, "search": search, "generation": generation, "stream_response": True},
                 request_options=request_options,
@@ -420,6 +421,7 @@ class Vectara:
         else: 
             _response = self._client_wrapper.httpx_client.request(
                 "v2/query",
+                base_url=self._client_wrapper.get_environment().default,
                 method="POST",
                 json={"query": query, "search": search, "generation": generation, "stream_response": False},
                 request_options=request_options,
@@ -482,6 +484,7 @@ class Vectara:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/upload_file",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             data={"metadata": metadata},
             files={"file": file},
@@ -547,7 +550,7 @@ class AsyncVectara:
         self,
         *,
         base_url: typing.Optional[str] = None,
-        environment: VectaraEnvironment = VectaraEnvironment.DEFAULT,
+        environment: VectaraEnvironment = VectaraEnvironment.PRODUCTION,
         api_key: typing.Optional[str] = os.getenv("VECTARA_API_KEY"),
         client_id: typing.Optional[str] = os.getenv("VECTARA_CLIENT_ID"),
         client_secret: typing.Optional[str] = os.getenv("VECTARA_CLIENT_SECRET"),
@@ -569,7 +572,7 @@ class AsyncVectara:
             client_id=client_id,
             client_secret=client_secret,
             client_wrapper=SyncClientWrapper(
-                base_url=_get_base_url(base_url=base_url, environment=environment),
+                environment=environment,
                 api_key=api_key,
                 httpx_client=httpx.Client(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
                 if follow_redirects is not None
@@ -578,7 +581,7 @@ class AsyncVectara:
             ),
         )
         self._client_wrapper = AsyncClientWrapper(
-            base_url=_get_base_url(base_url=base_url, environment=environment),
+            environment=environment,
             api_key=api_key,
             token=_token_getter_override if _token_getter_override is not None else oauth_token_provider.get_token,
             httpx_client=httpx_client
@@ -875,6 +878,7 @@ class AsyncVectara:
         if stream_response: 
             _response = await self._client_wrapper.httpx_client.request(
                 "v2/query",
+                base_url=self._client_wrapper.get_environment().default,
                 method="POST",
                 json={"query": query, "search": search, "generation": generation, "stream_response": False},
                 request_options=request_options,
@@ -958,6 +962,7 @@ class AsyncVectara:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/upload_file",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             data={"metadata": metadata},
             files={"file": file},
@@ -977,12 +982,3 @@ class AsyncVectara:
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
-
-
-def _get_base_url(*, base_url: typing.Optional[str] = None, environment: VectaraEnvironment) -> str:
-    if base_url is not None:
-        return base_url
-    elif environment is not None:
-        return environment.value
-    else:
-        raise Exception("Please pass in either base_url or environment to construct the client")
