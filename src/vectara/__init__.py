@@ -82,9 +82,9 @@ from .types import (
     User,
 )
 from .errors import BadRequestError, ForbiddenError, NotFoundError
-from . import api_keys, application_clients, auth, chats, corpus, documents, encoders, jobs, llms, rerankers, users
+from . import api_keys, application_clients, auth, chats, corpora, documents, encoders, jobs, llms, rerankers, users
 from .auth import AuthResponse
-from .corpus import SearchCorpusParameters
+from .corpora import SearchCorpusParameters
 from .environment import VectaraEnvironment
 from .version import __version__
 
@@ -179,7 +179,7 @@ __all__ = [
     "application_clients",
     "auth",
     "chats",
-    "corpus",
+    "corpora",
     "documents",
     "encoders",
     "jobs",

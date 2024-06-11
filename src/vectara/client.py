@@ -18,7 +18,7 @@ from .core.jsonable_encoder import jsonable_encoder
 from .core.oauth_token_provider import OAuthTokenProvider
 from .core.pydantic_utilities import pydantic_v1
 from .core.request_options import RequestOptions
-from .corpus.client import AsyncCorpusClient, CorpusClient
+from .corpora.client import AsyncCorporaClient, CorporaClient
 from .documents.client import AsyncDocumentsClient, DocumentsClient
 from .encoders.client import AsyncEncodersClient, EncodersClient
 from .environment import VectaraEnvironment
@@ -132,7 +132,7 @@ class Vectara:
         self.application_clients = ApplicationClientsClient(client_wrapper=self._client_wrapper)
         self.auth = AuthClient(client_wrapper=self._client_wrapper)
         self.chats = ChatsClient(client_wrapper=self._client_wrapper)
-        self.corpus = CorpusClient(client_wrapper=self._client_wrapper)
+        self.corpora = CorporaClient(client_wrapper=self._client_wrapper)
         self.documents = DocumentsClient(client_wrapper=self._client_wrapper)
         self.encoders = EncodersClient(client_wrapper=self._client_wrapper)
         self.jobs = JobsClient(client_wrapper=self._client_wrapper)
@@ -595,7 +595,7 @@ class AsyncVectara:
         self.application_clients = AsyncApplicationClientsClient(client_wrapper=self._client_wrapper)
         self.auth = AsyncAuthClient(client_wrapper=self._client_wrapper)
         self.chats = AsyncChatsClient(client_wrapper=self._client_wrapper)
-        self.corpus = AsyncCorpusClient(client_wrapper=self._client_wrapper)
+        self.corpora = AsyncCorporaClient(client_wrapper=self._client_wrapper)
         self.documents = AsyncDocumentsClient(client_wrapper=self._client_wrapper)
         self.encoders = AsyncEncodersClient(client_wrapper=self._client_wrapper)
         self.jobs = AsyncJobsClient(client_wrapper=self._client_wrapper)
