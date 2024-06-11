@@ -115,6 +115,17 @@ for item in response:
     print(chunk)
 ```
 
+## File Uploads
+The SDK supports uploading documents via multiparm form data. File request parameters will be typed as [`core.File`](./src/core/file.py). File parameters 
+can either be bytes or a tuple of (filename, bytes, content type). 
+
+```python
+response = client.upload(
+  corpus_key="employee-handbook",
+  file=open('Users/username/Documents/tmp/doc.rtf', 'rb')
+)
+```
+
 ## Exception Handling
 All errors thrown by the SDK will be subclasses of [`ApiError`](./src/vectara/core/api_error.py):
 
