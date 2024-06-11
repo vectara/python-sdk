@@ -52,7 +52,6 @@ class EncodersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.encoders.list(
             filter="vectara.*",
@@ -115,7 +114,6 @@ class AsyncEncodersClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.encoders.list(
             filter="vectara.*",

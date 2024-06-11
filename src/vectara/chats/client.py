@@ -65,7 +65,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.chats.list()
         """
@@ -121,17 +120,16 @@ class ChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
-            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
         )
         from vectara.client import Vectara
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         response = client.chats.create_stream(
             query="string",
@@ -140,7 +138,7 @@ class ChatsClient:
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=CustomerSpecificReranker(),
+                reranker=SearchReranker_CustomerReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -228,7 +226,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.chats.create(
             query="How can I use the Vectara platform?",
@@ -279,7 +276,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.chats.get(
             chat_id="chat_id",
@@ -322,7 +318,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.chats.delete(
             chat_id="chat_id",
@@ -368,7 +363,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.chats.list_turns(
             chat_id="chat_id",
@@ -430,17 +424,16 @@ class ChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
-            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
         )
         from vectara.client import Vectara
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         response = client.chats.create_turns_stream(
             chat_id="string",
@@ -450,7 +443,7 @@ class ChatsClient:
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=CustomerSpecificReranker(),
+                reranker=SearchReranker_CustomerReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -542,7 +535,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.chats.create_turns(
             chat_id="chat_id",
@@ -597,7 +589,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.chats.get_turn(
             chat_id="chat_id",
@@ -648,7 +639,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.chats.delete_turn(
             chat_id="chat_id",
@@ -710,7 +700,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.chats.update_turn(
             chat_id="chat_id",
@@ -773,7 +762,6 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.chats.list()
         """
@@ -829,17 +817,16 @@ class AsyncChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
-            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
         )
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         response = await client.chats.create_stream(
             query="string",
@@ -848,7 +835,7 @@ class AsyncChatsClient:
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=CustomerSpecificReranker(),
+                reranker=SearchReranker_CustomerReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -936,7 +923,6 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.chats.create(
             query="How can I use the Vectara platform?",
@@ -987,7 +973,6 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.chats.get(
             chat_id="chat_id",
@@ -1030,7 +1015,6 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.chats.delete(
             chat_id="chat_id",
@@ -1076,7 +1060,6 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.chats.list_turns(
             chat_id="chat_id",
@@ -1138,17 +1121,16 @@ class AsyncChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
-            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
         )
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         response = await client.chats.create_turns_stream(
             chat_id="string",
@@ -1158,7 +1140,7 @@ class AsyncChatsClient:
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=CustomerSpecificReranker(),
+                reranker=SearchReranker_CustomerReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -1250,7 +1232,6 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.chats.create_turns(
             chat_id="chat_id",
@@ -1307,7 +1288,6 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.chats.get_turn(
             chat_id="chat_id",
@@ -1358,7 +1338,6 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.chats.delete_turn(
             chat_id="chat_id",
@@ -1420,7 +1399,6 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.chats.update_turn(
             chat_id="chat_id",

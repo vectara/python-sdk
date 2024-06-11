@@ -12,7 +12,6 @@ class StreamGenerationChunk(pydantic_v1.BaseModel):
     The chunk response from the generation, possibly a partial generation.
     """
 
-    type: typing.Literal["generation_chunk"] = "generation_chunk"
     generation_chunk: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
     Part of the message from the generator. All summary chunks must be appended together in order

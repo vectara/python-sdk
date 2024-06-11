@@ -54,7 +54,6 @@ class DocumentsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.documents.list(
             corpus_key="my-corpus",
@@ -104,7 +103,6 @@ class DocumentsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.documents.delete(
             corpus_key="my-corpus",
@@ -167,7 +165,6 @@ class AsyncDocumentsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.documents.list(
             corpus_key="my-corpus",
@@ -217,7 +214,6 @@ class AsyncDocumentsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.documents.delete(
             corpus_key="my-corpus",

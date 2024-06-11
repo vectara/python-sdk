@@ -43,7 +43,6 @@ class AuthClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.auth.get_token(
             client_id="string",
@@ -101,7 +100,6 @@ class AsyncAuthClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.auth.get_token(
             client_id="string",

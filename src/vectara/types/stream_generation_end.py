@@ -13,8 +13,6 @@ class StreamGenerationEnd(pydantic_v1.BaseModel):
     factual consistency score, but generation has stopped.
     """
 
-    type: typing.Literal["generation_end"] = "generation_end"
-
     def json(self, **kwargs: typing.Any) -> str:
         kwargs_with_defaults: typing.Any = {"by_alias": True, "exclude_unset": True, **kwargs}
         return super().json(**kwargs_with_defaults)

@@ -14,7 +14,6 @@ class StructuredDocument(pydantic_v1.BaseModel):
     A document with layout features.
     """
 
-    type: typing.Literal["structured"] = "structured"
     id: str = pydantic_v1.Field()
     """
     The Document ID, must be unique within the corpus.

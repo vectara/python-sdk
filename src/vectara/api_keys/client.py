@@ -55,7 +55,6 @@ class ApiKeysClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.api_keys.list()
         """
@@ -112,7 +111,6 @@ class ApiKeysClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.api_keys.create(
             name="name",
@@ -159,7 +157,6 @@ class ApiKeysClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.api_keys.get(
             api_key_id="api_key_id",
@@ -200,7 +197,6 @@ class ApiKeysClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.api_keys.delete(
             api_key_id="api_key_id",
@@ -251,7 +247,6 @@ class ApiKeysClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.api_keys.update(
             api_key_id="api_key_id",
@@ -309,7 +304,6 @@ class AsyncApiKeysClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.api_keys.list()
         """
@@ -366,7 +360,6 @@ class AsyncApiKeysClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.api_keys.create(
             name="name",
@@ -413,7 +406,6 @@ class AsyncApiKeysClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.api_keys.get(
             api_key_id="api_key_id",
@@ -454,7 +446,6 @@ class AsyncApiKeysClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.api_keys.delete(
             api_key_id="api_key_id",
@@ -505,7 +496,6 @@ class AsyncApiKeysClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.api_keys.update(
             api_key_id="api_key_id",

@@ -52,7 +52,6 @@ class RerankersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         client.rerankers.list(
             filter="vectara.*",
@@ -115,7 +114,6 @@ class AsyncRerankersClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
         )
         await client.rerankers.list(
             filter="vectara.*",
