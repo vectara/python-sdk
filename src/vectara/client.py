@@ -140,9 +140,88 @@ class Vectara:
         self.rerankers = RerankersClient(client_wrapper=self._client_wrapper)
         self.users = UsersClient(client_wrapper=self._client_wrapper)
 
-    def stream_query(
+    @typing.overload
+    def query(
         self,
         *,
+        stream_response: typing.Literal[False] = False,
+        query: str,
+        search: SearchCorporaParameters,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> QueryFullResponse:
+        """
+        Perform a multi-purpose query that can retrieve relevant information from one or more corpora and generate a response using RAG.
+
+        Parameters
+        ----------
+        stream_response: bool
+            Whether or not to stream the response
+
+        query : str
+            The query to receive an answer on.
+
+        search : SearchCorporaParameters
+
+        generation : typing.Optional[GenerationParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Yields
+        ------
+        QueryFullResponse
+
+
+        Examples
+        --------
+        from vectara import (
+            CitationParameters,
+            ContextConfiguration,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            ModelParameters,
+            SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
+        )
+        from vectara.client import Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+        )
+        response = client.query(
+            query="string",
+            search=SearchCorporaParameters(
+                corpora=[KeyedSearchCorpus()],
+                offset=1,
+                limit=1,
+                context_configuration=ContextConfiguration(),
+                reranker=SearchReranker_CustomerReranker(),
+            ),
+            generation=GenerationParameters(
+                prompt_name="string",
+                max_used_search_results=1,
+                prompt_text="string",
+                max_response_characters=1,
+                response_language="auto",
+                model_parameters=ModelParameters(
+                    max_tokens=1,
+                    temperature=1.1,
+                    frequency_penalty=1.1,
+                    presence_penalty=1.1,
+                ),
+                citations=CitationParameters(),
+                enable_factual_consistency_score=True,
+            ),
+        )
+        """
+        ...
+    
+    @typing.overload
+    def query(
+        self,
+        *,
+        stream_response: typing.Literal[True],
         query: str,
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
@@ -153,6 +232,9 @@ class Vectara:
 
         Parameters
         ----------
+        stream_response: bool
+            Whether or not to stream the response
+
         query : str
             The query to receive an answer on.
 
@@ -184,7 +266,7 @@ class Vectara:
         client = Vectara(
             api_key="YOUR_API_KEY",
         )
-        response = client.stream_query(
+        response = client.query(
             query="string",
             search=SearchCorporaParameters(
                 corpora=[KeyedSearchCorpus()],
@@ -212,45 +294,25 @@ class Vectara:
         for chunk in response:
             yield chunk
         """
-        with self._client_wrapper.httpx_client.stream(
-            "v2/query",
-            method="POST",
-            json={"query": query, "search": search, "generation": generation, "stream_response": True},
-            request_options=request_options,
-            omit=OMIT,
-        ) as _response:
-            if 200 <= _response.status_code < 300:
-                for _text in _response.iter_lines():
-                    if len(_text) == 0:
-                        continue
-                    yield pydantic_v1.parse_obj_as(QueryStreamedResponse, json.loads(_text))  # type: ignore
-                return
-            _response.read()
-            if _response.status_code == 400:
-                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
-            try:
-                _response_json = _response.json()
-            except JSONDecodeError:
-                raise ApiError(status_code=_response.status_code, body=_response.text)
-            raise ApiError(status_code=_response.status_code, body=_response_json)
+        ...
 
     def query(
         self,
         *,
+        stream_response: bool = False,
         query: str,
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> QueryFullResponse:
+    ) -> typing.Union[QueryFullResponse, typing.Iterator[QueryStreamedResponse]]:
         """
         Perform a multi-purpose query that can retrieve relevant information from one or more corpora and generate a response using RAG.
 
         Parameters
         ----------
+        stream_response: bool
+            Whether or not to stream the response        
+
         query : str
             The query to receive an answer on.
 
@@ -263,7 +325,7 @@ class Vectara:
 
         Returns
         -------
-        QueryFullResponse
+        typing.Union[QueryFullResponse, typing.Iterator[QueryStreamedResponse]]
 
 
         Examples
@@ -329,26 +391,53 @@ class Vectara:
             ),
         )
         """
-        _response = self._client_wrapper.httpx_client.request(
-            "v2/query",
-            method="POST",
-            json={"query": query, "search": search, "generation": generation, "stream_response": False},
-            request_options=request_options,
-            omit=OMIT,
-        )
-        if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(QueryFullResponse, _response.json())  # type: ignore
-        if _response.status_code == 400:
-            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-        if _response.status_code == 404:
-            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
-        try:
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+        if stream_response: 
+            with self._client_wrapper.httpx_client.stream(
+                "v2/query",
+                method="POST",
+                json={"query": query, "search": search, "generation": generation, "stream_response": True},
+                request_options=request_options,
+                omit=OMIT,
+            ) as _response:
+                if 200 <= _response.status_code < 300:
+                    for _text in _response.iter_lines():
+                        if len(_text) == 0:
+                            continue
+                        yield pydantic_v1.parse_obj_as(QueryStreamedResponse, json.loads(_text))  # type: ignore
+                    return
+                _response.read()
+                if _response.status_code == 400:
+                    raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+                if _response.status_code == 403:
+                    raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+                if _response.status_code == 404:
+                    raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
+                try:
+                    _response_json = _response.json()
+                except JSONDecodeError:
+                    raise ApiError(status_code=_response.status_code, body=_response.text)
+                raise ApiError(status_code=_response.status_code, body=_response_json)
+        else: 
+            _response = self._client_wrapper.httpx_client.request(
+                "v2/query",
+                method="POST",
+                json={"query": query, "search": search, "generation": generation, "stream_response": False},
+                request_options=request_options,
+                omit=OMIT,
+            )
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(QueryFullResponse, _response.json())  # type: ignore
+            if _response.status_code == 400:
+                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+            if _response.status_code == 404:
+                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
+            try:
+                _response_json = _response.json()
+            except JSONDecodeError:
+                raise ApiError(status_code=_response.status_code, body=_response.text)
+            raise ApiError(status_code=_response.status_code, body=_response_json)
 
     def upload(
         self,
@@ -511,9 +600,11 @@ class AsyncVectara:
         self.rerankers = AsyncRerankersClient(client_wrapper=self._client_wrapper)
         self.users = AsyncUsersClient(client_wrapper=self._client_wrapper)
 
-    async def stream_query(
+    @typing.overload
+    async def query(
         self,
         *,
+        stream_response: typing.Literal[True],
         query: str,
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
@@ -524,6 +615,9 @@ class AsyncVectara:
 
         Parameters
         ----------
+        stream_response: bool 
+            Whether to stream the response
+
         query : str
             The query to receive an answer on.
 
@@ -555,7 +649,7 @@ class AsyncVectara:
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
         )
-        response = await client.stream_query(
+        response = await client.query(
             query="string",
             search=SearchCorporaParameters(
                 corpora=[KeyedSearchCorpus()],
@@ -583,35 +677,13 @@ class AsyncVectara:
         async for chunk in response:
             yield chunk
         """
-        async with self._client_wrapper.httpx_client.stream(
-            "v2/query",
-            method="POST",
-            json={"query": query, "search": search, "generation": generation, "stream_response": True},
-            request_options=request_options,
-            omit=OMIT,
-        ) as _response:
-            if 200 <= _response.status_code < 300:
-                async for _text in _response.aiter_lines():
-                    if len(_text) == 0:
-                        continue
-                    yield pydantic_v1.parse_obj_as(QueryStreamedResponse, json.loads(_text))  # type: ignore
-                return
-            await _response.aread()
-            if _response.status_code == 400:
-                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
-            try:
-                _response_json = _response.json()
-            except JSONDecodeError:
-                raise ApiError(status_code=_response.status_code, body=_response.text)
-            raise ApiError(status_code=_response.status_code, body=_response_json)
+        ...
 
+    @typing.overload
     async def query(
         self,
         *,
+        stream_response: typing.Literal[False] = False,
         query: str,
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
@@ -622,6 +694,9 @@ class AsyncVectara:
 
         Parameters
         ----------
+        stream_response: bool 
+            Whether to stream the response
+
         query : str
             The query to receive an answer on.
 
@@ -700,26 +775,145 @@ class AsyncVectara:
             ),
         )
         """
-        _response = await self._client_wrapper.httpx_client.request(
-            "v2/query",
-            method="POST",
-            json={"query": query, "search": search, "generation": generation, "stream_response": False},
-            request_options=request_options,
-            omit=OMIT,
+        ...
+
+    async def query(
+        self,
+        *,
+        stream_response: bool = False,
+        query: str,
+        search: SearchCorporaParameters,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> typing.Union[QueryFullResponse, typing.AsyncIterator[QueryStreamedResponse]]:
+        """
+        Perform a multi-purpose query that can retrieve relevant information from one or more corpora and generate a response using RAG.
+
+        Parameters
+        ----------
+        stream_response: bool 
+            Whether to stream the response
+
+        query : str
+            The query to receive an answer on.
+
+        search : SearchCorporaParameters
+
+        generation : typing.Optional[GenerationParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        typing.Union[QueryFullResponse, typing.AsyncIterator[QueryStreamedResponse]]
+
+
+        Examples
+        --------
+        from vectara import (
+            CitationParameters,
+            ContextConfiguration,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            ModelParameters,
+            SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
         )
-        if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(QueryFullResponse, _response.json())  # type: ignore
-        if _response.status_code == 400:
-            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-        if _response.status_code == 404:
-            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
-        try:
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+        from vectara.client import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+        )
+        await client.query(
+            query="Am I allowed to bring pets to work?",
+            search=SearchCorporaParameters(
+                corpora=[
+                    KeyedSearchCorpus(
+                        custom_dimensions={},
+                        metadata_filter='doc.title = "Adventures of Huckleberry Finn"',
+                        lexical_interpolation=0.025,
+                        semantics="default",
+                        corpus_key="my-corpus",
+                    )
+                ],
+                offset=0,
+                limit=10,
+                context_configuration=ContextConfiguration(
+                    characters_before=30,
+                    characters_after=30,
+                    sentences_before=3,
+                    sentences_after=3,
+                    start_tag="<em>",
+                    end_tag="</em>",
+                ),
+                reranker=SearchReranker_CustomerReranker(
+                    reranker_id="rnk_272725719",
+                ),
+            ),
+            generation=GenerationParameters(
+                prompt_name="vectara-summary-ext-v1.2.0",
+                max_used_search_results=5,
+                prompt_text='[\n  {"role": "system", "content": "You are a helpful search assistant."},\n  #foreach ($qResult in $vectaraQueryResults)\n    {"role": "user", "content": "Given the $vectaraIdxWord[$foreach.index] search result."},\n    {"role": "assistant", "content": "${qResult.getText()}" },\n  #end\n  {"role": "user", "content": "Generate a summary for the query \'${vectaraQuery}\' based on the above results."}\n]\n',
+                max_response_characters=300,
+                response_language="auto",
+                model_parameters=ModelParameters(
+                    max_tokens=0,
+                    temperature=0.0,
+                    frequency_penalty=0.0,
+                    presence_penalty=0.0,
+                ),
+                citations=CitationParameters(
+                    style="none",
+                    url_pattern="https://vectara.com/documents/{doc.id}",
+                    text_pattern="{doc.title}",
+                ),
+                enable_factual_consistency_score=True,
+            ),
+        )
+        """
+        if stream_response: 
+            _response = await self._client_wrapper.httpx_client.request(
+                "v2/query",
+                method="POST",
+                json={"query": query, "search": search, "generation": generation, "stream_response": False},
+                request_options=request_options,
+                omit=OMIT,
+            )
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(QueryFullResponse, _response.json())  # type: ignore
+            if _response.status_code == 400:
+                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+            if _response.status_code == 404:
+                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
+            try:
+                _response_json = _response.json()
+            except JSONDecodeError:
+                raise ApiError(status_code=_response.status_code, body=_response.text)
+            raise ApiError(status_code=_response.status_code, body=_response_json)
+        else: 
+            _response = await self._client_wrapper.httpx_client.request(
+                "v2/query",
+                method="POST",
+                json={"query": query, "search": search, "generation": generation, "stream_response": False},
+                request_options=request_options,
+                omit=OMIT,
+            )
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(QueryFullResponse, _response.json())  # type: ignore
+            if _response.status_code == 400:
+                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parsxe_obj_as(Error, _response.json()))  # type: ignore
+            if _response.status_code == 404:
+                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
+            try:
+                _response_json = _response.json()
+            except JSONDecodeError:
+                raise ApiError(status_code=_response.status_code, body=_response.text)
+            raise ApiError(status_code=_response.status_code, body=_response_json)
 
     async def upload(
         self,
