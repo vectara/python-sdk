@@ -5,14 +5,16 @@ from __future__ import annotations
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 from .core_document_part import CoreDocumentPart
 from .custom_dimensions import CustomDimensions
 from .structured_document_section import StructuredDocumentSection
 
 
-class CreateDocumentRequest_Core(pydantic_v1.BaseModel):
+class CreateDocumentRequest_Core(pydantic.BaseModel):
     """
     Creating a document using this endpoint can take multiple forms depending on how much
     control of the resulting document parts you desire. You can create a document
@@ -43,11 +45,11 @@ class CreateDocumentRequest_Core(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
-class CreateDocumentRequest_Structured(pydantic_v1.BaseModel):
+class CreateDocumentRequest_Structured(pydantic.BaseModel):
     """
     Creating a document using this endpoint can take multiple forms depending on how much
     control of the resulting document parts you desire. You can create a document
@@ -81,7 +83,7 @@ class CreateDocumentRequest_Structured(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 

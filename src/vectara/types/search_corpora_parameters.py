@@ -3,8 +3,10 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 from .keyed_search_corpus import KeyedSearchCorpus
 from .search_parameters import SearchParameters
 
@@ -14,7 +16,7 @@ class SearchCorporaParameters(SearchParameters):
     The parameters to search one or more corpora.
     """
 
-    corpora: typing.Optional[typing.List[KeyedSearchCorpus]] = pydantic_v1.Field(default=None)
+    corpora: typing.Optional[typing.List[KeyedSearchCorpus]] = pydantic.Field(default=None)
     """
     The corpora that you want to search.
     """
@@ -36,5 +38,5 @@ class SearchCorporaParameters(SearchParameters):
         smart_union = True
         allow_population_by_field_name = True
         populate_by_name = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

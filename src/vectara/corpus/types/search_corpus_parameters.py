@@ -3,8 +3,10 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ...core.datetime_utils import serialize_datetime
-from ...core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ...core.pydantic_utilities import deep_union_pydantic_dicts
 from ...types.search_corpus import SearchCorpus
 from ...types.search_parameters import SearchParameters
 
@@ -31,5 +33,5 @@ class SearchCorpusParameters(SearchCorpus, SearchParameters):
         smart_union = True
         allow_population_by_field_name = True
         populate_by_name = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

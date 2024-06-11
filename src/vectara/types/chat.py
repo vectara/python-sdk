@@ -3,32 +3,34 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 
 
-class Chat(pydantic_v1.BaseModel):
-    id: typing.Optional[str] = pydantic_v1.Field(default=None)
+class Chat(pydantic.BaseModel):
+    id: typing.Optional[str] = pydantic.Field(default=None)
     """
     ID of the chat.
     """
 
-    first_query: typing.Optional[str] = pydantic_v1.Field(default=None)
+    first_query: typing.Optional[str] = pydantic.Field(default=None)
     """
     The first query of the chat.
     """
 
-    first_answer: typing.Optional[str] = pydantic_v1.Field(default=None)
+    first_answer: typing.Optional[str] = pydantic.Field(default=None)
     """
     The first answer of the chat.
     """
 
-    enabled: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    enabled: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Indicates whether this chat is enabled and can have further turns.
     """
 
-    created_at: typing.Optional[dt.datetime] = pydantic_v1.Field(default=None)
+    created_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)
     """
     Specifies when this chat was created.
     """
@@ -48,5 +50,5 @@ class Chat(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

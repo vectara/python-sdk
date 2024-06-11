@@ -3,39 +3,41 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 
 
-class Encoder(pydantic_v1.BaseModel):
-    id: typing.Optional[str] = pydantic_v1.Field(default=None)
+class Encoder(pydantic.BaseModel):
+    id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The Encoder ID.
     """
 
-    name: typing.Optional[str] = pydantic_v1.Field(default=None)
+    name: typing.Optional[str] = pydantic.Field(default=None)
     """
     The encoder name.
     """
 
-    output_dimensions: typing.Optional[int] = pydantic_v1.Field(default=None)
+    output_dimensions: typing.Optional[int] = pydantic.Field(default=None)
     """
     When this encoder is used to create an embedding, it shows the count of dimensions for the output embedding.
     A high dimensionality will consume more storage space, but it allows for an increase the quality of
     the embedding.
     """
 
-    description: typing.Optional[str] = pydantic_v1.Field(default=None)
+    description: typing.Optional[str] = pydantic.Field(default=None)
     """
     The encoder description.
     """
 
-    default: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    default: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Indicates whether the encoder is default used when creating a corpus.
     """
 
-    enabled: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    enabled: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Indicates whether the encoder is enabled.
     """
@@ -55,5 +57,5 @@ class Encoder(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

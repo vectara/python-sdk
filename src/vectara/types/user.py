@@ -3,49 +3,51 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 from .api_policy import ApiPolicy
 from .api_role import ApiRole
 
 
-class User(pydantic_v1.BaseModel):
-    id: typing.Optional[str] = pydantic_v1.Field(default=None)
+class User(pydantic.BaseModel):
+    id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The Vectara ID for the user.
     """
 
-    email: typing.Optional[str] = pydantic_v1.Field(default=None)
+    email: typing.Optional[str] = pydantic.Field(default=None)
     """
     The email address for the user.
     """
 
-    username: typing.Optional[str] = pydantic_v1.Field(default=None)
+    username: typing.Optional[str] = pydantic.Field(default=None)
     """
     The username for the user.
     """
 
-    enabled: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    enabled: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Indicates whether the user is enabled or disabled.
     """
 
-    description: typing.Optional[str] = pydantic_v1.Field(default=None)
+    description: typing.Optional[str] = pydantic.Field(default=None)
     """
     The escription for the user.
     """
 
-    created_at: typing.Optional[dt.datetime] = pydantic_v1.Field(default=None)
+    created_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)
     """
     When the user was created.
     """
 
-    updated_at: typing.Optional[dt.datetime] = pydantic_v1.Field(default=None)
+    updated_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)
     """
     When a user property was last updated.
     """
 
-    api_roles: typing.Optional[typing.List[ApiRole]] = pydantic_v1.Field(default=None)
+    api_roles: typing.Optional[typing.List[ApiRole]] = pydantic.Field(default=None)
     """
     The role names of the user.
     """
@@ -67,5 +69,5 @@ class User(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

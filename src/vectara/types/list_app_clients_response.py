@@ -3,14 +3,16 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 from .app_client import AppClient
 from .list_metadata import ListMetadata
 
 
-class ListAppClientsResponse(pydantic_v1.BaseModel):
-    app_clients: typing.Optional[typing.List[AppClient]] = pydantic_v1.Field(default=None)
+class ListAppClientsResponse(pydantic.BaseModel):
+    app_clients: typing.Optional[typing.List[AppClient]] = pydantic.Field(default=None)
     """
     List of App Clients.
     """
@@ -32,5 +34,5 @@ class ListAppClientsResponse(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

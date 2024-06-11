@@ -3,37 +3,39 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 
 
-class Turn(pydantic_v1.BaseModel):
-    id: typing.Optional[str] = pydantic_v1.Field(default=None)
+class Turn(pydantic.BaseModel):
+    id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The ID of the turn.
     """
 
-    chat_id: typing.Optional[str] = pydantic_v1.Field(default=None)
+    chat_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The ID of the chat the turn resides in.
     """
 
-    query: typing.Optional[str] = pydantic_v1.Field(default=None)
+    query: typing.Optional[str] = pydantic.Field(default=None)
     """
     The query made to produce this turn.
     """
 
-    answer: typing.Optional[str] = pydantic_v1.Field(default=None)
+    answer: typing.Optional[str] = pydantic.Field(default=None)
     """
     The response to the query.
     """
 
-    enabled: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    enabled: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Indicates whether the turn is enabled and shown in futures turns of the chat.
     """
 
-    created_at: typing.Optional[dt.datetime] = pydantic_v1.Field(default=None)
+    created_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)
     """
     Specifies when the turn was created.
     """
@@ -53,5 +55,5 @@ class Turn(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

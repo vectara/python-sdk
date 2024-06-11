@@ -3,29 +3,31 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 from .api_key_role import ApiKeyRole
 from .api_policy import ApiPolicy
 
 
-class ApiKey(pydantic_v1.BaseModel):
-    id: typing.Optional[str] = pydantic_v1.Field(default=None)
+class ApiKey(pydantic.BaseModel):
+    id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The ID of the API key.
     """
 
-    name: typing.Optional[str] = pydantic_v1.Field(default=None)
+    name: typing.Optional[str] = pydantic.Field(default=None)
     """
     The human-readable name of the API key.
     """
 
-    secret_key: typing.Optional[str] = pydantic_v1.Field(default=None)
+    secret_key: typing.Optional[str] = pydantic.Field(default=None)
     """
     The key used in API requests. Should be kept secure.
     """
 
-    enabled: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    enabled: typing.Optional[bool] = pydantic.Field(default=None)
     """
     If this API key is enabled.
     """
@@ -48,5 +50,5 @@ class ApiKey(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

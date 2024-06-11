@@ -3,14 +3,16 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 from .list_metadata import ListMetadata
 from .reranker import Reranker
 
 
-class ListRerankersResponse(pydantic_v1.BaseModel):
-    rerankers: typing.Optional[typing.List[Reranker]] = pydantic_v1.Field(default=None)
+class ListRerankersResponse(pydantic.BaseModel):
+    rerankers: typing.Optional[typing.List[Reranker]] = pydantic.Field(default=None)
     """
     An array of rerankers.
     """
@@ -32,5 +34,5 @@ class ListRerankersResponse(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

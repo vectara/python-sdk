@@ -3,16 +3,18 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 
 
-class CustomerSpecificReranker(pydantic_v1.BaseModel):
+class CustomerSpecificReranker(pydantic.BaseModel):
     """
     Reranker that is specific to the customer.
     """
 
-    reranker_id: str = pydantic_v1.Field()
+    reranker_id: str = pydantic.Field()
     """
     The ID of the reranker. Current reranker that may be used by Scale custmers is rnk_272725719.
     Do not specify the MMR reranker ID here, and instead use the MMR reranker object type.
@@ -33,5 +35,5 @@ class CustomerSpecificReranker(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

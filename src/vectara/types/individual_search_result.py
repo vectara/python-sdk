@@ -3,41 +3,43 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 
 
-class IndividualSearchResult(pydantic_v1.BaseModel):
+class IndividualSearchResult(pydantic.BaseModel):
     """
     An individual ranked search result from a query.
     """
 
-    text: typing.Optional[str] = pydantic_v1.Field(default=None)
+    text: typing.Optional[str] = pydantic.Field(default=None)
     """
     The document part altered by the context configuration that matches the query.
     """
 
-    score: typing.Optional[float] = pydantic_v1.Field(default=None)
+    score: typing.Optional[float] = pydantic.Field(default=None)
     """
     The score of the individual result.
     """
 
-    part_metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic_v1.Field(default=None)
+    part_metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     The metadata for the document part.
     """
 
-    document_metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic_v1.Field(default=None)
+    document_metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     The metadata for the document that contains the document part.
     """
 
-    document_id: typing.Optional[str] = pydantic_v1.Field(default=None)
+    document_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The ID of the document that contains the document part.
     """
 
-    request_corpora_index: typing.Optional[int] = pydantic_v1.Field(default=None)
+    request_corpora_index: typing.Optional[int] = pydantic.Field(default=None)
     """
     A query request can search over multiple corpora at a time. This proprety
     is set to the index in the list of corpora in the original search request that this
@@ -61,5 +63,5 @@ class IndividualSearchResult(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

@@ -3,34 +3,36 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 from .filter_attribute_level import FilterAttributeLevel
 from .filter_attribute_type import FilterAttributeType
 
 
-class FilterAttribute(pydantic_v1.BaseModel):
-    name: str = pydantic_v1.Field()
+class FilterAttribute(pydantic.BaseModel):
+    name: str = pydantic.Field()
     """
     The JSON path of the filter attribute in a document or document part metadata.
     """
 
-    level: FilterAttributeLevel = pydantic_v1.Field()
+    level: FilterAttributeLevel = pydantic.Field()
     """
     Indicates whether this a document or document part metadata filter.
     """
 
-    description: typing.Optional[str] = pydantic_v1.Field(default=None)
+    description: typing.Optional[str] = pydantic.Field(default=None)
     """
     Description of the filter. May be omitted.
     """
 
-    indexed: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    indexed: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Whether an index is created for the filter. Creating an index will improve query latency when using the filter.
     """
 
-    type: FilterAttributeType = pydantic_v1.Field()
+    type: FilterAttributeType = pydantic.Field()
     """
     The value type of the filter.
     """
@@ -50,5 +52,5 @@ class FilterAttribute(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

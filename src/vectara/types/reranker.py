@@ -3,31 +3,33 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 
 
-class Reranker(pydantic_v1.BaseModel):
+class Reranker(pydantic.BaseModel):
     """
     A reranker can be used in query or chat endpoints to reorder the search results.
     """
 
-    id: typing.Optional[str] = pydantic_v1.Field(default=None)
+    id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The ID of the reranker.
     """
 
-    name: typing.Optional[str] = pydantic_v1.Field(default=None)
+    name: typing.Optional[str] = pydantic.Field(default=None)
     """
     The name of the reranker.
     """
 
-    description: typing.Optional[str] = pydantic_v1.Field(default=None)
+    description: typing.Optional[str] = pydantic.Field(default=None)
     """
     The description of the reranker.
     """
 
-    enabled: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    enabled: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Whether the reranker is enabled.
     """
@@ -47,5 +49,5 @@ class Reranker(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

@@ -3,37 +3,39 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 
 
-class Llm(pydantic_v1.BaseModel):
+class Llm(pydantic.BaseModel):
     """
     A LLM can be used to enhance query results with a response, and be used as
     the responder during a chat.
     """
 
-    id: typing.Optional[str] = pydantic_v1.Field(default=None)
+    id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The ID of the LLM. This is used as the model ID in a query.
     """
 
-    name: typing.Optional[str] = pydantic_v1.Field(default=None)
+    name: typing.Optional[str] = pydantic.Field(default=None)
     """
     Name of the LLM.
     """
 
-    description: typing.Optional[str] = pydantic_v1.Field(default=None)
+    description: typing.Optional[str] = pydantic.Field(default=None)
     """
     The description of the LLM.
     """
 
-    enabled: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    enabled: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Indicates whether the LLM is enabled.
     """
 
-    default: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    default: typing.Optional[bool] = pydantic.Field(default=None)
     """
     If this is the default LLM, it is used in queries when the generator
     is not specified.
@@ -56,5 +58,5 @@ class Llm(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

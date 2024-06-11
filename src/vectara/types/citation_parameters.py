@@ -3,17 +3,19 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 from .citation_parameters_style import CitationParametersStyle
 
 
-class CitationParameters(pydantic_v1.BaseModel):
+class CitationParameters(pydantic.BaseModel):
     """
     Style the generator should use when making citations.
     """
 
-    style: typing.Optional[CitationParametersStyle] = pydantic_v1.Field(default=None)
+    style: typing.Optional[CitationParametersStyle] = pydantic.Field(default=None)
     """
     The citation style to be used in summary.
     Can be one of:
@@ -24,7 +26,7 @@ class CitationParameters(pydantic_v1.BaseModel):
     - `markdown` - Formatted as `[text_pattern](url_pattern)`.
     """
 
-    url_pattern: typing.Optional[str] = pydantic_v1.Field(default=None)
+    url_pattern: typing.Optional[str] = pydantic.Field(default=None)
     """
     The url pattern if the citation_style is set to `html` or `markdown`.
     The pattern can access metadata attributes in the document or part.
@@ -33,7 +35,7 @@ class CitationParameters(pydantic_v1.BaseModel):
     The default `url_pattern` is an empty string.
     """
 
-    text_pattern: typing.Optional[str] = pydantic_v1.Field(default=None)
+    text_pattern: typing.Optional[str] = pydantic.Field(default=None)
     """
     The text pattern if the citation_style is set to `html` or `markdown`.
     This pattern sets the href for html or the text within `[]` in markdown,
@@ -62,5 +64,5 @@ class CitationParameters(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

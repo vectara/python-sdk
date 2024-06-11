@@ -268,7 +268,15 @@ class Vectara:
 
         Examples
         --------
-        from vectara import SearchCorporaParameters
+        from vectara import (
+            CitationParameters,
+            ContextConfiguration,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            ModelParameters,
+            SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
+        )
         from vectara.client import Vectara
 
         client = Vectara(
@@ -276,7 +284,49 @@ class Vectara:
         )
         client.query(
             query="Am I allowed to bring pets to work?",
-            search=SearchCorporaParameters(),
+            search=SearchCorporaParameters(
+                corpora=[
+                    KeyedSearchCorpus(
+                        custom_dimensions={},
+                        metadata_filter='doc.title = "Adventures of Huckleberry Finn"',
+                        lexical_interpolation=0.025,
+                        semantics="default",
+                        corpus_key="my-corpus",
+                    )
+                ],
+                offset=0,
+                limit=10,
+                context_configuration=ContextConfiguration(
+                    characters_before=30,
+                    characters_after=30,
+                    sentences_before=3,
+                    sentences_after=3,
+                    start_tag="<em>",
+                    end_tag="</em>",
+                ),
+                reranker=SearchReranker_CustomerReranker(
+                    reranker_id="rnk_272725719",
+                ),
+            ),
+            generation=GenerationParameters(
+                prompt_name="vectara-summary-ext-v1.2.0",
+                max_used_search_results=5,
+                prompt_text='[\n  {"role": "system", "content": "You are a helpful search assistant."},\n  #foreach ($qResult in $vectaraQueryResults)\n    {"role": "user", "content": "Given the $vectaraIdxWord[$foreach.index] search result."},\n    {"role": "assistant", "content": "${qResult.getText()}" },\n  #end\n  {"role": "user", "content": "Generate a summary for the query \'${vectaraQuery}\' based on the above results."}\n]\n',
+                max_response_characters=300,
+                response_language="auto",
+                model_parameters=ModelParameters(
+                    max_tokens=0,
+                    temperature=0.0,
+                    frequency_penalty=0.0,
+                    presence_penalty=0.0,
+                ),
+                citations=CitationParameters(
+                    style="none",
+                    url_pattern="https://vectara.com/documents/{doc.id}",
+                    text_pattern="{doc.title}",
+                ),
+                enable_factual_consistency_score=True,
+            ),
         )
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -589,7 +639,15 @@ class AsyncVectara:
 
         Examples
         --------
-        from vectara import SearchCorporaParameters
+        from vectara import (
+            CitationParameters,
+            ContextConfiguration,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            ModelParameters,
+            SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
+        )
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
@@ -597,7 +655,49 @@ class AsyncVectara:
         )
         await client.query(
             query="Am I allowed to bring pets to work?",
-            search=SearchCorporaParameters(),
+            search=SearchCorporaParameters(
+                corpora=[
+                    KeyedSearchCorpus(
+                        custom_dimensions={},
+                        metadata_filter='doc.title = "Adventures of Huckleberry Finn"',
+                        lexical_interpolation=0.025,
+                        semantics="default",
+                        corpus_key="my-corpus",
+                    )
+                ],
+                offset=0,
+                limit=10,
+                context_configuration=ContextConfiguration(
+                    characters_before=30,
+                    characters_after=30,
+                    sentences_before=3,
+                    sentences_after=3,
+                    start_tag="<em>",
+                    end_tag="</em>",
+                ),
+                reranker=SearchReranker_CustomerReranker(
+                    reranker_id="rnk_272725719",
+                ),
+            ),
+            generation=GenerationParameters(
+                prompt_name="vectara-summary-ext-v1.2.0",
+                max_used_search_results=5,
+                prompt_text='[\n  {"role": "system", "content": "You are a helpful search assistant."},\n  #foreach ($qResult in $vectaraQueryResults)\n    {"role": "user", "content": "Given the $vectaraIdxWord[$foreach.index] search result."},\n    {"role": "assistant", "content": "${qResult.getText()}" },\n  #end\n  {"role": "user", "content": "Generate a summary for the query \'${vectaraQuery}\' based on the above results."}\n]\n',
+                max_response_characters=300,
+                response_language="auto",
+                model_parameters=ModelParameters(
+                    max_tokens=0,
+                    temperature=0.0,
+                    frequency_penalty=0.0,
+                    presence_penalty=0.0,
+                ),
+                citations=CitationParameters(
+                    style="none",
+                    url_pattern="https://vectara.com/documents/{doc.id}",
+                    text_pattern="{doc.title}",
+                ),
+                enable_factual_consistency_score=True,
+            ),
         )
         """
         _response = await self._client_wrapper.httpx_client.request(

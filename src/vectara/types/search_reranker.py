@@ -5,11 +5,13 @@ from __future__ import annotations
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 
 
-class SearchReranker_CustomerReranker(pydantic_v1.BaseModel):
+class SearchReranker_CustomerReranker(pydantic.BaseModel):
     """
     Rerank results of the search.
     """
@@ -32,11 +34,11 @@ class SearchReranker_CustomerReranker(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
-class SearchReranker_Mmr(pydantic_v1.BaseModel):
+class SearchReranker_Mmr(pydantic.BaseModel):
     """
     Rerank results of the search.
     """
@@ -59,7 +61,7 @@ class SearchReranker_Mmr(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 

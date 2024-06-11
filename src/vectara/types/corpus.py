@@ -3,70 +3,72 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 from .corpus_custom_dimension import CorpusCustomDimension
 from .corpus_key import CorpusKey
 from .corpus_limits import CorpusLimits
 from .filter_attribute import FilterAttribute
 
 
-class Corpus(pydantic_v1.BaseModel):
-    id: typing.Optional[str] = pydantic_v1.Field(default=None)
+class Corpus(pydantic.BaseModel):
+    id: typing.Optional[str] = pydantic.Field(default=None)
     """
     Vectara ID of the corpus.
     """
 
     key: typing.Optional[CorpusKey] = None
-    name: typing.Optional[str] = pydantic_v1.Field(default=None)
+    name: typing.Optional[str] = pydantic.Field(default=None)
     """
     Name for the corpus. This value defaults to the key.
     """
 
-    description: typing.Optional[str] = pydantic_v1.Field(default=None)
+    description: typing.Optional[str] = pydantic.Field(default=None)
     """
     Corpus description.
     """
 
-    enabled: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    enabled: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Specifies whether the corpus is enabled or not.
     """
 
-    chat_history_corpus: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    chat_history_corpus: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Indicates that this corpus does not store documents amd stores chats instead.
     """
 
-    queries_are_answers: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    queries_are_answers: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Queries made to this corpus are considered answers, and not questions.
     This swaps the semantics of the encoder used at query time.
     """
 
-    documents_are_questions: typing.Optional[bool] = pydantic_v1.Field(default=None)
+    documents_are_questions: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Documents inside this corpus are considered questions, and not answers.
     This swaps the semantics of the encoder used at indexing.
     """
 
-    encoder_id: typing.Optional[str] = pydantic_v1.Field(default=None)
+    encoder_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The encoder used by the corpus.
     """
 
-    filter_attributes: typing.Optional[typing.List[FilterAttribute]] = pydantic_v1.Field(default=None)
+    filter_attributes: typing.Optional[typing.List[FilterAttribute]] = pydantic.Field(default=None)
     """
     The new filter attributes of the corpus.
     """
 
-    custom_dimensions: typing.Optional[typing.List[CorpusCustomDimension]] = pydantic_v1.Field(default=None)
+    custom_dimensions: typing.Optional[typing.List[CorpusCustomDimension]] = pydantic.Field(default=None)
     """
     The custom dimensions of all document parts inside the corpus.
     """
 
     limits: typing.Optional[CorpusLimits] = None
-    created_at: typing.Optional[dt.datetime] = pydantic_v1.Field(default=None)
+    created_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)
     """
     Indicates when the corpus was created.
     """
@@ -86,5 +88,5 @@ class Corpus(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

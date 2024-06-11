@@ -3,23 +3,25 @@
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 
 
-class DocumentStorageUsage(pydantic_v1.BaseModel):
+class DocumentStorageUsage(pydantic.BaseModel):
     """
     How much storage the document used. This information is currently not returned when
     retrieving the document, and only returned when indexing document.
     """
 
-    bytes_used: typing.Optional[int] = pydantic_v1.Field(default=None)
+    bytes_used: typing.Optional[int] = pydantic.Field(default=None)
     """
     Number of bytes used by document counting towards maximum corpus size, and
     towards any billing plans.
     """
 
-    metadata_bytes_used: typing.Optional[int] = pydantic_v1.Field(default=None)
+    metadata_bytes_used: typing.Optional[int] = pydantic.Field(default=None)
     """
     Number of metadata bytes used by document metadata.
     """
@@ -39,5 +41,5 @@ class DocumentStorageUsage(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}

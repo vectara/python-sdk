@@ -5,12 +5,14 @@ from __future__ import annotations
 import datetime as dt
 import typing
 
+import pydantic.v1 as pydantic
+
 from ..core.datetime_utils import serialize_datetime
-from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.pydantic_utilities import deep_union_pydantic_dicts
 from .individual_search_result import IndividualSearchResult
 
 
-class QueryStreamedResponse_SearchResults(pydantic_v1.BaseModel):
+class QueryStreamedResponse_SearchResults(pydantic.BaseModel):
     """
     An individual event sent with SSE when the query request is streamed.
     """
@@ -33,11 +35,11 @@ class QueryStreamedResponse_SearchResults(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
-class QueryStreamedResponse_GenerationChunk(pydantic_v1.BaseModel):
+class QueryStreamedResponse_GenerationChunk(pydantic.BaseModel):
     """
     An individual event sent with SSE when the query request is streamed.
     """
@@ -60,11 +62,11 @@ class QueryStreamedResponse_GenerationChunk(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
-class QueryStreamedResponse_GenerationEnd(pydantic_v1.BaseModel):
+class QueryStreamedResponse_GenerationEnd(pydantic.BaseModel):
     """
     An individual event sent with SSE when the query request is streamed.
     """
@@ -86,11 +88,11 @@ class QueryStreamedResponse_GenerationEnd(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
-class QueryStreamedResponse_FactualConsistencyScore(pydantic_v1.BaseModel):
+class QueryStreamedResponse_FactualConsistencyScore(pydantic.BaseModel):
     """
     An individual event sent with SSE when the query request is streamed.
     """
@@ -113,11 +115,11 @@ class QueryStreamedResponse_FactualConsistencyScore(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
-class QueryStreamedResponse_Error(pydantic_v1.BaseModel):
+class QueryStreamedResponse_Error(pydantic.BaseModel):
     """
     An individual event sent with SSE when the query request is streamed.
     """
@@ -140,11 +142,11 @@ class QueryStreamedResponse_Error(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
-class QueryStreamedResponse_End(pydantic_v1.BaseModel):
+class QueryStreamedResponse_End(pydantic.BaseModel):
     """
     An individual event sent with SSE when the query request is streamed.
     """
@@ -166,7 +168,7 @@ class QueryStreamedResponse_End(pydantic_v1.BaseModel):
     class Config:
         frozen = True
         smart_union = True
-        extra = pydantic_v1.Extra.allow
+        extra = pydantic.Extra.allow
         json_encoders = {dt.datetime: serialize_datetime}
 
 
