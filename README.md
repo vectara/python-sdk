@@ -7,90 +7,94 @@ The Vectara Python Library provides convenient access to the Vectara API from ap
 ## Installation
 
 ```sh
-pip install --upgrade vectara
+pip install vectara
+# or
+poetry add vectara
 ```
 
 ## Usage
+Simply import `Vectara` and start making calls to our API.
 
 ```python
 from vectara.client import Vectara
+from vectara import SearchCorporaParameters
 
 client = Vectara(
-    ...
+    api_key="YOUR_API_KEY" # defaults to VECTARA_API_KEY
+)
+client.query(
+    query="Am I allowed to bring pets to work?",
+    search=SearchCorporaParameters(
+        offset=10,
+        limit=10
+    ),
 )
 ```
 
 ## Async Client
+The SDK also exports an async client so that you can make non-blocking calls to our API.
 
 ```python
+import asyncio
+
 from vectara.client import AsyncVectara
+from vectara import SearchCorporaParameters
 
 client = AsyncVectara(
-    ...
+  api_key="YOUR_API_KEY" # defaults to VECTARA_API_KEY
 )
+
+async def main() -> None:
+    await client.query(
+        query="Am I allowed to bring pets to work?",
+        search=SearchCorporaParameters(
+            offset=10,
+            limit=10
+        ),
+    )
+asyncio.run(main())
 ```
 
 ## Authentication
 
-To use OAuth2 authentication (recommended), use `client_id` and `client_secret`:
+The SDK supports two authentication mechanisms: 
+
+### OAuth
+
+To use OAuth2 authentication (recommended), instantiate the SDK by passing in `client_id` and `client_secret`. The SDK 
+will handle fetching an access token and automatically refreshing the token before expiry. 
 
 ```python
 from vectara.client import Vectara
 
 client = Vectara(
-    client_id="...",
-    client_secret="..."
+    client_id="YOUR_CLIENT_ID", # Defaults to VECTARA_CLIENT_ID
+    client_secret="YOUR_CLIENT_SECRET" # Defaults to VECTARA_CLIENT_SECRET
 )
 ```
 
-To use an API key, use `api_key`:
+### API Key
+
+To use an API key, pass in `api_key`:
 
 ```python
 from vectara.client import Vectara
 
 client = Vectara(
-    api_key="..."
+    api_key="YOUR_API_KEY"  # Defaults to VECTARA_API_KEY
 )
-```
-
-## Exception Handling
-All errors thrown by the SDK will be subclasses of [`ApiError`](./src/vectara/core/api_error.py):
-
-```python
-try:
-    client.corpora.list_corpora(...)
-except corpora.core.ApiError as e: # Handle all errors
-  print(e.status_code)
-  print(e.body)
 ```
 
 ## Streaming
-The SDK supports streaming endpoints. To take advantage of this feature for queries or chats, look for the `_stream` suffix:
+The SDK supports streaming endpoints. To take advantage of this feature for queries or chats, pass in the argument 
+`stream_response=True`. 
 
 ```python
-from vectara import (
-    ChatParameters,
-    CitationParameters,
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    ModelParameters,
-    SearchCorporaParameters,
-)
-from vectara.client import Vectara
+from vectara import GenerationParameters, ModelParameters
 
-...
-
-response = client.chats.create_stream(
-    query="string",
-    search=SearchCorporaParameters(
-        corpora=[KeyedSearchCorpus()],
-        offset=0,
-        limit=10,
-        context_configuration=ContextConfiguration(),
-        reranker=CustomerSpecificReranker(),
-    ),
+response = client.chats.start(
+    stream_response=True,
+    query="How can I use the Vectara platform?",
     generation=GenerationParameters(
         prompt_name="vectara-summary-ext-v1.2.0",
         max_used_search_results=10,
@@ -103,15 +107,23 @@ response = client.chats.create_stream(
             frequency_penalty=0.9,
             presence_penalty=0.2,
         ),
-        citations=CitationParameters(),
         enable_factual_consistency_score=True,
     ),
-    chat=ChatParameters(
-        store=True,
-    ),
 )
+
 for item in response:
     print(chunk)
+```
+
+## Exception Handling
+All errors thrown by the SDK will be subclasses of [`ApiError`](./src/vectara/core/api_error.py):
+
+```python
+try:
+    client.query(...)
+except corpora.core.ApiError as e: # Handle all errors
+  print(e.status_code)
+  print(e.body)
 ```
 
 ## Pagination
