@@ -68,7 +68,8 @@ class JobsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         client.jobs.list()
         """
@@ -117,7 +118,8 @@ class JobsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         client.jobs.get(
             job_id="job_id",
@@ -189,7 +191,8 @@ class AsyncJobsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 
@@ -246,7 +249,8 @@ class AsyncJobsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 

@@ -58,7 +58,8 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         client.users.list()
         """
@@ -115,7 +116,8 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         client.users.create(
             email="email",
@@ -164,7 +166,8 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         client.users.get(
             username="username",
@@ -208,7 +211,8 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         client.users.delete(
             username="username",
@@ -266,7 +270,8 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         client.users.update(
             username="username",
@@ -314,7 +319,8 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         client.users.reset_password(
             username="username",
@@ -374,7 +380,8 @@ class AsyncUsersClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 
@@ -439,7 +446,8 @@ class AsyncUsersClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 
@@ -496,7 +504,8 @@ class AsyncUsersClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 
@@ -548,7 +557,8 @@ class AsyncUsersClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 
@@ -614,7 +624,8 @@ class AsyncUsersClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 
@@ -670,7 +681,8 @@ class AsyncUsersClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 

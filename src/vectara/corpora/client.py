@@ -67,7 +67,8 @@ class CorporaClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         response = client.corpora.list()
         for item in response:
@@ -163,7 +164,8 @@ class CorporaClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         client.corpora.create(
             key="my-corpus",
@@ -220,7 +222,8 @@ class CorporaClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         client.corpora.get(
             corpus_key="my-corpus",
@@ -263,7 +266,8 @@ class CorporaClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         client.corpora.delete(
             corpus_key="my-corpus",
@@ -316,7 +320,8 @@ class CorporaClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         client.corpora.update(
             corpus_key="my-corpus",
@@ -363,7 +368,8 @@ class CorporaClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         client.corpora.reset(
             corpus_key="my-corpus",
@@ -421,7 +427,8 @@ class CorporaClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
         client.corpora.replace_filters(
             corpus_key="my-corpus",
@@ -497,7 +504,8 @@ class AsyncCorporaClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 
@@ -601,7 +609,8 @@ class AsyncCorporaClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 
@@ -666,7 +675,8 @@ class AsyncCorporaClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 
@@ -717,7 +727,8 @@ class AsyncCorporaClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 
@@ -778,7 +789,8 @@ class AsyncCorporaClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 
@@ -833,7 +845,8 @@ class AsyncCorporaClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 
@@ -899,7 +912,8 @@ class AsyncCorporaClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            token="YOUR_TOKEN",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
         )
 
 

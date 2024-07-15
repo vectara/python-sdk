@@ -4,4 +4,4 @@ import enum
 
 
 class VectaraEnvironment(enum.Enum):
-    DEFAULT = "https://api.vectara.io"
+    PRODUCTION = "https://api.vectara.io"
