@@ -12,7 +12,7 @@ from ..types.error import Error
 from ..types.list_ll_ms_response import ListLlMsResponse
 
 
-class LlmsClient:
+class LargeLanguageModelsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -53,28 +53,28 @@ class LlmsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
         )
-        client.llms.list()
+        client.large_language_models.list()
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/llms",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"filter": filter, "limit": limit, "page_key": page_key},
             request_options=request_options,
         )
-        if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(ListLlMsResponse, _response.json())  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(ListLlMsResponse, _response.json())  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
 
-class AsyncLlmsClient:
+class AsyncLargeLanguageModelsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -111,25 +111,33 @@ class AsyncLlmsClient:
 
         Examples
         --------
+        import asyncio
+
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
         )
-        await client.llms.list()
+
+
+        async def main() -> None:
+            await client.large_language_models.list()
+
+
+        asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/llms",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"filter": filter, "limit": limit, "page_key": page_key},
             request_options=request_options,
         )
-        if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(ListLlMsResponse, _response.json())  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(ListLlMsResponse, _response.json())  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)

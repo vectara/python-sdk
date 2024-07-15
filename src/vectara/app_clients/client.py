@@ -13,6 +13,7 @@ from ..errors.forbidden_error import ForbiddenError
 from ..types.api_role import ApiRole
 from ..types.app_client import AppClient
 from ..types.bad_request_error_body import BadRequestErrorBody
+from ..types.create_app_client_request import CreateAppClientRequest
 from ..types.error import Error
 from ..types.list_app_clients_response import ListAppClientsResponse
 
@@ -20,7 +21,7 @@ from ..types.list_app_clients_response import ListAppClientsResponse
 OMIT = typing.cast(typing.Any, ...)
 
 
-class ApplicationClientsClient:
+class AppClientsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -58,23 +59,73 @@ class ApplicationClientsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
         )
-        client.application_clients.list()
+        client.app_clients.list()
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/app_clients",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"limit": limit, "filter": filter, "page_key": page_key},
             request_options=request_options,
         )
-        if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(ListAppClientsResponse, _response.json())  # type: ignore
-        if _response.status_code == 400:
-            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(ListAppClientsResponse, _response.json())  # type: ignore
+            if _response.status_code == 400:
+                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def create(
+        self, *, request: CreateAppClientRequest, request_options: typing.Optional[RequestOptions] = None
+    ) -> AppClient:
+        """
+        An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
+
+        Parameters
+        ----------
+        request : CreateAppClientRequest
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AppClient
+            An App Client object, used to query the Vectara API with the assigned roles.
+
+        Examples
+        --------
+        from vectara import CreateAppClientRequest_ClientCredentials
+        from vectara.client import Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
+        )
+        client.app_clients.create(
+            request=CreateAppClientRequest_ClientCredentials(
+                name="string",
+                description="string",
+                api_roles=["owner"],
+            ),
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v2/app_clients", method="POST", json=request, request_options=request_options, omit=OMIT
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(AppClient, _response.json())  # type: ignore
+            if _response.status_code == 400:
+                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -101,22 +152,20 @@ class ApplicationClientsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
         )
-        client.application_clients.get(
+        client.app_clients.get(
             app_client_id="app_client_id",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
-            base_url=self._client_wrapper.get_environment().default,
-            method="GET",
-            request_options=request_options,
+            f"v2/app_clients/{jsonable_encoder(app_client_id)}", method="GET", request_options=request_options
         )
-        if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(AppClient, _response.json())  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(AppClient, _response.json())  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -142,22 +191,20 @@ class ApplicationClientsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
         )
-        client.application_clients.delete(
+        client.app_clients.delete(
             app_client_id="app_client_id",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
-            base_url=self._client_wrapper.get_environment().default,
-            method="DELETE",
-            request_options=request_options,
+            f"v2/app_clients/{jsonable_encoder(app_client_id)}", method="DELETE", request_options=request_options
         )
-        if 200 <= _response.status_code < 300:
-            return
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
+            if 200 <= _response.status_code < 300:
+                return
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -197,31 +244,31 @@ class ApplicationClientsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
         )
-        client.application_clients.update(
+        client.app_clients.update(
             app_client_id="app_client_id",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"description": description, "api_roles": api_roles},
             request_options=request_options,
             omit=OMIT,
         )
-        if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(AppClient, _response.json())  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(AppClient, _response.json())  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
 
-class AsyncApplicationClientsClient:
+class AsyncAppClientsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -255,27 +302,93 @@ class AsyncApplicationClientsClient:
 
         Examples
         --------
+        import asyncio
+
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
         )
-        await client.application_clients.list()
+
+
+        async def main() -> None:
+            await client.app_clients.list()
+
+
+        asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/app_clients",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"limit": limit, "filter": filter, "page_key": page_key},
             request_options=request_options,
         )
-        if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(ListAppClientsResponse, _response.json())  # type: ignore
-        if _response.status_code == 400:
-            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(ListAppClientsResponse, _response.json())  # type: ignore
+            if _response.status_code == 400:
+                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def create(
+        self, *, request: CreateAppClientRequest, request_options: typing.Optional[RequestOptions] = None
+    ) -> AppClient:
+        """
+        An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
+
+        Parameters
+        ----------
+        request : CreateAppClientRequest
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AppClient
+            An App Client object, used to query the Vectara API with the assigned roles.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import CreateAppClientRequest_ClientCredentials
+        from vectara.client import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.app_clients.create(
+                request=CreateAppClientRequest_ClientCredentials(
+                    name="string",
+                    description="string",
+                    api_roles=["owner"],
+                ),
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v2/app_clients", method="POST", json=request, request_options=request_options, omit=OMIT
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(AppClient, _response.json())  # type: ignore
+            if _response.status_code == 400:
+                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -298,26 +411,32 @@ class AsyncApplicationClientsClient:
 
         Examples
         --------
+        import asyncio
+
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
         )
-        await client.application_clients.get(
-            app_client_id="app_client_id",
-        )
+
+
+        async def main() -> None:
+            await client.app_clients.get(
+                app_client_id="app_client_id",
+            )
+
+
+        asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
-            base_url=self._client_wrapper.get_environment().default,
-            method="GET",
-            request_options=request_options,
+            f"v2/app_clients/{jsonable_encoder(app_client_id)}", method="GET", request_options=request_options
         )
-        if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(AppClient, _response.json())  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(AppClient, _response.json())  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -339,26 +458,32 @@ class AsyncApplicationClientsClient:
 
         Examples
         --------
+        import asyncio
+
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
         )
-        await client.application_clients.delete(
-            app_client_id="app_client_id",
-        )
+
+
+        async def main() -> None:
+            await client.app_clients.delete(
+                app_client_id="app_client_id",
+            )
+
+
+        asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
-            base_url=self._client_wrapper.get_environment().default,
-            method="DELETE",
-            request_options=request_options,
+            f"v2/app_clients/{jsonable_encoder(app_client_id)}", method="DELETE", request_options=request_options
         )
-        if 200 <= _response.status_code < 300:
-            return
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
+            if 200 <= _response.status_code < 300:
+                return
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -394,28 +519,36 @@ class AsyncApplicationClientsClient:
 
         Examples
         --------
+        import asyncio
+
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
         )
-        await client.application_clients.update(
-            app_client_id="app_client_id",
-        )
+
+
+        async def main() -> None:
+            await client.app_clients.update(
+                app_client_id="app_client_id",
+            )
+
+
+        asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"description": description, "api_roles": api_roles},
             request_options=request_options,
             omit=OMIT,
         )
-        if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(AppClient, _response.json())  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(AppClient, _response.json())  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)

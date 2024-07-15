@@ -35,4 +35,4 @@ class CreateAppClientRequest_ClientCredentials(pydantic_v1.BaseModel):
         json_encoders = {dt.datetime: serialize_datetime}
 
 
-CreateAppClientRequest = typing.Union[CreateAppClientRequest_ClientCredentials]
+CreateAppClientRequest = CreateAppClientRequest_ClientCredentials

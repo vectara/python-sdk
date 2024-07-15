@@ -52,6 +52,7 @@ class EncodersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
         )
         client.encoders.list(
             filter="vectara.*",
@@ -59,16 +60,15 @@ class EncodersClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/encoders",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"filter": filter, "limit": limit, "page_key": page_key},
             request_options=request_options,
         )
-        if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(ListEncodersResponse, _response.json())  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(ListEncodersResponse, _response.json())  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -111,27 +111,35 @@ class AsyncEncodersClient:
 
         Examples
         --------
+        import asyncio
+
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
         )
-        await client.encoders.list(
-            filter="vectara.*",
-        )
+
+
+        async def main() -> None:
+            await client.encoders.list(
+                filter="vectara.*",
+            )
+
+
+        asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/encoders",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"filter": filter, "limit": limit, "page_key": page_key},
             request_options=request_options,
         )
-        if 200 <= _response.status_code < 300:
-            return pydantic_v1.parse_obj_as(ListEncodersResponse, _response.json())  # type: ignore
-        if _response.status_code == 403:
-            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
+            if 200 <= _response.status_code < 300:
+                return pydantic_v1.parse_obj_as(ListEncodersResponse, _response.json())  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)

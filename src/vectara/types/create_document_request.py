@@ -20,7 +20,7 @@ class CreateDocumentRequest_Core(pydantic_v1.BaseModel):
 
     Otherwise, you can create a document with all the document parts explicitly specified.
 
-    A document part is the a search result item in search and retrieval augmeneted generation endpoints.
+    A document part is the a search result item in search and retrieval augmented generation endpoints.
     """
 
     id: str
@@ -55,7 +55,7 @@ class CreateDocumentRequest_Structured(pydantic_v1.BaseModel):
 
     Otherwise, you can create a document with all the document parts explicitly specified.
 
-    A document part is the a search result item in search and retrieval augmeneted generation endpoints.
+    A document part is the a search result item in search and retrieval augmented generation endpoints.
     """
 
     id: str

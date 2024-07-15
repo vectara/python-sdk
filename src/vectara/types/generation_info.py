@@ -3,24 +3,25 @@
 import datetime as dt
 import typing
 
-from ...core.datetime_utils import serialize_datetime
-from ...core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
+from ..core.datetime_utils import serialize_datetime
+from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 
 
-class AuthResponse(pydantic_v1.BaseModel):
-    access_token: str = pydantic_v1.Field()
+class GenerationInfo(pydantic_v1.BaseModel):
     """
-    The bearer token you will pass in to subsequent API calls to authenticate.
-    """
-
-    expires_in: int = pydantic_v1.Field()
-    """
-    Tells you how long (in seconds) until your bearer token expires.
+    Event containing information on how the generation was accomplished.
     """
 
-    token_type: str = pydantic_v1.Field()
+    rendered_prompt: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
-    Will always be "Bearer"
+    The rendered prompt sent to the LLM. Useful when creating customer `prompt_text` templates. Only available
+    to Scale customers.
+    """
+
+    rephrased_query: typing.Optional[str] = pydantic_v1.Field(default=None)
+    """
+    If you are on the Scale plan, you can view the actual query made to backend that was rephrased
+    by the LLM from the input query.
     """
 
     def json(self, **kwargs: typing.Any) -> str:

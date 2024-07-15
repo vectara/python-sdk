@@ -4,7 +4,6 @@ import typing
 
 import httpx
 
-from ..environment import VectaraEnvironment
 from .http_client import AsyncHttpClient, HttpClient
 
 
@@ -12,14 +11,14 @@ class BaseClientWrapper:
     def __init__(
         self,
         *,
-        api_key: typing.Optional[str] = None,
-        token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
-        environment: VectaraEnvironment,
+        api_key: str,
+        token: typing.Union[str, typing.Callable[[], str]],
+        base_url: str,
         timeout: typing.Optional[float] = None,
     ):
         self._api_key = api_key
         self._token = token
-        self._environment = environment
+        self._base_url = base_url
         self._timeout = timeout
 
     def get_headers(self) -> typing.Dict[str, str]:
@@ -28,21 +27,18 @@ class BaseClientWrapper:
             "X-Fern-SDK-Name": "vectara",
             "X-Fern-SDK-Version": "0.0.0",
         }
-        if self._api_key is not None:
-            headers["x-api-key"] = self._api_key
-        token = self._get_token()
-        if token is not None:
-            headers["Authorization"] = f"Bearer {token}"
+        headers["x-api-key"] = self._api_key
+        headers["Authorization"] = f"Bearer {self._get_token()}"
         return headers
 
-    def _get_token(self) -> typing.Optional[str]:
-        if isinstance(self._token, str) or self._token is None:
+    def _get_token(self) -> str:
+        if isinstance(self._token, str):
             return self._token
         else:
             return self._token()
 
-    def get_environment(self) -> VectaraEnvironment:
-        return self._environment
+    def get_base_url(self) -> str:
+        return self._base_url
 
     def get_timeout(self) -> typing.Optional[float]:
         return self._timeout
@@ -52,15 +48,18 @@ class SyncClientWrapper(BaseClientWrapper):
     def __init__(
         self,
         *,
-        api_key: typing.Optional[str] = None,
-        token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
-        environment: VectaraEnvironment,
+        api_key: str,
+        token: typing.Union[str, typing.Callable[[], str]],
+        base_url: str,
         timeout: typing.Optional[float] = None,
         httpx_client: httpx.Client,
     ):
-        super().__init__(api_key=api_key, token=token, environment=environment, timeout=timeout)
+        super().__init__(api_key=api_key, token=token, base_url=base_url, timeout=timeout)
         self.httpx_client = HttpClient(
-            httpx_client=httpx_client, base_headers=self.get_headers(), base_timeout=self.get_timeout()
+            httpx_client=httpx_client,
+            base_headers=self.get_headers(),
+            base_timeout=self.get_timeout(),
+            base_url=self.get_base_url(),
         )
 
 
@@ -68,13 +67,16 @@ class AsyncClientWrapper(BaseClientWrapper):
     def __init__(
         self,
         *,
-        api_key: typing.Optional[str] = None,
-        token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
-        environment: VectaraEnvironment,
+        api_key: str,
+        token: typing.Union[str, typing.Callable[[], str]],
+        base_url: str,
         timeout: typing.Optional[float] = None,
         httpx_client: httpx.AsyncClient,
     ):
-        super().__init__(api_key=api_key, token=token, environment=environment, timeout=timeout)
+        super().__init__(api_key=api_key, token=token, base_url=base_url, timeout=timeout)
         self.httpx_client = AsyncHttpClient(
-            httpx_client=httpx_client, base_headers=self.get_headers(), base_timeout=self.get_timeout()
+            httpx_client=httpx_client,
+            base_headers=self.get_headers(),
+            base_timeout=self.get_timeout(),
+            base_url=self.get_base_url(),
         )

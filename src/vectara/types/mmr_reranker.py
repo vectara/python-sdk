@@ -8,7 +8,6 @@ from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 
 
 class MmrReranker(pydantic_v1.BaseModel):
-    type: typing.Literal["mmr"] = "mmr"
     diversity_bias: typing.Optional[float] = pydantic_v1.Field(default=None)
     """
     The diversity bias. Higher values indicate more diversity.

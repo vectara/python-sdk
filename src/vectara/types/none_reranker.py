@@ -7,11 +7,7 @@ from ..core.datetime_utils import serialize_datetime
 from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 
 
-class StreamResponseEnd(pydantic_v1.BaseModel):
-    """
-    The end of a query response stream.
-    """
-
+class NoneReranker(pydantic_v1.BaseModel):
     def json(self, **kwargs: typing.Any) -> str:
         kwargs_with_defaults: typing.Any = {"by_alias": True, "exclude_unset": True, **kwargs}
         return super().json(**kwargs_with_defaults)
