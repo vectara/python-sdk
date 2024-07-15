@@ -1,57 +1,121 @@
 # Vectara Python Library
 
 [![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-SDK%20generated%20by%20Fern-brightgreen)](https://github.com/fern-api/fern)
+[![pypi](https://img.shields.io/pypi/v/vectara)](https://pypi.python.org/pypi/vectara)
 
-The Vectara Python Library provides convenient access to the Vectara API from applications written in Python.
+The Vectara Python library provides convenient access to the Vectara API from Python.
 
 ## Installation
 
 ```sh
 pip install vectara
-# or
-poetry add vectara
 ```
 
 ## Usage
-Simply import `Vectara` and start making calls to our API.
+
+Instantiate and use the client with the following:
 
 ```python
+from vectara import (
+    CitationParameters,
+    ContextConfiguration,
+    GenerationParameters,
+    KeyedSearchCorpus,
+    ModelParameters,
+    SearchCorporaParameters,
+    SearchReranker_CustomerReranker,
+)
 from vectara.client import Vectara
-from vectara import SearchCorporaParameters
 
 client = Vectara(
-    api_key="YOUR_API_KEY" # defaults to VECTARA_API_KEY
+    api_key="YOUR_API_KEY",
+    token="YOUR_TOKEN",
 )
-client.query(
-    query="Am I allowed to bring pets to work?",
+response = client.queries.query_stream(
+    query="string",
     search=SearchCorporaParameters(
-        offset=10,
-        limit=10
+        corpora=[KeyedSearchCorpus()],
+        offset=1,
+        limit=1,
+        context_configuration=ContextConfiguration(),
+        reranker=SearchReranker_CustomerReranker(),
     ),
+    generation=GenerationParameters(
+        prompt_name="string",
+        max_used_search_results=1,
+        prompt_text="string",
+        max_response_characters=1,
+        response_language="auto",
+        model_parameters=ModelParameters(
+            max_tokens=1,
+            temperature=1.1,
+            frequency_penalty=1.1,
+            presence_penalty=1.1,
+        ),
+        citations=CitationParameters(),
+        enable_factual_consistency_score=True,
+    ),
+    stream_response=True,
 )
+for chunk in response:
+    yield chunk
 ```
 
 ## Async Client
-The SDK also exports an async client so that you can make non-blocking calls to our API.
+
+The SDK also exports an `async` client so that you can make non-blocking calls to our API.
 
 ```python
 import asyncio
 
+from vectara import (
+    CitationParameters,
+    ContextConfiguration,
+    GenerationParameters,
+    KeyedSearchCorpus,
+    ModelParameters,
+    SearchCorporaParameters,
+    SearchReranker_CustomerReranker,
+)
 from vectara.client import AsyncVectara
-from vectara import SearchCorporaParameters
 
 client = AsyncVectara(
-  api_key="YOUR_API_KEY" # defaults to VECTARA_API_KEY
+    api_key="YOUR_API_KEY",
+    token="YOUR_TOKEN",
 )
 
+
 async def main() -> None:
-    await client.query(
-        query="Am I allowed to bring pets to work?",
+    response = await client.queries.query_stream(
+        query="string",
         search=SearchCorporaParameters(
-            offset=10,
-            limit=10
+            corpora=[KeyedSearchCorpus()],
+            offset=1,
+            limit=1,
+            context_configuration=ContextConfiguration(),
+            reranker=SearchReranker_CustomerReranker(),
         ),
+        generation=GenerationParameters(
+            prompt_name="string",
+            max_used_search_results=1,
+            prompt_text="string",
+            max_response_characters=1,
+            response_language="auto",
+            model_parameters=ModelParameters(
+                max_tokens=1,
+                temperature=1.1,
+                frequency_penalty=1.1,
+                presence_penalty=1.1,
+            ),
+            citations=CitationParameters(),
+            enable_factual_consistency_score=True,
+        ),
+        stream_response=True,
     )
+    async for chunk in response:
+        yield chunk
+
+
 asyncio.run(main())
 ```
 
@@ -85,34 +149,69 @@ client = Vectara(
 )
 ```
 
-## Streaming
-The SDK supports streaming endpoints. To take advantage of this feature for queries or chats, pass in the argument 
-`stream_response=True`. 
+## Exception Handling
+
+When the API returns a non-success status code (4xx or 5xx response), a subclass of the following error
+will be thrown.
 
 ```python
-from vectara import GenerationParameters, ModelParameters
+from .api_error import ApiError
 
-response = client.chats.start(
-    stream_response=True,
-    query="How can I use the Vectara platform?",
+try:
+    client.queries.query_stream(...)
+except ApiError as e:
+    print(e.status_code)
+    print(e.body)
+```
+
+## Streaming
+
+The SDK supports streaming responses, as well, the response will be a generator that you can loop over.
+
+```python
+from vectara import (
+    CitationParameters,
+    ContextConfiguration,
+    GenerationParameters,
+    KeyedSearchCorpus,
+    ModelParameters,
+    SearchCorporaParameters,
+    SearchReranker_CustomerReranker,
+)
+from vectara.client import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    token="YOUR_TOKEN",
+)
+response = client.queries.query_stream(
+    query="string",
+    search=SearchCorporaParameters(
+        corpora=[KeyedSearchCorpus()],
+        offset=1,
+        limit=1,
+        context_configuration=ContextConfiguration(),
+        reranker=SearchReranker_CustomerReranker(),
+    ),
     generation=GenerationParameters(
-        prompt_name="vectara-summary-ext-v1.2.0",
-        max_used_search_results=10,
-        prompt_text="[\n ... {\"role\": \"user\", \"content\": \"Generate a summary for the query '\''${vectaraQuery}'\'' based on the above results.\"} ... \n] \n",
-        max_response_characters=300,
+        prompt_name="string",
+        max_used_search_results=1,
+        prompt_text="string",
+        max_response_characters=1,
         response_language="auto",
         model_parameters=ModelParameters(
-            max_tokens=2,
-            temperature=0.4,
-            frequency_penalty=0.9,
-            presence_penalty=0.2,
+            max_tokens=1,
+            temperature=1.1,
+            frequency_penalty=1.1,
+            presence_penalty=1.1,
         ),
+        citations=CitationParameters(),
         enable_factual_consistency_score=True,
     ),
+    stream_response=True,
 )
-
-for item in response:
-    print(chunk)
+for chunk in response:
+    yield chunk
 ```
 
 ## File Uploads
@@ -126,71 +225,32 @@ response = client.upload(
 )
 ```
 
-## Exception Handling
-All errors thrown by the SDK will be subclasses of [`ApiError`](./src/vectara/core/api_error.py):
-
-```python
-try:
-    client.query(...)
-except corpora.core.ApiError as e: # Handle all errors
-  print(e.status_code)
-  print(e.body)
-```
-
 ## Pagination
 
-Paginated requests will return a `SyncPager` or `AsyncPager`, which can be used as generators for the underlying object. For example, `corpora.list` will return a generator over `Corpus` and handle the pagination behind the scenes:
-
-```python
-for corpora in client.corpora.list():
-    print(corpora)
-```
-
-you could also iterate page-by-page:
-
-```python
-for page in client.corpora.list().iter_pages():
-    print(page.items)
-```
-
-or manually: 
-
-```python
-pager = client.corpora.list()
-# First page
-print(pager.items)
-# Second page
-pager = pager.next_page()
-print(pager.items)
-```
-
-## Advanced 
-
-### Timeouts
-
-By default, requests time out after 60 seconds. You can configure this with a
-timeout option at the client or request level.
+Paginated requests will return a `SyncPager` or `AsyncPager`, which can be used as generators for the underlying object.
 
 ```python
 from vectara.client import Vectara
 
 client = Vectara(
-    ...,
-    # All timeouts are 20 seconds
-    timeout=20.0,
+    api_key="YOUR_API_KEY",
+    token="YOUR_TOKEN",
 )
-
-# Override timeout for a specific method
-client.corpora.list_corpora(..., {
-    timeout_in_seconds=20.0
-})
+response = client.corpora.list()
+for item in response:
+    yield item
+# alternatively, you can paginate page-by-page
+for page in response.iter_pages():
+    yield page
 ```
+
+## Advanced
 
 ### Retries
 
-The SDK is instrumented with automatic retries with exponential backoff. A request will be
-retried as long as the request is deemed retriable and the number of retry attempts has not grown larger
-than the configured retry limit (default: 2).
+The SDK is instrumented with automatic retries with exponential backoff. A request will be retried as long
+as the request is deemed retriable and the number of retry attempts has not grown larger than the configured
+retry limit (default: 2).
 
 A request is deemed retriable when any of the following HTTP status codes is returned:
 
@@ -201,22 +261,38 @@ A request is deemed retriable when any of the following HTTP status codes is ret
 Use the `max_retries` request option to configure this behavior.
 
 ```python
-client.corpora.list_corpora(..., {
+client.queries.query_stream(...,{
     max_retries=1
 })
 ```
 
-### Custom HTTP client
+### Timeouts
 
-You can override the httpx client to customize it for your use-case. Some common use-cases
-include support for proxies and transports.
+The SDK defaults to a 60 second timeout. You can configure this with a timeout option at the client or request level.
 
 ```python
-import httpx
 
 from vectara.client import Vectara
 
-client = Vectara(...,
+client = Vectara(..., { timeout=20.0 }, )
+
+
+# Override timeout for a specific method
+client.queries.query_stream(...,{
+    timeout_in_seconds=1
+})
+```
+
+### Custom Client
+
+You can override the `httpx` client to customize it for your use-case. Some common use-cases include support for proxies
+and transports.
+```python
+import httpx
+from vectara.client import Vectara
+
+client = Vectara(
+    ...,
     http_client=httpx.Client(
         proxies="http://my.test.proxy.example.com",
         transport=httpx.HTTPTransport(local_address="0.0.0.0"),
@@ -224,8 +300,12 @@ client = Vectara(...,
 )
 ```
 
-## Beta Status
+## Contributing
 
-This SDK is in beta, and there may be breaking changes between versions without a major 
-version update. Therefore, we recommend pinning the package version to a specific version. 
-This way, you can install the same version each time without breaking changes.
+While we value open-source contributions to this SDK, this library is generated programmatically.
+Additions made directly to this library would have to be moved over to our generation code,
+otherwise they would be overwritten upon the next generated release. Feel free to open a PR as
+a proof of concept, but know that we will not be able to merge it as-is. We suggest opening
+an issue first to discuss with us!
+
+On the other hand, contributions to the README are always very welcome!
