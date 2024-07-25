@@ -106,7 +106,6 @@ class ChatsClient:
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Iterator[ChatStreamedResponse]:
         """
@@ -122,9 +121,6 @@ class ChatsClient:
         generation : typing.Optional[GenerationParameters]
 
         chat : typing.Optional[ChatParameters]
-
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -180,7 +176,6 @@ class ChatsClient:
             chat=ChatParameters(
                 store=True,
             ),
-            stream_response=True,
         )
         for chunk in response:
             yield chunk
@@ -188,14 +183,7 @@ class ChatsClient:
         with self._client_wrapper.httpx_client.stream(
             "v2/chats",
             method="POST",
-            json={
-                "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
-                "stream_response": stream_response,
-                "stream": True,
-            },
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
             request_options=request_options,
             omit=OMIT,
         ) as _response:
@@ -230,7 +218,6 @@ class ChatsClient:
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ChatFullResponse:
         """
@@ -246,9 +233,6 @@ class ChatsClient:
         generation : typing.Optional[GenerationParameters]
 
         chat : typing.Optional[ChatParameters]
-
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -276,14 +260,7 @@ class ChatsClient:
         _response = self._client_wrapper.httpx_client.request(
             "v2/chats",
             method="POST",
-            json={
-                "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
-                "stream_response": stream_response,
-                "stream": False,
-            },
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
             request_options=request_options,
             omit=OMIT,
         )
@@ -445,7 +422,6 @@ class ChatsClient:
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Iterator[ChatStreamedResponse]:
         """
@@ -464,9 +440,6 @@ class ChatsClient:
         generation : typing.Optional[GenerationParameters]
 
         chat : typing.Optional[ChatParameters]
-
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -523,7 +496,6 @@ class ChatsClient:
             chat=ChatParameters(
                 store=True,
             ),
-            stream_response=True,
         )
         for chunk in response:
             yield chunk
@@ -531,14 +503,7 @@ class ChatsClient:
         with self._client_wrapper.httpx_client.stream(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
             method="POST",
-            json={
-                "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
-                "stream_response": stream_response,
-                "stream": True,
-            },
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
             request_options=request_options,
             omit=OMIT,
         ) as _response:
@@ -574,7 +539,6 @@ class ChatsClient:
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ChatFullResponse:
         """
@@ -593,9 +557,6 @@ class ChatsClient:
         generation : typing.Optional[GenerationParameters]
 
         chat : typing.Optional[ChatParameters]
-
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -624,14 +585,7 @@ class ChatsClient:
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
             method="POST",
-            json={
-                "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
-                "stream_response": stream_response,
-                "stream": False,
-            },
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
             request_options=request_options,
             omit=OMIT,
         )
@@ -902,7 +856,6 @@ class AsyncChatsClient:
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.AsyncIterator[ChatStreamedResponse]:
         """
@@ -918,9 +871,6 @@ class AsyncChatsClient:
         generation : typing.Optional[GenerationParameters]
 
         chat : typing.Optional[ChatParameters]
-
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -981,7 +931,6 @@ class AsyncChatsClient:
                 chat=ChatParameters(
                     store=True,
                 ),
-                stream_response=True,
             )
             async for chunk in response:
                 yield chunk
@@ -992,14 +941,7 @@ class AsyncChatsClient:
         async with self._client_wrapper.httpx_client.stream(
             "v2/chats",
             method="POST",
-            json={
-                "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
-                "stream_response": stream_response,
-                "stream": True,
-            },
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
             request_options=request_options,
             omit=OMIT,
         ) as _response:
@@ -1034,7 +976,6 @@ class AsyncChatsClient:
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ChatFullResponse:
         """
@@ -1050,9 +991,6 @@ class AsyncChatsClient:
         generation : typing.Optional[GenerationParameters]
 
         chat : typing.Optional[ChatParameters]
-
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1088,14 +1026,7 @@ class AsyncChatsClient:
         _response = await self._client_wrapper.httpx_client.request(
             "v2/chats",
             method="POST",
-            json={
-                "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
-                "stream_response": stream_response,
-                "stream": False,
-            },
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
             request_options=request_options,
             omit=OMIT,
         )
@@ -1281,7 +1212,6 @@ class AsyncChatsClient:
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.AsyncIterator[ChatStreamedResponse]:
         """
@@ -1300,9 +1230,6 @@ class AsyncChatsClient:
         generation : typing.Optional[GenerationParameters]
 
         chat : typing.Optional[ChatParameters]
-
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1364,7 +1291,6 @@ class AsyncChatsClient:
                 chat=ChatParameters(
                     store=True,
                 ),
-                stream_response=True,
             )
             async for chunk in response:
                 yield chunk
@@ -1375,14 +1301,7 @@ class AsyncChatsClient:
         async with self._client_wrapper.httpx_client.stream(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
             method="POST",
-            json={
-                "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
-                "stream_response": stream_response,
-                "stream": True,
-            },
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
             request_options=request_options,
             omit=OMIT,
         ) as _response:
@@ -1418,7 +1337,6 @@ class AsyncChatsClient:
         search: SearchCorporaParameters,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
-        stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ChatFullResponse:
         """
@@ -1437,9 +1355,6 @@ class AsyncChatsClient:
         generation : typing.Optional[GenerationParameters]
 
         chat : typing.Optional[ChatParameters]
-
-        stream_response : typing.Optional[bool]
-            Indicates whether the response should be streamed or not.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1476,14 +1391,7 @@ class AsyncChatsClient:
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
             method="POST",
-            json={
-                "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
-                "stream_response": stream_response,
-                "stream": False,
-            },
+            json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
             request_options=request_options,
             omit=OMIT,
         )

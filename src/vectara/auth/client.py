@@ -7,7 +7,7 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pydantic_utilities import pydantic_v1
 from ..core.request_options import RequestOptions
-from .types.auth_response import AuthResponse
+from ..types.auth_response import AuthResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -18,16 +18,21 @@ class AuthClient:
         self._client_wrapper = client_wrapper
 
     def get_token(
-        self, *, client_id: str, client_secret: str, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        client_id: typing.Optional[str] = OMIT,
+        client_secret: typing.Optional[str] = OMIT,
+        grant_type: typing.Optional[typing.Literal["client_credentials"]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None
     ) -> AuthResponse:
         """
-        Hit the auth endpoint to get a bearer token
-
         Parameters
         ----------
-        client_id : str
+        client_id : typing.Optional[str]
 
-        client_secret : str
+        client_secret : typing.Optional[str]
+
+        grant_type : typing.Optional[typing.Literal["client_credentials"]]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -35,7 +40,7 @@ class AuthClient:
         Returns
         -------
         AuthResponse
-            OK
+            A response to a query.
 
         Examples
         --------
@@ -46,15 +51,12 @@ class AuthClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.auth.get_token(
-            client_id="string",
-            client_secret="string",
-        )
+        client.auth.get_token()
         """
         _response = self._client_wrapper.httpx_client.request(
             "oauth/token",
             method="POST",
-            json={"client_id": client_id, "client_secret": client_secret, "grant_type": "client_credentials"},
+            json={"client_id": client_id, "client_secret": client_secret, "grant_type": grant_type},
             request_options=request_options,
             omit=OMIT,
         )
@@ -72,16 +74,21 @@ class AsyncAuthClient:
         self._client_wrapper = client_wrapper
 
     async def get_token(
-        self, *, client_id: str, client_secret: str, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        client_id: typing.Optional[str] = OMIT,
+        client_secret: typing.Optional[str] = OMIT,
+        grant_type: typing.Optional[typing.Literal["client_credentials"]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None
     ) -> AuthResponse:
         """
-        Hit the auth endpoint to get a bearer token
-
         Parameters
         ----------
-        client_id : str
+        client_id : typing.Optional[str]
 
-        client_secret : str
+        client_secret : typing.Optional[str]
+
+        grant_type : typing.Optional[typing.Literal["client_credentials"]]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -89,7 +96,7 @@ class AsyncAuthClient:
         Returns
         -------
         AuthResponse
-            OK
+            A response to a query.
 
         Examples
         --------
@@ -105,10 +112,7 @@ class AsyncAuthClient:
 
 
         async def main() -> None:
-            await client.auth.get_token(
-                client_id="string",
-                client_secret="string",
-            )
+            await client.auth.get_token()
 
 
         asyncio.run(main())
@@ -116,7 +120,7 @@ class AsyncAuthClient:
         _response = await self._client_wrapper.httpx_client.request(
             "oauth/token",
             method="POST",
-            json={"client_id": client_id, "client_secret": client_secret, "grant_type": "client_credentials"},
+            json={"client_id": client_id, "client_secret": client_secret, "grant_type": grant_type},
             request_options=request_options,
             omit=OMIT,
         )

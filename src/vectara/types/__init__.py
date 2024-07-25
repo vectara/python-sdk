@@ -6,6 +6,7 @@ from .api_operation_policy import ApiOperationPolicy
 from .api_policy import ApiPolicy
 from .api_role import ApiRole
 from .app_client import AppClient
+from .auth_response import AuthResponse
 from .bad_request_error_body import BadRequestErrorBody
 from .chat import Chat
 from .chat_full_response import ChatFullResponse
@@ -105,6 +106,7 @@ __all__ = [
     "ApiPolicy",
     "ApiRole",
     "AppClient",
+    "AuthResponse",
     "BadRequestErrorBody",
     "Chat",
     "ChatFullResponse",

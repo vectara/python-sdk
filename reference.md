@@ -713,20 +713,6 @@ client.app_clients.update(
 <dl>
 <dd>
 
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Hit the auth endpoint to get a bearer token
-</dd>
-</dl>
-</dd>
-</dl>
-
 #### 🔌 Usage
 
 <dl>
@@ -743,10 +729,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.auth.get_token(
-    client_id="string",
-    client_secret="string",
-)
+client.auth.get_token()
 
 ```
 </dd>
@@ -762,7 +745,7 @@ client.auth.get_token(
 <dl>
 <dd>
 
-**client_id:** `str` 
+**client_id:** `typing.Optional[str]` 
     
 </dd>
 </dl>
@@ -770,7 +753,15 @@ client.auth.get_token(
 <dl>
 <dd>
 
-**client_secret:** `str` 
+**client_secret:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**grant_type:** `typing.Optional[typing.Literal["client_credentials"]]` 
     
 </dd>
 </dl>
@@ -945,7 +936,6 @@ response = client.chats.create_stream(
     chat=ChatParameters(
         store=True,
     ),
-    stream_response=True,
 )
 for chunk in response:
     yield chunk
@@ -989,14 +979,6 @@ for chunk in response:
 <dd>
 
 **chat:** `typing.Optional[ChatParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**stream_response:** `typing.Optional[bool]` — Indicates whether the response should be streamed or not.
     
 </dd>
 </dl>
@@ -1095,14 +1077,6 @@ client.chats.create(
 <dd>
 
 **chat:** `typing.Optional[ChatParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**stream_response:** `typing.Optional[bool]` — Indicates whether the response should be streamed or not.
     
 </dd>
 </dl>
@@ -1410,7 +1384,6 @@ response = client.chats.create_turn_stream(
     chat=ChatParameters(
         store=True,
     ),
-    stream_response=True,
 )
 for chunk in response:
     yield chunk
@@ -1462,14 +1435,6 @@ for chunk in response:
 <dd>
 
 **chat:** `typing.Optional[ChatParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**stream_response:** `typing.Optional[bool]` — Indicates whether the response should be streamed or not.
     
 </dd>
 </dl>
@@ -1577,14 +1542,6 @@ client.chats.create_turn(
 <dd>
 
 **chat:** `typing.Optional[ChatParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**stream_response:** `typing.Optional[bool]` — Indicates whether the response should be streamed or not.
     
 </dd>
 </dl>
@@ -3137,7 +3094,6 @@ response = client.queries.query_stream(
         citations=CitationParameters(),
         enable_factual_consistency_score=True,
     ),
-    stream_response=True,
 )
 for chunk in response:
     yield chunk
@@ -3173,14 +3129,6 @@ for chunk in response:
 <dd>
 
 **generation:** `typing.Optional[GenerationParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**stream_response:** `typing.Optional[bool]` — Indicates whether the response should be streamed or not.
     
 </dd>
 </dl>
@@ -3232,15 +3180,7 @@ For more detailed information please see this [api guide](https://docs.vectara.c
 <dd>
 
 ```python
-from vectara import (
-    CitationParameters,
-    ContextConfiguration,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    ModelParameters,
-    SearchCorporaParameters,
-    SearchReranker_CustomerReranker,
-)
+from vectara import SearchCorporaParameters
 from vectara.client import Vectara
 
 client = Vectara(
@@ -3250,50 +3190,7 @@ client = Vectara(
 )
 client.queries.query(
     query="Am I allowed to bring pets to work?",
-    search=SearchCorporaParameters(
-        corpora=[
-            KeyedSearchCorpus(
-                custom_dimensions={},
-                metadata_filter="doc.title = 'Charlotte''s Web'",
-                lexical_interpolation=0.025,
-                semantics="default",
-                corpus_key="my-corpus",
-            )
-        ],
-        offset=0,
-        limit=10,
-        context_configuration=ContextConfiguration(
-            characters_before=30,
-            characters_after=30,
-            sentences_before=3,
-            sentences_after=3,
-            start_tag="<em>",
-            end_tag="</em>",
-        ),
-        reranker=SearchReranker_CustomerReranker(
-            reranker_id="rnk_272725719",
-        ),
-    ),
-    generation=GenerationParameters(
-        prompt_name="vectara-summary-ext-v1.2.0",
-        max_used_search_results=5,
-        prompt_text='[\n  {"role": "system", "content": "You are a helpful search assistant."},\n  #foreach ($qResult in $vectaraQueryResults)\n    {"role": "user", "content": "Given the $vectaraIdxWord[$foreach.index] search result."},\n    {"role": "assistant", "content": "${qResult.getText()}" },\n  #end\n  {"role": "user", "content": "Generate a summary for the query \'${vectaraQuery}\' based on the above results."}\n]\n',
-        max_response_characters=300,
-        response_language="auto",
-        model_parameters=ModelParameters(
-            max_tokens=0,
-            temperature=0.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
-        ),
-        citations=CitationParameters(
-            style="none",
-            url_pattern="https://vectara.com/documents/{doc.id}",
-            text_pattern="{doc.title}",
-        ),
-        enable_factual_consistency_score=True,
-    ),
-    stream_response=False,
+    search=SearchCorporaParameters(),
 )
 
 ```
@@ -3327,14 +3224,6 @@ client.queries.query(
 <dd>
 
 **generation:** `typing.Optional[GenerationParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**stream_response:** `typing.Optional[bool]` — Indicates whether the response should be streamed or not.
     
 </dd>
 </dl>
@@ -3521,7 +3410,6 @@ response = client.queries.query_corpus_stream(
         citations=CitationParameters(),
         enable_factual_consistency_score=True,
     ),
-    stream_response=True,
 )
 for chunk in response:
     yield chunk
@@ -3565,14 +3453,6 @@ for chunk in response:
 <dd>
 
 **generation:** `typing.Optional[GenerationParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**stream_response:** `typing.Optional[bool]` — Indicates whether the response should be streamed or not.
     
 </dd>
 </dl>
@@ -3670,14 +3550,6 @@ client.queries.query_corpus(
 <dd>
 
 **generation:** `typing.Optional[GenerationParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**stream_response:** `typing.Optional[bool]` — Indicates whether the response should be streamed or not.
     
 </dd>
 </dl>

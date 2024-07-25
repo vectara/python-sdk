@@ -7,6 +7,7 @@ from .types import (
     ApiPolicy,
     ApiRole,
     AppClient,
+    AuthResponse,
     BadRequestErrorBody,
     Chat,
     ChatFullResponse,
@@ -117,7 +118,6 @@ from . import (
     upload,
     users,
 )
-from .auth import AuthResponse
 from .environment import VectaraEnvironment
 from .queries import SearchCorpusParameters
 from .version import __version__
