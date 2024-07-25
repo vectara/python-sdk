@@ -34,4 +34,7 @@ jobs:
         run: poetry install
 
       - name: Test
-        run: poetry run pytest ./tests/custom/
+        env: 
+          VECTARA_API_KEY: ${{ secrets.VECTARA_API_KEY }}
+          VECTARA_CLIENT_SECRET: ${{ secrets.VECTARA_CLIENT_SECRET }}
+        run: poetry run pytest ./tests/custom/ -rP
