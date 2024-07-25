@@ -64,7 +64,11 @@ class UsersClient:
         client.users.list()
         """
         _response = self._client_wrapper.httpx_client.request(
-            "v2/users", method="GET", params={"limit": limit, "page_key": page_key}, request_options=request_options
+            "v2/users",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            params={"limit": limit, "page_key": page_key},
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -125,6 +129,7 @@ class UsersClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/users",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"email": email, "username": username, "description": description, "api_roles": api_roles},
             request_options=request_options,
@@ -174,7 +179,10 @@ class UsersClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/users/{jsonable_encoder(username)}", method="GET", request_options=request_options
+            f"v2/users/{jsonable_encoder(username)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -219,7 +227,10 @@ class UsersClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/users/{jsonable_encoder(username)}", method="DELETE", request_options=request_options
+            f"v2/users/{jsonable_encoder(username)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -279,6 +290,7 @@ class UsersClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/users/{jsonable_encoder(username)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"enabled": enabled, "api_roles": api_roles},
             request_options=request_options,
@@ -327,7 +339,10 @@ class UsersClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/users/{jsonable_encoder(username)}/reset_password", method="POST", request_options=request_options
+            f"v2/users/{jsonable_encoder(username)}/reset_password",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -392,7 +407,11 @@ class AsyncUsersClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "v2/users", method="GET", params={"limit": limit, "page_key": page_key}, request_options=request_options
+            "v2/users",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            params={"limit": limit, "page_key": page_key},
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -461,6 +480,7 @@ class AsyncUsersClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/users",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"email": email, "username": username, "description": description, "api_roles": api_roles},
             request_options=request_options,
@@ -518,7 +538,10 @@ class AsyncUsersClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/users/{jsonable_encoder(username)}", method="GET", request_options=request_options
+            f"v2/users/{jsonable_encoder(username)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -571,7 +594,10 @@ class AsyncUsersClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/users/{jsonable_encoder(username)}", method="DELETE", request_options=request_options
+            f"v2/users/{jsonable_encoder(username)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -639,6 +665,7 @@ class AsyncUsersClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/users/{jsonable_encoder(username)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"enabled": enabled, "api_roles": api_roles},
             request_options=request_options,
@@ -695,7 +722,10 @@ class AsyncUsersClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/users/{jsonable_encoder(username)}/reset_password", method="POST", request_options=request_options
+            f"v2/users/{jsonable_encoder(username)}/reset_password",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:

@@ -79,7 +79,11 @@ class ChatsClient:
             yield page
         """
         _response = self._client_wrapper.httpx_client.request(
-            "v2/chats", method="GET", params={"limit": limit, "page_key": page_key}, request_options=request_options
+            "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            params={"limit": limit, "page_key": page_key},
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -184,6 +188,7 @@ class ChatsClient:
         """
         with self._client_wrapper.httpx_client.stream(
             "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
             request_options=request_options,
@@ -260,6 +265,7 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
             request_options=request_options,
@@ -310,7 +316,10 @@ class ChatsClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}", method="GET", request_options=request_options
+            f"v2/chats/{jsonable_encoder(chat_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -354,7 +363,10 @@ class ChatsClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}", method="DELETE", request_options=request_options
+            f"v2/chats/{jsonable_encoder(chat_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -401,7 +413,10 @@ class ChatsClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns", method="GET", request_options=request_options
+            f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -503,6 +518,7 @@ class ChatsClient:
         """
         with self._client_wrapper.httpx_client.stream(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
             request_options=request_options,
@@ -584,6 +600,7 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
             request_options=request_options,
@@ -639,6 +656,7 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -691,6 +709,7 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -754,6 +773,7 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"enabled": enabled},
             request_options=request_options,
@@ -827,7 +847,11 @@ class AsyncChatsClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "v2/chats", method="GET", params={"limit": limit, "page_key": page_key}, request_options=request_options
+            "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            params={"limit": limit, "page_key": page_key},
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -940,6 +964,7 @@ class AsyncChatsClient:
         """
         async with self._client_wrapper.httpx_client.stream(
             "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
             request_options=request_options,
@@ -1024,6 +1049,7 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
             request_options=request_options,
@@ -1082,7 +1108,10 @@ class AsyncChatsClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}", method="GET", request_options=request_options
+            f"v2/chats/{jsonable_encoder(chat_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -1134,7 +1163,10 @@ class AsyncChatsClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}", method="DELETE", request_options=request_options
+            f"v2/chats/{jsonable_encoder(chat_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -1189,7 +1221,10 @@ class AsyncChatsClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns", method="GET", request_options=request_options
+            f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -1299,6 +1334,7 @@ class AsyncChatsClient:
         """
         async with self._client_wrapper.httpx_client.stream(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": True},
             request_options=request_options,
@@ -1388,6 +1424,7 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "chat": chat, "stream_response": False},
             request_options=request_options,
@@ -1453,6 +1490,7 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -1513,6 +1551,7 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -1584,6 +1623,7 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"enabled": enabled},
             request_options=request_options,

@@ -61,7 +61,11 @@ class ApiKeysClient:
         client.api_keys.list()
         """
         _response = self._client_wrapper.httpx_client.request(
-            "v2/api_keys", method="GET", params={"limit": limit, "page_key": page_key}, request_options=request_options
+            "v2/api_keys",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            params={"limit": limit, "page_key": page_key},
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -123,6 +127,7 @@ class ApiKeysClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/api_keys",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"name": name, "api_key_role": api_key_role, "corpus_keys": corpus_keys},
             request_options=request_options,
@@ -169,7 +174,10 @@ class ApiKeysClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/api_keys/{jsonable_encoder(api_key_id)}", method="GET", request_options=request_options
+            f"v2/api_keys/{jsonable_encoder(api_key_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -211,7 +219,10 @@ class ApiKeysClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/api_keys/{jsonable_encoder(api_key_id)}", method="DELETE", request_options=request_options
+            f"v2/api_keys/{jsonable_encoder(api_key_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -264,6 +275,7 @@ class ApiKeysClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/api_keys/{jsonable_encoder(api_key_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"enabled": enabled},
             request_options=request_options,
@@ -328,7 +340,11 @@ class AsyncApiKeysClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "v2/api_keys", method="GET", params={"limit": limit, "page_key": page_key}, request_options=request_options
+            "v2/api_keys",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            params={"limit": limit, "page_key": page_key},
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -398,6 +414,7 @@ class AsyncApiKeysClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/api_keys",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"name": name, "api_key_role": api_key_role, "corpus_keys": corpus_keys},
             request_options=request_options,
@@ -452,7 +469,10 @@ class AsyncApiKeysClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/api_keys/{jsonable_encoder(api_key_id)}", method="GET", request_options=request_options
+            f"v2/api_keys/{jsonable_encoder(api_key_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -502,7 +522,10 @@ class AsyncApiKeysClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/api_keys/{jsonable_encoder(api_key_id)}", method="DELETE", request_options=request_options
+            f"v2/api_keys/{jsonable_encoder(api_key_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -563,6 +586,7 @@ class AsyncApiKeysClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/api_keys/{jsonable_encoder(api_key_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"enabled": enabled},
             request_options=request_options,

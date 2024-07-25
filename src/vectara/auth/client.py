@@ -54,7 +54,8 @@ class AuthClient:
         client.auth.get_token()
         """
         _response = self._client_wrapper.httpx_client.request(
-            "oauth/token",
+            "oauth2/token",
+            base_url=self._client_wrapper.get_environment().auth,
             method="POST",
             json={"client_id": client_id, "client_secret": client_secret, "grant_type": grant_type},
             request_options=request_options,
@@ -118,7 +119,8 @@ class AsyncAuthClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "oauth/token",
+            "oauth2/token",
+            base_url=self._client_wrapper.get_environment().auth,
             method="POST",
             json={"client_id": client_id, "client_secret": client_secret, "grant_type": grant_type},
             request_options=request_options,

@@ -71,6 +71,7 @@ class UploadClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/upload_file",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             data={"metadata": metadata},
             files={"file": file},
@@ -149,6 +150,7 @@ class AsyncUploadClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/upload_file",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             data={"metadata": metadata},
             files={"file": file},

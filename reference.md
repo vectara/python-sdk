@@ -476,9 +476,7 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 client.app_clients.create(
-    name="string",
-    description="string",
-    api_roles=["owner"],
+    name="name",
 )
 
 ```

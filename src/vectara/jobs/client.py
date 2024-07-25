@@ -75,6 +75,7 @@ class JobsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/jobs",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "corpus_key": corpus_key,
@@ -126,7 +127,10 @@ class JobsClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/jobs/{jsonable_encoder(job_id)}", method="GET", request_options=request_options
+            f"v2/jobs/{jsonable_encoder(job_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -204,6 +208,7 @@ class AsyncJobsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/jobs",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "corpus_key": corpus_key,
@@ -263,7 +268,10 @@ class AsyncJobsClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/jobs/{jsonable_encoder(job_id)}", method="GET", request_options=request_options
+            f"v2/jobs/{jsonable_encoder(job_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
