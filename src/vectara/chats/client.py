@@ -4,6 +4,8 @@ import json
 import typing
 from json.decoder import JSONDecodeError
 
+import httpx_sse
+
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.jsonable_encoder import jsonable_encoder
@@ -136,11 +138,11 @@ class ChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
+            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
-            SearchReranker_CustomerReranker,
         )
         from vectara.client import Vectara
 
@@ -156,7 +158,7 @@ class ChatsClient:
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=SearchReranker_CustomerReranker(),
+                reranker=CustomerSpecificReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -189,11 +191,10 @@ class ChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    for _text in _response.iter_lines():
+                    _event_source = httpx_sse.EventSource(_response)
+                    for _sse in _event_source.iter_sse():
                         try:
-                            if len(_text) == 0:
-                                continue
-                            yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_text))  # type: ignore
+                            yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_sse.data))  # type: ignore
                         except:
                             pass
                     return
@@ -455,11 +456,11 @@ class ChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
+            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
-            SearchReranker_CustomerReranker,
         )
         from vectara.client import Vectara
 
@@ -476,7 +477,7 @@ class ChatsClient:
                 offset=1,
                 limit=1,
                 context_configuration=ContextConfiguration(),
-                reranker=SearchReranker_CustomerReranker(),
+                reranker=CustomerSpecificReranker(),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -509,11 +510,10 @@ class ChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    for _text in _response.iter_lines():
+                    _event_source = httpx_sse.EventSource(_response)
+                    for _sse in _event_source.iter_sse():
                         try:
-                            if len(_text) == 0:
-                                continue
-                            yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_text))  # type: ignore
+                            yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_sse.data))  # type: ignore
                         except:
                             pass
                     return
@@ -888,11 +888,11 @@ class AsyncChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
+            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
-            SearchReranker_CustomerReranker,
         )
         from vectara.client import AsyncVectara
 
@@ -911,7 +911,7 @@ class AsyncChatsClient:
                     offset=1,
                     limit=1,
                     context_configuration=ContextConfiguration(),
-                    reranker=SearchReranker_CustomerReranker(),
+                    reranker=CustomerSpecificReranker(),
                 ),
                 generation=GenerationParameters(
                     prompt_name="string",
@@ -947,11 +947,10 @@ class AsyncChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    async for _text in _response.aiter_lines():
+                    _event_source = httpx_sse.EventSource(_response)
+                    async for _sse in _event_source.aiter_sse():
                         try:
-                            if len(_text) == 0:
-                                continue
-                            yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_text))  # type: ignore
+                            yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_sse.data))  # type: ignore
                         except:
                             pass
                     return
@@ -1247,11 +1246,11 @@ class AsyncChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
+            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
-            SearchReranker_CustomerReranker,
         )
         from vectara.client import AsyncVectara
 
@@ -1271,7 +1270,7 @@ class AsyncChatsClient:
                     offset=1,
                     limit=1,
                     context_configuration=ContextConfiguration(),
-                    reranker=SearchReranker_CustomerReranker(),
+                    reranker=CustomerSpecificReranker(),
                 ),
                 generation=GenerationParameters(
                     prompt_name="string",
@@ -1307,11 +1306,10 @@ class AsyncChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    async for _text in _response.aiter_lines():
+                    _event_source = httpx_sse.EventSource(_response)
+                    async for _sse in _event_source.aiter_sse():
                         try:
-                            if len(_text) == 0:
-                                continue
-                            yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_text))  # type: ignore
+                            yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_sse.data))  # type: ignore
                         except:
                             pass
                     return

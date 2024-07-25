@@ -13,6 +13,7 @@ class StreamSearchResponse(pydantic_v1.BaseModel):
     The search response results.
     """
 
+    type: typing.Literal["search_results"] = "search_results"
     search_results: typing.Optional[typing.List[IndividualSearchResult]] = pydantic_v1.Field(default=None)
     """
     The ranked search results.

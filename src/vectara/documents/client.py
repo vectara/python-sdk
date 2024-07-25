@@ -114,7 +114,7 @@ class DocumentsClient:
 
         Examples
         --------
-        from vectara import CoreDocumentPart, CreateDocumentRequest_Core
+        from vectara import CoreDocument, CoreDocumentPart
         from vectara.client import Vectara
 
         client = Vectara(
@@ -123,11 +123,14 @@ class DocumentsClient:
             client_secret="YOUR_CLIENT_SECRET",
         )
         client.documents.create(
-            corpus_key="string",
-            request=CreateDocumentRequest_Core(
-                id="string",
-                metadata={"string": {"key": "value"}},
-                document_parts=[CoreDocumentPart()],
+            corpus_key="my-corpus",
+            request=CoreDocument(
+                id="my-doc-id",
+                document_parts=[
+                    CoreDocumentPart(
+                        text="I'm a nice document part.",
+                    )
+                ],
             ),
         )
         """
@@ -305,7 +308,7 @@ class AsyncDocumentsClient:
         --------
         import asyncio
 
-        from vectara import CoreDocumentPart, CreateDocumentRequest_Core
+        from vectara import CoreDocument, CoreDocumentPart
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
@@ -317,11 +320,14 @@ class AsyncDocumentsClient:
 
         async def main() -> None:
             await client.documents.create(
-                corpus_key="string",
-                request=CreateDocumentRequest_Core(
-                    id="string",
-                    metadata={"string": {"key": "value"}},
-                    document_parts=[CoreDocumentPart()],
+                corpus_key="my-corpus",
+                request=CoreDocument(
+                    id="my-doc-id",
+                    document_parts=[
+                        CoreDocumentPart(
+                            text="I'm a nice document part.",
+                        )
+                    ],
                 ),
             )
 

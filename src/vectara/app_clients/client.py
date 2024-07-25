@@ -13,7 +13,6 @@ from ..errors.forbidden_error import ForbiddenError
 from ..types.api_role import ApiRole
 from ..types.app_client import AppClient
 from ..types.bad_request_error_body import BadRequestErrorBody
-from ..types.create_app_client_request import CreateAppClientRequest
 from ..types.error import Error
 from ..types.list_app_clients_response import ListAppClientsResponse
 
@@ -83,14 +82,26 @@ class AppClientsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
     def create(
-        self, *, request: CreateAppClientRequest, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        name: str,
+        description: typing.Optional[str] = OMIT,
+        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> AppClient:
         """
         An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
 
         Parameters
         ----------
-        request : CreateAppClientRequest
+        name : str
+            Name of the client credentials.
+
+        description : typing.Optional[str]
+            Description of the client credentials.
+
+        api_roles : typing.Optional[typing.Sequence[ApiRole]]
+            API roles that the client credentials will have.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -102,7 +113,6 @@ class AppClientsClient:
 
         Examples
         --------
-        from vectara import CreateAppClientRequest_ClientCredentials
         from vectara.client import Vectara
 
         client = Vectara(
@@ -111,15 +121,17 @@ class AppClientsClient:
             client_secret="YOUR_CLIENT_SECRET",
         )
         client.app_clients.create(
-            request=CreateAppClientRequest_ClientCredentials(
-                name="string",
-                description="string",
-                api_roles=["owner"],
-            ),
+            name="string",
+            description="string",
+            api_roles=["owner"],
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            "v2/app_clients", method="POST", json=request, request_options=request_options, omit=OMIT
+            "v2/app_clients",
+            method="POST",
+            json={"name": name, "description": description, "api_roles": api_roles, "type": "client_credentials"},
+            request_options=request_options,
+            omit=OMIT,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -343,14 +355,26 @@ class AsyncAppClientsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
     async def create(
-        self, *, request: CreateAppClientRequest, request_options: typing.Optional[RequestOptions] = None
+        self,
+        *,
+        name: str,
+        description: typing.Optional[str] = OMIT,
+        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> AppClient:
         """
         An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
 
         Parameters
         ----------
-        request : CreateAppClientRequest
+        name : str
+            Name of the client credentials.
+
+        description : typing.Optional[str]
+            Description of the client credentials.
+
+        api_roles : typing.Optional[typing.Sequence[ApiRole]]
+            API roles that the client credentials will have.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -364,7 +388,6 @@ class AsyncAppClientsClient:
         --------
         import asyncio
 
-        from vectara import CreateAppClientRequest_ClientCredentials
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
@@ -376,18 +399,20 @@ class AsyncAppClientsClient:
 
         async def main() -> None:
             await client.app_clients.create(
-                request=CreateAppClientRequest_ClientCredentials(
-                    name="string",
-                    description="string",
-                    api_roles=["owner"],
-                ),
+                name="string",
+                description="string",
+                api_roles=["owner"],
             )
 
 
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "v2/app_clients", method="POST", json=request, request_options=request_options, omit=OMIT
+            "v2/app_clients",
+            method="POST",
+            json={"name": name, "description": description, "api_roles": api_roles, "type": "client_credentials"},
+            request_options=request_options,
+            omit=OMIT,
         )
         try:
             if 200 <= _response.status_code < 300:

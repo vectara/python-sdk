@@ -12,19 +12,10 @@ from .chat import Chat
 from .chat_full_response import ChatFullResponse
 from .chat_info_response import ChatInfoResponse
 from .chat_parameters import ChatParameters
-from .chat_streamed_response import (
-    ChatStreamedResponse,
-    ChatStreamedResponse_ChatInfo,
-    ChatStreamedResponse_End,
-    ChatStreamedResponse_Error,
-    ChatStreamedResponse_FactualConsistencyScore,
-    ChatStreamedResponse_GenerationChunk,
-    ChatStreamedResponse_GenerationEnd,
-    ChatStreamedResponse_GenerationInfo,
-    ChatStreamedResponse_SearchResults,
-)
+from .chat_streamed_response import ChatStreamedResponse
 from .citation_parameters import CitationParameters
 from .citation_parameters_style import CitationParametersStyle
+from .components_schemas_create_client_credentials_request import ComponentsSchemasCreateClientCredentialsRequest
 from .context_configuration import ContextConfiguration
 from .core_document import CoreDocument
 from .core_document_part import CoreDocumentPart
@@ -32,9 +23,8 @@ from .corpus import Corpus
 from .corpus_custom_dimension import CorpusCustomDimension
 from .corpus_key import CorpusKey
 from .corpus_limits import CorpusLimits
-from .create_app_client_request import CreateAppClientRequest, CreateAppClientRequest_ClientCredentials
 from .create_client_credentials_request import CreateClientCredentialsRequest
-from .create_document_request import CreateDocumentRequest, CreateDocumentRequest_Core, CreateDocumentRequest_Structured
+from .create_document_request import CreateDocumentRequest
 from .custom_dimensions import CustomDimensions
 from .customer_specific_reranker import CustomerSpecificReranker
 from .document import Document
@@ -72,22 +62,13 @@ from .none_reranker import NoneReranker
 from .not_found_error_body import NotFoundErrorBody
 from .prompt import Prompt
 from .query_full_response import QueryFullResponse
-from .query_streamed_response import (
-    QueryStreamedResponse,
-    QueryStreamedResponse_End,
-    QueryStreamedResponse_Error,
-    QueryStreamedResponse_FactualConsistencyScore,
-    QueryStreamedResponse_GenerationChunk,
-    QueryStreamedResponse_GenerationEnd,
-    QueryStreamedResponse_GenerationInfo,
-    QueryStreamedResponse_SearchResults,
-)
+from .query_streamed_response import QueryStreamedResponse
 from .replace_filter_attributes_response import ReplaceFilterAttributesResponse
 from .reranker import Reranker
 from .search_corpora_parameters import SearchCorporaParameters
 from .search_corpus import SearchCorpus
 from .search_parameters import SearchParameters
-from .search_reranker import SearchReranker, SearchReranker_CustomerReranker, SearchReranker_Mmr, SearchReranker_None
+from .search_reranker import SearchReranker
 from .search_semantics import SearchSemantics
 from .stream_error import StreamError
 from .stream_generation_chunk import StreamGenerationChunk
@@ -113,16 +94,9 @@ __all__ = [
     "ChatInfoResponse",
     "ChatParameters",
     "ChatStreamedResponse",
-    "ChatStreamedResponse_ChatInfo",
-    "ChatStreamedResponse_End",
-    "ChatStreamedResponse_Error",
-    "ChatStreamedResponse_FactualConsistencyScore",
-    "ChatStreamedResponse_GenerationChunk",
-    "ChatStreamedResponse_GenerationEnd",
-    "ChatStreamedResponse_GenerationInfo",
-    "ChatStreamedResponse_SearchResults",
     "CitationParameters",
     "CitationParametersStyle",
+    "ComponentsSchemasCreateClientCredentialsRequest",
     "ContextConfiguration",
     "CoreDocument",
     "CoreDocumentPart",
@@ -130,12 +104,8 @@ __all__ = [
     "CorpusCustomDimension",
     "CorpusKey",
     "CorpusLimits",
-    "CreateAppClientRequest",
-    "CreateAppClientRequest_ClientCredentials",
     "CreateClientCredentialsRequest",
     "CreateDocumentRequest",
-    "CreateDocumentRequest_Core",
-    "CreateDocumentRequest_Structured",
     "CustomDimensions",
     "CustomerSpecificReranker",
     "Document",
@@ -174,22 +144,12 @@ __all__ = [
     "Prompt",
     "QueryFullResponse",
     "QueryStreamedResponse",
-    "QueryStreamedResponse_End",
-    "QueryStreamedResponse_Error",
-    "QueryStreamedResponse_FactualConsistencyScore",
-    "QueryStreamedResponse_GenerationChunk",
-    "QueryStreamedResponse_GenerationEnd",
-    "QueryStreamedResponse_GenerationInfo",
-    "QueryStreamedResponse_SearchResults",
     "ReplaceFilterAttributesResponse",
     "Reranker",
     "SearchCorporaParameters",
     "SearchCorpus",
     "SearchParameters",
     "SearchReranker",
-    "SearchReranker_CustomerReranker",
-    "SearchReranker_Mmr",
-    "SearchReranker_None",
     "SearchSemantics",
     "StreamError",
     "StreamGenerationChunk",

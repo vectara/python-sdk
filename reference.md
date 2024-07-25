@@ -468,7 +468,6 @@ An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
 <dd>
 
 ```python
-from vectara import CreateAppClientRequest_ClientCredentials
 from vectara.client import Vectara
 
 client = Vectara(
@@ -477,11 +476,9 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 client.app_clients.create(
-    request=CreateAppClientRequest_ClientCredentials(
-        name="string",
-        description="string",
-        api_roles=["owner"],
-    ),
+    name="string",
+    description="string",
+    api_roles=["owner"],
 )
 
 ```
@@ -498,7 +495,23 @@ client.app_clients.create(
 <dl>
 <dd>
 
-**request:** `CreateAppClientRequest` 
+**name:** `str` — Name of the client credentials.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` — Description of the client credentials.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**api_roles:** `typing.Optional[typing.Sequence[ApiRole]]` — API roles that the client credentials will have.
     
 </dd>
 </dl>
@@ -896,11 +909,11 @@ from vectara import (
     ChatParameters,
     CitationParameters,
     ContextConfiguration,
+    CustomerSpecificReranker,
     GenerationParameters,
     KeyedSearchCorpus,
     ModelParameters,
     SearchCorporaParameters,
-    SearchReranker_CustomerReranker,
 )
 from vectara.client import Vectara
 
@@ -916,7 +929,7 @@ response = client.chats.create_stream(
         offset=1,
         limit=1,
         context_configuration=ContextConfiguration(),
-        reranker=SearchReranker_CustomerReranker(),
+        reranker=CustomerSpecificReranker(),
     ),
     generation=GenerationParameters(
         prompt_name="string",
@@ -1343,11 +1356,11 @@ from vectara import (
     ChatParameters,
     CitationParameters,
     ContextConfiguration,
+    CustomerSpecificReranker,
     GenerationParameters,
     KeyedSearchCorpus,
     ModelParameters,
     SearchCorporaParameters,
-    SearchReranker_CustomerReranker,
 )
 from vectara.client import Vectara
 
@@ -1364,7 +1377,7 @@ response = client.chats.create_turn_stream(
         offset=1,
         limit=1,
         context_configuration=ContextConfiguration(),
-        reranker=SearchReranker_CustomerReranker(),
+        reranker=CustomerSpecificReranker(),
     ),
     generation=GenerationParameters(
         prompt_name="string",
@@ -2538,7 +2551,7 @@ or in a format that explicitly specifies each document part that becomes a searc
 <dd>
 
 ```python
-from vectara import CoreDocumentPart, CreateDocumentRequest_Core
+from vectara import CoreDocument, CoreDocumentPart
 from vectara.client import Vectara
 
 client = Vectara(
@@ -2547,11 +2560,14 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 client.documents.create(
-    corpus_key="string",
-    request=CreateDocumentRequest_Core(
-        id="string",
-        metadata={"string": {"key": "value"}},
-        document_parts=[CoreDocumentPart()],
+    corpus_key="my-corpus",
+    request=CoreDocument(
+        id="my-doc-id",
+        document_parts=[
+            CoreDocumentPart(
+                text="I'm a nice document part.",
+            )
+        ],
     ),
 )
 
@@ -3057,11 +3073,11 @@ For more detailed information please see this [api guide](https://docs.vectara.c
 from vectara import (
     CitationParameters,
     ContextConfiguration,
+    CustomerSpecificReranker,
     GenerationParameters,
     KeyedSearchCorpus,
     ModelParameters,
     SearchCorporaParameters,
-    SearchReranker_CustomerReranker,
 )
 from vectara.client import Vectara
 
@@ -3077,7 +3093,7 @@ response = client.queries.query_stream(
         offset=1,
         limit=1,
         context_configuration=ContextConfiguration(),
-        reranker=SearchReranker_CustomerReranker(),
+        reranker=CustomerSpecificReranker(),
     ),
     generation=GenerationParameters(
         prompt_name="string",
@@ -3370,10 +3386,10 @@ Query a specific corpus and find relevant results, highlight relevant snippets, 
 from vectara import (
     CitationParameters,
     ContextConfiguration,
+    CustomerSpecificReranker,
     GenerationParameters,
     ModelParameters,
     SearchCorpusParameters,
-    SearchReranker_CustomerReranker,
 )
 from vectara.client import Vectara
 
@@ -3393,7 +3409,7 @@ response = client.queries.query_corpus_stream(
         offset=1,
         limit=1,
         context_configuration=ContextConfiguration(),
-        reranker=SearchReranker_CustomerReranker(),
+        reranker=CustomerSpecificReranker(),
     ),
     generation=GenerationParameters(
         prompt_name="string",

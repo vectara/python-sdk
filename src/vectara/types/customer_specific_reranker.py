@@ -12,6 +12,7 @@ class CustomerSpecificReranker(pydantic_v1.BaseModel):
     Reranker that is specific to the customer.
     """
 
+    type: typing.Literal["customer_reranker"] = "customer_reranker"
     reranker_id: str = pydantic_v1.Field()
     """
     The ID of the reranker. Current reranker that may be used by Scale customers is rnk_272725719.
