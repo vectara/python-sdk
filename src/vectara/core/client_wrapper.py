@@ -12,7 +12,7 @@ class BaseClientWrapper:
         self,
         *,
         api_key: typing.Optional[str] = None,
-        token: typing.Union[str, typing.Callable[[], str]],
+        token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         base_url: str,
         timeout: typing.Optional[float] = None,
     ):
@@ -29,11 +29,13 @@ class BaseClientWrapper:
         }
         if self._api_key is not None:
             headers["x-api-key"] = self._api_key
-        headers["Authorization"] = f"Bearer {self._get_token()}"
+        token = self._get_token()
+        if token is not None:
+            headers["Authorization"] = f"Bearer {token}"
         return headers
 
-    def _get_token(self) -> str:
-        if isinstance(self._token, str):
+    def _get_token(self) -> typing.Optional[str]:
+        if isinstance(self._token, str) or self._token is None:
             return self._token
         else:
             return self._token()
@@ -50,7 +52,7 @@ class SyncClientWrapper(BaseClientWrapper):
         self,
         *,
         api_key: typing.Optional[str] = None,
-        token: typing.Union[str, typing.Callable[[], str]],
+        token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         base_url: str,
         timeout: typing.Optional[float] = None,
         httpx_client: httpx.Client,
@@ -69,7 +71,7 @@ class AsyncClientWrapper(BaseClientWrapper):
         self,
         *,
         api_key: typing.Optional[str] = None,
-        token: typing.Union[str, typing.Callable[[], str]],
+        token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         base_url: str,
         timeout: typing.Optional[float] = None,
         httpx_client: httpx.AsyncClient,
