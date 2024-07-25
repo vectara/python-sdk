@@ -113,6 +113,7 @@ class QueriesClient:
         """
         with self._client_wrapper.httpx_client.stream(
             "v2/query",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "stream_response": True},
             request_options=request_options,
@@ -191,6 +192,7 @@ class QueriesClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/query",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "stream_response": False},
             request_options=request_options,
@@ -260,6 +262,7 @@ class QueriesClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"query": query, "limit": limit, "offset": offset},
             request_options=request_options,
@@ -362,6 +365,7 @@ class QueriesClient:
         """
         with self._client_wrapper.httpx_client.stream(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "stream_response": True},
             request_options=request_options,
@@ -439,6 +443,7 @@ class QueriesClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "stream_response": False},
             request_options=request_options,
@@ -552,6 +557,7 @@ class AsyncQueriesClient:
         """
         async with self._client_wrapper.httpx_client.stream(
             "v2/query",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "stream_response": True},
             request_options=request_options,
@@ -638,6 +644,7 @@ class AsyncQueriesClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/query",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "stream_response": False},
             request_options=request_options,
@@ -715,6 +722,7 @@ class AsyncQueriesClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"query": query, "limit": limit, "offset": offset},
             request_options=request_options,
@@ -825,6 +833,7 @@ class AsyncQueriesClient:
         """
         async with self._client_wrapper.httpx_client.stream(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "stream_response": True},
             request_options=request_options,
@@ -910,6 +919,7 @@ class AsyncQueriesClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"query": query, "search": search, "generation": generation, "stream_response": False},
             request_options=request_options,

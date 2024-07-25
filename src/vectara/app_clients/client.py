@@ -65,6 +65,7 @@ class AppClientsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/app_clients",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"limit": limit, "filter": filter, "page_key": page_key},
             request_options=request_options,
@@ -121,13 +122,12 @@ class AppClientsClient:
             client_secret="YOUR_CLIENT_SECRET",
         )
         client.app_clients.create(
-            name="string",
-            description="string",
-            api_roles=["owner"],
+            name="name",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/app_clients",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"name": name, "description": description, "api_roles": api_roles, "type": "client_credentials"},
             request_options=request_options,
@@ -174,7 +174,10 @@ class AppClientsClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}", method="GET", request_options=request_options
+            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -214,7 +217,10 @@ class AppClientsClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}", method="DELETE", request_options=request_options
+            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -269,6 +275,7 @@ class AppClientsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"description": description, "api_roles": api_roles},
             request_options=request_options,
@@ -338,6 +345,7 @@ class AsyncAppClientsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/app_clients",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"limit": limit, "filter": filter, "page_key": page_key},
             request_options=request_options,
@@ -399,9 +407,7 @@ class AsyncAppClientsClient:
 
         async def main() -> None:
             await client.app_clients.create(
-                name="string",
-                description="string",
-                api_roles=["owner"],
+                name="name",
             )
 
 
@@ -409,6 +415,7 @@ class AsyncAppClientsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/app_clients",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"name": name, "description": description, "api_roles": api_roles, "type": "client_credentials"},
             request_options=request_options,
@@ -463,7 +470,10 @@ class AsyncAppClientsClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}", method="GET", request_options=request_options
+            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -511,7 +521,10 @@ class AsyncAppClientsClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}", method="DELETE", request_options=request_options
+            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -574,6 +587,7 @@ class AsyncAppClientsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"description": description, "api_roles": api_roles},
             request_options=request_options,

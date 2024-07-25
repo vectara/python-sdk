@@ -79,6 +79,7 @@ class CorporaClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/corpora",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"limit": limit, "filter": filter, "page_key": page_key},
             request_options=request_options,
@@ -173,6 +174,7 @@ class CorporaClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/corpora",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "key": key,
@@ -230,7 +232,10 @@ class CorporaClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}", method="GET", request_options=request_options
+            f"v2/corpora/{jsonable_encoder(corpus_key)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -274,7 +279,10 @@ class CorporaClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}", method="DELETE", request_options=request_options
+            f"v2/corpora/{jsonable_encoder(corpus_key)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -329,6 +337,7 @@ class CorporaClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"enabled": enabled},
             request_options=request_options,
@@ -376,7 +385,10 @@ class CorporaClient:
         )
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/reset", method="POST", request_options=request_options
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/reset",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -443,6 +455,7 @@ class CorporaClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/replace_filter_attributes",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"filter_attributes": filter_attributes},
             request_options=request_options,
@@ -522,6 +535,7 @@ class AsyncCorporaClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/corpora",
+            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={"limit": limit, "filter": filter, "page_key": page_key},
             request_options=request_options,
@@ -624,6 +638,7 @@ class AsyncCorporaClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/corpora",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "key": key,
@@ -689,7 +704,10 @@ class AsyncCorporaClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}", method="GET", request_options=request_options
+            f"v2/corpora/{jsonable_encoder(corpus_key)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -741,7 +759,10 @@ class AsyncCorporaClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}", method="DELETE", request_options=request_options
+            f"v2/corpora/{jsonable_encoder(corpus_key)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -804,6 +825,7 @@ class AsyncCorporaClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}",
+            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={"enabled": enabled},
             request_options=request_options,
@@ -859,7 +881,10 @@ class AsyncCorporaClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/reset", method="POST", request_options=request_options
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/reset",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
@@ -934,6 +959,7 @@ class AsyncCorporaClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/replace_filter_attributes",
+            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={"filter_attributes": filter_attributes},
             request_options=request_options,

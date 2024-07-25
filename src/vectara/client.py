@@ -35,16 +35,14 @@ class Vectara:
 
     environment : VectaraEnvironment
         The environment to use for requests from the client. from .environment import VectaraEnvironment
-
-
-
         Defaults to VectaraEnvironment.PRODUCTION
 
-
-
     api_key : typing.Optional[str]
+
     client_id : typing.Optional[str]
+
     client_secret : typing.Optional[str]
+
     _token_getter_override : typing.Optional[typing.Callable[[], str]]
     timeout : typing.Optional[float]
         The timeout to be used, in seconds, for requests. By default the timeout is 60 seconds, unless a custom httpx client is used, in which case this default is not enforced.
@@ -69,7 +67,6 @@ class Vectara:
     def __init__(
         self,
         *,
-        base_url: typing.Optional[str] = None,
         environment: VectaraEnvironment = VectaraEnvironment.PRODUCTION,
         api_key: typing.Optional[str] = os.getenv("VECTARA_API_KEY"),
         client_id: typing.Optional[str] = os.getenv("VECTARA_CLIENT_ID"),
@@ -82,7 +79,7 @@ class Vectara:
         _defaulted_timeout = timeout if timeout is not None else 60 if httpx_client is None else None
         if api_key is not None:
             self._client_wrapper = SyncClientWrapper(
-                base_url=_get_base_url(base_url=base_url, environment=environment),
+                environment=environment,
                 api_key=api_key,
                 httpx_client=httpx_client
                 if httpx_client is not None
@@ -96,7 +93,7 @@ class Vectara:
                 client_id=client_id,
                 client_secret=client_secret,
                 client_wrapper=SyncClientWrapper(
-                    base_url=_get_base_url(base_url=base_url, environment=environment),
+                    environment=environment,
                     api_key=api_key,
                     httpx_client=httpx.Client(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
                     if follow_redirects is not None
@@ -105,7 +102,7 @@ class Vectara:
                 ),
             )
             self._client_wrapper = SyncClientWrapper(
-                base_url=_get_base_url(base_url=base_url, environment=environment),
+                environment=environment,
                 api_key=api_key,
                 token=_token_getter_override if _token_getter_override is not None else oauth_token_provider.get_token,
                 httpx_client=httpx_client
@@ -145,17 +142,16 @@ class AsyncVectara:
 
     environment : VectaraEnvironment
         The environment to use for requests from the client. from .environment import VectaraEnvironment
-
-
-
         Defaults to VectaraEnvironment.PRODUCTION
 
-
-
     api_key : typing.Optional[str]
+
     client_id : typing.Optional[str]
+
     client_secret : typing.Optional[str]
+
     _token_getter_override : typing.Optional[typing.Callable[[], str]]
+
     timeout : typing.Optional[float]
         The timeout to be used, in seconds, for requests. By default the timeout is 60 seconds, unless a custom httpx client is used, in which case this default is not enforced.
 
@@ -179,7 +175,6 @@ class AsyncVectara:
     def __init__(
         self,
         *,
-        base_url: typing.Optional[str] = None,
         environment: VectaraEnvironment = VectaraEnvironment.PRODUCTION,
         api_key: typing.Optional[str] = os.getenv("VECTARA_API_KEY"),
         client_id: typing.Optional[str] = os.getenv("VECTARA_CLIENT_ID"),
@@ -192,7 +187,7 @@ class AsyncVectara:
         _defaulted_timeout = timeout if timeout is not None else 60 if httpx_client is None else None   
         if api_key is not None: 
             self._client_wrapper = AsyncClientWrapper(
-                base_url=_get_base_url(base_url=base_url, environment=environment),
+                environment=environment,
                 api_key=api_key,
                 httpx_client=httpx_client
                 if httpx_client is not None
@@ -206,7 +201,7 @@ class AsyncVectara:
                 client_id=client_id,
                 client_secret=client_secret,
                 client_wrapper=SyncClientWrapper(
-                    base_url=_get_base_url(base_url=base_url, environment=environment),
+                    environment=environment,
                     api_key=api_key,
                     httpx_client=httpx.Client(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
                     if follow_redirects is not None
@@ -215,7 +210,7 @@ class AsyncVectara:
                 ),
             )
             self._client_wrapper = AsyncClientWrapper(
-                base_url=_get_base_url(base_url=base_url, environment=environment),
+                environment=environment,
                 api_key=api_key,
                 token=_token_getter_override if _token_getter_override is not None else oauth_token_provider.get_token,
                 httpx_client=httpx_client
@@ -242,12 +237,3 @@ class AsyncVectara:
         self.rerankers = AsyncRerankersClient(client_wrapper=self._client_wrapper)
         self.upload = AsyncUploadClient(client_wrapper=self._client_wrapper)
         self.users = AsyncUsersClient(client_wrapper=self._client_wrapper)
-
-
-def _get_base_url(*, base_url: typing.Optional[str] = None, environment: VectaraEnvironment) -> str:
-    if base_url is not None:
-        return base_url
-    elif environment is not None:
-        return environment.value
-    else:
-        raise Exception("Please pass in either base_url or environment to construct the client")

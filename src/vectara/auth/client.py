@@ -22,7 +22,7 @@ class AuthClient:
         *,
         client_id: typing.Optional[str] = OMIT,
         client_secret: typing.Optional[str] = OMIT,
-        grant_type: typing.Optional[typing.Literal["client_credentials"]] = OMIT,
+        grant_type: typing.Literal["client_credentials"] = "client_credentials",
         request_options: typing.Optional[RequestOptions] = None
     ) -> AuthResponse:
         """
@@ -54,9 +54,10 @@ class AuthClient:
         client.auth.get_token()
         """
         _response = self._client_wrapper.httpx_client.request(
-            "oauth/token",
+            "oauth2/token",
+            base_url=self._client_wrapper.get_environment().auth,
             method="POST",
-            json={"client_id": client_id, "client_secret": client_secret, "grant_type": grant_type},
+            data={"client_id": client_id, "client_secret": client_secret, "grant_type": grant_type},
             request_options=request_options,
             omit=OMIT,
         )
@@ -118,7 +119,8 @@ class AsyncAuthClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "oauth/token",
+            "oauth2/token",
+            base_url=self._client_wrapper.get_environment().auth,
             method="POST",
             json={"client_id": client_id, "client_secret": client_secret, "grant_type": grant_type},
             request_options=request_options,
