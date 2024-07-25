@@ -11,4 +11,4 @@ class VectaraEnvironment:
         self.auth = auth
 
 
-VectaraEnvironment.PRODUCTION = VectaraEnvironment(default="https://api.vectara.io", auth="https://auth.vectara.dev")
+VectaraEnvironment.PRODUCTION = VectaraEnvironment(default="https://api.vectara.io", auth="https://auth.vectara.io")
