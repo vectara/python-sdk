@@ -1,3 +1,4 @@
+import uuid
 import pytest
 
 import vectara
@@ -36,3 +37,46 @@ def test_query_stream() -> None:
     for message in response: 
         if message.type == "generation_chunk": 
             print(message.generation_chunk, end='')
+
+def test_add_document_to_corpus() -> None:
+    response = client.documents.create(corpus_key="Test", request=vectara.CoreDocument(
+        id=str(uuid.uuid4()),
+        metadata={
+            "title": "A Nice Document",
+            "lang": "eng"
+        },
+        document_parts=[vectara.CoreDocumentPart(text="I'm a nice document part.", metadata={ "nice_rank": 9000 }, context="string", custom_dimensions={})]
+    ))
+    print(response.id)
+
+
+def test_chat() -> None:
+    response = client.chats.create(
+        query="Can i bring my velociraptor to the office? Please explain in 5 paragraphs.",
+        search=vectara.SearchCorporaParameters(
+            corpora=[vectara.KeyedSearchCorpus(corpus_key="Test")],
+            reranker=vectara.MmrReranker(diversity_bias=0.2)
+        ),
+        generation=vectara.GenerationParameters(
+            prompt_name="vectara-summary-ext-24-05-sml",
+            response_language="eng",
+            max_used_search_results=7,
+        ),
+    )
+    print(response.answer)
+
+    response = client.chats.create_turn(
+        chat_id=response.chat_id, # type: ignore
+        query="But what if the velociraptor is an emotional suport animal?",
+        search=vectara.SearchCorporaParameters(
+            corpora=[vectara.KeyedSearchCorpus(corpus_key="Test")],
+            reranker=vectara.MmrReranker(diversity_bias=0.2)
+        ),
+        generation=vectara.GenerationParameters(
+            prompt_name="vectara-summary-ext-24-05-sml",
+            response_language="eng",
+            max_used_search_results=7,
+        ),
+        chat=vectara.ChatParameters(store=True)
+    )
+    print(response.answer)
