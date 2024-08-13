@@ -52,8 +52,6 @@ class EncodersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         client.encoders.list(
             filter="vectara.*",
@@ -66,11 +64,11 @@ class EncodersClient:
             params={"filter": filter, "limit": limit, "page_key": page_key},
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ListEncodersResponse, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(ListEncodersResponse, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -113,24 +111,14 @@ class AsyncEncodersClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.encoders.list(
-                filter="vectara.*",
-            )
-
-
-        asyncio.run(main())
+        await client.encoders.list(
+            filter="vectara.*",
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/encoders",
@@ -139,11 +127,11 @@ class AsyncEncodersClient:
             params={"filter": filter, "limit": limit, "page_key": page_key},
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ListEncodersResponse, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(ListEncodersResponse, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)

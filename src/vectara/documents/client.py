@@ -8,26 +8,19 @@ from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.jsonable_encoder import jsonable_encoder
 from ..core.pydantic_utilities import pydantic_v1
 from ..core.request_options import RequestOptions
-from ..errors.bad_request_error import BadRequestError
 from ..errors.forbidden_error import ForbiddenError
 from ..errors.not_found_error import NotFoundError
-from ..types.bad_request_error_body import BadRequestErrorBody
 from ..types.corpus_key import CorpusKey
-from ..types.create_document_request import CreateDocumentRequest
-from ..types.document import Document
 from ..types.error import Error
 from ..types.list_documents_response import ListDocumentsResponse
 from ..types.not_found_error_body import NotFoundErrorBody
-
-# this is used as the default value for optional parameters
-OMIT = typing.cast(typing.Any, ...)
 
 
 class DocumentsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def list_corpus(
+    def list(
         self,
         corpus_key: CorpusKey,
         *,
@@ -61,10 +54,8 @@ class DocumentsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-        client.documents.list_corpus(
+        client.documents.list(
             corpus_key="my-corpus",
         )
         """
@@ -75,89 +66,19 @@ class DocumentsClient:
             params={"limit": limit, "page_key": page_key},
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ListDocumentsResponse, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(ListDocumentsResponse, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request: CreateDocumentRequest,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Document:
-        """
-        Add a document to a corpus. You can add documents that are either in a typical structured format,
-        or in a format that explicitly specifies each document part that becomes a search result.
-
-        Parameters
-        ----------
-        corpus_key : CorpusKey
-            The unique key identifying the queried corpus.
-
-        request : CreateDocumentRequest
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        Document
-            Document added to the corpus.
-
-        Examples
-        --------
-        from vectara import CoreDocument, CoreDocumentPart
-        from vectara.client import Vectara
-
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
-        client.documents.create(
-            corpus_key="my-corpus",
-            request=CoreDocument(
-                id="my-doc-id",
-                document_parts=[
-                    CoreDocumentPart(
-                        text="I'm a nice document part.",
-                    )
-                ],
-            ),
-        )
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
-            base_url=self._client_wrapper.get_environment().default,
-            method="POST",
-            json=request,
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(Document, _response.json())  # type: ignore
-            if _response.status_code == 400:
-                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
-
-    def delete_corpus(
+    def delete(
         self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
@@ -183,10 +104,8 @@ class DocumentsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-        client.documents.delete_corpus(
+        client.documents.delete(
             corpus_key="my-corpus",
             document_id="document_id",
         )
@@ -197,13 +116,13 @@ class DocumentsClient:
             method="DELETE",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -214,7 +133,7 @@ class AsyncDocumentsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def list_corpus(
+    async def list(
         self,
         corpus_key: CorpusKey,
         *,
@@ -244,24 +163,14 @@ class AsyncDocumentsClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.documents.list_corpus(
-                corpus_key="my-corpus",
-            )
-
-
-        asyncio.run(main())
+        await client.documents.list(
+            corpus_key="my-corpus",
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
@@ -270,97 +179,19 @@ class AsyncDocumentsClient:
             params={"limit": limit, "page_key": page_key},
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ListDocumentsResponse, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(ListDocumentsResponse, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request: CreateDocumentRequest,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Document:
-        """
-        Add a document to a corpus. You can add documents that are either in a typical structured format,
-        or in a format that explicitly specifies each document part that becomes a search result.
-
-        Parameters
-        ----------
-        corpus_key : CorpusKey
-            The unique key identifying the queried corpus.
-
-        request : CreateDocumentRequest
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        Document
-            Document added to the corpus.
-
-        Examples
-        --------
-        import asyncio
-
-        from vectara import CoreDocument, CoreDocumentPart
-        from vectara.client import AsyncVectara
-
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
-
-
-        async def main() -> None:
-            await client.documents.create(
-                corpus_key="my-corpus",
-                request=CoreDocument(
-                    id="my-doc-id",
-                    document_parts=[
-                        CoreDocumentPart(
-                            text="I'm a nice document part.",
-                        )
-                    ],
-                ),
-            )
-
-
-        asyncio.run(main())
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
-            base_url=self._client_wrapper.get_environment().default,
-            method="POST",
-            json=request,
-            request_options=request_options,
-            omit=OMIT,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(Document, _response.json())  # type: ignore
-            if _response.status_code == 400:
-                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
-
-    async def delete_corpus(
+    async def delete(
         self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
@@ -382,25 +213,15 @@ class AsyncDocumentsClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.documents.delete_corpus(
-                corpus_key="my-corpus",
-                document_id="document_id",
-            )
-
-
-        asyncio.run(main())
+        await client.documents.delete(
+            corpus_key="my-corpus",
+            document_id="document_id",
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
@@ -408,13 +229,13 @@ class AsyncDocumentsClient:
             method="DELETE",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)

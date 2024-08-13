@@ -4,12 +4,9 @@ import json
 import typing
 from json.decoder import JSONDecodeError
 
-import httpx_sse
-
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, SyncPager
 from ..core.pydantic_utilities import pydantic_v1
 from ..core.request_options import RequestOptions
 from ..errors.bad_request_error import BadRequestError
@@ -42,7 +39,7 @@ class ChatsClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Chat]:
+    ) -> ListChatsResponse:
         """
         Retrieve a list of previous chats in the Vectara account.
 
@@ -59,7 +56,7 @@ class ChatsClient:
 
         Returns
         -------
-        SyncPager[Chat]
+        ListChatsResponse
             List of chats.
 
         Examples
@@ -68,15 +65,8 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-        response = client.chats.list()
-        for item in response:
-            yield item
-        # alternatively, you can paginate page-by-page
-        for page in response.iter_pages():
-            yield page
+        client.chats.list()
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/chats",
@@ -85,21 +75,13 @@ class ChatsClient:
             params={"limit": limit, "page_key": page_key},
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ListChatsResponse, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                _parsed_response = pydantic_v1.parse_obj_as(ListChatsResponse, _response.json())  # type: ignore
-                _has_next = False
-                _get_next = None
-                if _parsed_response.metadata is not None:
-                    _parsed_next = _parsed_response.metadata.page_key
-                    _has_next = _parsed_next is not None
-                    _get_next = lambda: self.list(limit=limit, page_key=_parsed_next, request_options=request_options)
-                _items = _parsed_response.chats
-                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -152,8 +134,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         response = client.chats.create_stream(
             query="string",
@@ -194,24 +174,20 @@ class ChatsClient:
             request_options=request_options,
             omit=OMIT,
         ) as _response:
+            if 200 <= _response.status_code < 300:
+                for _text in _response.iter_lines():
+                    if len(_text) == 0:
+                        continue
+                    yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_text))  # type: ignore
+                return
+            _response.read()
+            if _response.status_code == 400:
+                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+            if _response.status_code == 404:
+                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             try:
-                if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    for _sse in _event_source.iter_sse():
-                        try:
-                            yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_sse.data))  # type: ignore
-                        except:
-                            pass
-                    return
-                _response.read()
-                if _response.status_code == 400:
-                    raise BadRequestError(
-                        pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json())  # type: ignore
-                    )
-                if _response.status_code == 403:
-                    raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-                if _response.status_code == 404:
-                    raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
                 _response_json = _response.json()
             except JSONDecodeError:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -255,8 +231,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         client.chats.create(
             query="How can I use the Vectara platform?",
@@ -271,15 +245,15 @@ class ChatsClient:
             request_options=request_options,
             omit=OMIT,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ChatFullResponse, _response.json())  # type: ignore
+        if _response.status_code == 400:
+            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(ChatFullResponse, _response.json())  # type: ignore
-            if _response.status_code == 400:
-                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -308,8 +282,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         client.chats.get(
             chat_id="chat_id",
@@ -321,13 +293,13 @@ class ChatsClient:
             method="GET",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(Chat, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(Chat, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -355,8 +327,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         client.chats.delete(
             chat_id="chat_id",
@@ -368,13 +338,13 @@ class ChatsClient:
             method="DELETE",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -405,8 +375,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         client.chats.list_turns(
             chat_id="chat_id",
@@ -418,19 +386,19 @@ class ChatsClient:
             method="GET",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ListChatTurnsResponse, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(ListChatTurnsResponse, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_turn_stream(
+    def create_turns_stream(
         self,
         chat_id: str,
         *,
@@ -481,10 +449,8 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-        response = client.chats.create_turn_stream(
+        response = client.chats.create_turns_stream(
             chat_id="string",
             query="string",
             search=SearchCorporaParameters(
@@ -524,30 +490,26 @@ class ChatsClient:
             request_options=request_options,
             omit=OMIT,
         ) as _response:
+            if 200 <= _response.status_code < 300:
+                for _text in _response.iter_lines():
+                    if len(_text) == 0:
+                        continue
+                    yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_text))  # type: ignore
+                return
+            _response.read()
+            if _response.status_code == 400:
+                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+            if _response.status_code == 404:
+                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             try:
-                if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    for _sse in _event_source.iter_sse():
-                        try:
-                            yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_sse.data))  # type: ignore
-                        except:
-                            pass
-                    return
-                _response.read()
-                if _response.status_code == 400:
-                    raise BadRequestError(
-                        pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json())  # type: ignore
-                    )
-                if _response.status_code == 403:
-                    raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-                if _response.status_code == 404:
-                    raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
                 _response_json = _response.json()
             except JSONDecodeError:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_turn(
+    def create_turns(
         self,
         chat_id: str,
         *,
@@ -589,10 +551,8 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-        client.chats.create_turn(
+        client.chats.create_turns(
             chat_id="chat_id",
             query="How can I use the Vectara platform?",
             search=SearchCorporaParameters(),
@@ -606,15 +566,15 @@ class ChatsClient:
             request_options=request_options,
             omit=OMIT,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ChatFullResponse, _response.json())  # type: ignore
+        if _response.status_code == 400:
+            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(ChatFullResponse, _response.json())  # type: ignore
-            if _response.status_code == 400:
-                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -646,8 +606,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         client.chats.get_turn(
             chat_id="chat_id",
@@ -660,13 +618,13 @@ class ChatsClient:
             method="GET",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(Turn, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(Turn, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -699,8 +657,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         client.chats.delete_turn(
             chat_id="chat_id",
@@ -713,13 +669,13 @@ class ChatsClient:
             method="DELETE",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -755,7 +711,7 @@ class ChatsClient:
         Returns
         -------
         Turn
-            Successfully modified the turn.
+            Succcessfully modified the turn.
 
         Examples
         --------
@@ -763,8 +719,6 @@ class ChatsClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         client.chats.update_turn(
             chat_id="chat_id",
@@ -779,13 +733,13 @@ class ChatsClient:
             request_options=request_options,
             omit=OMIT,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(Turn, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(Turn, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -802,7 +756,7 @@ class AsyncChatsClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Chat]:
+    ) -> ListChatsResponse:
         """
         Retrieve a list of previous chats in the Vectara account.
 
@@ -819,32 +773,17 @@ class AsyncChatsClient:
 
         Returns
         -------
-        AsyncPager[Chat]
+        ListChatsResponse
             List of chats.
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            response = await client.chats.list()
-            async for item in response:
-                yield item
-            # alternatively, you can paginate page-by-page
-            async for page in response.iter_pages():
-                yield page
-
-
-        asyncio.run(main())
+        await client.chats.list()
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/chats",
@@ -853,21 +792,13 @@ class AsyncChatsClient:
             params={"limit": limit, "page_key": page_key},
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ListChatsResponse, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                _parsed_response = pydantic_v1.parse_obj_as(ListChatsResponse, _response.json())  # type: ignore
-                _has_next = False
-                _get_next = None
-                if _parsed_response.metadata is not None:
-                    _parsed_next = _parsed_response.metadata.page_key
-                    _has_next = _parsed_next is not None
-                    _get_next = lambda: self.list(limit=limit, page_key=_parsed_next, request_options=request_options)
-                _items = _parsed_response.chats
-                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -906,8 +837,6 @@ class AsyncChatsClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara import (
             ChatParameters,
             CitationParameters,
@@ -922,45 +851,37 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            response = await client.chats.create_stream(
-                query="string",
-                search=SearchCorporaParameters(
-                    corpora=[KeyedSearchCorpus()],
-                    offset=1,
-                    limit=1,
-                    context_configuration=ContextConfiguration(),
-                    reranker=CustomerSpecificReranker(),
+        response = await client.chats.create_stream(
+            query="string",
+            search=SearchCorporaParameters(
+                corpora=[KeyedSearchCorpus()],
+                offset=1,
+                limit=1,
+                context_configuration=ContextConfiguration(),
+                reranker=CustomerSpecificReranker(),
+            ),
+            generation=GenerationParameters(
+                prompt_name="string",
+                max_used_search_results=1,
+                prompt_text="string",
+                max_response_characters=1,
+                response_language="auto",
+                model_parameters=ModelParameters(
+                    max_tokens=1,
+                    temperature=1.1,
+                    frequency_penalty=1.1,
+                    presence_penalty=1.1,
                 ),
-                generation=GenerationParameters(
-                    prompt_name="string",
-                    max_used_search_results=1,
-                    prompt_text="string",
-                    max_response_characters=1,
-                    response_language="auto",
-                    model_parameters=ModelParameters(
-                        max_tokens=1,
-                        temperature=1.1,
-                        frequency_penalty=1.1,
-                        presence_penalty=1.1,
-                    ),
-                    citations=CitationParameters(),
-                    enable_factual_consistency_score=True,
-                ),
-                chat=ChatParameters(
-                    store=True,
-                ),
-            )
-            async for chunk in response:
-                yield chunk
-
-
-        asyncio.run(main())
+                citations=CitationParameters(),
+                enable_factual_consistency_score=True,
+            ),
+            chat=ChatParameters(
+                store=True,
+            ),
+        )
+        async for chunk in response:
+            yield chunk
         """
         async with self._client_wrapper.httpx_client.stream(
             "v2/chats",
@@ -970,24 +891,20 @@ class AsyncChatsClient:
             request_options=request_options,
             omit=OMIT,
         ) as _response:
+            if 200 <= _response.status_code < 300:
+                async for _text in _response.aiter_lines():
+                    if len(_text) == 0:
+                        continue
+                    yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_text))  # type: ignore
+                return
+            await _response.aread()
+            if _response.status_code == 400:
+                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+            if _response.status_code == 404:
+                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             try:
-                if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    async for _sse in _event_source.aiter_sse():
-                        try:
-                            yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_sse.data))  # type: ignore
-                        except:
-                            pass
-                    return
-                await _response.aread()
-                if _response.status_code == 400:
-                    raise BadRequestError(
-                        pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json())  # type: ignore
-                    )
-                if _response.status_code == 403:
-                    raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-                if _response.status_code == 404:
-                    raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
                 _response_json = _response.json()
             except JSONDecodeError:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -1026,26 +943,16 @@ class AsyncChatsClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara import SearchCorporaParameters
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.chats.create(
-                query="How can I use the Vectara platform?",
-                search=SearchCorporaParameters(),
-            )
-
-
-        asyncio.run(main())
+        await client.chats.create(
+            query="How can I use the Vectara platform?",
+            search=SearchCorporaParameters(),
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/chats",
@@ -1055,15 +962,15 @@ class AsyncChatsClient:
             request_options=request_options,
             omit=OMIT,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ChatFullResponse, _response.json())  # type: ignore
+        if _response.status_code == 400:
+            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(ChatFullResponse, _response.json())  # type: ignore
-            if _response.status_code == 400:
-                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -1088,24 +995,14 @@ class AsyncChatsClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.chats.get(
-                chat_id="chat_id",
-            )
-
-
-        asyncio.run(main())
+        await client.chats.get(
+            chat_id="chat_id",
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}",
@@ -1113,13 +1010,13 @@ class AsyncChatsClient:
             method="GET",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(Chat, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(Chat, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -1143,24 +1040,14 @@ class AsyncChatsClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.chats.delete(
-                chat_id="chat_id",
-            )
-
-
-        asyncio.run(main())
+        await client.chats.delete(
+            chat_id="chat_id",
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}",
@@ -1168,13 +1055,13 @@ class AsyncChatsClient:
             method="DELETE",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -1201,24 +1088,14 @@ class AsyncChatsClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.chats.list_turns(
-                chat_id="chat_id",
-            )
-
-
-        asyncio.run(main())
+        await client.chats.list_turns(
+            chat_id="chat_id",
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
@@ -1226,19 +1103,19 @@ class AsyncChatsClient:
             method="GET",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ListChatTurnsResponse, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(ListChatTurnsResponse, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_turn_stream(
+    async def create_turns_stream(
         self,
         chat_id: str,
         *,
@@ -1275,8 +1152,6 @@ class AsyncChatsClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara import (
             ChatParameters,
             CitationParameters,
@@ -1291,46 +1166,38 @@ class AsyncChatsClient:
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            response = await client.chats.create_turn_stream(
-                chat_id="string",
-                query="string",
-                search=SearchCorporaParameters(
-                    corpora=[KeyedSearchCorpus()],
-                    offset=1,
-                    limit=1,
-                    context_configuration=ContextConfiguration(),
-                    reranker=CustomerSpecificReranker(),
+        response = await client.chats.create_turns_stream(
+            chat_id="string",
+            query="string",
+            search=SearchCorporaParameters(
+                corpora=[KeyedSearchCorpus()],
+                offset=1,
+                limit=1,
+                context_configuration=ContextConfiguration(),
+                reranker=CustomerSpecificReranker(),
+            ),
+            generation=GenerationParameters(
+                prompt_name="string",
+                max_used_search_results=1,
+                prompt_text="string",
+                max_response_characters=1,
+                response_language="auto",
+                model_parameters=ModelParameters(
+                    max_tokens=1,
+                    temperature=1.1,
+                    frequency_penalty=1.1,
+                    presence_penalty=1.1,
                 ),
-                generation=GenerationParameters(
-                    prompt_name="string",
-                    max_used_search_results=1,
-                    prompt_text="string",
-                    max_response_characters=1,
-                    response_language="auto",
-                    model_parameters=ModelParameters(
-                        max_tokens=1,
-                        temperature=1.1,
-                        frequency_penalty=1.1,
-                        presence_penalty=1.1,
-                    ),
-                    citations=CitationParameters(),
-                    enable_factual_consistency_score=True,
-                ),
-                chat=ChatParameters(
-                    store=True,
-                ),
-            )
-            async for chunk in response:
-                yield chunk
-
-
-        asyncio.run(main())
+                citations=CitationParameters(),
+                enable_factual_consistency_score=True,
+            ),
+            chat=ChatParameters(
+                store=True,
+            ),
+        )
+        async for chunk in response:
+            yield chunk
         """
         async with self._client_wrapper.httpx_client.stream(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
@@ -1340,30 +1207,26 @@ class AsyncChatsClient:
             request_options=request_options,
             omit=OMIT,
         ) as _response:
+            if 200 <= _response.status_code < 300:
+                async for _text in _response.aiter_lines():
+                    if len(_text) == 0:
+                        continue
+                    yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_text))  # type: ignore
+                return
+            await _response.aread()
+            if _response.status_code == 400:
+                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+            if _response.status_code == 403:
+                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+            if _response.status_code == 404:
+                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             try:
-                if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    async for _sse in _event_source.aiter_sse():
-                        try:
-                            yield pydantic_v1.parse_obj_as(ChatStreamedResponse, json.loads(_sse.data))  # type: ignore
-                        except:
-                            pass
-                    return
-                await _response.aread()
-                if _response.status_code == 400:
-                    raise BadRequestError(
-                        pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json())  # type: ignore
-                    )
-                if _response.status_code == 403:
-                    raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-                if _response.status_code == 404:
-                    raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
                 _response_json = _response.json()
             except JSONDecodeError:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_turn(
+    async def create_turns(
         self,
         chat_id: str,
         *,
@@ -1400,27 +1263,17 @@ class AsyncChatsClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara import SearchCorporaParameters
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.chats.create_turn(
-                chat_id="chat_id",
-                query="How can I use the Vectara platform?",
-                search=SearchCorporaParameters(),
-            )
-
-
-        asyncio.run(main())
+        await client.chats.create_turns(
+            chat_id="chat_id",
+            query="How can I use the Vectara platform?",
+            search=SearchCorporaParameters(),
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
@@ -1430,15 +1283,15 @@ class AsyncChatsClient:
             request_options=request_options,
             omit=OMIT,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ChatFullResponse, _response.json())  # type: ignore
+        if _response.status_code == 400:
+            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(ChatFullResponse, _response.json())  # type: ignore
-            if _response.status_code == 400:
-                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -1468,25 +1321,15 @@ class AsyncChatsClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.chats.get_turn(
-                chat_id="chat_id",
-                turn_id="turn_id",
-            )
-
-
-        asyncio.run(main())
+        await client.chats.get_turn(
+            chat_id="chat_id",
+            turn_id="turn_id",
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
@@ -1494,13 +1337,13 @@ class AsyncChatsClient:
             method="GET",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(Turn, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(Turn, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -1529,25 +1372,15 @@ class AsyncChatsClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.chats.delete_turn(
-                chat_id="chat_id",
-                turn_id="turn_id",
-            )
-
-
-        asyncio.run(main())
+        await client.chats.delete_turn(
+            chat_id="chat_id",
+            turn_id="turn_id",
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
@@ -1555,13 +1388,13 @@ class AsyncChatsClient:
             method="DELETE",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -1597,29 +1430,19 @@ class AsyncChatsClient:
         Returns
         -------
         Turn
-            Successfully modified the turn.
+            Succcessfully modified the turn.
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.chats.update_turn(
-                chat_id="chat_id",
-                turn_id="turn_id",
-            )
-
-
-        asyncio.run(main())
+        await client.chats.update_turn(
+            chat_id="chat_id",
+            turn_id="turn_id",
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
@@ -1629,13 +1452,13 @@ class AsyncChatsClient:
             request_options=request_options,
             omit=OMIT,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(Turn, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(Turn, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)

@@ -23,7 +23,7 @@ class AppClient(pydantic_v1.BaseModel):
 
     description: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
-    Description of the App Client.
+    Descritpion of the App Client.
     """
 
     client_id: typing.Optional[str] = pydantic_v1.Field(default=None)

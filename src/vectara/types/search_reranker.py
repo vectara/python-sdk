@@ -4,6 +4,5 @@ import typing
 
 from .customer_specific_reranker import CustomerSpecificReranker
 from .mmr_reranker import MmrReranker
-from .none_reranker import NoneReranker
 
-SearchReranker = typing.Union[CustomerSpecificReranker, MmrReranker, NoneReranker]
+SearchReranker = typing.Union[CustomerSpecificReranker, MmrReranker]

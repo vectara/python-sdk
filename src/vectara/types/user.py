@@ -32,7 +32,7 @@ class User(pydantic_v1.BaseModel):
 
     description: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
-    The description for the user.
+    The escription for the user.
     """
 
     created_at: typing.Optional[dt.datetime] = pydantic_v1.Field(default=None)

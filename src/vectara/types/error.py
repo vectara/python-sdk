@@ -10,7 +10,7 @@ from ..core.pydantic_utilities import deep_union_pydantic_dicts, pydantic_v1
 class Error(pydantic_v1.BaseModel):
     messages: typing.Optional[typing.List[str]] = pydantic_v1.Field(default=None)
     """
-    The messages describing why the error occurred.
+    The messages describing why the error occured.
     """
 
     request_id: typing.Optional[str] = pydantic_v1.Field(default=None)

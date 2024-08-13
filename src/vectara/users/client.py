@@ -58,8 +58,6 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         client.users.list()
         """
@@ -70,11 +68,11 @@ class UsersClient:
             params={"limit": limit, "page_key": page_key},
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ListUsersResponse, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(ListUsersResponse, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -120,8 +118,6 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         client.users.create(
             email="email",
@@ -135,13 +131,13 @@ class UsersClient:
             request_options=request_options,
             omit=OMIT,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(User, _response.json())  # type: ignore
+        if _response.status_code == 400:
+            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(User, _response.json())  # type: ignore
-            if _response.status_code == 400:
-                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -171,8 +167,6 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         client.users.get(
             username="username",
@@ -184,13 +178,13 @@ class UsersClient:
             method="GET",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(User, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(User, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -219,8 +213,6 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         client.users.delete(
             username="username",
@@ -232,13 +224,13 @@ class UsersClient:
             method="DELETE",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -281,8 +273,6 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         client.users.update(
             username="username",
@@ -296,13 +286,13 @@ class UsersClient:
             request_options=request_options,
             omit=OMIT,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(User, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(User, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -331,8 +321,6 @@ class UsersClient:
 
         client = Vectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
         client.users.reset_password(
             username="username",
@@ -344,13 +332,13 @@ class UsersClient:
             method="POST",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -389,22 +377,12 @@ class AsyncUsersClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.users.list()
-
-
-        asyncio.run(main())
+        await client.users.list()
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/users",
@@ -413,11 +391,11 @@ class AsyncUsersClient:
             params={"limit": limit, "page_key": page_key},
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(ListUsersResponse, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(ListUsersResponse, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -459,24 +437,14 @@ class AsyncUsersClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.users.create(
-                email="email",
-            )
-
-
-        asyncio.run(main())
+        await client.users.create(
+            email="email",
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/users",
@@ -486,13 +454,13 @@ class AsyncUsersClient:
             request_options=request_options,
             omit=OMIT,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(User, _response.json())  # type: ignore
+        if _response.status_code == 400:
+            raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(User, _response.json())  # type: ignore
-            if _response.status_code == 400:
-                raise BadRequestError(pydantic_v1.parse_obj_as(BadRequestErrorBody, _response.json()))  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -518,24 +486,14 @@ class AsyncUsersClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.users.get(
-                username="username",
-            )
-
-
-        asyncio.run(main())
+        await client.users.get(
+            username="username",
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/users/{jsonable_encoder(username)}",
@@ -543,13 +501,13 @@ class AsyncUsersClient:
             method="GET",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(User, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(User, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -574,24 +532,14 @@ class AsyncUsersClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.users.delete(
-                username="username",
-            )
-
-
-        asyncio.run(main())
+        await client.users.delete(
+            username="username",
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/users/{jsonable_encoder(username)}",
@@ -599,13 +547,13 @@ class AsyncUsersClient:
             method="DELETE",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -644,24 +592,14 @@ class AsyncUsersClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.users.update(
-                username="username",
-            )
-
-
-        asyncio.run(main())
+        await client.users.update(
+            username="username",
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/users/{jsonable_encoder(username)}",
@@ -671,13 +609,13 @@ class AsyncUsersClient:
             request_options=request_options,
             omit=OMIT,
         )
+        if 200 <= _response.status_code < 300:
+            return pydantic_v1.parse_obj_as(User, _response.json())  # type: ignore
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return pydantic_v1.parse_obj_as(User, _response.json())  # type: ignore
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)
@@ -702,24 +640,14 @@ class AsyncUsersClient:
 
         Examples
         --------
-        import asyncio
-
         from vectara.client import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.users.reset_password(
-                username="username",
-            )
-
-
-        asyncio.run(main())
+        await client.users.reset_password(
+            username="username",
+        )
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/users/{jsonable_encoder(username)}/reset_password",
@@ -727,13 +655,13 @@ class AsyncUsersClient:
             method="POST",
             request_options=request_options,
         )
+        if 200 <= _response.status_code < 300:
+            return
+        if _response.status_code == 403:
+            raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
+        if _response.status_code == 404:
+            raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
         try:
-            if 200 <= _response.status_code < 300:
-                return
-            if _response.status_code == 403:
-                raise ForbiddenError(pydantic_v1.parse_obj_as(Error, _response.json()))  # type: ignore
-            if _response.status_code == 404:
-                raise NotFoundError(pydantic_v1.parse_obj_as(NotFoundErrorBody, _response.json()))  # type: ignore
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, body=_response.text)

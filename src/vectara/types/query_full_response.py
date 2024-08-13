@@ -30,12 +30,6 @@ class QueryFullResponse(pydantic_v1.BaseModel):
     The probability that the summary is factually consistent with the results.
     """
 
-    rendered_prompt: typing.Optional[str] = pydantic_v1.Field(default=None)
-    """
-    The rendered prompt sent to the LLM. Useful when creating customer `prompt_text` templates. Only available
-    to Scale customers.
-    """
-
     def json(self, **kwargs: typing.Any) -> str:
         kwargs_with_defaults: typing.Any = {"by_alias": True, "exclude_unset": True, **kwargs}
         return super().json(**kwargs_with_defaults)

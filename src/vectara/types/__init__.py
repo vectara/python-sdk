@@ -6,7 +6,6 @@ from .api_operation_policy import ApiOperationPolicy
 from .api_policy import ApiPolicy
 from .api_role import ApiRole
 from .app_client import AppClient
-from .auth_response import AuthResponse
 from .bad_request_error_body import BadRequestErrorBody
 from .chat import Chat
 from .chat_full_response import ChatFullResponse
@@ -15,7 +14,6 @@ from .chat_parameters import ChatParameters
 from .chat_streamed_response import ChatStreamedResponse
 from .citation_parameters import CitationParameters
 from .citation_parameters_style import CitationParametersStyle
-from .components_schemas_create_client_credentials_request import ComponentsSchemasCreateClientCredentialsRequest
 from .context_configuration import ContextConfiguration
 from .core_document import CoreDocument
 from .core_document_part import CoreDocumentPart
@@ -23,8 +21,9 @@ from .corpus import Corpus
 from .corpus_custom_dimension import CorpusCustomDimension
 from .corpus_key import CorpusKey
 from .corpus_limits import CorpusLimits
+from .create_app_client_request import CreateAppClientRequest, CreateAppClientRequest_ClientCredentials
 from .create_client_credentials_request import CreateClientCredentialsRequest
-from .create_document_request import CreateDocumentRequest
+from .create_document_request import CreateDocumentRequest, CreateDocumentRequest_Core, CreateDocumentRequest_Structured
 from .custom_dimensions import CustomDimensions
 from .customer_specific_reranker import CustomerSpecificReranker
 from .document import Document
@@ -35,7 +34,6 @@ from .factual_consistency_score import FactualConsistencyScore
 from .filter_attribute import FilterAttribute
 from .filter_attribute_level import FilterAttributeLevel
 from .filter_attribute_type import FilterAttributeType
-from .generation_info import GenerationInfo
 from .generation_parameters import GenerationParameters
 from .individual_search_result import IndividualSearchResult
 from .job import Job
@@ -58,7 +56,6 @@ from .list_users_response import ListUsersResponse
 from .llm import Llm
 from .mmr_reranker import MmrReranker
 from .model_parameters import ModelParameters
-from .none_reranker import NoneReranker
 from .not_found_error_body import NotFoundErrorBody
 from .prompt import Prompt
 from .query_full_response import QueryFullResponse
@@ -87,7 +84,6 @@ __all__ = [
     "ApiPolicy",
     "ApiRole",
     "AppClient",
-    "AuthResponse",
     "BadRequestErrorBody",
     "Chat",
     "ChatFullResponse",
@@ -96,7 +92,6 @@ __all__ = [
     "ChatStreamedResponse",
     "CitationParameters",
     "CitationParametersStyle",
-    "ComponentsSchemasCreateClientCredentialsRequest",
     "ContextConfiguration",
     "CoreDocument",
     "CoreDocumentPart",
@@ -104,8 +99,12 @@ __all__ = [
     "CorpusCustomDimension",
     "CorpusKey",
     "CorpusLimits",
+    "CreateAppClientRequest",
+    "CreateAppClientRequest_ClientCredentials",
     "CreateClientCredentialsRequest",
     "CreateDocumentRequest",
+    "CreateDocumentRequest_Core",
+    "CreateDocumentRequest_Structured",
     "CustomDimensions",
     "CustomerSpecificReranker",
     "Document",
@@ -116,7 +115,6 @@ __all__ = [
     "FilterAttribute",
     "FilterAttributeLevel",
     "FilterAttributeType",
-    "GenerationInfo",
     "GenerationParameters",
     "IndividualSearchResult",
     "Job",
@@ -139,7 +137,6 @@ __all__ = [
     "Llm",
     "MmrReranker",
     "ModelParameters",
-    "NoneReranker",
     "NotFoundErrorBody",
     "Prompt",
     "QueryFullResponse",

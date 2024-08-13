@@ -17,20 +17,8 @@ class GenerationParameters(pydantic_v1.BaseModel):
 
     prompt_name: typing.Optional[str] = pydantic_v1.Field(default=None)
     """
-    The prompt to use to feed the query results and other context to the model.
-    
-    A prompt is an object with a bundle of properties that specifies:
-    
-    - The `prompt_text` that is rendered then sent to the LLM.
-    - The LLM used.
-    - `model_parameter`s such as temperature.
-    
-    All of these properties except the model can be overriden by setting them in this
-    object. Even when a `prompt_text` is set, the `prompt_name` is used to set
-    the model used.
-    
-    If `prompt_name` is not set the Vectara platform will use the default model and
-    prompt.
+    The prompt to use to feed the query results and other context to the model. By specifying the
+    prompt name you also specify the model and other `model_parameter` defaults.
     """
 
     max_used_search_results: typing.Optional[int] = pydantic_v1.Field(default=None)
@@ -53,11 +41,7 @@ class GenerationParameters(pydantic_v1.BaseModel):
     """
     Controls the length of the generated output.
     This is a rough estimate and not a hard limit: the end output can be longer or shorter
-    than this value. This is generally implemented by including the `max_response_characters` in the
-    prompt, and the LLM's instruction following capability dictates how closely the generated output
-    is limited.
-    
-    So, this value This is currently a Scale-only feature.
+    than this value. This is currently a Scale-only feature.
     See https://vectara.com/pricing/ for more details on becoming a Scale customer.
     """
 
