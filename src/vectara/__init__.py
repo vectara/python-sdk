@@ -84,6 +84,7 @@ from .types import (
 from .errors import BadRequestError, ForbiddenError, NotFoundError
 from . import api_keys, application_clients, auth, chats, corpora, documents, encoders, jobs, llms, rerankers, users
 from .auth import AuthResponse
+from .client import AsyncVectara, Vectara
 from .corpora import SearchCorpusParameters
 from .environment import VectaraEnvironment
 from .version import __version__
@@ -95,6 +96,7 @@ __all__ = [
     "ApiPolicy",
     "ApiRole",
     "AppClient",
+    "AsyncVectara",
     "AuthResponse",
     "BadRequestError",
     "BadRequestErrorBody",
@@ -173,6 +175,7 @@ __all__ = [
     "StructuredDocumentSection",
     "Turn",
     "User",
+    "Vectara",
     "VectaraEnvironment",
     "__version__",
     "api_keys",
