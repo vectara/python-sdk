@@ -5,6 +5,7 @@ from .stream_search_response import StreamSearchResponse
 from .stream_generation_chunk import StreamGenerationChunk
 from .stream_generation_end import StreamGenerationEnd
 from .factual_consistency_score import FactualConsistencyScore
+from .generation_info import GenerationInfo
 from .stream_error import StreamError
 from .stream_response_end import StreamResponseEnd
 
@@ -13,6 +14,7 @@ QueryStreamedResponse = typing.Union[
     StreamGenerationChunk,
     StreamGenerationEnd,
     FactualConsistencyScore,
+    GenerationInfo,
     StreamError,
     StreamResponseEnd,
 ]

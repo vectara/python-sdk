@@ -12,7 +12,7 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper
 
 
-class LlmsClient:
+class LargeLanguageModelsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -56,7 +56,7 @@ class LlmsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.llms.list()
+        client.large_language_models.list()
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/llms",
@@ -94,7 +94,7 @@ class LlmsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
 
-class AsyncLlmsClient:
+class AsyncLargeLanguageModelsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -143,7 +143,7 @@ class AsyncLlmsClient:
 
 
         async def main() -> None:
-            await client.llms.list()
+            await client.large_language_models.list()
 
 
         asyncio.run(main())

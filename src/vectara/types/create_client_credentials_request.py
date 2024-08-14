@@ -22,6 +22,7 @@ class CreateClientCredentialsRequest(UniversalBaseModel):
     Description of the client credentials.
     """
 
+    type: typing.Literal["client_credentials"] = "client_credentials"
     api_roles: typing.Optional[typing.List[ApiRole]] = pydantic.Field(default=None)
     """
     API roles that the client credentials will have.

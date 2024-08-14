@@ -2,16 +2,21 @@
 
 from ..core.client_wrapper import SyncClientWrapper
 import typing
+from ..types.corpus_key import CorpusKey
+import datetime as dt
+from ..types.job_state import JobState
 from ..core.request_options import RequestOptions
-from ..types.job import Job
-from ..core.jsonable_encoder import jsonable_encoder
+from ..types.list_jobs_response import ListJobsResponse
+from ..core.datetime_utils import serialize_datetime
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.forbidden_error import ForbiddenError
 from ..types.error import Error
-from ..errors.not_found_error import NotFoundError
-from ..types.not_found_error_body import NotFoundErrorBody
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
+from ..types.job import Job
+from ..core.jsonable_encoder import jsonable_encoder
+from ..errors.not_found_error import NotFoundError
+from ..types.not_found_error_body import NotFoundErrorBody
 from ..core.client_wrapper import AsyncClientWrapper
 
 
@@ -19,9 +24,95 @@ class JobsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
+    def list(
+        self,
+        *,
+        corpus_key: typing.Optional[typing.Union[CorpusKey, typing.Sequence[CorpusKey]]] = None,
+        after: typing.Optional[dt.datetime] = None,
+        state: typing.Optional[typing.Union[JobState, typing.Sequence[JobState]]] = None,
+        limit: typing.Optional[int] = None,
+        page_key: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ListJobsResponse:
+        """
+        List jobs for the account. Jobs are background processes like replacing the filterable metadata attributes.
+
+        Parameters
+        ----------
+        corpus_key : typing.Optional[typing.Union[CorpusKey, typing.Sequence[CorpusKey]]]
+            The unique key identifying the corpus with the job.
+
+        after : typing.Optional[dt.datetime]
+            Get jobs after a date time.
+
+        state : typing.Optional[typing.Union[JobState, typing.Sequence[JobState]]]
+            Indicates the states the jobs can be in.
+
+        limit : typing.Optional[int]
+            The maximum number of documents to return at one time.
+
+        page_key : typing.Optional[str]
+            Used to the retrieve the next page of documents after the limit has been reached.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ListJobsResponse
+            List of jobs.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.jobs.list()
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v2/jobs",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            params={
+                "corpus_key": corpus_key,
+                "after": serialize_datetime(after) if after is not None else None,
+                "state": state,
+                "limit": limit,
+                "page_key": page_key,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    ListJobsResponse,
+                    parse_obj_as(
+                        type_=ListJobsResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
     def get(self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Job:
         """
-        Get a job by a specific ID. Jobs are backgrouond processes like replacing the filterable metadata attributes.
+        Get a job by a specific ID. Jobs are background processes like replacing the filterable metadata attributes.
 
         Parameters
         ----------
@@ -94,9 +185,103 @@ class AsyncJobsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
+    async def list(
+        self,
+        *,
+        corpus_key: typing.Optional[typing.Union[CorpusKey, typing.Sequence[CorpusKey]]] = None,
+        after: typing.Optional[dt.datetime] = None,
+        state: typing.Optional[typing.Union[JobState, typing.Sequence[JobState]]] = None,
+        limit: typing.Optional[int] = None,
+        page_key: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ListJobsResponse:
+        """
+        List jobs for the account. Jobs are background processes like replacing the filterable metadata attributes.
+
+        Parameters
+        ----------
+        corpus_key : typing.Optional[typing.Union[CorpusKey, typing.Sequence[CorpusKey]]]
+            The unique key identifying the corpus with the job.
+
+        after : typing.Optional[dt.datetime]
+            Get jobs after a date time.
+
+        state : typing.Optional[typing.Union[JobState, typing.Sequence[JobState]]]
+            Indicates the states the jobs can be in.
+
+        limit : typing.Optional[int]
+            The maximum number of documents to return at one time.
+
+        page_key : typing.Optional[str]
+            Used to the retrieve the next page of documents after the limit has been reached.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ListJobsResponse
+            List of jobs.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
+        async def main() -> None:
+            await client.jobs.list()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v2/jobs",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            params={
+                "corpus_key": corpus_key,
+                "after": serialize_datetime(after) if after is not None else None,
+                "state": state,
+                "limit": limit,
+                "page_key": page_key,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    ListJobsResponse,
+                    parse_obj_as(
+                        type_=ListJobsResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
     async def get(self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Job:
         """
-        Get a job by a specific ID. Jobs are backgrouond processes like replacing the filterable metadata attributes.
+        Get a job by a specific ID. Jobs are background processes like replacing the filterable metadata attributes.
 
         Parameters
         ----------

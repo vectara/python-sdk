@@ -16,6 +16,8 @@ class ContextConfiguration(UniversalBaseModel):
     The number of characters before the matching document part that are shown.
     This is useful to show the context of the document part in the wider document.
     Ignored if `sentences_before` is set.
+    Vectara will capture the full sentence that contains the captured characters,
+    so as to not lose the meaning caused by a truncated word or sentence.
     """
 
     characters_after: typing.Optional[int] = pydantic.Field(default=None)
@@ -23,6 +25,8 @@ class ContextConfiguration(UniversalBaseModel):
     The number of characters after the matching document part that are shown.
     This is useful to show the context of the document part in the wider document.
     Ignored if `sentences_after` is set.
+    Vectara will capture the full sentence that contains the captured characters,
+    so as to not lose the meaning caused by a truncated word or sentence.
     """
 
     sentences_before: typing.Optional[int] = pydantic.Field(default=None)

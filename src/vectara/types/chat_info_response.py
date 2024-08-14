@@ -11,6 +11,7 @@ class ChatInfoResponse(UniversalBaseModel):
     Information about the chat.
     """
 
+    type: typing.Literal["chat_info"] = "chat_info"
     chat_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     ID of the chat.

@@ -18,6 +18,7 @@ class StructuredDocument(UniversalBaseModel):
     The Document ID, must be unique within the corpus.
     """
 
+    type: typing.Literal["structured"] = "structured"
     title: typing.Optional[str] = pydantic.Field(default=None)
     """
     The title of the document.

@@ -9,7 +9,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 class Error(UniversalBaseModel):
     messages: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
     """
-    The messages describing why the error occured.
+    The messages describing why the error occurred.
     """
 
     request_id: typing.Optional[str] = pydantic.Field(default=None)

@@ -1,355 +1,4 @@
 # Reference
-<details><summary><code>client.<a href="src/vectara/client.py">stream_query</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Perform a multi-purpose query that can retrieve relevant information from one or more corpora and generate a response using RAG.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from vectara import (
-    CitationParameters,
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    ModelParameters,
-    SearchCorporaParameters,
-    Vectara,
-)
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-response = client.stream_query(
-    query="string",
-    search=SearchCorporaParameters(
-        corpora=[KeyedSearchCorpus()],
-        offset=1,
-        limit=1,
-        context_configuration=ContextConfiguration(),
-        reranker=CustomerSpecificReranker(),
-    ),
-    generation=GenerationParameters(
-        prompt_name="string",
-        max_used_search_results=1,
-        prompt_text="string",
-        max_response_characters=1,
-        response_language="auto",
-        model_parameters=ModelParameters(
-            max_tokens=1,
-            temperature=1.1,
-            frequency_penalty=1.1,
-            presence_penalty=1.1,
-        ),
-        citations=CitationParameters(),
-        enable_factual_consistency_score=True,
-    ),
-)
-for chunk in response:
-    yield chunk
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**query:** `str` — The query to receive an answer on.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**search:** `SearchCorporaParameters` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**generation:** `typing.Optional[GenerationParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.<a href="src/vectara/client.py">query</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Perform a multi-purpose query that can retrieve relevant information from one or more corpora and generate a response using RAG.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from vectara import (
-    CitationParameters,
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    ModelParameters,
-    SearchCorporaParameters,
-    Vectara,
-)
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.query(
-    query="Am I allowed to bring pets to work?",
-    search=SearchCorporaParameters(
-        corpora=[
-            KeyedSearchCorpus(
-                custom_dimensions={},
-                metadata_filter='doc.title = "Adventures of Huckleberry Finn"',
-                lexical_interpolation=0.025,
-                semantics="default",
-                corpus_key="my-corpus",
-            )
-        ],
-        offset=0,
-        limit=10,
-        context_configuration=ContextConfiguration(
-            characters_before=30,
-            characters_after=30,
-            sentences_before=3,
-            sentences_after=3,
-            start_tag="<em>",
-            end_tag="</em>",
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="rnk_272725719",
-        ),
-    ),
-    generation=GenerationParameters(
-        prompt_name="vectara-summary-ext-v1.2.0",
-        max_used_search_results=5,
-        prompt_text='[\n  {"role": "system", "content": "You are a helpful search assistant."},\n  #foreach ($qResult in $vectaraQueryResults)\n    {"role": "user", "content": "Given the $vectaraIdxWord[$foreach.index] search result."},\n    {"role": "assistant", "content": "${qResult.getText()}" },\n  #end\n  {"role": "user", "content": "Generate a summary for the query \'${vectaraQuery}\' based on the above results."}\n]\n',
-        max_response_characters=300,
-        response_language="auto",
-        model_parameters=ModelParameters(
-            max_tokens=0,
-            temperature=0.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
-        ),
-        citations=CitationParameters(
-            style="none",
-            url_pattern="https://vectara.com/documents/{doc.id}",
-            text_pattern="{doc.title}",
-        ),
-        enable_factual_consistency_score=True,
-    ),
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**query:** `str` — The query to receive an answer on.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**search:** `SearchCorporaParameters` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**generation:** `typing.Optional[GenerationParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.<a href="src/vectara/client.py">upload</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Upload files such as PDFs and Word Documents. Vectara will attempt to automatically extract text and any metadata.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.upload(
-    corpus_key="my-corpus",
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**corpus_key:** `CorpusKey` — The unique key identifying the corpus of which to upload the file.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**file:** `from __future__ import annotations
-
-core.File` — See core.File for more documentation
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Arbitrary object that will be attached as document metadata to the extracted document.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
 ## API Keys
 <details><summary><code>client.api_keys.<a href="src/vectara/api_keys/client.py">list</a>(...)</code></summary>
 <dl>
@@ -487,7 +136,7 @@ client.api_keys.create(
 **corpus_keys:** `typing.Optional[typing.Sequence[CorpusKey]]` 
 
 Corpora this API key has roles on if it is not a Personal API key.
-This property should be null of missing if this `api_key_role` is
+This property should be null or missing if this `api_key_role` is
 `personal`.
 
     
@@ -719,8 +368,8 @@ client.api_keys.update(
 </dl>
 </details>
 
-## Application Clients
-<details><summary><code>client.application_clients.<a href="src/vectara/application_clients/client.py">list</a>(...)</code></summary>
+## AppClients
+<details><summary><code>client.app_clients.<a href="src/vectara/app_clients/client.py">list</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -740,7 +389,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.application_clients.list()
+client.app_clients.list()
 
 ```
 </dd>
@@ -792,7 +441,95 @@ client.application_clients.list()
 </dl>
 </details>
 
-<details><summary><code>client.application_clients.<a href="src/vectara/application_clients/client.py">get</a>(...)</code></summary>
+<details><summary><code>client.app_clients.<a href="src/vectara/app_clients/client.py">create</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.app_clients.create(
+    name="name",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**name:** `str` — Name of the client credentials.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` — Description of the client credentials.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**api_roles:** `typing.Optional[typing.Sequence[ApiRole]]` — API roles that the client credentials will have.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.app_clients.<a href="src/vectara/app_clients/client.py">get</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -812,7 +549,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.application_clients.get(
+client.app_clients.get(
     app_client_id="app_client_id",
 )
 
@@ -850,7 +587,7 @@ client.application_clients.get(
 </dl>
 </details>
 
-<details><summary><code>client.application_clients.<a href="src/vectara/application_clients/client.py">delete</a>(...)</code></summary>
+<details><summary><code>client.app_clients.<a href="src/vectara/app_clients/client.py">delete</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -870,7 +607,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.application_clients.delete(
+client.app_clients.delete(
     app_client_id="app_client_id",
 )
 
@@ -908,7 +645,7 @@ client.application_clients.delete(
 </dl>
 </details>
 
-<details><summary><code>client.application_clients.<a href="src/vectara/application_clients/client.py">update</a>(...)</code></summary>
+<details><summary><code>client.app_clients.<a href="src/vectara/app_clients/client.py">update</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -928,7 +665,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.application_clients.update(
+client.app_clients.update(
     app_client_id="app_client_id",
 )
 
@@ -987,20 +724,6 @@ client.application_clients.update(
 <dl>
 <dd>
 
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Hit the auth endpoint to get a bearer token
-</dd>
-</dl>
-</dd>
-</dl>
-
 #### 🔌 Usage
 
 <dl>
@@ -1017,10 +740,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.auth.get_token(
-    client_id="string",
-    client_secret="string",
-)
+client.auth.get_token()
 
 ```
 </dd>
@@ -1036,7 +756,7 @@ client.auth.get_token(
 <dl>
 <dd>
 
-**client_id:** `str` 
+**client_id:** `typing.Optional[str]` 
     
 </dd>
 </dl>
@@ -1044,7 +764,15 @@ client.auth.get_token(
 <dl>
 <dd>
 
-**client_secret:** `str` 
+**client_secret:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**grant_type:** `typing.Optional[typing.Literal["client_credentials"]]` 
     
 </dd>
 </dl>
@@ -1099,7 +827,12 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.chats.list()
+response = client.chats.list()
+for item in response:
+    yield item
+# alternatively, you can paginate page-by-page
+for page in response.iter_pages():
+    yield page
 
 ```
 </dd>
@@ -1589,7 +1322,7 @@ client.chats.list_turns(
 </dl>
 </details>
 
-<details><summary><code>client.chats.<a href="src/vectara/chats/client.py">create_turns_stream</a>(...)</code></summary>
+<details><summary><code>client.chats.<a href="src/vectara/chats/client.py">create_turn_stream</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -1633,7 +1366,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.chats.create_turns_stream(
+response = client.chats.create_turn_stream(
     chat_id="string",
     query="string",
     search=SearchCorporaParameters(
@@ -1731,7 +1464,7 @@ for chunk in response:
 </dl>
 </details>
 
-<details><summary><code>client.chats.<a href="src/vectara/chats/client.py">create_turns</a>(...)</code></summary>
+<details><summary><code>client.chats.<a href="src/vectara/chats/client.py">create_turn</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -1765,7 +1498,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.chats.create_turns(
+client.chats.create_turn(
     chat_id="chat_id",
     query="How can I use the Vectara platform?",
     search=SearchCorporaParameters(),
@@ -2619,7 +2352,7 @@ client.corpora.reset(
 </dl>
 </details>
 
-<details><summary><code>client.corpora.<a href="src/vectara/corpora/client.py">replace_filter_attributes</a>(...)</code></summary>
+<details><summary><code>client.corpora.<a href="src/vectara/corpora/client.py">replace_filters</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -2657,7 +2390,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.corpora.replace_filter_attributes(
+client.corpora.replace_filters(
     corpus_key="my-corpus",
     filter_attributes=[
         FilterAttribute(
@@ -2710,334 +2443,8 @@ client.corpora.replace_filter_attributes(
 </dl>
 </details>
 
-<details><summary><code>client.corpora.<a href="src/vectara/corpora/client.py">search</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Search a single corpus with a simple query request.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.corpora.search(
-    corpus_key="my-corpus",
-    query="query",
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**corpus_key:** `CorpusKey` — The unique key identifying the corpus to query.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**query:** `str` — The search query string for the corpus.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**limit:** `typing.Optional[int]` — Maximum number of results to return.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**offset:** `typing.Optional[int]` — Position from which to start in the result set.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.corpora.<a href="src/vectara/corpora/client.py">stream_query</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrival Augmented Generation.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from vectara import (
-    CitationParameters,
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    ModelParameters,
-    Vectara,
-)
-from vectara.corpora import SearchCorpusParameters
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-response = client.corpora.stream_query(
-    corpus_key="string",
-    query="string",
-    search=SearchCorpusParameters(
-        custom_dimensions={"string": 1.1},
-        metadata_filter="string",
-        lexical_interpolation=1.1,
-        semantics="default",
-        offset=1,
-        limit=1,
-        context_configuration=ContextConfiguration(),
-        reranker=CustomerSpecificReranker(),
-    ),
-    generation=GenerationParameters(
-        prompt_name="string",
-        max_used_search_results=1,
-        prompt_text="string",
-        max_response_characters=1,
-        response_language="auto",
-        model_parameters=ModelParameters(
-            max_tokens=1,
-            temperature=1.1,
-            frequency_penalty=1.1,
-            presence_penalty=1.1,
-        ),
-        citations=CitationParameters(),
-        enable_factual_consistency_score=True,
-    ),
-)
-for chunk in response:
-    yield chunk
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**corpus_key:** `CorpusKey` — The unique key identifying the corpus to query.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**query:** `str` — The query to receive an answer on.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**search:** `typing.Optional[SearchCorpusParameters]` — The parameters to search one corpus.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**generation:** `typing.Optional[GenerationParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.corpora.<a href="src/vectara/corpora/client.py">query</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrival Augmented Generation.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.corpora.query(
-    corpus_key="my-corpus",
-    query="query",
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**corpus_key:** `CorpusKey` — The unique key identifying the corpus to query.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**query:** `str` — The query to receive an answer on.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**search:** `typing.Optional[SearchCorpusParameters]` — The parameters to search one corpus.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**generation:** `typing.Optional[GenerationParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
 ## Documents
-<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">list</a>(...)</code></summary>
+<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">list_corpus</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -3057,7 +2464,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.documents.list(
+client.documents.list_corpus(
     corpus_key="my-corpus",
 )
 
@@ -3111,7 +2518,96 @@ client.documents.list(
 </dl>
 </details>
 
-<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">delete</a>(...)</code></summary>
+<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">create</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Add a document to a corpus. You can add documents that are either in a typical structured format,
+or in a format that explicitly specifies each document part that becomes a search result.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import CoreDocument, CoreDocumentPart, Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.documents.create(
+    corpus_key="my-corpus",
+    request=CoreDocument(
+        id="my-doc-id",
+        document_parts=[
+            CoreDocumentPart(
+                text="I'm a nice document part.",
+            )
+        ],
+    ),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**corpus_key:** `CorpusKey` — The unique key identifying the queried corpus.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `CreateDocumentRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">delete_corpus</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -3131,7 +2627,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.documents.delete(
+client.documents.delete_corpus(
     corpus_key="my-corpus",
     document_id="document_id",
 )
@@ -3271,6 +2767,108 @@ client.encoders.list(
 </details>
 
 ## Jobs
+<details><summary><code>client.jobs.<a href="src/vectara/jobs/client.py">list</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+List jobs for the account. Jobs are background processes like replacing the filterable metadata attributes.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.jobs.list()
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**corpus_key:** `typing.Optional[typing.Union[CorpusKey, typing.Sequence[CorpusKey]]]` — The unique key identifying the corpus with the job.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**after:** `typing.Optional[dt.datetime]` — Get jobs after a date time.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**state:** `typing.Optional[typing.Union[JobState, typing.Sequence[JobState]]]` — Indicates the states the jobs can be in.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — The maximum number of documents to return at one time.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_key:** `typing.Optional[str]` — Used to the retrieve the next page of documents after the limit has been reached.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.jobs.<a href="src/vectara/jobs/client.py">get</a>(...)</code></summary>
 <dl>
 <dd>
@@ -3283,7 +2881,7 @@ client.encoders.list(
 <dl>
 <dd>
 
-Get a job by a specific ID. Jobs are backgrouond processes like replacing the filterable metadata attributes.
+Get a job by a specific ID. Jobs are background processes like replacing the filterable metadata attributes.
 </dd>
 </dl>
 </dd>
@@ -3343,8 +2941,8 @@ client.jobs.get(
 </dl>
 </details>
 
-## Llms
-<details><summary><code>client.llms.<a href="src/vectara/llms/client.py">list</a>(...)</code></summary>
+## Large Language Models
+<details><summary><code>client.large_language_models.<a href="src/vectara/large_language_models/client.py">list</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -3378,7 +2976,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.llms.list()
+client.large_language_models.list()
 
 ```
 </dd>
@@ -3414,6 +3012,553 @@ client.llms.list()
 
 Used to the retrieve the next page of LLMs after the limit has been reached.
 This parameter is not needed for the first page of results.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Queries
+<details><summary><code>client.queries.<a href="src/vectara/queries/client.py">query_stream</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Perform a multi-purpose query that can retrieve relevant information from one or more corpora and generate a response using RAG.
+
+Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
+will not include generation.
+
+For more detailed information please see this [api guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import (
+    CitationParameters,
+    ContextConfiguration,
+    CustomerSpecificReranker,
+    GenerationParameters,
+    KeyedSearchCorpus,
+    ModelParameters,
+    SearchCorporaParameters,
+    Vectara,
+)
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+response = client.queries.query_stream(
+    query="string",
+    search=SearchCorporaParameters(
+        corpora=[KeyedSearchCorpus()],
+        offset=1,
+        limit=1,
+        context_configuration=ContextConfiguration(),
+        reranker=CustomerSpecificReranker(),
+    ),
+    generation=GenerationParameters(
+        prompt_name="string",
+        max_used_search_results=1,
+        prompt_text="string",
+        max_response_characters=1,
+        response_language="auto",
+        model_parameters=ModelParameters(
+            max_tokens=1,
+            temperature=1.1,
+            frequency_penalty=1.1,
+            presence_penalty=1.1,
+        ),
+        citations=CitationParameters(),
+        enable_factual_consistency_score=True,
+    ),
+)
+for chunk in response:
+    yield chunk
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**query:** `str` — The query to receive an answer on.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**search:** `SearchCorporaParameters` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**generation:** `typing.Optional[GenerationParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.queries.<a href="src/vectara/queries/client.py">query</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Perform a multi-purpose query that can retrieve relevant information from one or more corpora and generate a response using RAG.
+
+Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
+will not include generation.
+
+For more detailed information please see this [api guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import SearchCorporaParameters, Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.queries.query(
+    query="Am I allowed to bring pets to work?",
+    search=SearchCorporaParameters(),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**query:** `str` — The query to receive an answer on.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**search:** `SearchCorporaParameters` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**generation:** `typing.Optional[GenerationParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.queries.<a href="src/vectara/queries/client.py">search</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Search a single corpus with a simple query request.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.queries.search(
+    corpus_key="my-corpus",
+    query="query",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**corpus_key:** `CorpusKey` — The unique key identifying the corpus to query.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**query:** `str` — The search query string for the corpus.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — Maximum number of results to return.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**offset:** `typing.Optional[int]` — Position from which to start in the result set.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.queries.<a href="src/vectara/queries/client.py">query_corpus_stream</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import (
+    CitationParameters,
+    ContextConfiguration,
+    CustomerSpecificReranker,
+    GenerationParameters,
+    ModelParameters,
+    Vectara,
+)
+from vectara.queries import SearchCorpusParameters
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+response = client.queries.query_corpus_stream(
+    corpus_key="string",
+    query="string",
+    search=SearchCorpusParameters(
+        custom_dimensions={"string": 1.1},
+        metadata_filter="string",
+        lexical_interpolation=1.1,
+        semantics="default",
+        offset=1,
+        limit=1,
+        context_configuration=ContextConfiguration(),
+        reranker=CustomerSpecificReranker(),
+    ),
+    generation=GenerationParameters(
+        prompt_name="string",
+        max_used_search_results=1,
+        prompt_text="string",
+        max_response_characters=1,
+        response_language="auto",
+        model_parameters=ModelParameters(
+            max_tokens=1,
+            temperature=1.1,
+            frequency_penalty=1.1,
+            presence_penalty=1.1,
+        ),
+        citations=CitationParameters(),
+        enable_factual_consistency_score=True,
+    ),
+)
+for chunk in response:
+    yield chunk
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**corpus_key:** `CorpusKey` — The unique key identifying the corpus to query.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**query:** `str` — The query to receive an answer on.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**search:** `typing.Optional[SearchCorpusParameters]` — The parameters to search one corpus.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**generation:** `typing.Optional[GenerationParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.queries.<a href="src/vectara/queries/client.py">query_corpus</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.queries.query_corpus(
+    corpus_key="my-corpus",
+    query="query",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**corpus_key:** `CorpusKey` — The unique key identifying the corpus to query.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**query:** `str` — The query to receive an answer on.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**search:** `typing.Optional[SearchCorpusParameters]` — The parameters to search one corpus.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**generation:** `typing.Optional[GenerationParameters]` 
     
 </dd>
 </dl>
@@ -3503,6 +3648,97 @@ client.rerankers.list(
 <dd>
 
 **page_key:** `typing.Optional[str]` — Used to the retrieve the next page of rerankers after the limit has been reached.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Upload
+<details><summary><code>client.upload.<a href="src/vectara/upload/client.py">file</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Upload files such as PDFs and Word Documents. Vectara will attempt to automatically extract text and any metadata.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.upload.file(
+    corpus_key="my-corpus",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**corpus_key:** `CorpusKey` — The unique key identifying the corpus of which to upload the file.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**file:** `from __future__ import annotations
+
+core.File` — See core.File for more documentation
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Arbitrary object that will be attached as document metadata to the extracted document.
     
 </dd>
 </dl>

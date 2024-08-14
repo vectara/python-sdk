@@ -7,6 +7,7 @@ from .types import (
     ApiPolicy,
     ApiRole,
     AppClient,
+    AuthResponse,
     BadRequestErrorBody,
     Chat,
     ChatFullResponse,
@@ -15,6 +16,7 @@ from .types import (
     ChatStreamedResponse,
     CitationParameters,
     CitationParametersStyle,
+    ComponentsSchemasCreateClientCredentialsRequest,
     ContextConfiguration,
     CoreDocument,
     CoreDocumentPart,
@@ -22,12 +24,8 @@ from .types import (
     CorpusCustomDimension,
     CorpusKey,
     CorpusLimits,
-    CreateAppClientRequest,
-    CreateAppClientRequest_ClientCredentials,
     CreateClientCredentialsRequest,
     CreateDocumentRequest,
-    CreateDocumentRequest_Core,
-    CreateDocumentRequest_Structured,
     CustomDimensions,
     CustomerSpecificReranker,
     Document,
@@ -38,6 +36,7 @@ from .types import (
     FilterAttribute,
     FilterAttributeLevel,
     FilterAttributeType,
+    GenerationInfo,
     GenerationParameters,
     IndividualSearchResult,
     Job,
@@ -60,6 +59,7 @@ from .types import (
     Llm,
     MmrReranker,
     ModelParameters,
+    NoneReranker,
     NotFoundErrorBody,
     Prompt,
     QueryFullResponse,
@@ -82,11 +82,24 @@ from .types import (
     User,
 )
 from .errors import BadRequestError, ForbiddenError, NotFoundError
-from . import api_keys, application_clients, auth, chats, corpora, documents, encoders, jobs, llms, rerankers, users
-from .auth import AuthResponse
+from . import (
+    api_keys,
+    app_clients,
+    auth,
+    chats,
+    corpora,
+    documents,
+    encoders,
+    jobs,
+    large_language_models,
+    queries,
+    rerankers,
+    upload,
+    users,
+)
 from .client import AsyncVectara, Vectara
-from .corpora import SearchCorpusParameters
 from .environment import VectaraEnvironment
+from .queries import SearchCorpusParameters
 from .version import __version__
 
 __all__ = [
@@ -107,6 +120,7 @@ __all__ = [
     "ChatStreamedResponse",
     "CitationParameters",
     "CitationParametersStyle",
+    "ComponentsSchemasCreateClientCredentialsRequest",
     "ContextConfiguration",
     "CoreDocument",
     "CoreDocumentPart",
@@ -114,12 +128,8 @@ __all__ = [
     "CorpusCustomDimension",
     "CorpusKey",
     "CorpusLimits",
-    "CreateAppClientRequest",
-    "CreateAppClientRequest_ClientCredentials",
     "CreateClientCredentialsRequest",
     "CreateDocumentRequest",
-    "CreateDocumentRequest_Core",
-    "CreateDocumentRequest_Structured",
     "CustomDimensions",
     "CustomerSpecificReranker",
     "Document",
@@ -131,6 +141,7 @@ __all__ = [
     "FilterAttributeLevel",
     "FilterAttributeType",
     "ForbiddenError",
+    "GenerationInfo",
     "GenerationParameters",
     "IndividualSearchResult",
     "Job",
@@ -153,6 +164,7 @@ __all__ = [
     "Llm",
     "MmrReranker",
     "ModelParameters",
+    "NoneReranker",
     "NotFoundError",
     "NotFoundErrorBody",
     "Prompt",
@@ -179,14 +191,16 @@ __all__ = [
     "VectaraEnvironment",
     "__version__",
     "api_keys",
-    "application_clients",
+    "app_clients",
     "auth",
     "chats",
     "corpora",
     "documents",
     "encoders",
     "jobs",
-    "llms",
+    "large_language_models",
+    "queries",
     "rerankers",
+    "upload",
     "users",
 ]

@@ -17,6 +17,7 @@ class CoreDocument(UniversalBaseModel):
     The Document ID, must be unique within the corpus.
     """
 
+    type: typing.Literal["core"] = "core"
     metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
     """
     Arbitrary object of document level metadata. Properties of this object

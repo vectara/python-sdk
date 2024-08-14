@@ -124,7 +124,7 @@ class ApiKeysClient:
 
         corpus_keys : typing.Optional[typing.Sequence[CorpusKey]]
             Corpora this API key has roles on if it is not a Personal API key.
-            This property should be null of missing if this `api_key_role` is
+            This property should be null or missing if this `api_key_role` is
             `personal`.
 
 
@@ -492,7 +492,7 @@ class AsyncApiKeysClient:
 
         corpus_keys : typing.Optional[typing.Sequence[CorpusKey]]
             Corpora this API key has roles on if it is not a Personal API key.
-            This property should be null of missing if this `api_key_role` is
+            This property should be null or missing if this `api_key_role` is
             `personal`.
 
 

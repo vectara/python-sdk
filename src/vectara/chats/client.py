@@ -3,6 +3,8 @@
 import typing
 from ..core.client_wrapper import SyncClientWrapper
 from ..core.request_options import RequestOptions
+from ..core.pagination import SyncPager
+from ..types.chat import Chat
 from ..types.list_chats_response import ListChatsResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.forbidden_error import ForbiddenError
@@ -15,15 +17,16 @@ from ..types.search_corpora_parameters import SearchCorporaParameters
 from ..types.generation_parameters import GenerationParameters
 from ..types.chat_parameters import ChatParameters
 from ..types.chat_streamed_response import ChatStreamedResponse
+import httpx_sse
 import json
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
 from ..types.chat_full_response import ChatFullResponse
-from ..types.chat import Chat
 from ..core.jsonable_encoder import jsonable_encoder
 from ..types.list_chat_turns_response import ListChatTurnsResponse
 from ..types.turn import Turn
 from ..core.client_wrapper import AsyncClientWrapper
+from ..core.pagination import AsyncPager
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -39,7 +42,7 @@ class ChatsClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListChatsResponse:
+    ) -> SyncPager[Chat]:
         """
         Retrieve a list of previous chats in the Vectara account.
 
@@ -56,7 +59,7 @@ class ChatsClient:
 
         Returns
         -------
-        ListChatsResponse
+        SyncPager[Chat]
             List of chats.
 
         Examples
@@ -68,7 +71,12 @@ class ChatsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.chats.list()
+        response = client.chats.list()
+        for item in response:
+            yield item
+        # alternatively, you can paginate page-by-page
+        for page in response.iter_pages():
+            yield page
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/chats",
@@ -82,13 +90,25 @@ class ChatsClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListChatsResponse,
                     parse_obj_as(
                         type_=ListChatsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None
+                    _get_next = lambda: self.list(
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.chats
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -211,15 +231,14 @@ class ChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    for _text in _response.iter_lines():
+                    _event_source = httpx_sse.EventSource(_response)
+                    for _sse in _event_source.iter_sse():
                         try:
-                            if len(_text) == 0:
-                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_text),
+                                    object_=json.loads(_sse.data),
                                 ),
                             )
                         except:
@@ -569,7 +588,7 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_turns_stream(
+    def create_turn_stream(
         self,
         chat_id: str,
         *,
@@ -623,7 +642,7 @@ class ChatsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        response = client.chats.create_turns_stream(
+        response = client.chats.create_turn_stream(
             chat_id="string",
             query="string",
             search=SearchCorporaParameters(
@@ -671,15 +690,14 @@ class ChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    for _text in _response.iter_lines():
+                    _event_source = httpx_sse.EventSource(_response)
+                    for _sse in _event_source.iter_sse():
                         try:
-                            if len(_text) == 0:
-                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_text),
+                                    object_=json.loads(_sse.data),
                                 ),
                             )
                         except:
@@ -721,7 +739,7 @@ class ChatsClient:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_turns(
+    def create_turn(
         self,
         chat_id: str,
         *,
@@ -765,7 +783,7 @@ class ChatsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.chats.create_turns(
+        client.chats.create_turn(
             chat_id="chat_id",
             query="How can I use the Vectara platform?",
             search=SearchCorporaParameters(),
@@ -1002,7 +1020,7 @@ class ChatsClient:
         Returns
         -------
         Turn
-            Succcessfully modified the turn.
+            Successfully modified the turn.
 
         Examples
         --------
@@ -1073,7 +1091,7 @@ class AsyncChatsClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListChatsResponse:
+    ) -> AsyncPager[Chat]:
         """
         Retrieve a list of previous chats in the Vectara account.
 
@@ -1090,7 +1108,7 @@ class AsyncChatsClient:
 
         Returns
         -------
-        ListChatsResponse
+        AsyncPager[Chat]
             List of chats.
 
         Examples
@@ -1107,7 +1125,12 @@ class AsyncChatsClient:
 
 
         async def main() -> None:
-            await client.chats.list()
+            response = await client.chats.list()
+            async for item in response:
+                yield item
+            # alternatively, you can paginate page-by-page
+            async for page in response.iter_pages():
+                yield page
 
 
         asyncio.run(main())
@@ -1124,13 +1147,25 @@ class AsyncChatsClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListChatsResponse,
                     parse_obj_as(
                         type_=ListChatsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None
+                    _get_next = lambda: self.list(
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.chats
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -1261,15 +1296,14 @@ class AsyncChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    async for _text in _response.aiter_lines():
+                    _event_source = httpx_sse.EventSource(_response)
+                    async for _sse in _event_source.aiter_sse():
                         try:
-                            if len(_text) == 0:
-                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_text),
+                                    object_=json.loads(_sse.data),
                                 ),
                             )
                         except:
@@ -1651,7 +1685,7 @@ class AsyncChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_turns_stream(
+    async def create_turn_stream(
         self,
         chat_id: str,
         *,
@@ -1710,7 +1744,7 @@ class AsyncChatsClient:
 
 
         async def main() -> None:
-            response = await client.chats.create_turns_stream(
+            response = await client.chats.create_turn_stream(
                 chat_id="string",
                 query="string",
                 search=SearchCorporaParameters(
@@ -1761,15 +1795,14 @@ class AsyncChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    async for _text in _response.aiter_lines():
+                    _event_source = httpx_sse.EventSource(_response)
+                    async for _sse in _event_source.aiter_sse():
                         try:
-                            if len(_text) == 0:
-                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_text),
+                                    object_=json.loads(_sse.data),
                                 ),
                             )
                         except:
@@ -1811,7 +1844,7 @@ class AsyncChatsClient:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_turns(
+    async def create_turn(
         self,
         chat_id: str,
         *,
@@ -1860,7 +1893,7 @@ class AsyncChatsClient:
 
 
         async def main() -> None:
-            await client.chats.create_turns(
+            await client.chats.create_turn(
                 chat_id="chat_id",
                 query="How can I use the Vectara platform?",
                 search=SearchCorporaParameters(),
@@ -2118,7 +2151,7 @@ class AsyncChatsClient:
         Returns
         -------
         Turn
-            Succcessfully modified the turn.
+            Successfully modified the turn.
 
         Examples
         --------

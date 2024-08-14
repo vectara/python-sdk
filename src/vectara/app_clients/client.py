@@ -11,16 +11,16 @@ from ..errors.forbidden_error import ForbiddenError
 from ..types.error import Error
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
+from ..types.api_role import ApiRole
 from ..types.app_client import AppClient
 from ..core.jsonable_encoder import jsonable_encoder
-from ..types.api_role import ApiRole
 from ..core.client_wrapper import AsyncClientWrapper
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
 
 
-class ApplicationClientsClient:
+class AppClientsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -61,7 +61,7 @@ class ApplicationClientsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.application_clients.list()
+        client.app_clients.list()
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/app_clients",
@@ -80,6 +80,96 @@ class ApplicationClientsClient:
                     ListAppClientsResponse,
                     parse_obj_as(
                         type_=ListAppClientsResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def create(
+        self,
+        *,
+        name: str,
+        description: typing.Optional[str] = OMIT,
+        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AppClient:
+        """
+        An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
+
+        Parameters
+        ----------
+        name : str
+            Name of the client credentials.
+
+        description : typing.Optional[str]
+            Description of the client credentials.
+
+        api_roles : typing.Optional[typing.Sequence[ApiRole]]
+            API roles that the client credentials will have.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AppClient
+            An App Client object, used to query the Vectara API with the assigned roles.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.app_clients.create(
+            name="name",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v2/app_clients",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            json={
+                "name": name,
+                "description": description,
+                "api_roles": api_roles,
+                "type": "client_credentials",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AppClient,
+                    parse_obj_as(
+                        type_=AppClient,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -132,7 +222,7 @@ class ApplicationClientsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.application_clients.get(
+        client.app_clients.get(
             app_client_id="app_client_id",
         )
         """
@@ -189,7 +279,7 @@ class ApplicationClientsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.application_clients.delete(
+        client.app_clients.delete(
             app_client_id="app_client_id",
         )
         """
@@ -254,7 +344,7 @@ class ApplicationClientsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.application_clients.update(
+        client.app_clients.update(
             app_client_id="app_client_id",
         )
         """
@@ -294,7 +384,7 @@ class ApplicationClientsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
 
-class AsyncApplicationClientsClient:
+class AsyncAppClientsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -340,7 +430,7 @@ class AsyncApplicationClientsClient:
 
 
         async def main() -> None:
-            await client.application_clients.list()
+            await client.app_clients.list()
 
 
         asyncio.run(main())
@@ -362,6 +452,104 @@ class AsyncApplicationClientsClient:
                     ListAppClientsResponse,
                     parse_obj_as(
                         type_=ListAppClientsResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def create(
+        self,
+        *,
+        name: str,
+        description: typing.Optional[str] = OMIT,
+        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AppClient:
+        """
+        An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
+
+        Parameters
+        ----------
+        name : str
+            Name of the client credentials.
+
+        description : typing.Optional[str]
+            Description of the client credentials.
+
+        api_roles : typing.Optional[typing.Sequence[ApiRole]]
+            API roles that the client credentials will have.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AppClient
+            An App Client object, used to query the Vectara API with the assigned roles.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
+        async def main() -> None:
+            await client.app_clients.create(
+                name="name",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v2/app_clients",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            json={
+                "name": name,
+                "description": description,
+                "api_roles": api_roles,
+                "type": "client_credentials",
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    AppClient,
+                    parse_obj_as(
+                        type_=AppClient,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -419,7 +607,7 @@ class AsyncApplicationClientsClient:
 
 
         async def main() -> None:
-            await client.application_clients.get(
+            await client.app_clients.get(
                 app_client_id="app_client_id",
             )
 
@@ -484,7 +672,7 @@ class AsyncApplicationClientsClient:
 
 
         async def main() -> None:
-            await client.application_clients.delete(
+            await client.app_clients.delete(
                 app_client_id="app_client_id",
             )
 
@@ -557,7 +745,7 @@ class AsyncApplicationClientsClient:
 
 
         async def main() -> None:
-            await client.application_clients.update(
+            await client.app_clients.update(
                 app_client_id="app_client_id",
             )
 

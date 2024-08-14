@@ -3,36 +3,25 @@
 from ..core.pydantic_utilities import UniversalBaseModel
 import typing
 import pydantic
-from .language import Language
-from .individual_search_result import IndividualSearchResult
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
-class QueryFullResponse(UniversalBaseModel):
+class GenerationInfo(UniversalBaseModel):
     """
-    The full response to a RAG query when the result is not streamed.
-    """
-
-    summary: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    The summary of the search results.
+    Event containing information on how the generation was accomplished.
     """
 
-    response_language: typing.Optional[Language] = None
-    search_results: typing.Optional[typing.List[IndividualSearchResult]] = pydantic.Field(default=None)
-    """
-    The ranked search results.
-    """
-
-    factual_consistency_score: typing.Optional[float] = pydantic.Field(default=None)
-    """
-    The probability that the summary is factually consistent with the results.
-    """
-
+    type: typing.Literal["generation_info"] = "generation_info"
     rendered_prompt: typing.Optional[str] = pydantic.Field(default=None)
     """
     The rendered prompt sent to the LLM. Useful when creating customer `prompt_text` templates. Only available
     to Scale customers.
+    """
+
+    rephrased_query: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    If you are on the Scale plan, you can view the actual query made to backend that was rephrased
+    by the LLM from the input query.
     """
 
     if IS_PYDANTIC_V2:

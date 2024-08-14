@@ -38,7 +38,7 @@ class IndividualSearchResult(UniversalBaseModel):
 
     request_corpora_index: typing.Optional[int] = pydantic.Field(default=None)
     """
-    A query request can search over multiple corpora at a time. This proprety
+    A query request can search over multiple corpora at a time. This property
     is set to the index in the list of corpora in the original search request that this
     search result originated from.
     

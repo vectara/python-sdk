@@ -5,6 +5,7 @@ from .stream_search_response import StreamSearchResponse
 from .chat_info_response import ChatInfoResponse
 from .stream_generation_chunk import StreamGenerationChunk
 from .stream_generation_end import StreamGenerationEnd
+from .generation_info import GenerationInfo
 from .factual_consistency_score import FactualConsistencyScore
 from .stream_response_end import StreamResponseEnd
 from .stream_error import StreamError
@@ -14,6 +15,7 @@ ChatStreamedResponse = typing.Union[
     ChatInfoResponse,
     StreamGenerationChunk,
     StreamGenerationEnd,
+    GenerationInfo,
     FactualConsistencyScore,
     StreamResponseEnd,
     StreamError,

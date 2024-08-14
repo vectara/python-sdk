@@ -43,6 +43,18 @@ class ChatFullResponse(UniversalBaseModel):
     The probability that the summary is factually consistent with the results.
     """
 
+    rendered_prompt: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The rendered prompt sent to the LLM. Useful when creating customer `prompt_text` templates. Only available
+    to Scale customers.
+    """
+
+    rephrased_query: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    If you are on the Scale plan, you can view the actual query made to backend that was rephrased
+    by the LLM from the input query.
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:
