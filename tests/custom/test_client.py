@@ -1,7 +1,8 @@
-import pytest
+import unittest
 
+from vectara.client import Vectara
 
-# Get started with writing tests with pytest at https://docs.pytest.org
-@pytest.mark.skip(reason="Unimplemented")
-def test_client() -> None:
-    assert True == True
+class ClientTest(unittest.TestCase):
+
+    def test_construct(self):
+        client = Vectara(api_key="asdf")
