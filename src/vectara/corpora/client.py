@@ -102,7 +102,7 @@ class CorporaClient:
                 _get_next = None
                 if _parsed_response.metadata is not None:
                     _parsed_next = _parsed_response.metadata.page_key
-                    _has_next = _parsed_next is not None
+                    _has_next = _parsed_next is not None and _parsed_next != ""
                     _get_next = lambda: self.list(
                         limit=limit,
                         filter=filter,
@@ -702,7 +702,7 @@ class AsyncCorporaClient:
                 _get_next = None
                 if _parsed_response.metadata is not None:
                     _parsed_next = _parsed_response.metadata.page_key
-                    _has_next = _parsed_next is not None
+                    _has_next = _parsed_next is not None and _parsed_next != ""
                     _get_next = lambda: self.list(
                         limit=limit,
                         filter=filter,
