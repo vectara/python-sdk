@@ -2,7 +2,7 @@ import logging
 from abc import ABC
 from dataclasses import dataclass
 from dacite import from_dict, Config, UnexpectedDataError, UnionMatchError
-from typing import Optional, Union, Any, List
+from typing import Optional, Union, Any, List, Dict
 import json
 import yaml
 from os import path, sep
@@ -95,7 +95,7 @@ class BaseConfigLoader(ABC):
 
     DEFAULT_CONFIG_NAME = "default"
 
-    def __init__(self, profile: Union[str | None] = DEFAULT_CONFIG_NAME):
+    def __init__(self, profile: Union[str, None] = DEFAULT_CONFIG_NAME):
         self.logger = logging.getLogger(self.__class__.__name__)
         if not profile:
             self.profile = self.DEFAULT_CONFIG_NAME
@@ -109,7 +109,7 @@ class BaseConfigLoader(ABC):
         """
         raise Exception("Define in sublcass")
 
-    def _convert_dict_config(self, config_dict: dict[str, Any]) -> ClientConfig:
+    def _convert_dict_config(self, config_dict: Dict[str, Any]) -> ClientConfig:
         """
         Helper method for all subclasses of BaseConfigLoader to parse a dict into our config domain classes.
 
@@ -164,7 +164,7 @@ class JsonConfigLoader(BaseConfigLoader):
     Loads our configuration from JSON
     """
 
-    def __init__(self, config_json: str, profile: Union[str | None] = BaseConfigLoader.DEFAULT_CONFIG_NAME):
+    def __init__(self, config_json: str, profile: Union[str, None] = BaseConfigLoader.DEFAULT_CONFIG_NAME):
         super().__init__(profile=profile)
         self.config_json = config_json
 
@@ -179,7 +179,7 @@ class PathConfigLoader(BaseConfigLoader):
     Loads our configuration from the specified folder/file
     """
 
-    def __init__(self, config_path : str, profile: Union[str | None] = BaseConfigLoader.DEFAULT_CONFIG_NAME):
+    def __init__(self, config_path : str, profile: Union[str, None] = BaseConfigLoader.DEFAULT_CONFIG_NAME):
         super().__init__(profile=profile)
 
         self.config_path = config_path
@@ -207,7 +207,7 @@ class HomeConfigLoader(BaseConfigLoader):
     Loads our configuration from the users home directory
     """
 
-    def __init__(self, profile: Union[str | None] = BaseConfigLoader.DEFAULT_CONFIG_NAME):
+    def __init__(self, profile: Union[str, None] = BaseConfigLoader.DEFAULT_CONFIG_NAME):
         super().__init__(profile=profile)
 
     def load(self):

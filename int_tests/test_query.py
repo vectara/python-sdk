@@ -3,6 +3,7 @@ import logging
 
 from vectara.factory import Factory
 from vectara.corpora.client import CorporaClient
+from vectara.client import Vectara
 
 class FactoryTest(unittest.TestCase):
 
@@ -14,7 +15,7 @@ class FactoryTest(unittest.TestCase):
     def test_query(self):
         self.logger.info("Starting test")
 
-        client = Factory().build()
+        client: Vectara = Factory().build()
 
         corpora_client: CorporaClient = client.corpora
 

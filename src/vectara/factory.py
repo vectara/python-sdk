@@ -42,7 +42,7 @@ class Factory():
     ENV_VAR_OAUTH2_CLIENT_SECRET = "VECTARA_CLIENT_SECRET"
 
 
-    def __init__(self, config_path: Union[str | None] = None, config_json: Union[str | None] = None, profile: Union[str | None] = None):
+    def __init__(self, config_path: Union[str, None] = None, config_json: Union[str, None] = None, profile: Union[str,  None] = None):
         """
         Initialize our factory using configuration which may either be in a file or serialized in a JSON string
 
