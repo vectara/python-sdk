@@ -3,9 +3,14 @@
 src/vectara/client.py
 src/vectara/auth/client.py
 
-src/vectara/config/*
+src/vectara/config/
+src/vectara/config/*.py
 src/vectara/factory.py
-src/vectara/managers/*
+
+src/vectara/managers
+src/vectara/managers/
+src/vectara/managers/corpus.py
+src/vectara/managers/__init__.py
 
 tests/
 int_tests/
