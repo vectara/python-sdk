@@ -1,9 +1,32 @@
 from .config.config import JsonConfigLoader, PathConfigLoader, HomeConfigLoader, BaseConfigLoader
 from .client import Vectara
+from vectara.managers.corpus import CorpusManager
 
-from typing import Union, Optional
+import httpx
+
+from .environment import VectaraEnvironment
+
+from typing import Union, Optional, Callable
 import logging
 import os
+
+class WrappedVectara(Vectara):
+    """
+    We extend the Vectara client, adding additional helper services. Due to the methodology used in the
+    Vectara constructor, hard-coding dependencies and using an internal wrapper, we use lazy initialization
+    for the helper classes like the CorpusManager.
+    """
+
+
+    def __init__(self, *args,
+                 **kwargs):
+        super().__init__(*args, **kwargs)
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.corpus_manager: Union[None, CorpusManager] = None
+
+    def set_corpus_manager(self, corpus_manager: CorpusManager):
+        self.corpus_manager = corpus_manager
+
 
 
 class Factory():
@@ -66,7 +89,7 @@ class Factory():
         #client_id: typing.Optional[str] = os.getenv("VECTARA_CLIENT_ID"),
         #client_secret: typing.Optional[str] = os.getenv("VECTARA_CLIENT_SECRET")
 
-    def build(self) -> Vectara:
+    def build(self) -> WrappedVectara:
         """
         Builds our client using the configuration which .
         :return:
@@ -104,15 +127,22 @@ class Factory():
         # Defining the host is optional and defaults to https://api.vectara.io
         # See configuration.py for a list of all supported configuration parameters.
 
+        client: WrappedVectara
         if auth_type == "ApiKey":
-            return Vectara(
+            client = WrappedVectara(
                 api_key=client_config.auth.api_key,
             )
         elif auth_type == "OAuth2":
-            return Vectara(
+            client = WrappedVectara(
                 client_id=auth_config.app_client_id,
                 client_secret=auth_config.app_client_secret,
             )
         else:
             raise TypeError(f"Unknown authentication type: {auth_type}")
 
+        # Inject our convenience managers
+        corpus_manager = CorpusManager(client.corpora)
+        client.set_corpus_manager(corpus_manager)
+
+        # Return the client
+        return client
