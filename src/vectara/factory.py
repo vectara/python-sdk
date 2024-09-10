@@ -1,6 +1,7 @@
 from .config.config import JsonConfigLoader, PathConfigLoader, HomeConfigLoader, BaseConfigLoader
 from .client import Vectara
 from vectara.managers.corpus import CorpusManager
+from vectara.utils import LabHelper
 
 import httpx
 
@@ -23,10 +24,13 @@ class WrappedVectara(Vectara):
         super().__init__(*args, **kwargs)
         self.logger = logging.getLogger(self.__class__.__name__)
         self.corpus_manager: Union[None, CorpusManager] = None
+        self.lab_helper: Union[None, LabHelper] = None
 
     def set_corpus_manager(self, corpus_manager: CorpusManager):
         self.corpus_manager = corpus_manager
 
+    def set_lab_helper(self, lab_helper: LabHelper):
+        self.lab_helper = lab_helper
 
 
 class Factory():
@@ -115,18 +119,13 @@ class Factory():
             # Raise a new exception without extra stack trace. We know the JSON failed to parse.
             raise TypeError(f"Unable to build factory due to configuration error: {e}")
 
-        errors = client_config.validate()
-        if errors:
-            raise TypeError(f"Client configuration is not valid {errors}")
-
         # 3. Load the validated configuration into our client.
         auth_config = client_config.auth
-        auth_type = auth_config.getAuthType()
+        auth_type = auth_config.get_auth_type()
         logging.info(f"We are processing authentication type [{auth_type}]")
 
         # Defining the host is optional and defaults to https://api.vectara.io
         # See configuration.py for a list of all supported configuration parameters.
-
         client: WrappedVectara
         if auth_type == "ApiKey":
             client = WrappedVectara(
@@ -143,6 +142,9 @@ class Factory():
         # Inject our convenience managers
         corpus_manager = CorpusManager(client.corpora)
         client.set_corpus_manager(corpus_manager)
+
+        lab_helper = LabHelper(corpus_manager)
+        client.set_lab_helper(lab_helper)
 
         # Return the client
         return client

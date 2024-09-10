@@ -1,13 +1,13 @@
-import unittest
-import logging
-
-from vectara.factory import Factory
 from vectara.corpora.client import CorporaClient
 from vectara.managers.corpus import CreateCorpusRequest
 from vectara.client import Vectara
-import time
+from unittest.mock import MagicMock
 
-class CorpusManager(unittest.TestCase):
+import time
+import unittest
+import logging
+
+class CorpusManagerTest(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
