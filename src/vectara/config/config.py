@@ -1,8 +1,8 @@
 import logging
 from abc import ABC
-from dataclasses import dataclass
-from dacite import from_dict, Config, UnexpectedDataError, UnionMatchError
 from typing import Optional, Union, Any, List, Dict
+from pydantic import BaseModel, Discriminator, Tag
+from typing_extensions import Annotated
 import json
 import yaml
 from os import path, sep
@@ -15,59 +15,67 @@ Collection of dataclasses related to the configuration of the application.
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class BaseAuthConfig:
+class BaseAuthConfig(BaseModel):
 
-    def getAuthType(self) -> str:
+    def get_auth_type(self) -> str:
         raise NotImplementedError("You must implement this method to return the String type of the auth")
 
 
-@dataclass
 class ApiKeyAuthConfig(BaseAuthConfig):
     api_key: str
 
-    def getAuthType(self) -> str:
+    def get_auth_type(self) -> str:
         return "ApiKey"
 
 
-@dataclass
 class OAuth2AuthConfig(BaseAuthConfig):
-    auth_url: Optional[str]
     app_client_id: str
     app_client_secret: str
 
-    def getAuthType(self) -> str:
+    def get_auth_type(self) -> str:
         return "OAuth2"
 
-    def validate(self):
-        pass
+
+def get_discriminator_value(v: Any) -> str:
+    has_api_key = False
+    has_oauth2 = False
+
+    if isinstance(v, dict):
+        if 'api_key' in v:
+            has_api_key = True
+        if 'app_client_id' in v and 'app_client_secret' in v:
+            has_oauth2 = True
+    else:
+        if getattr(v, 'api_key'):
+            has_api_key = True
+        if getattr(v, 'app_client_id') and getattr(v, 'app_client_secret'):
+            has_oauth2 = True
+
+    if has_api_key and has_oauth2:
+        raise Exception("Invalid configuration, specify an api_key or OAuth2 values, but not both")
+    elif has_api_key:
+        return 'ApiKey'
+    elif has_oauth2:
+        return 'OAuth2'
+    else:
+        raise Exception("Invalid configuration, specify api_key or OAuth2 values (app_client_id and app_client_secret)")
 
 
-@dataclass
-class ClientConfig:
+
+class ClientConfig(BaseModel):
     """
     Wrapper for all configuration needed to work with Vectara.
     """
 
     customer_id: str
-    auth: Union[ApiKeyAuthConfig, OAuth2AuthConfig]
 
-    def validate(self) -> List[str]:
-        errors = []
-
-        if not self.customer_id:
-            errors.append(f"In [{self.__class__.__name__}] You must define the field [customer_id]")
-
-        return errors
-
-
-def _tryCreateAuth(data_class, input):
-    try:
-        from_dict(data_class=data_class, data=input, config=Config(strict=True))
-        return True, None
-    except Exception as e:
-        return False, str(e)
-
+    auth: Annotated[
+        Union[
+            Annotated[ApiKeyAuthConfig, Tag('ApiKey')],
+            Annotated[OAuth2AuthConfig, Tag('OAuth2')],
+        ],
+        Discriminator(get_discriminator_value),
+    ]
 
 def loadConfig(config: str) -> ClientConfig:
     """
@@ -78,17 +86,7 @@ def loadConfig(config: str) -> ClientConfig:
     :raises TypeError: if the configuration cannot be parsed correctly
     """
     logger.info(f"Loading config from {config}")
-
-    try:
-        config_dict = json.loads(config)
-
-
-
-        return from_dict(ClientConfig, config_dict, config=Config(strict=True))
-    except UnionMatchError as e:
-        raise TypeError(e)
-    except UnexpectedDataError as e:
-        raise TypeError(e)
+    return ClientConfig.model_validate_json(config)
 
 class BaseConfigLoader(ABC):
     CONFIG_FILE_NAME = ".vec_auth.yaml"
@@ -109,54 +107,41 @@ class BaseConfigLoader(ABC):
         """
         raise Exception("Define in sublcass")
 
-    def _convert_dict_config(self, config_dict: Dict[str, Any]) -> ClientConfig:
-        """
-        Helper method for all subclasses of BaseConfigLoader to parse a dict into our config domain classes.
+    def _load_yaml_full(self, final_config_path):
+        with open(final_config_path, 'r') as yaml_stream:
+            return yaml.safe_load(yaml_stream)
 
-        :param config_dict: the input configuration as a dict
-        :return: the parsed client configuration
-        :raises TypeError: if the configuration cannot be parsed correctly
-        """
 
-        # First we're going to manually try each Authentication Type for better logging.
-        # This is because the dicate library just gives the user a generic error
-        # without any logging.
-        auth = config_dict["auth"]
-        if (auth):
-            oauth2_success, oauth2_error_msg = _tryCreateAuth(OAuth2AuthConfig, auth)
-            api_key_success, api_key_error_msg = _tryCreateAuth(ApiKeyAuthConfig, auth)
-
-            if not oauth2_success and not api_key_success:
-                logger.error(f"Invalid Authentication Configuration:\n{json.dumps(auth, indent=4)}")
-                logger.error(f"Unable to cast auth to OAuth2 configuration block: {oauth2_error_msg}")
-                logger.error(f"Unable to cast auth to API Key configuration block: {api_key_error_msg}")
-
-                raise TypeError(
-                    f"Could not use polymorphism to cast auth to either OAuth2 or API Key config, see errors above in log.")
-
-        self.logger.info("Parsing config")
-        try:
-            client_config = from_dict(data_class=ClientConfig, data=config_dict, config=Config(strict=True))
-            client_config.validate()
-            return client_config
-        except UnexpectedDataError as e:
-            raise TypeError(f"Unable to build configuration: {e}") from None
 
     def _load_yaml_config(self, final_config_path):
-        with open(final_config_path, 'r') as yaml_stream:
-            creds = yaml.safe_load(yaml_stream)
+        creds = self._load_yaml_full(final_config_path)
 
-            if self.profile:
-                self.logger.info(f"Loading specified profile [{self.profile}]")
-                profile_to_load = self.profile
-            else:
-                self.logger.info(f"Loading default configuration [{BaseConfigLoader.DEFAULT_CONFIG_NAME}]")
-                profile_to_load = BaseConfigLoader.DEFAULT_CONFIG_NAME
+        if self.profile:
+            self.logger.info(f"Loading specified profile [{self.profile}]")
+            profile_to_load = self.profile
+        else:
+            self.logger.info(f"Loading default configuration [{BaseConfigLoader.DEFAULT_CONFIG_NAME}]")
+            profile_to_load = BaseConfigLoader.DEFAULT_CONFIG_NAME
 
-            if profile_to_load in creds:
-                return creds[profile_to_load]
-            else:
-                raise TypeError(f"Specified profile [{profile_to_load}] not found in [{final_config_path}]")
+
+        if profile_to_load in creds:
+            return creds[profile_to_load]
+        else:
+            raise TypeError(f"Specified profile [{profile_to_load}] not found in [{final_config_path}]")
+
+    def _save(self, client_config: ClientConfig, final_config_path: str):
+        creds = self._load_yaml_full(final_config_path)
+        creds[self.profile] = client_config.model_dump()
+
+        with open(final_config_path, 'w') as yaml_stream:
+            yaml.safe_dump(creds, yaml_stream)
+
+    def _delete(self, final_config_path: str):
+        creds = self._load_yaml_full(final_config_path)
+        del creds[self.profile]
+
+        with open(final_config_path, 'w') as yaml_stream:
+            yaml.safe_dump(creds, yaml_stream)
 
 
 class JsonConfigLoader(BaseConfigLoader):
@@ -171,7 +156,7 @@ class JsonConfigLoader(BaseConfigLoader):
     def load(self):
         self.logger.info("Loading configuration from JSON string")
         config_dict = json.loads(self.config_json)
-        return self._convert_dict_config(config_dict)
+        return ClientConfig.model_validate(config_dict)
 
 
 class PathConfigLoader(BaseConfigLoader):
@@ -200,7 +185,9 @@ class PathConfigLoader(BaseConfigLoader):
             raise TypeError(f"Path [{self.config_path}] does not exist.")
 
         config_dict = self._load_yaml_config(looking_for)
-        return self._convert_dict_config(config_dict)
+        return ClientConfig.model_validate(config_dict)
+
+
 
 class HomeConfigLoader(BaseConfigLoader):
     """
@@ -210,7 +197,7 @@ class HomeConfigLoader(BaseConfigLoader):
     def __init__(self, profile: Union[str, None] = BaseConfigLoader.DEFAULT_CONFIG_NAME):
         super().__init__(profile=profile)
 
-    def load(self):
+    def _build_config_path(self) -> str:
         home = str(Path.home())
         self.logger.info(f"Loading configuration from users home directory [{home}]")
 
@@ -218,7 +205,27 @@ class HomeConfigLoader(BaseConfigLoader):
         if not path.exists(looking_for) or not path.isfile(looking_for):
             raise TypeError(f"Unable to find configuration file [{BaseConfigLoader.CONFIG_FILE_NAME}]"
                             f" within home directory [{home}]")
-        config_dict = self._load_yaml_config(looking_for)
-        return self._convert_dict_config(config_dict)
+        return looking_for
 
+    def load(self):
+        config_dict = self._load_yaml_config(self._build_config_path())
+        return ClientConfig.model_validate(config_dict)
 
+    def has_profile(self) -> bool:
+        try:
+            existing = self.load()
+            if existing:
+                return True
+            else:
+                return False
+        except TypeError as e:
+            self.logger.info("No existing profile found")
+            return False
+
+    def save(self, to_save: ClientConfig):
+        config_path = self._build_config_path()
+        self._save(to_save, config_path)
+
+    def delete(self):
+        config_path = self._build_config_path()
+        self._delete(config_path)

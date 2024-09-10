@@ -12,7 +12,11 @@ src/vectara/managers/
 src/vectara/managers/corpus.py
 src/vectara/managers/__init__.py
 
+src/vectara/utils/
+
 tests/
 int_tests/
 
 examples/
+
+.gitignore

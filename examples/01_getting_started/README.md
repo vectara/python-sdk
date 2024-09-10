@@ -12,12 +12,12 @@ which will be included in this folder.
 ## Working through the Notebooks
 Use the chronological ordering of the notebooks to work through them one by one. 
 
-1. 00_setup.ipynb - Create application authentication and setup your system for implicit configuration.
-2. 01_query_api.ipynb - Get familiar with the three query APIs, from simple, advanced to a multi-corpus query.
+1. [Setup Authentication](./00_setup_authentication.ipynb) - Create application authentication and setup your system for implicit configuration.
+2. [Query API](./01_query_api.ipynb) - Get familiar with the three query APIs, from simple, advanced to a multi-corpus query.
 3. 02_index_api.ipynb - Get familiar with the index APIs, looking at both structured and core index and the difference 
    between them
 4. 04_upload_api.ipynb - Get familiar with the upload API for binary documents.
-5. 05_corpus_api.ipynb - Work with the corpus API to perform lifecycle operations on a corpus.
+5. [Corpus Modelling](./05_corpus_modelling.ipynb) - Work with the corpus API to perform lifecycle operations on a corpus.
 
 ## Questions/Comments
 If you have any questions or comments, please send them to feedback@vectara.com

@@ -1,4 +1,5 @@
 from vectara.core.pydantic_utilities import IS_PYDANTIC_V2
+from vectara.errors.not_found_error import NotFoundError
 from vectara.corpora.client import CorporaClient
 from vectara.types import (Corpus, FilterAttribute, CorpusCustomDimension, CorpusLimits, FilterAttributeType,
                            FilterAttributeLevel)
@@ -12,50 +13,50 @@ class CreateCorpusRequest(BaseModel):
     Created temporarily as we don't have wrapper around parameters for Corpus Creation.
     """
 
-    key: Optional[str] = None
-    name: Optional[str] = Field(default=None)
+    key: Optional[str] = Field(default=None, allow_mutation=True)
+    name: Optional[str] = Field(default=None, allow_mutation=True)
     """
     Name for the corpus. This value defaults to the key.
     """
 
-    description: Optional[str] = Field(default=None)
+    description: Optional[str] = Field(default=None, allow_mutation=True)
     """
     Corpus description.
     """
 
-    queries_are_answers: Optional[bool] = Field(default=None)
+    queries_are_answers: Optional[bool] = Field(default=None, allow_mutation=True)
     """
     Queries made to this corpus are considered answers, and not questions.
     This swaps the semantics of the encoder used at query time.
     """
 
-    documents_are_questions: Optional[bool] = Field(default=None)
+    documents_are_questions: Optional[bool] = Field(default=None, allow_mutation=True)
     """
     Documents inside this corpus are considered questions, and not answers.
     This swaps the semantics of the encoder used at indexing.
     """
 
-    encoder_id: Optional[str] = Field(default=None)
+    encoder_id: Optional[str] = Field(default=None, allow_mutation=True)
     """
     The encoder used by the corpus.
     """
 
-    filter_attributes: Optional[List[FilterAttribute]] = Field(default=None)
+    filter_attributes: Optional[List[FilterAttribute]] = Field(default=None, allow_mutation=True)
     """
     The new filter attributes of the corpus.
     """
 
-    custom_dimensions: Optional[List[CorpusCustomDimension]] = Field(default=None)
+    custom_dimensions: Optional[List[CorpusCustomDimension]] = Field(default=None, allow_mutation=True)
     """
     The custom dimensions of all document parts inside the corpus.
     """
 
     if IS_PYDANTIC_V2:
-        model_config: ClassVar[ConfigDict] = ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+        model_config: ClassVar[ConfigDict] = ConfigDict(extra="allow", frozen=False)  # type: ignore # Pydantic v2
     else:
 
         class Config:
-            frozen = True
+            frozen = False
             smart_union = True
             extra = Extra.allow
 
@@ -134,7 +135,7 @@ class CorpusManager:
 
     def _find_corpora_with_filter(self, filter: str) -> List[Corpus]:
         def list_corpora_gen():
-            response = self.corpora_client.list(filter=filter)
+            response = self.corpora_client.list(filter=filter, limit=100)
             for item in response:
                 yield item
 
@@ -184,6 +185,13 @@ class CorpusManager:
             self.logger.info(f"Our corpus id is [{found.id}]")
             return found
 
+    def find_corpus_by_key(self, key: str) -> Union[Corpus, None]:
+        try:
+            return self.corpora_client.get(key)
+        except NotFoundError as e:
+            self.logger.info(f"No corpus found with key [{key}]")
+            return None
+
     def delete_corpus_by_name(self, name: str) -> bool:
         self.logger.info(f"Deleting existing corpus named [{name}]")
 
@@ -223,12 +231,24 @@ class CorpusManager:
         if not corpus.name:
             raise Exception("You must supply a corpus name")
         self.logger.info(f"Performing account checks before corpus creation for name [{corpus.name}]")
-        existing_ids = self.find_corpora_by_name(corpus.name)
-        has_existing = len(existing_ids) > 0
+        existing_keys: List[Optional[str]] = []
+        if corpus.key:
+            existing_key = self.corpora_client.get(corpus.key).key
+            if existing_key:
+                self.logger.info(f"We found existing corpus with key [{corpus.key}]")
+                existing_keys.append(existing_key)
+        else:
+            existing_keys = [x.key for x in self.find_corpora_by_name(corpus.name)]
+            if len(existing_keys) > 0:
+                self.logger.info(f"We found existing corpus with name [{corpus.name}]")
+
+        has_existing = len(existing_keys) > 0
         if has_existing:
-            self.logger.info(f"We found existing corpus with name [{corpus.name}]")
             if delete_existing:
-                self.delete_corpus_by_name(corpus.name)
+                for key in existing_keys:
+                    # MyPy has a problem that the key below is optional even though we validated it present above.
+                    if key:
+                        self.corpora_client.delete(key)
             elif unique:
                 raise Exception(f"Unable to create a corpus with the name [{corpus.name}] as there were existing ones and "
                                 f"the flag \"delete_existing\" is \"False\".")
