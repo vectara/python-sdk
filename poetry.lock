@@ -59,19 +59,6 @@ files = [
 ]
 
 [[package]]
-name = "dacite"
-version = "1.8.1"
-description = "Simple creation of data classes from dictionaries."
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "dacite-1.8.1-py3-none-any.whl", hash = "sha256:cc31ad6fdea1f49962ea42db9421772afe01ac5442380d9a99fcf3d188c61afe"},
-]
-
-[package.extras]
-dev = ["black", "coveralls", "mypy", "pre-commit", "pylint", "pytest (>=5)", "pytest-benchmark", "pytest-cov"]
-
-[[package]]
 name = "exceptiongroup"
 version = "1.2.2"
 description = "Backport of PEP 654 (exception groups)"
@@ -594,4 +581,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "0976bd7ec44d7f7c14f2db16fa2e2ea22234aa42cca71e765ef57eb29d7494af"
+content-hash = "80481ae3d8e01d3969da1a60c74bff2c2d94f9d4cc5947cf2f5aa67bbe1aaeb2"
