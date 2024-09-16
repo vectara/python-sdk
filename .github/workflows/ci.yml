@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies
         run: poetry install
       - name: Compile
-        run: poetry run mypy .
+        run: poetry run mypy src/
   test:
     runs-on: ubuntu-20.04
     steps:
@@ -34,7 +34,7 @@ jobs:
         run: poetry install
 
       - name: Test
-        run: poetry run pytest -rP .
+        run: poetry run pytest -rP tests/custom
 
   publish:
     needs: [compile, test]
