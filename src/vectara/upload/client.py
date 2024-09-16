@@ -7,6 +7,7 @@ from .. import core
 from ..core.request_options import RequestOptions
 from ..types.document import Document
 from ..core.jsonable_encoder import jsonable_encoder
+import json
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
@@ -73,11 +74,10 @@ class UploadClient:
             f"v2/corpora/{jsonable_encoder(corpus_key)}/upload_file",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            data={
-                "metadata": metadata,
-            },
+            data={},
             files={
-                "file": file,
+                "metadata": (None, json.dumps(jsonable_encoder(metadata)), "application/json"),
+                "file": core.with_content_type(file=file, content_type="application/octet-stream"),
             },
             request_options=request_options,
             omit=OMIT,
@@ -186,11 +186,10 @@ class AsyncUploadClient:
             f"v2/corpora/{jsonable_encoder(corpus_key)}/upload_file",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            data={
-                "metadata": metadata,
-            },
+            data={},
             files={
-                "file": file,
+                "metadata": (None, json.dumps(jsonable_encoder(metadata)), "application/json"),
+                "file": core.with_content_type(file=file, content_type="application/octet-stream"),
             },
             request_options=request_options,
             omit=OMIT,

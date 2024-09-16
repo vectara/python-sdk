@@ -85,11 +85,28 @@ class QueriesClient:
         response = client.queries.query_stream(
             query="string",
             search=SearchCorporaParameters(
-                corpora=[KeyedSearchCorpus()],
+                corpora=[
+                    KeyedSearchCorpus(
+                        corpus_key={"key": "value"},
+                        custom_dimensions={"key": "value"},
+                        metadata_filter={"key": "value"},
+                        lexical_interpolation={"key": "value"},
+                        semantics={"key": "value"},
+                    )
+                ],
                 offset=1,
                 limit=1,
-                context_configuration=ContextConfiguration(),
-                reranker=CustomerSpecificReranker(),
+                context_configuration=ContextConfiguration(
+                    characters_before=1,
+                    characters_after=1,
+                    sentences_before=1,
+                    sentences_after=1,
+                    start_tag="string",
+                    end_tag="string",
+                ),
+                reranker=CustomerSpecificReranker(
+                    reranker_id="string",
+                ),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -103,7 +120,11 @@ class QueriesClient:
                     frequency_penalty=1.1,
                     presence_penalty=1.1,
                 ),
-                citations=CitationParameters(),
+                citations=CitationParameters(
+                    style="none",
+                    url_pattern="string",
+                    text_pattern="string",
+                ),
                 enable_factual_consistency_score=True,
             ),
         )
@@ -435,14 +456,23 @@ class QueriesClient:
             corpus_key="string",
             query="string",
             search=SearchCorpusParameters(
-                custom_dimensions={"string": 1.1},
-                metadata_filter="string",
-                lexical_interpolation=1.1,
-                semantics="default",
+                custom_dimensions={"key": "value"},
+                metadata_filter={"key": "value"},
+                lexical_interpolation={"key": "value"},
+                semantics={"key": "value"},
                 offset=1,
                 limit=1,
-                context_configuration=ContextConfiguration(),
-                reranker=CustomerSpecificReranker(),
+                context_configuration=ContextConfiguration(
+                    characters_before=1,
+                    characters_after=1,
+                    sentences_before=1,
+                    sentences_after=1,
+                    start_tag="string",
+                    end_tag="string",
+                ),
+                reranker=CustomerSpecificReranker(
+                    reranker_id="string",
+                ),
             ),
             generation=GenerationParameters(
                 prompt_name="string",
@@ -456,7 +486,11 @@ class QueriesClient:
                     frequency_penalty=1.1,
                     presence_penalty=1.1,
                 ),
-                citations=CitationParameters(),
+                citations=CitationParameters(
+                    style="none",
+                    url_pattern="string",
+                    text_pattern="string",
+                ),
                 enable_factual_consistency_score=True,
             ),
         )
@@ -695,11 +729,28 @@ class AsyncQueriesClient:
             response = await client.queries.query_stream(
                 query="string",
                 search=SearchCorporaParameters(
-                    corpora=[KeyedSearchCorpus()],
+                    corpora=[
+                        KeyedSearchCorpus(
+                            corpus_key={"key": "value"},
+                            custom_dimensions={"key": "value"},
+                            metadata_filter={"key": "value"},
+                            lexical_interpolation={"key": "value"},
+                            semantics={"key": "value"},
+                        )
+                    ],
                     offset=1,
                     limit=1,
-                    context_configuration=ContextConfiguration(),
-                    reranker=CustomerSpecificReranker(),
+                    context_configuration=ContextConfiguration(
+                        characters_before=1,
+                        characters_after=1,
+                        sentences_before=1,
+                        sentences_after=1,
+                        start_tag="string",
+                        end_tag="string",
+                    ),
+                    reranker=CustomerSpecificReranker(
+                        reranker_id="string",
+                    ),
                 ),
                 generation=GenerationParameters(
                     prompt_name="string",
@@ -713,7 +764,11 @@ class AsyncQueriesClient:
                         frequency_penalty=1.1,
                         presence_penalty=1.1,
                     ),
-                    citations=CitationParameters(),
+                    citations=CitationParameters(
+                        style="none",
+                        url_pattern="string",
+                        text_pattern="string",
+                    ),
                     enable_factual_consistency_score=True,
                 ),
             )
@@ -1069,14 +1124,23 @@ class AsyncQueriesClient:
                 corpus_key="string",
                 query="string",
                 search=SearchCorpusParameters(
-                    custom_dimensions={"string": 1.1},
-                    metadata_filter="string",
-                    lexical_interpolation=1.1,
-                    semantics="default",
+                    custom_dimensions={"key": "value"},
+                    metadata_filter={"key": "value"},
+                    lexical_interpolation={"key": "value"},
+                    semantics={"key": "value"},
                     offset=1,
                     limit=1,
-                    context_configuration=ContextConfiguration(),
-                    reranker=CustomerSpecificReranker(),
+                    context_configuration=ContextConfiguration(
+                        characters_before=1,
+                        characters_after=1,
+                        sentences_before=1,
+                        sentences_after=1,
+                        start_tag="string",
+                        end_tag="string",
+                    ),
+                    reranker=CustomerSpecificReranker(
+                        reranker_id="string",
+                    ),
                 ),
                 generation=GenerationParameters(
                     prompt_name="string",
@@ -1090,7 +1154,11 @@ class AsyncQueriesClient:
                         frequency_penalty=1.1,
                         presence_penalty=1.1,
                     ),
-                    citations=CitationParameters(),
+                    citations=CitationParameters(
+                        style="none",
+                        url_pattern="string",
+                        text_pattern="string",
+                    ),
                     enable_factual_consistency_score=True,
                 ),
             )
