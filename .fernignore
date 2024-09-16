@@ -1,5 +1,7 @@
 # Specify files that shouldn't be modified by Fern
 
+.github/workflows/ci.yml
+
 src/vectara/client.py
 src/vectara/auth/client.py
 
