@@ -14,7 +14,7 @@ from ..types.not_found_error_body import NotFoundErrorBody
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..types.create_document_request import CreateDocumentRequest
-from ..types.index_document_response import IndexDocumentResponse
+from ..types.document import Document
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
 from ..core.client_wrapper import AsyncClientWrapper
@@ -123,7 +123,7 @@ class DocumentsClient:
         *,
         request: CreateDocumentRequest,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> IndexDocumentResponse:
+    ) -> Document:
         """
         Add a document to a corpus. You can add documents that are either in a typical structured format,
         or in a format that explicitly specifies each document part that becomes a search result.
@@ -140,7 +140,7 @@ class DocumentsClient:
 
         Returns
         -------
-        IndexDocumentResponse
+        Document
             Document added to the corpus.
 
         Examples
@@ -175,9 +175,9 @@ class DocumentsClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    IndexDocumentResponse,
+                    Document,
                     parse_obj_as(
-                        type_=IndexDocumentResponse,  # type: ignore
+                        type_=Document,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -393,7 +393,7 @@ class AsyncDocumentsClient:
         *,
         request: CreateDocumentRequest,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> IndexDocumentResponse:
+    ) -> Document:
         """
         Add a document to a corpus. You can add documents that are either in a typical structured format,
         or in a format that explicitly specifies each document part that becomes a search result.
@@ -410,7 +410,7 @@ class AsyncDocumentsClient:
 
         Returns
         -------
-        IndexDocumentResponse
+        Document
             Document added to the corpus.
 
         Examples
@@ -453,9 +453,9 @@ class AsyncDocumentsClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    IndexDocumentResponse,
+                    Document,
                     parse_obj_as(
-                        type_=IndexDocumentResponse,  # type: ignore
+                        type_=Document,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
