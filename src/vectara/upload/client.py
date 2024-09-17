@@ -5,7 +5,7 @@ from ..core.client_wrapper import SyncClientWrapper
 from ..types.corpus_key import CorpusKey
 from .. import core
 from ..core.request_options import RequestOptions
-from ..types.document import Document
+from ..types.index_document_response import IndexDocumentResponse
 from ..core.jsonable_encoder import jsonable_encoder
 import json
 from ..core.pydantic_utilities import parse_obj_as
@@ -34,7 +34,7 @@ class UploadClient:
         file: core.File,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> Document:
+    ) -> IndexDocumentResponse:
         """
         Upload files such as PDFs and Word Documents. Vectara will attempt to automatically extract text and any metadata.
 
@@ -54,7 +54,7 @@ class UploadClient:
 
         Returns
         -------
-        Document
+        IndexDocumentResponse
             The extracted document has been parsed and added to the corpus.
 
         Examples
@@ -85,9 +85,9 @@ class UploadClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    Document,
+                    IndexDocumentResponse,
                     parse_obj_as(
-                        type_=Document,  # type: ignore
+                        type_=IndexDocumentResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -138,7 +138,7 @@ class AsyncUploadClient:
         file: core.File,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> Document:
+    ) -> IndexDocumentResponse:
         """
         Upload files such as PDFs and Word Documents. Vectara will attempt to automatically extract text and any metadata.
 
@@ -158,7 +158,7 @@ class AsyncUploadClient:
 
         Returns
         -------
-        Document
+        IndexDocumentResponse
             The extracted document has been parsed and added to the corpus.
 
         Examples
@@ -197,9 +197,9 @@ class AsyncUploadClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    Document,
+                    IndexDocumentResponse,
                     parse_obj_as(
-                        type_=Document,  # type: ignore
+                        type_=IndexDocumentResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
