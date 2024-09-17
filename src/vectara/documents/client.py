@@ -284,6 +284,81 @@ class DocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
+    def retrieve(
+        self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> Document:
+        """
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus with the document to retrieve.
+
+        document_id : str
+            The Document ID of the document to retrieve.
+            The `document_id` must be percent encoded.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Document
+            Document retrieved from the corpus.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.documents.retrieve(
+            corpus_key="my-corpus",
+            document_id="document_id",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    Document,
+                    parse_obj_as(
+                        type_=Document,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
 
 class AsyncDocumentsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
@@ -545,6 +620,89 @@ class AsyncDocumentsClient:
         try:
             if 200 <= _response.status_code < 300:
                 return
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def retrieve(
+        self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> Document:
+        """
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus with the document to retrieve.
+
+        document_id : str
+            The Document ID of the document to retrieve.
+            The `document_id` must be percent encoded.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Document
+            Document retrieved from the corpus.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
+        async def main() -> None:
+            await client.documents.retrieve(
+                corpus_key="my-corpus",
+                document_id="document_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    Document,
+                    parse_obj_as(
+                        type_=Document,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
