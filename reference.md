@@ -2727,6 +2727,76 @@ The `document_id` must be percent encoded.
 </dl>
 </details>
 
+<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">retrieve</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.documents.retrieve(
+    corpus_key="my-corpus",
+    document_id="document_id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**corpus_key:** `CorpusKey` — The unique key identifying the corpus with the document to retrieve.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**document_id:** `str` 
+
+The Document ID of the document to retrieve.
+The `document_id` must be percent encoded.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Encoders
 <details><summary><code>client.encoders.<a href="src/vectara/encoders/client.py">list</a>(...)</code></summary>
 <dl>
