@@ -37,7 +37,6 @@ from .filter_attribute_level import FilterAttributeLevel
 from .filter_attribute_type import FilterAttributeType
 from .generation_info import GenerationInfo
 from .generation_parameters import GenerationParameters
-from .index_document_response import IndexDocumentResponse
 from .individual_search_result import IndividualSearchResult
 from .job import Job
 from .job_state import JobState
@@ -119,7 +118,6 @@ __all__ = [
     "FilterAttributeType",
     "GenerationInfo",
     "GenerationParameters",
-    "IndexDocumentResponse",
     "IndividualSearchResult",
     "Job",
     "JobState",

@@ -3,6 +3,7 @@
 from ..core.pydantic_utilities import UniversalBaseModel
 import typing
 import pydantic
+from .core_document_part import CoreDocumentPart
 from .document_storage_usage import DocumentStorageUsage
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
@@ -16,6 +17,11 @@ class Document(UniversalBaseModel):
     metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
     """
     The document metadata.
+    """
+
+    parts: typing.Optional[typing.List[CoreDocumentPart]] = pydantic.Field(default=None)
+    """
+    The document parts stored - in the case of a structured document, the converted document.
     """
 
     storage_usage: typing.Optional[DocumentStorageUsage] = None
