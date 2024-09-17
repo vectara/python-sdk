@@ -2486,7 +2486,7 @@ client.corpora.replace_filters(
 </details>
 
 ## Documents
-<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">list_corpus</a>(...)</code></summary>
+<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">list</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -2506,7 +2506,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.documents.list_corpus(
+client.documents.list(
     corpus_key="my-corpus",
 )
 
@@ -2525,6 +2525,14 @@ client.documents.list_corpus(
 <dd>
 
 **corpus_key:** `CorpusKey` — The unique key identifying the queried corpus.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata_filter:** `typing.Optional[str]` — A filter which will restrict the documents to be searched to a subset. See https://docs.vectara.com/docs/learn/metadata-search-filtering/filter-overview
     
 </dd>
 </dl>
@@ -2560,7 +2568,7 @@ client.documents.list_corpus(
 </dl>
 </details>
 
-<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">create</a>(...)</code></summary>
+<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">index</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -2595,7 +2603,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.documents.create(
+client.documents.index(
     corpus_key="my-corpus",
     request=CoreDocument(
         id="my-doc-id",
@@ -2649,7 +2657,7 @@ client.documents.create(
 </dl>
 </details>
 
-<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">delete_corpus</a>(...)</code></summary>
+<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">delete</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -2669,7 +2677,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.documents.delete_corpus(
+client.documents.delete(
     corpus_key="my-corpus",
     document_id="document_id",
 )

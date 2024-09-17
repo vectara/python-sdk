@@ -27,10 +27,11 @@ class DocumentsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def list_corpus(
+    def list(
         self,
         corpus_key: CorpusKey,
         *,
+        metadata_filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
@@ -40,6 +41,9 @@ class DocumentsClient:
         ----------
         corpus_key : CorpusKey
             The unique key identifying the queried corpus.
+
+        metadata_filter : typing.Optional[str]
+            A filter which will restrict the documents to be searched to a subset. See https://docs.vectara.com/docs/learn/metadata-search-filtering/filter-overview
 
         limit : typing.Optional[int]
             The maximum number of documents to return at one time.
@@ -64,7 +68,7 @@ class DocumentsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.documents.list_corpus(
+        client.documents.list(
             corpus_key="my-corpus",
         )
         """
@@ -73,6 +77,7 @@ class DocumentsClient:
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
+                "metadata_filter": metadata_filter,
                 "limit": limit,
                 "page_key": page_key,
             },
@@ -112,7 +117,7 @@ class DocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create(
+    def index(
         self,
         corpus_key: CorpusKey,
         *,
@@ -147,7 +152,7 @@ class DocumentsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.documents.create(
+        client.documents.index(
             corpus_key="my-corpus",
             request=CoreDocument(
                 id="my-doc-id",
@@ -211,7 +216,7 @@ class DocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def delete_corpus(
+    def delete(
         self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
@@ -240,7 +245,7 @@ class DocumentsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.documents.delete_corpus(
+        client.documents.delete(
             corpus_key="my-corpus",
             document_id="document_id",
         )
@@ -284,10 +289,11 @@ class AsyncDocumentsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def list_corpus(
+    async def list(
         self,
         corpus_key: CorpusKey,
         *,
+        metadata_filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
@@ -297,6 +303,9 @@ class AsyncDocumentsClient:
         ----------
         corpus_key : CorpusKey
             The unique key identifying the queried corpus.
+
+        metadata_filter : typing.Optional[str]
+            A filter which will restrict the documents to be searched to a subset. See https://docs.vectara.com/docs/learn/metadata-search-filtering/filter-overview
 
         limit : typing.Optional[int]
             The maximum number of documents to return at one time.
@@ -326,7 +335,7 @@ class AsyncDocumentsClient:
 
 
         async def main() -> None:
-            await client.documents.list_corpus(
+            await client.documents.list(
                 corpus_key="my-corpus",
             )
 
@@ -338,6 +347,7 @@ class AsyncDocumentsClient:
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
+                "metadata_filter": metadata_filter,
                 "limit": limit,
                 "page_key": page_key,
             },
@@ -377,7 +387,7 @@ class AsyncDocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create(
+    async def index(
         self,
         corpus_key: CorpusKey,
         *,
@@ -417,7 +427,7 @@ class AsyncDocumentsClient:
 
 
         async def main() -> None:
-            await client.documents.create(
+            await client.documents.index(
                 corpus_key="my-corpus",
                 request=CoreDocument(
                     id="my-doc-id",
@@ -484,7 +494,7 @@ class AsyncDocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def delete_corpus(
+    async def delete(
         self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
@@ -518,7 +528,7 @@ class AsyncDocumentsClient:
 
 
         async def main() -> None:
-            await client.documents.delete_corpus(
+            await client.documents.delete(
                 corpus_key="my-corpus",
                 document_id="document_id",
             )
