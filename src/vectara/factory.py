@@ -1,6 +1,7 @@
 from .config.config import JsonConfigLoader, PathConfigLoader, HomeConfigLoader, BaseConfigLoader
 from .client import Vectara
 from vectara.managers.corpus import CorpusManager
+from vectara.managers.upload import UploadManager, UploadWrapper
 from vectara.utils import LabHelper
 
 import httpx
@@ -24,10 +25,15 @@ class WrappedVectara(Vectara):
         super().__init__(*args, **kwargs)
         self.logger = logging.getLogger(self.__class__.__name__)
         self.corpus_manager: Union[None, CorpusManager] = None
+        self.upload_manager: Union[None, UploadManager] = None
         self.lab_helper: Union[None, LabHelper] = None
+
 
     def set_corpus_manager(self, corpus_manager: CorpusManager):
         self.corpus_manager = corpus_manager
+
+    def set_upload_manager(self, upload_manager: UploadManager):
+        self.upload_manager = upload_manager
 
     def set_lab_helper(self, lab_helper: LabHelper):
         self.lab_helper = lab_helper
@@ -143,8 +149,13 @@ class Factory():
         corpus_manager = CorpusManager(client.corpora)
         client.set_corpus_manager(corpus_manager)
 
+        upload_wrapper = UploadWrapper(upload_client=client.upload, customer_id=client_config.customer_id)
+        upload_manager = UploadManager(upload_wrapper)
+        client.set_upload_manager(upload_manager)
+
         lab_helper = LabHelper(corpus_manager)
         client.set_lab_helper(lab_helper)
+
 
         # Return the client
         return client

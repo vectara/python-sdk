@@ -46,9 +46,9 @@ def get_discriminator_value(v: Any) -> str:
         if 'app_client_id' in v and 'app_client_secret' in v:
             has_oauth2 = True
     else:
-        if getattr(v, 'api_key'):
+        if hasattr(v, 'api_key'):
             has_api_key = True
-        if getattr(v, 'app_client_id') and getattr(v, 'app_client_secret'):
+        if hasattr(v, 'app_client_id') and hasattr(v, 'app_client_secret'):
             has_oauth2 = True
 
     if has_api_key and has_oauth2:

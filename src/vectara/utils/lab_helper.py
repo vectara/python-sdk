@@ -2,17 +2,20 @@ from vectara.managers import CreateCorpusRequest, CorpusManager
 from vectara.corpora.client import CorporaClient
 from vectara.config import ClientConfig, HomeConfigLoader, ApiKeyAuthConfig, OAuth2AuthConfig
 from vectara.types import Corpus
-from typing import Union
+from typing import Union, Optional
 import logging
 import os
 import re
+import getpass
+
+
 
 class LabHelper:
 
     MAX_CORPUS_KEY: int = 50
     MAX_USERNAME_LENGTH: int = 20
 
-    def __init__(self, corpus_manager: Union[None, CorpusManager] = None):
+    def __init__(self, corpus_manager: CorpusManager):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.corpus_manager = corpus_manager
 
@@ -25,13 +28,45 @@ class LabHelper:
         # Join the string, ensuring the first letter is lowercase
         return ''.join([s[0].lower(), s[1:]])
 
-    def discover_user(self) -> str:
+    def _discover_user(self) -> str:
         username = os.environ.get("USERNAME")
         if not username:
             raise Exception("Could not extract username from environment prefix")
         else:
             return username
 
+    def _build_lab_name_and_key(self, name: Optional[str], key: Optional[str] = None, user_prefix: bool = True,
+                                username=None):
+        if not name:
+            raise Exception("You must specify a corpus name for the lab")
+
+        if not key:
+            key = re.sub('[^0-9a-zA-Z]+', '_', name).lower()
+
+        # First create the lab name which we will use as a filter.
+        if user_prefix:
+            if not username:
+                username = self._discover_user()
+            self.logger.info(f"Found username from environment [{username}]")
+            # Replace domain
+            username = re.sub('@.*', '', username)
+
+            # Replace non-alpha numeric letters with an underscore
+
+            username = re.sub('[^0-9a-zA-Z]+', '_', username)
+            if username.endswith("_"):
+                username = username[0:(self.MAX_USERNAME_LENGTH - 1)]
+
+            username = self._camel_case(username)[0:self.MAX_USERNAME_LENGTH]
+
+            self.logger.info(f"Converted username is [{username}]")
+            name = (username + " - " + name)
+            # corpus.key will be validated and set by this point so we can ignore mypy
+            key = username + "_" + key[0:self.MAX_CORPUS_KEY] # type: ignore
+
+        self.logger.info(f"Lab corpus name will be [{name}]")
+        self.logger.info(f"Lab corpus key will be [{key}]")
+        return name, key
 
 
     def create_lab_corpus(self, corpus: CreateCorpusRequest, user_prefix=True, username=None) -> Corpus:
@@ -55,35 +90,9 @@ class LabHelper:
 
         corpus_clone = corpus.copy()
 
-        if not corpus.name:
-            raise Exception("You must specify a corpus name for the lab")
-
-        if not corpus.key:
-            corpus_clone.key = re.sub('[^0-9a-zA-Z]+', '_', corpus.name).lower()
-
-        # First create the lab name which we will use as a filter.
-        if user_prefix:
-            if not username:
-                username = self.discover_user()
-            self.logger.info(f"Found username from environment [{username}]")
-            # Replace domain
-            username = re.sub('@.*', '', username)
-
-            # Replace non-alpha numeric letters with an underscore
-
-            username = re.sub('[^0-9a-zA-Z]+', '_', username)
-            if username.endswith("_"):
-                username = username[0:(self.MAX_USERNAME_LENGTH - 1)]
-
-            username = self._camel_case(username)[0:self.MAX_USERNAME_LENGTH]
-
-            self.logger.info(f"Converted username is [{username}]")
-            corpus_clone.name = (username + " - " + corpus.name)
-            # corpus.key will be validated and set by this point so we can ignore mypy
-            corpus_clone.key = username + "_" + corpus.key[0:self.MAX_CORPUS_KEY] # type: ignore
-
-        self.logger.info(f"Lab corpus name will be [{corpus_clone.name}]")
-        self.logger.info(f"Lab corpus key will be [{corpus_clone.key}]")
+        name, key = self._build_lab_name_and_key(corpus.name, corpus.key)
+        corpus_clone.name = name
+        corpus_clone.key = key
 
 
         self.logger.info("Creating lab corpus")
@@ -99,14 +108,19 @@ class LabHelper:
             print("Invalid value, must be [y] or [n].")
             return False
 
-    def valid_int(self, value: int, min=None, max=None) -> bool:
-        if not value:
+    def valid_int(self, value: str, min_value=None, max_value=None) -> bool:
+        value_int: int = -1
+        try:
+            value_int = int(value)
+        except ValueError as e:
+            self.logger.error(f"Not a number [{value}]")
+            return False
+
+        if (min_value and value_int < min_value) or (max_value and value_int > max_value):
             return False
         else:
-            if (min and value < min) or (max and value > max):
-                return False
-            else:
-                return True
+            self.logger.info(f"Value [{value}] is between min_value [{min_value}] and [{max_value}]")
+            return True
 
     def setup_authentication(self, profile="lab"):
         """
@@ -130,33 +144,62 @@ class LabHelper:
         else:
             self.logger.info("No existing profile found")
 
+        def get_non_blank(field_name: str, sensitive=False) -> str:
+            valid_field = False
+            field_value = ""
+            while not valid_field:
+                message = f"Please enter the {field_name}:"
+                if sensitive:
+                    field_value = getpass.getpass(message)
+                else:
+                    field_value = str(input(message).strip())
+                valid_field = len(field_value) > 0
+                if not valid_field:
+                    self.logger.error(f"Not a valid {field_name}: [{field_value}]")
 
+            return field_value
 
-        customer_id = str(input("Please enter the customer ID:").strip())
-
+        # Get a valid customer Id.
+        customer_id = get_non_blank("Customer Id")
 
         auth_question = "Please select authentication type:\n\t1. API Key (Default)\n\t 2. OAuth2\nEnter 1 or 2:"
         valid_choice = False
-        user_input: int = -1
+        user_input: str = ""
         while not valid_choice:
-            user_input = int(input(auth_question).strip() or "1")
-            valid_choice = self.valid_int(user_input, min=1, max=2)
+            user_input = input(auth_question).strip()
+            valid_choice = self.valid_int(user_input, min_value=1, max_value=2)
+        choice = int(user_input)
 
         config: ClientConfig
 
-        if user_input == 1:
-            api_key = input("Please enter API Key:").strip()
+        if choice == 1:
+            api_key = get_non_blank("API Key", sensitive=True)
             api_key_auth_config = ApiKeyAuthConfig(api_key=api_key)
             config = ClientConfig(customer_id=customer_id, auth=api_key_auth_config)
-        elif user_input == 2:
-            app_client_id = input("Please enter OAuth2 application client Id:").strip()
-            app_client_secret = input("Please enter OAuth2 application client secret:").strip()
+        elif choice == 2:
+            app_client_id = get_non_blank("Application Client Id")
+            app_client_secret = get_non_blank("Application Client Secret", sensitive=True)
             oauth2_auth_config = OAuth2AuthConfig(app_client_id=app_client_id, app_client_secret=app_client_secret)
             config = ClientConfig(customer_id=customer_id, auth=oauth2_auth_config)
         else:
-            raise Exception(f"Unexpected value: [{user_input}]")
+            raise Exception(f"Unexpected value: [{choice}]")
 
         self.logger.info(f"Saving configuration for profile [{profile}]")
         loader.save(config)
 
+    def delete_labs(self, group_name:str, user_prefix=True):
+        """
+        Deletes all the labs with the given name match. We use the implicit username.
+        :param group_name:
+        :param user_prefix: Whether we should add the user prefix
+        :return:
+        """
 
+        name, key = self._build_lab_name_and_key(group_name, user_prefix=user_prefix)
+        self.logger.info(f"Deleting all lab corpora with matching name [{name}]")
+
+        # Find all the corpora with group name, e.g. "getting-started" with user prefix.
+        corpora = self.corpus_manager.find_corpora_with_filter(name)
+        for corpus in corpora:
+            self.logger.info(f"Deleting corpus [{corpus.name}] with key [{corpus.key}]")
+            self.corpus_manager.delete(corpus.key)

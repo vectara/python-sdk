@@ -2,6 +2,7 @@ from vectara.corpora.client import CorporaClient
 from vectara.managers.corpus import CreateCorpusRequest
 from vectara.client import Vectara
 from unittest.mock import MagicMock
+from vectara.factory import Factory
 
 import time
 import unittest
@@ -13,10 +14,6 @@ class CorpusManagerTest(unittest.TestCase):
         super().__init__(*args, **kwargs)
         logging.basicConfig(format='%(asctime)s:%(name)-35s %(levelname)s:%(message)s', level=logging.INFO, datefmt='%H:%M:%S %z')
         self.logger = logging.getLogger(self.__class__.__name__)
-
-
-    def test_lifecycle(self):
-        client = Factory().build()
 
 
     def test_find_corpora_by_name_no_match(self):

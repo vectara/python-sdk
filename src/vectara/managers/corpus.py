@@ -6,7 +6,7 @@ from vectara.types import (Corpus, FilterAttribute, CorpusCustomDimension, Corpu
 from typing import List, Union, Optional, ClassVar, Dict
 from pydantic import Field, Extra, BaseModel, ConfigDict
 import logging
-
+import time
 
 class CreateCorpusRequest(BaseModel):
     """
@@ -133,9 +133,12 @@ class CorpusManager:
         self.logger = logging.getLogger(self.__class__.__name__)
         self.corpora_client = corpora_client
 
-    def _find_corpora_with_filter(self, filter: str) -> List[Corpus]:
+    def find_corpora_with_filter(self, name_filter: Optional[str]) -> List[Corpus]:
+        if not name_filter:
+            name_filter = ""
+
         def list_corpora_gen():
-            response = self.corpora_client.list(filter=filter, limit=100)
+            response = self.corpora_client.list(filter=name_filter, limit=100)
             for item in response:
                 yield item
 
@@ -154,17 +157,17 @@ class CorpusManager:
         :return: A list of zero or more matching corpora with the same name.
         """
 
-        corpora = self._find_corpora_with_filter(name)
+        corpora = self.find_corpora_with_filter(name)
         found: List[Corpus] = []
         for potential in corpora:
-            self.logger.info(f"Checking corpus with name [{potential.name}]")
             if potential.name == name:
+                self.logger.info(f"Found corpus with name [{potential.name}] and key [{potential.key}]")
                 found.append(potential)
 
         return found
 
     def find_corpus_by_name(self, name: str, fail_if_not_exist=True) -> Union[Corpus, None]:
-        corpora = self._find_corpora_with_filter(name)
+        corpora = self.find_corpora_with_filter(name)
 
         found = None
         for potential in corpora:
@@ -197,7 +200,7 @@ class CorpusManager:
 
         # The filter below will match any corpus with "verified-corpus" anywhere in the name, so we need a
         # client side check to validate equivalence.
-        existing_corpora = self._find_corpora_with_filter(name)
+        existing_corpora = self.find_corpora_with_filter(name)
         self.logger.info(f"We found [{len(existing_corpora)}] potential matches")
         found = False
         for existing_corpus in existing_corpora:
@@ -233,10 +236,10 @@ class CorpusManager:
         self.logger.info(f"Performing account checks before corpus creation for name [{corpus.name}]")
         existing_keys: List[Optional[str]] = []
         if corpus.key:
-            existing_key = self.corpora_client.get(corpus.key).key
-            if existing_key:
-                self.logger.info(f"We found existing corpus with key [{corpus.key}]")
-                existing_keys.append(existing_key)
+            existing_corpus = self.find_corpus_by_key(corpus.key)
+            if existing_corpus:
+                self.logger.info(f"We found existing corpus with key [{existing_corpus.key}]")
+                existing_keys.append(existing_corpus.key)
         else:
             existing_keys = [x.key for x in self.find_corpora_by_name(corpus.name)]
             if len(existing_keys) > 0:
@@ -256,6 +259,18 @@ class CorpusManager:
                 self.logger.warning(f"There is a potential for confusion as there is already a corpus with name [{corpus.name}]")
         self.logger.info("Account checks complete, creating the new corpus")
 
-        return self.corpora_client.create(
+        result =  self.corpora_client.create(
             **corpus.__dict__
         )
+        return result
+
+    def delete(self, key: Optional[str]):
+        if not key:
+            # We put this in because a "key" returned from a corpus listing
+            # Is "optional" on the domain structure. Even if it will never be "None".
+            raise TypeError("You must supply a key")
+
+        self.logger.info(f"Deleting corpus with key [{key}]")
+        self.corpora_client.delete(key)
+        self.logger.info(f"Corpus [{key}] deleted")
+
