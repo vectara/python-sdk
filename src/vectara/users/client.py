@@ -3,6 +3,8 @@
 import typing
 from ..core.client_wrapper import SyncClientWrapper
 from ..core.request_options import RequestOptions
+from ..core.pagination import SyncPager
+from ..types.user import User
 from ..types.list_users_response import ListUsersResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.forbidden_error import ForbiddenError
@@ -10,13 +12,13 @@ from ..types.error import Error
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..types.api_role import ApiRole
-from ..types.user import User
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
 from ..core.jsonable_encoder import jsonable_encoder
 from ..errors.not_found_error import NotFoundError
 from ..types.not_found_error_body import NotFoundErrorBody
 from ..core.client_wrapper import AsyncClientWrapper
+from ..core.pagination import AsyncPager
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -31,8 +33,10 @@ class UsersClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListUsersResponse:
+    ) -> SyncPager[User]:
         """
         Lists all users in the account.
 
@@ -44,12 +48,18 @@ class UsersClient:
         page_key : typing.Optional[str]
             Used to the retrieve the next page of users after the limit has been reached.
 
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ListUsersResponse
+        SyncPager[User]
             List of users.
 
         Examples
@@ -61,7 +71,12 @@ class UsersClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.users.list()
+        response = client.users.list()
+        for item in response:
+            yield item
+        # alternatively, you can paginate page-by-page
+        for page in response.iter_pages():
+            yield page
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/users",
@@ -71,17 +86,35 @@ class UsersClient:
                 "limit": limit,
                 "page_key": page_key,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListUsersResponse,
                     parse_obj_as(
                         type_=ListUsersResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_timeout=request_timeout,
+                        request_timeout_millis=request_timeout_millis,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.users
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -101,6 +134,8 @@ class UsersClient:
         self,
         *,
         email: str,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         username: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
@@ -113,6 +148,12 @@ class UsersClient:
         ----------
         email : str
             The email address for the user.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         username : typing.Optional[str]
             The username for the user. The value defaults to the email.
@@ -154,6 +195,10 @@ class UsersClient:
                 "description": description,
                 "api_roles": api_roles,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
             omit=OMIT,
         )
@@ -191,7 +236,14 @@ class UsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def get(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> User:
+    def get(
+        self,
+        username: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> User:
         """
         Get a user and view details like the email, username, and roles associated with a user.
 
@@ -200,6 +252,12 @@ class UsersClient:
         username : str
             Specifies the User ID that to retrieve.
             Note the username must be percent encoded.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -226,6 +284,10 @@ class UsersClient:
             f"v2/users/{jsonable_encoder(username)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -262,7 +324,14 @@ class UsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def delete(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    def delete(
+        self,
+        username: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> None:
         """
         Delete a user from the account.
 
@@ -271,6 +340,12 @@ class UsersClient:
         username : str
             Specifies the username to delete.
             Note the username must be percent encoded.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -296,6 +371,10 @@ class UsersClient:
             f"v2/users/{jsonable_encoder(username)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -330,6 +409,8 @@ class UsersClient:
         self,
         username: str,
         *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -342,6 +423,12 @@ class UsersClient:
         username : str
             Specifies the User ID to update.
             Note the username must be percent encoded.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Indicates whether to disable or disable the user.
@@ -377,6 +464,10 @@ class UsersClient:
             json={
                 "enabled": enabled,
                 "api_roles": api_roles,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -415,7 +506,14 @@ class UsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def reset_password(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    def reset_password(
+        self,
+        username: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> None:
         """
         Reset the password for a user.
 
@@ -424,6 +522,12 @@ class UsersClient:
         username : str
             Specifies the username to update.
             Note the username must be percent encoded and URI safe.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -449,6 +553,10 @@ class UsersClient:
             f"v2/users/{jsonable_encoder(username)}/reset_password",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -489,8 +597,10 @@ class AsyncUsersClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListUsersResponse:
+    ) -> AsyncPager[User]:
         """
         Lists all users in the account.
 
@@ -502,12 +612,18 @@ class AsyncUsersClient:
         page_key : typing.Optional[str]
             Used to the retrieve the next page of users after the limit has been reached.
 
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ListUsersResponse
+        AsyncPager[User]
             List of users.
 
         Examples
@@ -524,7 +640,12 @@ class AsyncUsersClient:
 
 
         async def main() -> None:
-            await client.users.list()
+            response = await client.users.list()
+            async for item in response:
+                yield item
+            # alternatively, you can paginate page-by-page
+            async for page in response.iter_pages():
+                yield page
 
 
         asyncio.run(main())
@@ -537,17 +658,35 @@ class AsyncUsersClient:
                 "limit": limit,
                 "page_key": page_key,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListUsersResponse,
                     parse_obj_as(
                         type_=ListUsersResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_timeout=request_timeout,
+                        request_timeout_millis=request_timeout_millis,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.users
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -567,6 +706,8 @@ class AsyncUsersClient:
         self,
         *,
         email: str,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         username: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
@@ -579,6 +720,12 @@ class AsyncUsersClient:
         ----------
         email : str
             The email address for the user.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         username : typing.Optional[str]
             The username for the user. The value defaults to the email.
@@ -628,6 +775,10 @@ class AsyncUsersClient:
                 "description": description,
                 "api_roles": api_roles,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
             omit=OMIT,
         )
@@ -665,7 +816,14 @@ class AsyncUsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def get(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> User:
+    async def get(
+        self,
+        username: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> User:
         """
         Get a user and view details like the email, username, and roles associated with a user.
 
@@ -674,6 +832,12 @@ class AsyncUsersClient:
         username : str
             Specifies the User ID that to retrieve.
             Note the username must be percent encoded.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -708,6 +872,10 @@ class AsyncUsersClient:
             f"v2/users/{jsonable_encoder(username)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -744,7 +912,14 @@ class AsyncUsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def delete(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    async def delete(
+        self,
+        username: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> None:
         """
         Delete a user from the account.
 
@@ -753,6 +928,12 @@ class AsyncUsersClient:
         username : str
             Specifies the username to delete.
             Note the username must be percent encoded.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -786,6 +967,10 @@ class AsyncUsersClient:
             f"v2/users/{jsonable_encoder(username)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -820,6 +1005,8 @@ class AsyncUsersClient:
         self,
         username: str,
         *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -832,6 +1019,12 @@ class AsyncUsersClient:
         username : str
             Specifies the User ID to update.
             Note the username must be percent encoded.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Indicates whether to disable or disable the user.
@@ -876,6 +1069,10 @@ class AsyncUsersClient:
                 "enabled": enabled,
                 "api_roles": api_roles,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
             omit=OMIT,
         )
@@ -913,7 +1110,14 @@ class AsyncUsersClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def reset_password(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    async def reset_password(
+        self,
+        username: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> None:
         """
         Reset the password for a user.
 
@@ -922,6 +1126,12 @@ class AsyncUsersClient:
         username : str
             Specifies the username to update.
             Note the username must be percent encoded and URI safe.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -955,6 +1165,10 @@ class AsyncUsersClient:
             f"v2/users/{jsonable_encoder(username)}/reset_password",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:

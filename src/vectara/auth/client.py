@@ -7,7 +7,7 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
-from ..types.auth_response import AuthResponse
+from .types.get_token_response import GetTokenResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -24,7 +24,7 @@ class AuthClient:
         client_secret: typing.Optional[str] = OMIT,
         grant_type: typing.Literal["client_credentials"] = "client_credentials",
         request_options: typing.Optional[RequestOptions] = None
-    ) -> AuthResponse:
+    ) -> GetTokenResponse:
         """
         Parameters
         ----------
@@ -64,9 +64,9 @@ class AuthClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    AuthResponse,
+                    GetTokenResponse,
                     parse_obj_as(
-                        type_=AuthResponse,  # type: ignore
+                        type_=GetTokenResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -87,7 +87,7 @@ class AsyncAuthClient:
         client_secret: typing.Optional[str] = OMIT,
         grant_type: typing.Optional[typing.Literal["client_credentials"]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None
-    ) -> AuthResponse:
+    ) -> GetTokenResponse:
         """
         Parameters
         ----------
@@ -135,9 +135,9 @@ class AsyncAuthClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    AuthResponse,
+                    GetTokenResponse,
                     parse_obj_as(
-                        type_=AuthResponse,  # type: ignore
+                        type_=GetTokenResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
