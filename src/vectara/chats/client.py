@@ -17,7 +17,6 @@ from ..types.search_corpora_parameters import SearchCorporaParameters
 from ..types.generation_parameters import GenerationParameters
 from ..types.chat_parameters import ChatParameters
 from ..types.chat_streamed_response import ChatStreamedResponse
-import httpx_sse
 import json
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
@@ -67,9 +66,10 @@ class ChatsClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         response = client.chats.list()
         for item in response:
@@ -80,7 +80,6 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/chats",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
@@ -171,18 +170,19 @@ class ChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
-            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
             Vectara,
         )
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         response = client.chats.create_stream(
             query="string",
@@ -190,10 +190,10 @@ class ChatsClient:
                 corpora=[
                     KeyedSearchCorpus(
                         corpus_key={"key": "value"},
-                        custom_dimensions={"key": "value"},
-                        metadata_filter={"key": "value"},
-                        lexical_interpolation={"key": "value"},
-                        semantics={"key": "value"},
+                        custom_dimensions={"string": 1.1},
+                        metadata_filter="string",
+                        lexical_interpolation=1.1,
+                        semantics="default",
                     )
                 ],
                 offset=1,
@@ -206,13 +206,13 @@ class ChatsClient:
                     start_tag="string",
                     end_tag="string",
                 ),
-                reranker=CustomerSpecificReranker(
-                    reranker_id="string",
-                ),
+                reranker=SearchReranker_CustomerReranker(),
             ),
             generation=GenerationParameters(
+                generation_preset_name="string",
                 prompt_name="string",
                 max_used_search_results=1,
+                prompt_template="string",
                 prompt_text="string",
                 max_response_characters=1,
                 response_language="auto",
@@ -238,7 +238,6 @@ class ChatsClient:
         """
         with self._client_wrapper.httpx_client.stream(
             "v2/chats",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "query": query,
@@ -252,14 +251,15 @@ class ChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    for _sse in _event_source.iter_sse():
+                    for _text in _response.iter_lines():
                         try:
+                            if len(_text) == 0:
+                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_sse.data),
+                                    object_=json.loads(_text),
                                 ),
                             )
                         except:
@@ -337,9 +337,10 @@ class ChatsClient:
         from vectara import SearchCorporaParameters, Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.chats.create(
             query="How can I use the Vectara platform?",
@@ -348,7 +349,6 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/chats",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "query": query,
@@ -426,9 +426,10 @@ class ChatsClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.chats.get(
             chat_id="chat_id",
@@ -436,7 +437,6 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -495,9 +495,10 @@ class ChatsClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.chats.delete(
             chat_id="chat_id",
@@ -505,7 +506,6 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -561,9 +561,10 @@ class ChatsClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.chats.list_turns(
             chat_id="chat_id",
@@ -571,7 +572,6 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -609,7 +609,7 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_turn_stream(
+    def create_turns_stream(
         self,
         chat_id: str,
         *,
@@ -650,30 +650,31 @@ class ChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
-            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
             Vectara,
         )
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
-        response = client.chats.create_turn_stream(
+        response = client.chats.create_turns_stream(
             chat_id="string",
             query="string",
             search=SearchCorporaParameters(
                 corpora=[
                     KeyedSearchCorpus(
                         corpus_key={"key": "value"},
-                        custom_dimensions={"key": "value"},
-                        metadata_filter={"key": "value"},
-                        lexical_interpolation={"key": "value"},
-                        semantics={"key": "value"},
+                        custom_dimensions={"string": 1.1},
+                        metadata_filter="string",
+                        lexical_interpolation=1.1,
+                        semantics="default",
                     )
                 ],
                 offset=1,
@@ -686,13 +687,13 @@ class ChatsClient:
                     start_tag="string",
                     end_tag="string",
                 ),
-                reranker=CustomerSpecificReranker(
-                    reranker_id="string",
-                ),
+                reranker=SearchReranker_CustomerReranker(),
             ),
             generation=GenerationParameters(
+                generation_preset_name="string",
                 prompt_name="string",
                 max_used_search_results=1,
+                prompt_template="string",
                 prompt_text="string",
                 max_response_characters=1,
                 response_language="auto",
@@ -718,7 +719,6 @@ class ChatsClient:
         """
         with self._client_wrapper.httpx_client.stream(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "query": query,
@@ -732,14 +732,15 @@ class ChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    for _sse in _event_source.iter_sse():
+                    for _text in _response.iter_lines():
                         try:
+                            if len(_text) == 0:
+                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_sse.data),
+                                    object_=json.loads(_text),
                                 ),
                             )
                         except:
@@ -781,7 +782,7 @@ class ChatsClient:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_turn(
+    def create_turns(
         self,
         chat_id: str,
         *,
@@ -821,11 +822,12 @@ class ChatsClient:
         from vectara import SearchCorporaParameters, Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
-        client.chats.create_turn(
+        client.chats.create_turns(
             chat_id="chat_id",
             query="How can I use the Vectara platform?",
             search=SearchCorporaParameters(),
@@ -833,7 +835,6 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "query": query,
@@ -914,9 +915,10 @@ class ChatsClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.chats.get_turn(
             chat_id="chat_id",
@@ -925,7 +927,6 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -989,9 +990,10 @@ class ChatsClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.chats.delete_turn(
             chat_id="chat_id",
@@ -1000,7 +1002,6 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -1069,9 +1070,10 @@ class ChatsClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.chats.update_turn(
             chat_id="chat_id",
@@ -1080,7 +1082,6 @@ class ChatsClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
                 "enabled": enabled,
@@ -1160,9 +1161,10 @@ class AsyncChatsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -1179,7 +1181,6 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/chats",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
@@ -1273,17 +1274,18 @@ class AsyncChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
-            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
         )
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -1294,10 +1296,10 @@ class AsyncChatsClient:
                     corpora=[
                         KeyedSearchCorpus(
                             corpus_key={"key": "value"},
-                            custom_dimensions={"key": "value"},
-                            metadata_filter={"key": "value"},
-                            lexical_interpolation={"key": "value"},
-                            semantics={"key": "value"},
+                            custom_dimensions={"string": 1.1},
+                            metadata_filter="string",
+                            lexical_interpolation=1.1,
+                            semantics="default",
                         )
                     ],
                     offset=1,
@@ -1310,13 +1312,13 @@ class AsyncChatsClient:
                         start_tag="string",
                         end_tag="string",
                     ),
-                    reranker=CustomerSpecificReranker(
-                        reranker_id="string",
-                    ),
+                    reranker=SearchReranker_CustomerReranker(),
                 ),
                 generation=GenerationParameters(
+                    generation_preset_name="string",
                     prompt_name="string",
                     max_used_search_results=1,
+                    prompt_template="string",
                     prompt_text="string",
                     max_response_characters=1,
                     response_language="auto",
@@ -1345,7 +1347,6 @@ class AsyncChatsClient:
         """
         async with self._client_wrapper.httpx_client.stream(
             "v2/chats",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "query": query,
@@ -1359,14 +1360,15 @@ class AsyncChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    async for _sse in _event_source.aiter_sse():
+                    async for _text in _response.aiter_lines():
                         try:
+                            if len(_text) == 0:
+                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_sse.data),
+                                    object_=json.loads(_text),
                                 ),
                             )
                         except:
@@ -1446,9 +1448,10 @@ class AsyncChatsClient:
         from vectara import AsyncVectara, SearchCorporaParameters
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -1463,7 +1466,6 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/chats",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "query": query,
@@ -1543,9 +1545,10 @@ class AsyncChatsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -1559,7 +1562,6 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -1620,9 +1622,10 @@ class AsyncChatsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -1636,7 +1639,6 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -1694,9 +1696,10 @@ class AsyncChatsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -1710,7 +1713,6 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -1748,7 +1750,7 @@ class AsyncChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_turn_stream(
+    async def create_turns_stream(
         self,
         chat_id: str,
         *,
@@ -1792,32 +1794,33 @@ class AsyncChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
-            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             ModelParameters,
             SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
         )
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
         async def main() -> None:
-            response = await client.chats.create_turn_stream(
+            response = await client.chats.create_turns_stream(
                 chat_id="string",
                 query="string",
                 search=SearchCorporaParameters(
                     corpora=[
                         KeyedSearchCorpus(
                             corpus_key={"key": "value"},
-                            custom_dimensions={"key": "value"},
-                            metadata_filter={"key": "value"},
-                            lexical_interpolation={"key": "value"},
-                            semantics={"key": "value"},
+                            custom_dimensions={"string": 1.1},
+                            metadata_filter="string",
+                            lexical_interpolation=1.1,
+                            semantics="default",
                         )
                     ],
                     offset=1,
@@ -1830,13 +1833,13 @@ class AsyncChatsClient:
                         start_tag="string",
                         end_tag="string",
                     ),
-                    reranker=CustomerSpecificReranker(
-                        reranker_id="string",
-                    ),
+                    reranker=SearchReranker_CustomerReranker(),
                 ),
                 generation=GenerationParameters(
+                    generation_preset_name="string",
                     prompt_name="string",
                     max_used_search_results=1,
+                    prompt_template="string",
                     prompt_text="string",
                     max_response_characters=1,
                     response_language="auto",
@@ -1865,7 +1868,6 @@ class AsyncChatsClient:
         """
         async with self._client_wrapper.httpx_client.stream(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "query": query,
@@ -1879,14 +1881,15 @@ class AsyncChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    async for _sse in _event_source.aiter_sse():
+                    async for _text in _response.aiter_lines():
                         try:
+                            if len(_text) == 0:
+                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_sse.data),
+                                    object_=json.loads(_text),
                                 ),
                             )
                         except:
@@ -1928,7 +1931,7 @@ class AsyncChatsClient:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_turn(
+    async def create_turns(
         self,
         chat_id: str,
         *,
@@ -1970,14 +1973,15 @@ class AsyncChatsClient:
         from vectara import AsyncVectara, SearchCorporaParameters
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
         async def main() -> None:
-            await client.chats.create_turn(
+            await client.chats.create_turns(
                 chat_id="chat_id",
                 query="How can I use the Vectara platform?",
                 search=SearchCorporaParameters(),
@@ -1988,7 +1992,6 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "query": query,
@@ -2073,9 +2076,10 @@ class AsyncChatsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -2090,7 +2094,6 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -2156,9 +2159,10 @@ class AsyncChatsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -2173,7 +2177,6 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -2244,9 +2247,10 @@ class AsyncChatsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -2261,7 +2265,6 @@ class AsyncChatsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
                 "enabled": enabled,

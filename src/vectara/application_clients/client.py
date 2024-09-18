@@ -3,6 +3,8 @@
 import typing
 from ..core.client_wrapper import SyncClientWrapper
 from ..core.request_options import RequestOptions
+from ..core.pagination import SyncPager
+from ..types.app_client import AppClient
 from ..types.list_app_clients_response import ListAppClientsResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.bad_request_error import BadRequestError
@@ -11,16 +13,17 @@ from ..errors.forbidden_error import ForbiddenError
 from ..types.error import Error
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
-from ..types.api_role import ApiRole
-from ..types.app_client import AppClient
+from ..types.create_app_client_request import CreateAppClientRequest
 from ..core.jsonable_encoder import jsonable_encoder
+from ..types.api_role import ApiRole
 from ..core.client_wrapper import AsyncClientWrapper
+from ..core.pagination import AsyncPager
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
 
 
-class AppClientsClient:
+class ApplicationClientsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -31,7 +34,7 @@ class AppClientsClient:
         filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListAppClientsResponse:
+    ) -> SyncPager[AppClient]:
         """
         Parameters
         ----------
@@ -49,7 +52,7 @@ class AppClientsClient:
 
         Returns
         -------
-        ListAppClientsResponse
+        SyncPager[AppClient]
             An array of App Clients.
 
         Examples
@@ -57,15 +60,20 @@ class AppClientsClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
-        client.app_clients.list()
+        response = client.application_clients.list()
+        for item in response:
+            yield item
+        # alternatively, you can paginate page-by-page
+        for page in response.iter_pages():
+            yield page
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/app_clients",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
@@ -76,13 +84,26 @@ class AppClientsClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListAppClientsResponse,
                     parse_obj_as(
                         type_=ListAppClientsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        limit=limit,
+                        filter=filter,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.app_clients
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
@@ -109,26 +130,14 @@ class AppClientsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
     def create(
-        self,
-        *,
-        name: str,
-        description: typing.Optional[str] = OMIT,
-        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request: CreateAppClientRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> AppClient:
         """
         An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
 
         Parameters
         ----------
-        name : str
-            Name of the client credentials.
-
-        description : typing.Optional[str]
-            Description of the client credentials.
-
-        api_roles : typing.Optional[typing.Sequence[ApiRole]]
-            API roles that the client credentials will have.
+        request : CreateAppClientRequest
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -140,27 +149,24 @@ class AppClientsClient:
 
         Examples
         --------
-        from vectara import Vectara
+        from vectara import CreateAppClientRequest_ClientCredentials, Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
-        client.app_clients.create(
-            name="name",
+        client.application_clients.create(
+            request=CreateAppClientRequest_ClientCredentials(
+                name="string",
+            ),
         )
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/app_clients",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            json={
-                "name": name,
-                "description": description,
-                "api_roles": api_roles,
-                "type": "client_credentials",
-            },
+            json=request,
             request_options=request_options,
             omit=OMIT,
         )
@@ -218,17 +224,17 @@ class AppClientsClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
-        client.app_clients.get(
+        client.application_clients.get(
             app_client_id="app_client_id",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -275,17 +281,17 @@ class AppClientsClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
-        client.app_clients.delete(
+        client.application_clients.delete(
             app_client_id="app_client_id",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -340,17 +346,17 @@ class AppClientsClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
-        client.app_clients.update(
+        client.application_clients.update(
             app_client_id="app_client_id",
         )
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
                 "description": description,
@@ -384,7 +390,7 @@ class AppClientsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
 
-class AsyncAppClientsClient:
+class AsyncApplicationClientsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -395,7 +401,7 @@ class AsyncAppClientsClient:
         filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListAppClientsResponse:
+    ) -> AsyncPager[AppClient]:
         """
         Parameters
         ----------
@@ -413,7 +419,7 @@ class AsyncAppClientsClient:
 
         Returns
         -------
-        ListAppClientsResponse
+        AsyncPager[AppClient]
             An array of App Clients.
 
         Examples
@@ -423,21 +429,26 @@ class AsyncAppClientsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
         async def main() -> None:
-            await client.app_clients.list()
+            response = await client.application_clients.list()
+            async for item in response:
+                yield item
+            # alternatively, you can paginate page-by-page
+            async for page in response.iter_pages():
+                yield page
 
 
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/app_clients",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
@@ -448,13 +459,26 @@ class AsyncAppClientsClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListAppClientsResponse,
                     parse_obj_as(
                         type_=ListAppClientsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        limit=limit,
+                        filter=filter,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.app_clients
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
@@ -481,26 +505,14 @@ class AsyncAppClientsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
     async def create(
-        self,
-        *,
-        name: str,
-        description: typing.Optional[str] = OMIT,
-        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request: CreateAppClientRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> AppClient:
         """
         An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
 
         Parameters
         ----------
-        name : str
-            Name of the client credentials.
-
-        description : typing.Optional[str]
-            Description of the client credentials.
-
-        api_roles : typing.Optional[typing.Sequence[ApiRole]]
-            API roles that the client credentials will have.
+        request : CreateAppClientRequest
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -514,18 +526,21 @@ class AsyncAppClientsClient:
         --------
         import asyncio
 
-        from vectara import AsyncVectara
+        from vectara import AsyncVectara, CreateAppClientRequest_ClientCredentials
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
         async def main() -> None:
-            await client.app_clients.create(
-                name="name",
+            await client.application_clients.create(
+                request=CreateAppClientRequest_ClientCredentials(
+                    name="string",
+                ),
             )
 
 
@@ -533,14 +548,8 @@ class AsyncAppClientsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/app_clients",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            json={
-                "name": name,
-                "description": description,
-                "api_roles": api_roles,
-                "type": "client_credentials",
-            },
+            json=request,
             request_options=request_options,
             omit=OMIT,
         )
@@ -600,14 +609,15 @@ class AsyncAppClientsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
         async def main() -> None:
-            await client.app_clients.get(
+            await client.application_clients.get(
                 app_client_id="app_client_id",
             )
 
@@ -616,7 +626,6 @@ class AsyncAppClientsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -665,14 +674,15 @@ class AsyncAppClientsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
         async def main() -> None:
-            await client.app_clients.delete(
+            await client.application_clients.delete(
                 app_client_id="app_client_id",
             )
 
@@ -681,7 +691,6 @@ class AsyncAppClientsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -738,14 +747,15 @@ class AsyncAppClientsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
         async def main() -> None:
-            await client.app_clients.update(
+            await client.application_clients.update(
                 app_client_id="app_client_id",
             )
 
@@ -754,7 +764,6 @@ class AsyncAppClientsClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
                 "description": description,

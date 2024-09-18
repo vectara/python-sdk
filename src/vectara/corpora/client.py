@@ -20,6 +20,11 @@ from ..core.jsonable_encoder import jsonable_encoder
 from ..errors.not_found_error import NotFoundError
 from ..types.not_found_error_body import NotFoundErrorBody
 from ..types.replace_filter_attributes_response import ReplaceFilterAttributesResponse
+from ..types.query_full_response import QueryFullResponse
+from .types.search_corpus_parameters import SearchCorpusParameters
+from ..types.generation_parameters import GenerationParameters
+from ..types.query_streamed_response import QueryStreamedResponse
+import json
 from ..core.client_wrapper import AsyncClientWrapper
 from ..core.pagination import AsyncPager
 
@@ -67,9 +72,10 @@ class CorporaClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         response = client.corpora.list()
         for item in response:
@@ -80,7 +86,6 @@ class CorporaClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/corpora",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
@@ -135,6 +140,7 @@ class CorporaClient:
         queries_are_answers: typing.Optional[bool] = OMIT,
         documents_are_questions: typing.Optional[bool] = OMIT,
         encoder_id: typing.Optional[str] = OMIT,
+        encoder_name: typing.Optional[str] = OMIT,
         filter_attributes: typing.Optional[typing.Sequence[FilterAttribute]] = OMIT,
         custom_dimensions: typing.Optional[typing.Sequence[CorpusCustomDimension]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -159,7 +165,11 @@ class CorporaClient:
             Documents inside this corpus are considered questions, and not answers.
 
         encoder_id : typing.Optional[str]
-            The encoder used by the corpus. This value defaults to the most recent Vectara encoder.
+            *Deprecated*: Use `encoder_name` instead.
+
+
+        encoder_name : typing.Optional[str]
+            The encoder used by the corpus.
 
         filter_attributes : typing.Optional[typing.Sequence[FilterAttribute]]
             The new filter attributes of the corpus.
@@ -186,9 +196,10 @@ class CorporaClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.corpora.create(
             key="my-corpus",
@@ -196,7 +207,6 @@ class CorporaClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/corpora",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "key": key,
@@ -205,6 +215,7 @@ class CorporaClient:
                 "queries_are_answers": queries_are_answers,
                 "documents_are_questions": documents_are_questions,
                 "encoder_id": encoder_id,
+                "encoder_name": encoder_name,
                 "filter_attributes": filter_attributes,
                 "custom_dimensions": custom_dimensions,
             },
@@ -267,9 +278,10 @@ class CorporaClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.corpora.get(
             corpus_key="my-corpus",
@@ -277,7 +289,6 @@ class CorporaClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -336,9 +347,10 @@ class CorporaClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.corpora.delete(
             corpus_key="my-corpus",
@@ -346,7 +358,6 @@ class CorporaClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -383,10 +394,15 @@ class CorporaClient:
         corpus_key: CorpusKey,
         *,
         enabled: typing.Optional[bool] = OMIT,
+        name: typing.Optional[str] = OMIT,
+        description: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Corpus:
         """
-        Enable or disable a corpus.
+        Enable, disable, or update the name and description of a corpus. This lets you
+        manage data availability without deleting the corpus, which is useful for
+        maintenance and security purposes. Update the name and description of a corpus
+        dynamically to help keep your data aligned with changing business needs.
 
         Parameters
         ----------
@@ -395,6 +411,12 @@ class CorporaClient:
 
         enabled : typing.Optional[bool]
             Set whether or not the corpus is enabled. If unset then the corpus will remain in the same state.
+
+        name : typing.Optional[str]
+            The name for the corpus. If unset or null then the corpus will remain in the same state.
+
+        description : typing.Optional[str]
+            Description of the corpus. If unset or null then the corpus will remain in the same state.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -409,9 +431,10 @@ class CorporaClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.corpora.update(
             corpus_key="my-corpus",
@@ -419,10 +442,11 @@ class CorporaClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
                 "enabled": enabled,
+                "name": name,
+                "description": description,
             },
             request_options=request_options,
             omit=OMIT,
@@ -482,9 +506,10 @@ class CorporaClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.corpora.reset(
             corpus_key="my-corpus",
@@ -492,7 +517,6 @@ class CorporaClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/reset",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             request_options=request_options,
         )
@@ -524,7 +548,7 @@ class CorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def replace_filters(
+    def replace_filter_attributes(
         self,
         corpus_key: CorpusKey,
         *,
@@ -559,11 +583,12 @@ class CorporaClient:
         from vectara import FilterAttribute, Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
-        client.corpora.replace_filters(
+        client.corpora.replace_filter_attributes(
             corpus_key="my-corpus",
             filter_attributes=[
                 FilterAttribute(
@@ -576,7 +601,6 @@ class CorporaClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/replace_filter_attributes",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "filter_attributes": filter_attributes,
@@ -592,6 +616,398 @@ class CorporaClient:
                         type_=ReplaceFilterAttributesResponse,  # type: ignore
                         object_=_response.json(),
                     ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def search(
+        self,
+        corpus_key: CorpusKey,
+        *,
+        query: str,
+        limit: typing.Optional[int] = None,
+        offset: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> QueryFullResponse:
+        """
+        Search a single corpus with a straightforward query request, specifying the corpus key and query parameters.
+
+        - Specify the unique `corpus_key` identifying the corpus to query.
+        - Enter the search `query` string for the corpus, which is the question you want to ask.
+        - Set the maximum number of results (`limit`) to return. **Default**: 10, **minimum**: 1
+        - Define the `offset` position from which to start in the result set.
+
+        For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus to query.
+
+        query : str
+            The search query string for the corpus, which is the question the user is asking.
+
+        limit : typing.Optional[int]
+            Maximum number of results to return.
+
+        offset : typing.Optional[int]
+            Position from which to start in the result set.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        QueryFullResponse
+            A response to a query.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
+            api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
+        )
+        client.corpora.search(
+            corpus_key="my-corpus",
+            query="query",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            method="GET",
+            params={
+                "query": query,
+                "limit": limit,
+                "offset": offset,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    QueryFullResponse,
+                    parse_obj_as(
+                        type_=QueryFullResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def query_stream(
+        self,
+        corpus_key: CorpusKey,
+        *,
+        query: str,
+        search: typing.Optional[SearchCorpusParameters] = OMIT,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> typing.Iterator[QueryStreamedResponse]:
+        """
+        Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
+
+        - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
+        - Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
+          will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
+        - Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.025`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
+        - Specify a RAG-specific LLM like Mockingbird (`mockingbird-1.0-2024-07-16`) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
+        - Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-options)
+
+        For more detailed information, see [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus to query.
+
+        query : str
+            The search query string, which is the question the user is asking.
+
+        search : typing.Optional[SearchCorpusParameters]
+            The parameters to search one corpus.
+
+        generation : typing.Optional[GenerationParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Yields
+        ------
+        typing.Iterator[QueryStreamedResponse]
+
+
+        Examples
+        --------
+        from vectara import (
+            CitationParameters,
+            ContextConfiguration,
+            GenerationParameters,
+            ModelParameters,
+            SearchReranker_CustomerReranker,
+            Vectara,
+        )
+        from vectara.corpora import SearchCorpusParameters
+
+        client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
+            api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
+        )
+        response = client.corpora.query_stream(
+            corpus_key="string",
+            query="string",
+            search=SearchCorpusParameters(
+                custom_dimensions={"string": 1.1},
+                metadata_filter="string",
+                lexical_interpolation=1.1,
+                semantics="default",
+                offset=1,
+                limit=1,
+                context_configuration=ContextConfiguration(
+                    characters_before=1,
+                    characters_after=1,
+                    sentences_before=1,
+                    sentences_after=1,
+                    start_tag="string",
+                    end_tag="string",
+                ),
+                reranker=SearchReranker_CustomerReranker(),
+            ),
+            generation=GenerationParameters(
+                generation_preset_name="string",
+                prompt_name="string",
+                max_used_search_results=1,
+                prompt_template="string",
+                prompt_text="string",
+                max_response_characters=1,
+                response_language="auto",
+                model_parameters=ModelParameters(
+                    max_tokens=1,
+                    temperature=1.1,
+                    frequency_penalty=1.1,
+                    presence_penalty=1.1,
+                ),
+                citations=CitationParameters(
+                    style="none",
+                    url_pattern="string",
+                    text_pattern="string",
+                ),
+                enable_factual_consistency_score=True,
+            ),
+        )
+        for chunk in response:
+            yield chunk
+        """
+        with self._client_wrapper.httpx_client.stream(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            method="POST",
+            json={
+                "query": query,
+                "search": search,
+                "generation": generation,
+                "stream_response": True,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        ) as _response:
+            try:
+                if 200 <= _response.status_code < 300:
+                    for _text in _response.iter_lines():
+                        try:
+                            if len(_text) == 0:
+                                continue
+                            yield typing.cast(
+                                QueryStreamedResponse,
+                                parse_obj_as(
+                                    type_=QueryStreamedResponse,  # type: ignore
+                                    object_=json.loads(_text),
+                                ),
+                            )
+                        except:
+                            pass
+                    return
+                _response.read()
+                if _response.status_code == 400:
+                    raise BadRequestError(
+                        typing.cast(
+                            BadRequestErrorBody,
+                            parse_obj_as(
+                                type_=BadRequestErrorBody,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                if _response.status_code == 403:
+                    raise ForbiddenError(
+                        typing.cast(
+                            Error,
+                            parse_obj_as(
+                                type_=Error,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                if _response.status_code == 404:
+                    raise NotFoundError(
+                        typing.cast(
+                            NotFoundErrorBody,
+                            parse_obj_as(
+                                type_=NotFoundErrorBody,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                _response_json = _response.json()
+            except JSONDecodeError:
+                raise ApiError(status_code=_response.status_code, body=_response.text)
+            raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def query(
+        self,
+        corpus_key: CorpusKey,
+        *,
+        query: str,
+        search: typing.Optional[SearchCorpusParameters] = OMIT,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> QueryFullResponse:
+        """
+        Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
+
+        - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
+        - Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
+          will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
+        - Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.025`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
+        - Specify a RAG-specific LLM like Mockingbird (`mockingbird-1.0-2024-07-16`) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
+        - Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-options)
+
+        For more detailed information, see [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus to query.
+
+        query : str
+            The search query string, which is the question the user is asking.
+
+        search : typing.Optional[SearchCorpusParameters]
+            The parameters to search one corpus.
+
+        generation : typing.Optional[GenerationParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        QueryFullResponse
+
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
+            api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
+        )
+        client.corpora.query(
+            corpus_key="my-corpus",
+            query="query",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            method="POST",
+            json={
+                "query": query,
+                "search": search,
+                "generation": generation,
+                "stream_response": False,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    QueryFullResponse,
+                    parse_obj_as(
+                        type_=QueryFullResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
@@ -661,9 +1077,10 @@ class AsyncCorporaClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -680,7 +1097,6 @@ class AsyncCorporaClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/corpora",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
@@ -735,6 +1151,7 @@ class AsyncCorporaClient:
         queries_are_answers: typing.Optional[bool] = OMIT,
         documents_are_questions: typing.Optional[bool] = OMIT,
         encoder_id: typing.Optional[str] = OMIT,
+        encoder_name: typing.Optional[str] = OMIT,
         filter_attributes: typing.Optional[typing.Sequence[FilterAttribute]] = OMIT,
         custom_dimensions: typing.Optional[typing.Sequence[CorpusCustomDimension]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -759,7 +1176,11 @@ class AsyncCorporaClient:
             Documents inside this corpus are considered questions, and not answers.
 
         encoder_id : typing.Optional[str]
-            The encoder used by the corpus. This value defaults to the most recent Vectara encoder.
+            *Deprecated*: Use `encoder_name` instead.
+
+
+        encoder_name : typing.Optional[str]
+            The encoder used by the corpus.
 
         filter_attributes : typing.Optional[typing.Sequence[FilterAttribute]]
             The new filter attributes of the corpus.
@@ -788,9 +1209,10 @@ class AsyncCorporaClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -804,7 +1226,6 @@ class AsyncCorporaClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/corpora",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "key": key,
@@ -813,6 +1234,7 @@ class AsyncCorporaClient:
                 "queries_are_answers": queries_are_answers,
                 "documents_are_questions": documents_are_questions,
                 "encoder_id": encoder_id,
+                "encoder_name": encoder_name,
                 "filter_attributes": filter_attributes,
                 "custom_dimensions": custom_dimensions,
             },
@@ -877,9 +1299,10 @@ class AsyncCorporaClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -893,7 +1316,6 @@ class AsyncCorporaClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -954,9 +1376,10 @@ class AsyncCorporaClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -970,7 +1393,6 @@ class AsyncCorporaClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -1007,10 +1429,15 @@ class AsyncCorporaClient:
         corpus_key: CorpusKey,
         *,
         enabled: typing.Optional[bool] = OMIT,
+        name: typing.Optional[str] = OMIT,
+        description: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Corpus:
         """
-        Enable or disable a corpus.
+        Enable, disable, or update the name and description of a corpus. This lets you
+        manage data availability without deleting the corpus, which is useful for
+        maintenance and security purposes. Update the name and description of a corpus
+        dynamically to help keep your data aligned with changing business needs.
 
         Parameters
         ----------
@@ -1019,6 +1446,12 @@ class AsyncCorporaClient:
 
         enabled : typing.Optional[bool]
             Set whether or not the corpus is enabled. If unset then the corpus will remain in the same state.
+
+        name : typing.Optional[str]
+            The name for the corpus. If unset or null then the corpus will remain in the same state.
+
+        description : typing.Optional[str]
+            Description of the corpus. If unset or null then the corpus will remain in the same state.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1035,9 +1468,10 @@ class AsyncCorporaClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -1051,10 +1485,11 @@ class AsyncCorporaClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
                 "enabled": enabled,
+                "name": name,
+                "description": description,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1116,9 +1551,10 @@ class AsyncCorporaClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -1132,7 +1568,6 @@ class AsyncCorporaClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/reset",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             request_options=request_options,
         )
@@ -1164,7 +1599,7 @@ class AsyncCorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def replace_filters(
+    async def replace_filter_attributes(
         self,
         corpus_key: CorpusKey,
         *,
@@ -1201,14 +1636,15 @@ class AsyncCorporaClient:
         from vectara import AsyncVectara, FilterAttribute
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
         async def main() -> None:
-            await client.corpora.replace_filters(
+            await client.corpora.replace_filter_attributes(
                 corpus_key="my-corpus",
                 filter_attributes=[
                     FilterAttribute(
@@ -1224,7 +1660,6 @@ class AsyncCorporaClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/replace_filter_attributes",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "filter_attributes": filter_attributes,
@@ -1240,6 +1675,422 @@ class AsyncCorporaClient:
                         type_=ReplaceFilterAttributesResponse,  # type: ignore
                         object_=_response.json(),
                     ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def search(
+        self,
+        corpus_key: CorpusKey,
+        *,
+        query: str,
+        limit: typing.Optional[int] = None,
+        offset: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> QueryFullResponse:
+        """
+        Search a single corpus with a straightforward query request, specifying the corpus key and query parameters.
+
+        - Specify the unique `corpus_key` identifying the corpus to query.
+        - Enter the search `query` string for the corpus, which is the question you want to ask.
+        - Set the maximum number of results (`limit`) to return. **Default**: 10, **minimum**: 1
+        - Define the `offset` position from which to start in the result set.
+
+        For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus to query.
+
+        query : str
+            The search query string for the corpus, which is the question the user is asking.
+
+        limit : typing.Optional[int]
+            Maximum number of results to return.
+
+        offset : typing.Optional[int]
+            Position from which to start in the result set.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        QueryFullResponse
+            A response to a query.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
+            api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.corpora.search(
+                corpus_key="my-corpus",
+                query="query",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            method="GET",
+            params={
+                "query": query,
+                "limit": limit,
+                "offset": offset,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    QueryFullResponse,
+                    parse_obj_as(
+                        type_=QueryFullResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def query_stream(
+        self,
+        corpus_key: CorpusKey,
+        *,
+        query: str,
+        search: typing.Optional[SearchCorpusParameters] = OMIT,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> typing.AsyncIterator[QueryStreamedResponse]:
+        """
+        Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
+
+        - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
+        - Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
+          will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
+        - Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.025`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
+        - Specify a RAG-specific LLM like Mockingbird (`mockingbird-1.0-2024-07-16`) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
+        - Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-options)
+
+        For more detailed information, see [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus to query.
+
+        query : str
+            The search query string, which is the question the user is asking.
+
+        search : typing.Optional[SearchCorpusParameters]
+            The parameters to search one corpus.
+
+        generation : typing.Optional[GenerationParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Yields
+        ------
+        typing.AsyncIterator[QueryStreamedResponse]
+
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import (
+            AsyncVectara,
+            CitationParameters,
+            ContextConfiguration,
+            GenerationParameters,
+            ModelParameters,
+            SearchReranker_CustomerReranker,
+        )
+        from vectara.corpora import SearchCorpusParameters
+
+        client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
+            api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            response = await client.corpora.query_stream(
+                corpus_key="string",
+                query="string",
+                search=SearchCorpusParameters(
+                    custom_dimensions={"string": 1.1},
+                    metadata_filter="string",
+                    lexical_interpolation=1.1,
+                    semantics="default",
+                    offset=1,
+                    limit=1,
+                    context_configuration=ContextConfiguration(
+                        characters_before=1,
+                        characters_after=1,
+                        sentences_before=1,
+                        sentences_after=1,
+                        start_tag="string",
+                        end_tag="string",
+                    ),
+                    reranker=SearchReranker_CustomerReranker(),
+                ),
+                generation=GenerationParameters(
+                    generation_preset_name="string",
+                    prompt_name="string",
+                    max_used_search_results=1,
+                    prompt_template="string",
+                    prompt_text="string",
+                    max_response_characters=1,
+                    response_language="auto",
+                    model_parameters=ModelParameters(
+                        max_tokens=1,
+                        temperature=1.1,
+                        frequency_penalty=1.1,
+                        presence_penalty=1.1,
+                    ),
+                    citations=CitationParameters(
+                        style="none",
+                        url_pattern="string",
+                        text_pattern="string",
+                    ),
+                    enable_factual_consistency_score=True,
+                ),
+            )
+            async for chunk in response:
+                yield chunk
+
+
+        asyncio.run(main())
+        """
+        async with self._client_wrapper.httpx_client.stream(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            method="POST",
+            json={
+                "query": query,
+                "search": search,
+                "generation": generation,
+                "stream_response": True,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        ) as _response:
+            try:
+                if 200 <= _response.status_code < 300:
+                    async for _text in _response.aiter_lines():
+                        try:
+                            if len(_text) == 0:
+                                continue
+                            yield typing.cast(
+                                QueryStreamedResponse,
+                                parse_obj_as(
+                                    type_=QueryStreamedResponse,  # type: ignore
+                                    object_=json.loads(_text),
+                                ),
+                            )
+                        except:
+                            pass
+                    return
+                await _response.aread()
+                if _response.status_code == 400:
+                    raise BadRequestError(
+                        typing.cast(
+                            BadRequestErrorBody,
+                            parse_obj_as(
+                                type_=BadRequestErrorBody,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                if _response.status_code == 403:
+                    raise ForbiddenError(
+                        typing.cast(
+                            Error,
+                            parse_obj_as(
+                                type_=Error,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                if _response.status_code == 404:
+                    raise NotFoundError(
+                        typing.cast(
+                            NotFoundErrorBody,
+                            parse_obj_as(
+                                type_=NotFoundErrorBody,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                _response_json = _response.json()
+            except JSONDecodeError:
+                raise ApiError(status_code=_response.status_code, body=_response.text)
+            raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def query(
+        self,
+        corpus_key: CorpusKey,
+        *,
+        query: str,
+        search: typing.Optional[SearchCorpusParameters] = OMIT,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> QueryFullResponse:
+        """
+        Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
+
+        - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
+        - Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
+          will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
+        - Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.025`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
+        - Specify a RAG-specific LLM like Mockingbird (`mockingbird-1.0-2024-07-16`) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
+        - Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-options)
+
+        For more detailed information, see [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus to query.
+
+        query : str
+            The search query string, which is the question the user is asking.
+
+        search : typing.Optional[SearchCorpusParameters]
+            The parameters to search one corpus.
+
+        generation : typing.Optional[GenerationParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        QueryFullResponse
+
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
+            api_key="YOUR_API_KEY",
+            token="YOUR_TOKEN",
+        )
+
+
+        async def main() -> None:
+            await client.corpora.query(
+                corpus_key="my-corpus",
+                query="query",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            method="POST",
+            json={
+                "query": query,
+                "search": search,
+                "generation": generation,
+                "stream_response": False,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    QueryFullResponse,
+                    parse_obj_as(
+                        type_=QueryFullResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(

@@ -3,6 +3,8 @@
 from ..core.client_wrapper import SyncClientWrapper
 import typing
 from ..core.request_options import RequestOptions
+from ..core.pagination import SyncPager
+from ..types.reranker import Reranker
 from ..types.list_rerankers_response import ListRerankersResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.forbidden_error import ForbiddenError
@@ -10,6 +12,7 @@ from ..types.error import Error
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper
+from ..core.pagination import AsyncPager
 
 
 class RerankersClient:
@@ -23,7 +26,7 @@ class RerankersClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListRerankersResponse:
+    ) -> SyncPager[Reranker]:
         """
         Rerankers are used to improve the ranking (ordering) of search results.
 
@@ -43,7 +46,7 @@ class RerankersClient:
 
         Returns
         -------
-        ListRerankersResponse
+        SyncPager[Reranker]
             List of rerankers.
 
         Examples
@@ -51,17 +54,22 @@ class RerankersClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
-        client.rerankers.list(
+        response = client.rerankers.list(
             filter="vectara.*",
         )
+        for item in response:
+            yield item
+        # alternatively, you can paginate page-by-page
+        for page in response.iter_pages():
+            yield page
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/rerankers",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "filter": filter,
@@ -72,13 +80,26 @@ class RerankersClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListRerankersResponse,
                     parse_obj_as(
                         type_=ListRerankersResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        filter=filter,
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.rerankers
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -106,7 +127,7 @@ class AsyncRerankersClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListRerankersResponse:
+    ) -> AsyncPager[Reranker]:
         """
         Rerankers are used to improve the ranking (ordering) of search results.
 
@@ -126,7 +147,7 @@ class AsyncRerankersClient:
 
         Returns
         -------
-        ListRerankersResponse
+        AsyncPager[Reranker]
             List of rerankers.
 
         Examples
@@ -136,23 +157,28 @@ class AsyncRerankersClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
         async def main() -> None:
-            await client.rerankers.list(
+            response = await client.rerankers.list(
                 filter="vectara.*",
             )
+            async for item in response:
+                yield item
+            # alternatively, you can paginate page-by-page
+            async for page in response.iter_pages():
+                yield page
 
 
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/rerankers",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "filter": filter,
@@ -163,13 +189,26 @@ class AsyncRerankersClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListRerankersResponse,
                     parse_obj_as(
                         type_=ListRerankersResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        filter=filter,
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.rerankers
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(

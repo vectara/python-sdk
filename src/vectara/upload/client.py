@@ -7,7 +7,6 @@ from .. import core
 from ..core.request_options import RequestOptions
 from ..types.document import Document
 from ..core.jsonable_encoder import jsonable_encoder
-import json
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
@@ -37,6 +36,13 @@ class UploadClient:
     ) -> Document:
         """
         Upload files such as PDFs and Word Documents. Vectara will attempt to automatically extract text and any metadata.
+        The File Upload endpoint request expects a `multipart/form-data` request containing the following parts:
+
+        - `metadata` - (Optional) Specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
+        - `file` - Specifies the file that you want to upload.
+        - `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
+
+        For more detailed information see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)
 
         Parameters
         ----------
@@ -62,9 +68,10 @@ class UploadClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.upload.file(
             corpus_key="my-corpus",
@@ -72,12 +79,12 @@ class UploadClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/upload_file",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            data={},
+            data={
+                "metadata": metadata,
+            },
             files={
-                "metadata": (None, json.dumps(jsonable_encoder(metadata)), "application/json"),
-                "file": core.with_content_type(file=file, content_type="application/octet-stream"),
+                "file": file,
             },
             request_options=request_options,
             omit=OMIT,
@@ -141,6 +148,13 @@ class AsyncUploadClient:
     ) -> Document:
         """
         Upload files such as PDFs and Word Documents. Vectara will attempt to automatically extract text and any metadata.
+        The File Upload endpoint request expects a `multipart/form-data` request containing the following parts:
+
+        - `metadata` - (Optional) Specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
+        - `file` - Specifies the file that you want to upload.
+        - `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
+
+        For more detailed information see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)
 
         Parameters
         ----------
@@ -168,9 +182,10 @@ class AsyncUploadClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -184,12 +199,12 @@ class AsyncUploadClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/upload_file",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            data={},
+            data={
+                "metadata": metadata,
+            },
             files={
-                "metadata": (None, json.dumps(jsonable_encoder(metadata)), "application/json"),
-                "file": core.with_content_type(file=file, content_type="application/octet-stream"),
+                "file": file,
             },
             request_options=request_options,
             omit=OMIT,

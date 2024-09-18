@@ -4,8 +4,8 @@ from ..core.client_wrapper import SyncClientWrapper
 import typing
 from ..core.request_options import RequestOptions
 from ..core.pagination import SyncPager
-from ..types.encoder import Encoder
-from ..types.list_encoders_response import ListEncodersResponse
+from ..types.llm import Llm
+from ..types.list_ll_ms_response import ListLlMsResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.forbidden_error import ForbiddenError
 from ..types.error import Error
@@ -15,7 +15,7 @@ from ..core.client_wrapper import AsyncClientWrapper
 from ..core.pagination import AsyncPager
 
 
-class EncodersClient:
+class LlmsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -26,28 +26,31 @@ class EncodersClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Encoder]:
+    ) -> SyncPager[Llm]:
         """
-        Encoders are used to store and retrieve from a corpus.
+        List LLMs that can be used with query and chat endpoints. The LLM is not directly specified in a query,
+        but instead a `generation_preset_name` is used. The `generation_preset_name` property in generation parameters
+        can be found as the `name` property on the Generations Presets retrieved from `/v2/generation_presets`.
 
         Parameters
         ----------
         filter : typing.Optional[str]
-            A regular expression against encoder names and descriptions.
+            A regular expression to match names and descriptions of the LLMs.
 
         limit : typing.Optional[int]
             The maximum number of results to return in the list.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of encoders after the limit has been reached.
+            Used to the retrieve the next page of LLMs after the limit has been reached.
+            This parameter is not needed for the first page of results.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        SyncPager[Encoder]
-            List of encoders.
+        SyncPager[Llm]
+            List of LLMs.
 
         Examples
         --------
@@ -59,9 +62,7 @@ class EncodersClient:
             api_key="YOUR_API_KEY",
             token="YOUR_TOKEN",
         )
-        response = client.encoders.list(
-            filter="vectara.*",
-        )
+        response = client.llms.list()
         for item in response:
             yield item
         # alternatively, you can paginate page-by-page
@@ -69,7 +70,7 @@ class EncodersClient:
             yield page
         """
         _response = self._client_wrapper.httpx_client.request(
-            "v2/encoders",
+            "v2/llms",
             method="GET",
             params={
                 "filter": filter,
@@ -81,9 +82,9 @@ class EncodersClient:
         try:
             if 200 <= _response.status_code < 300:
                 _parsed_response = typing.cast(
-                    ListEncodersResponse,
+                    ListLlMsResponse,
                     parse_obj_as(
-                        type_=ListEncodersResponse,  # type: ignore
+                        type_=ListLlMsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -98,7 +99,7 @@ class EncodersClient:
                         page_key=_parsed_next,
                         request_options=request_options,
                     )
-                _items = _parsed_response.encoders
+                _items = _parsed_response.llms
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
@@ -116,7 +117,7 @@ class EncodersClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
 
-class AsyncEncodersClient:
+class AsyncLlmsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -127,28 +128,31 @@ class AsyncEncodersClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Encoder]:
+    ) -> AsyncPager[Llm]:
         """
-        Encoders are used to store and retrieve from a corpus.
+        List LLMs that can be used with query and chat endpoints. The LLM is not directly specified in a query,
+        but instead a `generation_preset_name` is used. The `generation_preset_name` property in generation parameters
+        can be found as the `name` property on the Generations Presets retrieved from `/v2/generation_presets`.
 
         Parameters
         ----------
         filter : typing.Optional[str]
-            A regular expression against encoder names and descriptions.
+            A regular expression to match names and descriptions of the LLMs.
 
         limit : typing.Optional[int]
             The maximum number of results to return in the list.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of encoders after the limit has been reached.
+            Used to the retrieve the next page of LLMs after the limit has been reached.
+            This parameter is not needed for the first page of results.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncPager[Encoder]
-            List of encoders.
+        AsyncPager[Llm]
+            List of LLMs.
 
         Examples
         --------
@@ -165,9 +169,7 @@ class AsyncEncodersClient:
 
 
         async def main() -> None:
-            response = await client.encoders.list(
-                filter="vectara.*",
-            )
+            response = await client.llms.list()
             async for item in response:
                 yield item
             # alternatively, you can paginate page-by-page
@@ -178,7 +180,7 @@ class AsyncEncodersClient:
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "v2/encoders",
+            "v2/llms",
             method="GET",
             params={
                 "filter": filter,
@@ -190,9 +192,9 @@ class AsyncEncodersClient:
         try:
             if 200 <= _response.status_code < 300:
                 _parsed_response = typing.cast(
-                    ListEncodersResponse,
+                    ListLlMsResponse,
                     parse_obj_as(
-                        type_=ListEncodersResponse,  # type: ignore
+                        type_=ListLlMsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -207,7 +209,7 @@ class AsyncEncodersClient:
                         page_key=_parsed_next,
                         request_options=request_options,
                     )
-                _items = _parsed_response.encoders
+                _items = _parsed_response.llms
                 return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(

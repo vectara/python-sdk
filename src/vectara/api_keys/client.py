@@ -3,6 +3,8 @@
 import typing
 from ..core.client_wrapper import SyncClientWrapper
 from ..core.request_options import RequestOptions
+from ..core.pagination import SyncPager
+from ..types.api_key import ApiKey
 from ..types.list_api_keys_response import ListApiKeysResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.bad_request_error import BadRequestError
@@ -13,9 +15,9 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..types.api_key_role import ApiKeyRole
 from ..types.corpus_key import CorpusKey
-from ..types.api_key import ApiKey
 from ..core.jsonable_encoder import jsonable_encoder
 from ..core.client_wrapper import AsyncClientWrapper
+from ..core.pagination import AsyncPager
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -31,7 +33,7 @@ class ApiKeysClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListApiKeysResponse:
+    ) -> SyncPager[ApiKey]:
         """
         Parameters
         ----------
@@ -46,7 +48,7 @@ class ApiKeysClient:
 
         Returns
         -------
-        ListApiKeysResponse
+        SyncPager[ApiKey]
             An array of API keys.
 
         Examples
@@ -54,15 +56,20 @@ class ApiKeysClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
-        client.api_keys.list()
+        response = client.api_keys.list()
+        for item in response:
+            yield item
+        # alternatively, you can paginate page-by-page
+        for page in response.iter_pages():
+            yield page
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/api_keys",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
@@ -72,13 +79,25 @@ class ApiKeysClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListApiKeysResponse,
                     parse_obj_as(
                         type_=ListApiKeysResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.api_keys
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
@@ -141,9 +160,10 @@ class ApiKeysClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.api_keys.create(
             name="name",
@@ -152,7 +172,6 @@ class ApiKeysClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/api_keys",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "name": name,
@@ -216,9 +235,10 @@ class ApiKeysClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.api_keys.get(
             api_key_id="api_key_id",
@@ -226,7 +246,6 @@ class ApiKeysClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/api_keys/{jsonable_encoder(api_key_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -275,9 +294,10 @@ class ApiKeysClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.api_keys.delete(
             api_key_id="api_key_id",
@@ -285,7 +305,6 @@ class ApiKeysClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/api_keys/{jsonable_encoder(api_key_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -338,9 +357,10 @@ class ApiKeysClient:
         from vectara import Vectara
 
         client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
         client.api_keys.update(
             api_key_id="api_key_id",
@@ -348,7 +368,6 @@ class ApiKeysClient:
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/api_keys/{jsonable_encoder(api_key_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
                 "enabled": enabled,
@@ -391,7 +410,7 @@ class AsyncApiKeysClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListApiKeysResponse:
+    ) -> AsyncPager[ApiKey]:
         """
         Parameters
         ----------
@@ -406,7 +425,7 @@ class AsyncApiKeysClient:
 
         Returns
         -------
-        ListApiKeysResponse
+        AsyncPager[ApiKey]
             An array of API keys.
 
         Examples
@@ -416,21 +435,26 @@ class AsyncApiKeysClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
         async def main() -> None:
-            await client.api_keys.list()
+            response = await client.api_keys.list()
+            async for item in response:
+                yield item
+            # alternatively, you can paginate page-by-page
+            async for page in response.iter_pages():
+                yield page
 
 
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/api_keys",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
@@ -440,13 +464,25 @@ class AsyncApiKeysClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListApiKeysResponse,
                     parse_obj_as(
                         type_=ListApiKeysResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.api_keys
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
@@ -511,9 +547,10 @@ class AsyncApiKeysClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -528,7 +565,6 @@ class AsyncApiKeysClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/api_keys",
-            base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
                 "name": name,
@@ -594,9 +630,10 @@ class AsyncApiKeysClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -610,7 +647,6 @@ class AsyncApiKeysClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/api_keys/{jsonable_encoder(api_key_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="GET",
             request_options=request_options,
         )
@@ -661,9 +697,10 @@ class AsyncApiKeysClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -677,7 +714,6 @@ class AsyncApiKeysClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/api_keys/{jsonable_encoder(api_key_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             request_options=request_options,
         )
@@ -732,9 +768,10 @@ class AsyncApiKeysClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+            token="YOUR_TOKEN",
         )
 
 
@@ -748,7 +785,6 @@ class AsyncApiKeysClient:
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/api_keys/{jsonable_encoder(api_key_id)}",
-            base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
                 "enabled": enabled,
