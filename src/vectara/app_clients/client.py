@@ -22,7 +22,7 @@ from ..core.pagination import AsyncPager
 OMIT = typing.cast(typing.Any, ...)
 
 
-class ApplicationClientsClient:
+class AppClientsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -71,7 +71,7 @@ class ApplicationClientsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        response = client.application_clients.list()
+        response = client.app_clients.list()
         for item in response:
             yield item
         # alternatively, you can paginate page-by-page
@@ -189,7 +189,7 @@ class ApplicationClientsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.application_clients.create(
+        client.app_clients.create(
             name="name",
         )
         """
@@ -281,7 +281,7 @@ class ApplicationClientsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.application_clients.get(
+        client.app_clients.get(
             app_client_id="app_client_id",
         )
         """
@@ -355,7 +355,7 @@ class ApplicationClientsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.application_clients.delete(
+        client.app_clients.delete(
             app_client_id="app_client_id",
         )
         """
@@ -432,7 +432,7 @@ class ApplicationClientsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.application_clients.update(
+        client.app_clients.update(
             app_client_id="app_client_id",
         )
         """
@@ -476,7 +476,7 @@ class ApplicationClientsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
 
-class AsyncApplicationClientsClient:
+class AsyncAppClientsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -530,7 +530,7 @@ class AsyncApplicationClientsClient:
 
 
         async def main() -> None:
-            response = await client.application_clients.list()
+            response = await client.app_clients.list()
             async for item in response:
                 yield item
             # alternatively, you can paginate page-by-page
@@ -656,7 +656,7 @@ class AsyncApplicationClientsClient:
 
 
         async def main() -> None:
-            await client.application_clients.create(
+            await client.app_clients.create(
                 name="name",
             )
 
@@ -756,7 +756,7 @@ class AsyncApplicationClientsClient:
 
 
         async def main() -> None:
-            await client.application_clients.get(
+            await client.app_clients.get(
                 app_client_id="app_client_id",
             )
 
@@ -838,7 +838,7 @@ class AsyncApplicationClientsClient:
 
 
         async def main() -> None:
-            await client.application_clients.delete(
+            await client.app_clients.delete(
                 app_client_id="app_client_id",
             )
 
@@ -923,7 +923,7 @@ class AsyncApplicationClientsClient:
 
 
         async def main() -> None:
-            await client.application_clients.update(
+            await client.app_clients.update(
                 app_client_id="app_client_id",
             )
 

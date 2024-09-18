@@ -4919,8 +4919,8 @@ client.api_keys.update(
 </dl>
 </details>
 
-## Application Clients
-<details><summary><code>client.application_clients.<a href="src/vectara/application_clients/client.py">list</a>(...)</code></summary>
+## AppClients
+<details><summary><code>client.app_clients.<a href="src/vectara/app_clients/client.py">list</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -4940,7 +4940,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.application_clients.list()
+response = client.app_clients.list()
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
@@ -5013,7 +5013,7 @@ for page in response.iter_pages():
 </dl>
 </details>
 
-<details><summary><code>client.application_clients.<a href="src/vectara/application_clients/client.py">create</a>(...)</code></summary>
+<details><summary><code>client.app_clients.<a href="src/vectara/app_clients/client.py">create</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -5047,7 +5047,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.application_clients.create(
+client.app_clients.create(
     name="name",
 )
 
@@ -5117,7 +5117,7 @@ client.application_clients.create(
 </dl>
 </details>
 
-<details><summary><code>client.application_clients.<a href="src/vectara/application_clients/client.py">get</a>(...)</code></summary>
+<details><summary><code>client.app_clients.<a href="src/vectara/app_clients/client.py">get</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -5137,7 +5137,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.application_clients.get(
+client.app_clients.get(
     app_client_id="app_client_id",
 )
 
@@ -5191,7 +5191,7 @@ client.application_clients.get(
 </dl>
 </details>
 
-<details><summary><code>client.application_clients.<a href="src/vectara/application_clients/client.py">delete</a>(...)</code></summary>
+<details><summary><code>client.app_clients.<a href="src/vectara/app_clients/client.py">delete</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -5211,7 +5211,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.application_clients.delete(
+client.app_clients.delete(
     app_client_id="app_client_id",
 )
 
@@ -5265,7 +5265,7 @@ client.application_clients.delete(
 </dl>
 </details>
 
-<details><summary><code>client.application_clients.<a href="src/vectara/application_clients/client.py">update</a>(...)</code></summary>
+<details><summary><code>client.app_clients.<a href="src/vectara/app_clients/client.py">update</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -5285,7 +5285,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.application_clients.update(
+client.app_clients.update(
     app_client_id="app_client_id",
 )
 

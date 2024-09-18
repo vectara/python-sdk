@@ -88,7 +88,7 @@ from .types import (
 from .errors import BadRequestError, ForbiddenError, NotFoundError
 from . import (
     api_keys,
-    application_clients,
+    app_clients,
     auth,
     chats,
     corpora,
@@ -201,7 +201,7 @@ __all__ = [
     "VectaraEnvironment",
     "__version__",
     "api_keys",
-    "application_clients",
+    "app_clients",
     "auth",
     "chats",
     "corpora",
