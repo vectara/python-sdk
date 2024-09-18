@@ -17,7 +17,6 @@ from ..types.search_corpora_parameters import SearchCorporaParameters
 from ..types.generation_parameters import GenerationParameters
 from ..types.chat_parameters import ChatParameters
 from ..types.chat_streamed_response import ChatStreamedResponse
-import httpx_sse
 import json
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
@@ -67,7 +66,8 @@ class ChatsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -180,7 +180,8 @@ class ChatsClient:
         )
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -190,10 +191,10 @@ class ChatsClient:
                 corpora=[
                     KeyedSearchCorpus(
                         corpus_key={"key": "value"},
-                        custom_dimensions={"key": "value"},
-                        metadata_filter={"key": "value"},
-                        lexical_interpolation={"key": "value"},
-                        semantics={"key": "value"},
+                        custom_dimensions={"string": 1.1},
+                        metadata_filter="string",
+                        lexical_interpolation=1.1,
+                        semantics="default",
                     )
                 ],
                 offset=1,
@@ -208,11 +209,14 @@ class ChatsClient:
                 ),
                 reranker=CustomerSpecificReranker(
                     reranker_id="string",
+                    reranker_name="string",
                 ),
             ),
             generation=GenerationParameters(
+                generation_preset_name="string",
                 prompt_name="string",
                 max_used_search_results=1,
+                prompt_template="string",
                 prompt_text="string",
                 max_response_characters=1,
                 response_language="auto",
@@ -252,14 +256,15 @@ class ChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    for _sse in _event_source.iter_sse():
+                    for _text in _response.iter_lines():
                         try:
+                            if len(_text) == 0:
+                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_sse.data),
+                                    object_=json.loads(_text),
                                 ),
                             )
                         except:
@@ -337,7 +342,8 @@ class ChatsClient:
         from vectara import SearchCorporaParameters, Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -426,7 +432,8 @@ class ChatsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -495,7 +502,8 @@ class ChatsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -561,7 +569,8 @@ class ChatsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -609,7 +618,7 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_turn_stream(
+    def create_turns_stream(
         self,
         chat_id: str,
         *,
@@ -659,21 +668,22 @@ class ChatsClient:
         )
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        response = client.chats.create_turn_stream(
+        response = client.chats.create_turns_stream(
             chat_id="string",
             query="string",
             search=SearchCorporaParameters(
                 corpora=[
                     KeyedSearchCorpus(
                         corpus_key={"key": "value"},
-                        custom_dimensions={"key": "value"},
-                        metadata_filter={"key": "value"},
-                        lexical_interpolation={"key": "value"},
-                        semantics={"key": "value"},
+                        custom_dimensions={"string": 1.1},
+                        metadata_filter="string",
+                        lexical_interpolation=1.1,
+                        semantics="default",
                     )
                 ],
                 offset=1,
@@ -688,11 +698,14 @@ class ChatsClient:
                 ),
                 reranker=CustomerSpecificReranker(
                     reranker_id="string",
+                    reranker_name="string",
                 ),
             ),
             generation=GenerationParameters(
+                generation_preset_name="string",
                 prompt_name="string",
                 max_used_search_results=1,
+                prompt_template="string",
                 prompt_text="string",
                 max_response_characters=1,
                 response_language="auto",
@@ -732,14 +745,15 @@ class ChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    for _sse in _event_source.iter_sse():
+                    for _text in _response.iter_lines():
                         try:
+                            if len(_text) == 0:
+                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_sse.data),
+                                    object_=json.loads(_text),
                                 ),
                             )
                         except:
@@ -781,7 +795,7 @@ class ChatsClient:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_turn(
+    def create_turns(
         self,
         chat_id: str,
         *,
@@ -821,11 +835,12 @@ class ChatsClient:
         from vectara import SearchCorporaParameters, Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.chats.create_turn(
+        client.chats.create_turns(
             chat_id="chat_id",
             query="How can I use the Vectara platform?",
             search=SearchCorporaParameters(),
@@ -914,7 +929,8 @@ class ChatsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -989,7 +1005,8 @@ class ChatsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -1069,7 +1086,8 @@ class ChatsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -1160,7 +1178,8 @@ class AsyncChatsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -1281,7 +1300,8 @@ class AsyncChatsClient:
         )
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -1294,10 +1314,10 @@ class AsyncChatsClient:
                     corpora=[
                         KeyedSearchCorpus(
                             corpus_key={"key": "value"},
-                            custom_dimensions={"key": "value"},
-                            metadata_filter={"key": "value"},
-                            lexical_interpolation={"key": "value"},
-                            semantics={"key": "value"},
+                            custom_dimensions={"string": 1.1},
+                            metadata_filter="string",
+                            lexical_interpolation=1.1,
+                            semantics="default",
                         )
                     ],
                     offset=1,
@@ -1312,11 +1332,14 @@ class AsyncChatsClient:
                     ),
                     reranker=CustomerSpecificReranker(
                         reranker_id="string",
+                        reranker_name="string",
                     ),
                 ),
                 generation=GenerationParameters(
+                    generation_preset_name="string",
                     prompt_name="string",
                     max_used_search_results=1,
+                    prompt_template="string",
                     prompt_text="string",
                     max_response_characters=1,
                     response_language="auto",
@@ -1359,14 +1382,15 @@ class AsyncChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    async for _sse in _event_source.aiter_sse():
+                    async for _text in _response.aiter_lines():
                         try:
+                            if len(_text) == 0:
+                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_sse.data),
+                                    object_=json.loads(_text),
                                 ),
                             )
                         except:
@@ -1446,7 +1470,8 @@ class AsyncChatsClient:
         from vectara import AsyncVectara, SearchCorporaParameters
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -1543,7 +1568,8 @@ class AsyncChatsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -1620,7 +1646,8 @@ class AsyncChatsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -1694,7 +1721,8 @@ class AsyncChatsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -1748,7 +1776,7 @@ class AsyncChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_turn_stream(
+    async def create_turns_stream(
         self,
         chat_id: str,
         *,
@@ -1800,24 +1828,25 @@ class AsyncChatsClient:
         )
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
 
 
         async def main() -> None:
-            response = await client.chats.create_turn_stream(
+            response = await client.chats.create_turns_stream(
                 chat_id="string",
                 query="string",
                 search=SearchCorporaParameters(
                     corpora=[
                         KeyedSearchCorpus(
                             corpus_key={"key": "value"},
-                            custom_dimensions={"key": "value"},
-                            metadata_filter={"key": "value"},
-                            lexical_interpolation={"key": "value"},
-                            semantics={"key": "value"},
+                            custom_dimensions={"string": 1.1},
+                            metadata_filter="string",
+                            lexical_interpolation=1.1,
+                            semantics="default",
                         )
                     ],
                     offset=1,
@@ -1832,11 +1861,14 @@ class AsyncChatsClient:
                     ),
                     reranker=CustomerSpecificReranker(
                         reranker_id="string",
+                        reranker_name="string",
                     ),
                 ),
                 generation=GenerationParameters(
+                    generation_preset_name="string",
                     prompt_name="string",
                     max_used_search_results=1,
+                    prompt_template="string",
                     prompt_text="string",
                     max_response_characters=1,
                     response_language="auto",
@@ -1879,14 +1911,15 @@ class AsyncChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    async for _sse in _event_source.aiter_sse():
+                    async for _text in _response.aiter_lines():
                         try:
+                            if len(_text) == 0:
+                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_sse.data),
+                                    object_=json.loads(_text),
                                 ),
                             )
                         except:
@@ -1928,7 +1961,7 @@ class AsyncChatsClient:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_turn(
+    async def create_turns(
         self,
         chat_id: str,
         *,
@@ -1970,14 +2003,15 @@ class AsyncChatsClient:
         from vectara import AsyncVectara, SearchCorporaParameters
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
 
 
         async def main() -> None:
-            await client.chats.create_turn(
+            await client.chats.create_turns(
                 chat_id="chat_id",
                 query="How can I use the Vectara platform?",
                 search=SearchCorporaParameters(),
@@ -2073,7 +2107,8 @@ class AsyncChatsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -2156,7 +2191,8 @@ class AsyncChatsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -2244,7 +2280,8 @@ class AsyncChatsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )

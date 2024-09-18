@@ -14,7 +14,7 @@ class Llm(UniversalBaseModel):
 
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The ID of the LLM. This is used as the model ID in a query.
+    The ID of the LLM.
     """
 
     name: typing.Optional[str] = pydantic.Field(default=None)

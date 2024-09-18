@@ -8,7 +8,9 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 class Prompt(UniversalBaseModel):
     """
-    A prompt that can be used with an LLM.
+    A prompt that can be used with a LLM. A prompt is the template that is used to render
+    the text sent to the LLM. It also contains various default model settings such as
+    temperature.
     """
 
     id: typing.Optional[str] = pydantic.Field(default=None)
@@ -18,7 +20,7 @@ class Prompt(UniversalBaseModel):
 
     name: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Name of the prompt. This is used as the prompt name in a query.
+    Name of the prompt. This is used as the `prompt_name` in a query.
     """
 
     description: typing.Optional[str] = pydantic.Field(default=None)
