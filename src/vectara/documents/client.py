@@ -4,8 +4,10 @@ import typing
 from ..core.client_wrapper import SyncClientWrapper
 from ..types.corpus_key import CorpusKey
 from ..core.request_options import RequestOptions
-from ..types.list_documents_response import ListDocumentsResponse
+from ..core.pagination import SyncPager
+from ..types.document import Document
 from ..core.jsonable_encoder import jsonable_encoder
+from ..types.list_documents_response import ListDocumentsResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.forbidden_error import ForbiddenError
 from ..types.error import Error
@@ -14,10 +16,10 @@ from ..types.not_found_error_body import NotFoundErrorBody
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..types.create_document_request import CreateDocumentRequest
-from ..types.document import Document
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
 from ..core.client_wrapper import AsyncClientWrapper
+from ..core.pagination import AsyncPager
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -31,22 +33,23 @@ class DocumentsClient:
         self,
         corpus_key: CorpusKey,
         *,
-        metadata_filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
+        metadata_filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListDocumentsResponse:
+    ) -> SyncPager[Document]:
         """
         Parameters
         ----------
         corpus_key : CorpusKey
             The unique key identifying the queried corpus.
 
-        metadata_filter : typing.Optional[str]
-            A filter which will restrict the documents to be searched to a subset. See https://docs.vectara.com/docs/learn/metadata-search-filtering/filter-overview
-
         limit : typing.Optional[int]
             The maximum number of documents to return at one time.
+
+        metadata_filter : typing.Optional[str]
+            Filter documents by metadata. Uses the same expression as a query metadata filter, but only
+            allows filtering on document metadata.
 
         page_key : typing.Optional[str]
             Used to the retrieve the next page of documents after the limit has been reached.
@@ -56,7 +59,7 @@ class DocumentsClient:
 
         Returns
         -------
-        ListDocumentsResponse
+        SyncPager[Document]
             List of documents.
 
         Examples
@@ -64,34 +67,54 @@ class DocumentsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.documents.list(
+        response = client.documents.list(
             corpus_key="my-corpus",
         )
+        for item in response:
+            yield item
+        # alternatively, you can paginate page-by-page
+        for page in response.iter_pages():
+            yield page
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
-                "metadata_filter": metadata_filter,
                 "limit": limit,
+                "metadata_filter": metadata_filter,
                 "page_key": page_key,
             },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListDocumentsResponse,
                     parse_obj_as(
                         type_=ListDocumentsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        corpus_key,
+                        limit=limit,
+                        metadata_filter=metadata_filter,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.documents
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -117,7 +140,7 @@ class DocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def index(
+    def create(
         self,
         corpus_key: CorpusKey,
         *,
@@ -148,11 +171,12 @@ class DocumentsClient:
         from vectara import CoreDocument, CoreDocumentPart, Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.documents.index(
+        client.documents.create(
             corpus_key="my-corpus",
             request=CoreDocument(
                 id="my-doc-id",
@@ -216,82 +240,14 @@ class DocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def delete(
-        self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> None:
-        """
-        Parameters
-        ----------
-        corpus_key : CorpusKey
-            The unique key identifying the corpus with the document to delete.
-
-        document_id : str
-            The Document ID of the document to delete.
-            The `document_id` must be percent encoded.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        None
-
-        Examples
-        --------
-        from vectara import Vectara
-
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
-        client.documents.delete(
-            corpus_key="my-corpus",
-            document_id="document_id",
-        )
-        """
-        _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
-            base_url=self._client_wrapper.get_environment().default,
-            method="DELETE",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                return
-            if _response.status_code == 403:
-                raise ForbiddenError(
-                    typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    )
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    typing.cast(
-                        NotFoundErrorBody,
-                        parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    )
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
-
-    def retrieve(
+    def get_corpus_document(
         self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> Document:
         """
         Parameters
         ----------
         corpus_key : CorpusKey
-            The unique key identifying the corpus with the document to retrieve.
+            The unique key identifying the corpus containing the document to retrieve.
 
         document_id : str
             The Document ID of the document to retrieve.
@@ -303,18 +259,19 @@ class DocumentsClient:
         Returns
         -------
         Document
-            Document retrieved from the corpus.
+            Successfully retrieved the document.
 
         Examples
         --------
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.documents.retrieve(
+        client.documents.get_corpus_document(
             corpus_key="my-corpus",
             document_id="document_id",
         )
@@ -359,84 +316,50 @@ class DocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-
-class AsyncDocumentsClient:
-    def __init__(self, *, client_wrapper: AsyncClientWrapper):
-        self._client_wrapper = client_wrapper
-
-    async def list(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        metadata_filter: typing.Optional[str] = None,
-        limit: typing.Optional[int] = None,
-        page_key: typing.Optional[str] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListDocumentsResponse:
+    def delete(
+        self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> None:
         """
         Parameters
         ----------
         corpus_key : CorpusKey
-            The unique key identifying the queried corpus.
+            The unique key identifying the corpus with the document to delete.
 
-        metadata_filter : typing.Optional[str]
-            A filter which will restrict the documents to be searched to a subset. See https://docs.vectara.com/docs/learn/metadata-search-filtering/filter-overview
-
-        limit : typing.Optional[int]
-            The maximum number of documents to return at one time.
-
-        page_key : typing.Optional[str]
-            Used to the retrieve the next page of documents after the limit has been reached.
+        document_id : str
+            The Document ID of the document to delete.
+            The `document_id` must be percent encoded.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ListDocumentsResponse
-            List of documents.
+        None
 
         Examples
         --------
-        import asyncio
+        from vectara import Vectara
 
-        from vectara import AsyncVectara
-
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+        client = Vectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-
-
-        async def main() -> None:
-            await client.documents.list(
-                corpus_key="my-corpus",
-            )
-
-
-        asyncio.run(main())
+        client.documents.delete(
+            corpus_key="my-corpus",
+            document_id="document_id",
+        )
         """
-        _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
             base_url=self._client_wrapper.get_environment().default,
-            method="GET",
-            params={
-                "metadata_filter": metadata_filter,
-                "limit": limit,
-                "page_key": page_key,
-            },
+            method="DELETE",
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
-                    ListDocumentsResponse,
-                    parse_obj_as(
-                        type_=ListDocumentsResponse,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
+                return
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -462,7 +385,131 @@ class AsyncDocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def index(
+
+class AsyncDocumentsClient:
+    def __init__(self, *, client_wrapper: AsyncClientWrapper):
+        self._client_wrapper = client_wrapper
+
+    async def list(
+        self,
+        corpus_key: CorpusKey,
+        *,
+        limit: typing.Optional[int] = None,
+        metadata_filter: typing.Optional[str] = None,
+        page_key: typing.Optional[str] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncPager[Document]:
+        """
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the queried corpus.
+
+        limit : typing.Optional[int]
+            The maximum number of documents to return at one time.
+
+        metadata_filter : typing.Optional[str]
+            Filter documents by metadata. Uses the same expression as a query metadata filter, but only
+            allows filtering on document metadata.
+
+        page_key : typing.Optional[str]
+            Used to the retrieve the next page of documents after the limit has been reached.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncPager[Document]
+            List of documents.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
+        async def main() -> None:
+            response = await client.documents.list(
+                corpus_key="my-corpus",
+            )
+            async for item in response:
+                yield item
+            # alternatively, you can paginate page-by-page
+            async for page in response.iter_pages():
+                yield page
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            params={
+                "limit": limit,
+                "metadata_filter": metadata_filter,
+                "page_key": page_key,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _parsed_response = typing.cast(
+                    ListDocumentsResponse,
+                    parse_obj_as(
+                        type_=ListDocumentsResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        corpus_key,
+                        limit=limit,
+                        metadata_filter=metadata_filter,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.documents
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def create(
         self,
         corpus_key: CorpusKey,
         *,
@@ -495,14 +542,15 @@ class AsyncDocumentsClient:
         from vectara import AsyncVectara, CoreDocument, CoreDocumentPart
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
 
 
         async def main() -> None:
-            await client.documents.index(
+            await client.documents.create(
                 corpus_key="my-corpus",
                 request=CoreDocument(
                     id="my-doc-id",
@@ -569,6 +617,90 @@ class AsyncDocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
+    async def get_corpus_document(
+        self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
+    ) -> Document:
+        """
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus containing the document to retrieve.
+
+        document_id : str
+            The Document ID of the document to retrieve.
+            The `document_id` must be percent encoded.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Document
+            Successfully retrieved the document.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
+        async def main() -> None:
+            await client.documents.get_corpus_document(
+                corpus_key="my-corpus",
+                document_id="document_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    Document,
+                    parse_obj_as(
+                        type_=Document,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
     async def delete(
         self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
@@ -596,7 +728,8 @@ class AsyncDocumentsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -620,89 +753,6 @@ class AsyncDocumentsClient:
         try:
             if 200 <= _response.status_code < 300:
                 return
-            if _response.status_code == 403:
-                raise ForbiddenError(
-                    typing.cast(
-                        Error,
-                        parse_obj_as(
-                            type_=Error,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    )
-                )
-            if _response.status_code == 404:
-                raise NotFoundError(
-                    typing.cast(
-                        NotFoundErrorBody,
-                        parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
-                            object_=_response.json(),
-                        ),
-                    )
-                )
-            _response_json = _response.json()
-        except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
-
-    async def retrieve(
-        self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
-    ) -> Document:
-        """
-        Parameters
-        ----------
-        corpus_key : CorpusKey
-            The unique key identifying the corpus with the document to retrieve.
-
-        document_id : str
-            The Document ID of the document to retrieve.
-            The `document_id` must be percent encoded.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        Document
-            Document retrieved from the corpus.
-
-        Examples
-        --------
-        import asyncio
-
-        from vectara import AsyncVectara
-
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
-
-
-        async def main() -> None:
-            await client.documents.retrieve(
-                corpus_key="my-corpus",
-                document_id="document_id",
-            )
-
-
-        asyncio.run(main())
-        """
-        _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
-            base_url=self._client_wrapper.get_environment().default,
-            method="GET",
-            request_options=request_options,
-        )
-        try:
-            if 200 <= _response.status_code < 300:
-                return typing.cast(
-                    Document,
-                    parse_obj_as(
-                        type_=Document,  # type: ignore
-                        object_=_response.json(),
-                    ),
-                )
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(

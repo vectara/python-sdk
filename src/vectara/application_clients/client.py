@@ -3,6 +3,8 @@
 import typing
 from ..core.client_wrapper import SyncClientWrapper
 from ..core.request_options import RequestOptions
+from ..core.pagination import SyncPager
+from ..types.app_client import AppClient
 from ..types.list_app_clients_response import ListAppClientsResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.bad_request_error import BadRequestError
@@ -12,15 +14,15 @@ from ..types.error import Error
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..types.api_role import ApiRole
-from ..types.app_client import AppClient
 from ..core.jsonable_encoder import jsonable_encoder
 from ..core.client_wrapper import AsyncClientWrapper
+from ..core.pagination import AsyncPager
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
 
 
-class AppClientsClient:
+class ApplicationClientsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -31,7 +33,7 @@ class AppClientsClient:
         filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListAppClientsResponse:
+    ) -> SyncPager[AppClient]:
         """
         Parameters
         ----------
@@ -49,7 +51,7 @@ class AppClientsClient:
 
         Returns
         -------
-        ListAppClientsResponse
+        SyncPager[AppClient]
             An array of App Clients.
 
         Examples
@@ -57,11 +59,17 @@ class AppClientsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.app_clients.list()
+        response = client.application_clients.list()
+        for item in response:
+            yield item
+        # alternatively, you can paginate page-by-page
+        for page in response.iter_pages():
+            yield page
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/app_clients",
@@ -76,13 +84,26 @@ class AppClientsClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListAppClientsResponse,
                     parse_obj_as(
                         type_=ListAppClientsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        limit=limit,
+                        filter=filter,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.app_clients
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
@@ -143,11 +164,12 @@ class AppClientsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.app_clients.create(
+        client.application_clients.create(
             name="name",
         )
         """
@@ -218,11 +240,12 @@ class AppClientsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.app_clients.get(
+        client.application_clients.get(
             app_client_id="app_client_id",
         )
         """
@@ -275,11 +298,12 @@ class AppClientsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.app_clients.delete(
+        client.application_clients.delete(
             app_client_id="app_client_id",
         )
         """
@@ -340,11 +364,12 @@ class AppClientsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.app_clients.update(
+        client.application_clients.update(
             app_client_id="app_client_id",
         )
         """
@@ -384,7 +409,7 @@ class AppClientsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
 
-class AsyncAppClientsClient:
+class AsyncApplicationClientsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
@@ -395,7 +420,7 @@ class AsyncAppClientsClient:
         filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListAppClientsResponse:
+    ) -> AsyncPager[AppClient]:
         """
         Parameters
         ----------
@@ -413,7 +438,7 @@ class AsyncAppClientsClient:
 
         Returns
         -------
-        ListAppClientsResponse
+        AsyncPager[AppClient]
             An array of App Clients.
 
         Examples
@@ -423,14 +448,20 @@ class AsyncAppClientsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
 
 
         async def main() -> None:
-            await client.app_clients.list()
+            response = await client.application_clients.list()
+            async for item in response:
+                yield item
+            # alternatively, you can paginate page-by-page
+            async for page in response.iter_pages():
+                yield page
 
 
         asyncio.run(main())
@@ -448,13 +479,26 @@ class AsyncAppClientsClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListAppClientsResponse,
                     parse_obj_as(
                         type_=ListAppClientsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        limit=limit,
+                        filter=filter,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.app_clients
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
@@ -517,14 +561,15 @@ class AsyncAppClientsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
 
 
         async def main() -> None:
-            await client.app_clients.create(
+            await client.application_clients.create(
                 name="name",
             )
 
@@ -600,14 +645,15 @@ class AsyncAppClientsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
 
 
         async def main() -> None:
-            await client.app_clients.get(
+            await client.application_clients.get(
                 app_client_id="app_client_id",
             )
 
@@ -665,14 +711,15 @@ class AsyncAppClientsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
 
 
         async def main() -> None:
-            await client.app_clients.delete(
+            await client.application_clients.delete(
                 app_client_id="app_client_id",
             )
 
@@ -738,14 +785,15 @@ class AsyncAppClientsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
 
 
         async def main() -> None:
-            await client.app_clients.update(
+            await client.application_clients.update(
                 app_client_id="app_client_id",
             )
 

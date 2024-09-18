@@ -3,6 +3,8 @@
 import typing
 from ..core.client_wrapper import SyncClientWrapper
 from ..core.request_options import RequestOptions
+from ..core.pagination import SyncPager
+from ..types.user import User
 from ..types.list_users_response import ListUsersResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.forbidden_error import ForbiddenError
@@ -10,13 +12,13 @@ from ..types.error import Error
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..types.api_role import ApiRole
-from ..types.user import User
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
 from ..core.jsonable_encoder import jsonable_encoder
 from ..errors.not_found_error import NotFoundError
 from ..types.not_found_error_body import NotFoundErrorBody
 from ..core.client_wrapper import AsyncClientWrapper
+from ..core.pagination import AsyncPager
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -32,7 +34,7 @@ class UsersClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListUsersResponse:
+    ) -> SyncPager[User]:
         """
         Lists all users in the account.
 
@@ -49,7 +51,7 @@ class UsersClient:
 
         Returns
         -------
-        ListUsersResponse
+        SyncPager[User]
             List of users.
 
         Examples
@@ -57,11 +59,17 @@ class UsersClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.users.list()
+        response = client.users.list()
+        for item in response:
+            yield item
+        # alternatively, you can paginate page-by-page
+        for page in response.iter_pages():
+            yield page
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/users",
@@ -75,13 +83,25 @@ class UsersClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListUsersResponse,
                     parse_obj_as(
                         type_=ListUsersResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.users
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -136,7 +156,8 @@ class UsersClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -214,7 +235,8 @@ class UsersClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -284,7 +306,8 @@ class UsersClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -362,7 +385,8 @@ class UsersClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -437,7 +461,8 @@ class UsersClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -490,7 +515,7 @@ class AsyncUsersClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListUsersResponse:
+    ) -> AsyncPager[User]:
         """
         Lists all users in the account.
 
@@ -507,7 +532,7 @@ class AsyncUsersClient:
 
         Returns
         -------
-        ListUsersResponse
+        AsyncPager[User]
             List of users.
 
         Examples
@@ -517,14 +542,20 @@ class AsyncUsersClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
 
 
         async def main() -> None:
-            await client.users.list()
+            response = await client.users.list()
+            async for item in response:
+                yield item
+            # alternatively, you can paginate page-by-page
+            async for page in response.iter_pages():
+                yield page
 
 
         asyncio.run(main())
@@ -541,13 +572,25 @@ class AsyncUsersClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListUsersResponse,
                     parse_obj_as(
                         type_=ListUsersResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.users
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -604,7 +647,8 @@ class AsyncUsersClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -690,7 +734,8 @@ class AsyncUsersClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -768,7 +813,8 @@ class AsyncUsersClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -854,7 +900,8 @@ class AsyncUsersClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -937,7 +984,8 @@ class AsyncUsersClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )

@@ -12,10 +12,16 @@ class CustomerSpecificReranker(UniversalBaseModel):
     """
 
     type: typing.Literal["customer_reranker"] = "customer_reranker"
-    reranker_id: str = pydantic.Field()
+    reranker_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The ID of the reranker. Current reranker that may be used by Scale customers is rnk_272725719.
     Do not specify the MMR reranker ID here, and instead use the MMR reranker object type.
+    **Deprecated**: Use `reranker_name` instead.
+    """
+
+    reranker_name: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The name of the reranker. Do not specify the MMR reranker name here. Instead use the MMR reranker object type.
     """
 
     if IS_PYDANTIC_V2:

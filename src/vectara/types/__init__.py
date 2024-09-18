@@ -6,8 +6,8 @@ from .api_operation_policy import ApiOperationPolicy
 from .api_policy import ApiPolicy
 from .api_role import ApiRole
 from .app_client import AppClient
-from .auth_response import AuthResponse
 from .bad_request_error_body import BadRequestErrorBody
+from .chain_reranker import ChainReranker
 from .chat import Chat
 from .chat_full_response import ChatFullResponse
 from .chat_info_response import ChatInfoResponse
@@ -28,6 +28,7 @@ from .create_document_request import CreateDocumentRequest
 from .custom_dimensions import CustomDimensions
 from .customer_specific_reranker import CustomerSpecificReranker
 from .document import Document
+from .document_part import DocumentPart
 from .document_storage_usage import DocumentStorageUsage
 from .encoder import Encoder
 from .error import Error
@@ -37,6 +38,7 @@ from .filter_attribute_level import FilterAttributeLevel
 from .filter_attribute_type import FilterAttributeType
 from .generation_info import GenerationInfo
 from .generation_parameters import GenerationParameters
+from .generation_preset import GenerationPreset
 from .individual_search_result import IndividualSearchResult
 from .job import Job
 from .job_state import JobState
@@ -50,6 +52,7 @@ from .list_chats_response import ListChatsResponse
 from .list_corpora_response import ListCorporaResponse
 from .list_documents_response import ListDocumentsResponse
 from .list_encoders_response import ListEncodersResponse
+from .list_generation_presets_response import ListGenerationPresetsResponse
 from .list_jobs_response import ListJobsResponse
 from .list_ll_ms_response import ListLlMsResponse
 from .list_metadata import ListMetadata
@@ -79,6 +82,7 @@ from .structured_document import StructuredDocument
 from .structured_document_section import StructuredDocumentSection
 from .turn import Turn
 from .user import User
+from .user_function_reranker import UserFunctionReranker
 
 __all__ = [
     "ApiKey",
@@ -87,8 +91,8 @@ __all__ = [
     "ApiPolicy",
     "ApiRole",
     "AppClient",
-    "AuthResponse",
     "BadRequestErrorBody",
+    "ChainReranker",
     "Chat",
     "ChatFullResponse",
     "ChatInfoResponse",
@@ -109,6 +113,7 @@ __all__ = [
     "CustomDimensions",
     "CustomerSpecificReranker",
     "Document",
+    "DocumentPart",
     "DocumentStorageUsage",
     "Encoder",
     "Error",
@@ -118,6 +123,7 @@ __all__ = [
     "FilterAttributeType",
     "GenerationInfo",
     "GenerationParameters",
+    "GenerationPreset",
     "IndividualSearchResult",
     "Job",
     "JobState",
@@ -131,6 +137,7 @@ __all__ = [
     "ListCorporaResponse",
     "ListDocumentsResponse",
     "ListEncodersResponse",
+    "ListGenerationPresetsResponse",
     "ListJobsResponse",
     "ListLlMsResponse",
     "ListMetadata",
@@ -160,4 +167,5 @@ __all__ = [
     "StructuredDocumentSection",
     "Turn",
     "User",
+    "UserFunctionReranker",
 ]

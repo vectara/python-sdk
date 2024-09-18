@@ -6,18 +6,20 @@ from ..types.corpus_key import CorpusKey
 import datetime as dt
 from ..types.job_state import JobState
 from ..core.request_options import RequestOptions
-from ..types.list_jobs_response import ListJobsResponse
+from ..core.pagination import SyncPager
+from ..types.job import Job
 from ..core.datetime_utils import serialize_datetime
+from ..types.list_jobs_response import ListJobsResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.forbidden_error import ForbiddenError
 from ..types.error import Error
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
-from ..types.job import Job
 from ..core.jsonable_encoder import jsonable_encoder
 from ..errors.not_found_error import NotFoundError
 from ..types.not_found_error_body import NotFoundErrorBody
 from ..core.client_wrapper import AsyncClientWrapper
+from ..core.pagination import AsyncPager
 
 
 class JobsClient:
@@ -33,7 +35,7 @@ class JobsClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListJobsResponse:
+    ) -> SyncPager[Job]:
         """
         List jobs for the account. Jobs are background processes like replacing the filterable metadata attributes.
 
@@ -59,7 +61,7 @@ class JobsClient:
 
         Returns
         -------
-        ListJobsResponse
+        SyncPager[Job]
             List of jobs.
 
         Examples
@@ -67,11 +69,17 @@ class JobsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.jobs.list()
+        response = client.jobs.list()
+        for item in response:
+            yield item
+        # alternatively, you can paginate page-by-page
+        for page in response.iter_pages():
+            yield page
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/jobs",
@@ -88,13 +96,28 @@ class JobsClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListJobsResponse,
                     parse_obj_as(
                         type_=ListJobsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        corpus_key=corpus_key,
+                        after=after,
+                        state=state,
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.jobs
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -132,7 +155,8 @@ class JobsClient:
         from vectara import Vectara
 
         client = Vectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
@@ -194,7 +218,7 @@ class AsyncJobsClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListJobsResponse:
+    ) -> AsyncPager[Job]:
         """
         List jobs for the account. Jobs are background processes like replacing the filterable metadata attributes.
 
@@ -220,7 +244,7 @@ class AsyncJobsClient:
 
         Returns
         -------
-        ListJobsResponse
+        AsyncPager[Job]
             List of jobs.
 
         Examples
@@ -230,14 +254,20 @@ class AsyncJobsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
 
 
         async def main() -> None:
-            await client.jobs.list()
+            response = await client.jobs.list()
+            async for item in response:
+                yield item
+            # alternatively, you can paginate page-by-page
+            async for page in response.iter_pages():
+                yield page
 
 
         asyncio.run(main())
@@ -257,13 +287,28 @@ class AsyncJobsClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListJobsResponse,
                     parse_obj_as(
                         type_=ListJobsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        corpus_key=corpus_key,
+                        after=after,
+                        state=state,
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.jobs
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -303,7 +348,8 @@ class AsyncJobsClient:
         from vectara import AsyncVectara
 
         client = AsyncVectara(
-            api_key="YOUR_API_KEY",
+            request_timeout="YOUR_REQUEST_TIMEOUT",
+            request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )

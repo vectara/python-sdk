@@ -9,7 +9,14 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 class CorpusLimits(UniversalBaseModel):
     used_bytes: typing.Optional[int] = pydantic.Field(default=None)
     """
-    The number of bytes contained in the corpus.
+    The number of bytes contained in the corpus. This includes the document metadata,
+    document part metadata, and document contents.
+    """
+
+    used_characters: typing.Optional[int] = pydantic.Field(default=None)
+    """
+    The number of characters contained in the corpus. This includes the document metadata,
+    document part metadata, and document contents.
     """
 
     max_bytes: typing.Optional[int] = pydantic.Field(default=None)
