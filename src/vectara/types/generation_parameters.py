@@ -14,22 +14,27 @@ class GenerationParameters(UniversalBaseModel):
     The parameters to control generation.
     """
 
-    prompt_name: typing.Optional[str] = pydantic.Field(default=None)
+    generation_preset_name: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The prompt to use to feed the query results and other context to the model.
+    The preset values to use to feed the query results and other context to the model.
     
-    A prompt is an object with a bundle of properties that specifies:
+    A `generation_preset` is an object with a bundle of properties that specifies:
     
-    - The `prompt_text` that is rendered then sent to the LLM.
+    - The `prompt_template` that is rendered then sent to the LLM.
     - The LLM used.
     - `model_parameter`s such as temperature.
     
     All of these properties except the model can be overriden by setting them in this
-    object. Even when a `prompt_text` is set, the `prompt_name` is used to set
+    object. Even when a `prompt_template` is set, the `generation_preset_name` is used to set
     the model used.
     
-    If `prompt_name` is not set the Vectara platform will use the default model and
+    If `generation_preset_name` is not set the Vectara platform will use the default model and
     prompt.
+    """
+
+    prompt_name: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Use `generation_preset_name` instead of `prompt_name`.
     """
 
     max_used_search_results: typing.Optional[int] = pydantic.Field(default=None)
@@ -37,15 +42,20 @@ class GenerationParameters(UniversalBaseModel):
     The maximum number of search results to be available to the prompt.
     """
 
-    prompt_text: typing.Optional[str] = pydantic.Field(default=None)
+    prompt_template: typing.Optional[str] = pydantic.Field(default=None)
     """
     Vectara manages both system and user roles and prompts for the generative
     LLM out of the box by default. However, Scale customers can override the
-    prompt_text via this variable. The prompt_text is in the form of an
+    `prompt_template` via this variable. The `prompt_template` is in the form of an
     Apache Velocity template. For more details on how to configure the
-    prompt_text, see the long-form documentation at
-    https://docs.vectara.com/docs/prompts/vectara-prompt-engine.
-    See https://vectara.com/pricing/ for more details on becoming a Scale customer.
+    `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
+    See [pricing](https://vectara.com/pricing/) for more details on becoming a Scale customer.
+    """
+
+    prompt_text: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    This is property is deprecated in favor clearer naming. Use `prompt_template`. This property will be
+    ignored if `prompt_template` is set.
     """
 
     max_response_characters: typing.Optional[int] = pydantic.Field(default=None)
@@ -57,14 +67,14 @@ class GenerationParameters(UniversalBaseModel):
     is limited.
     
     So, this value This is currently a Scale-only feature.
-    See https://vectara.com/pricing/ for more details on becoming a Scale customer.
+    See [pricing](https://vectara.com/pricing/) for more details on becoming a Scale customer.
     """
 
     response_language: typing.Optional[Language] = None
     model_parameters: typing.Optional[ModelParameters] = pydantic.Field(default=None)
     """
     The parameters for the model. These are currently a Scale-only feature.
-    See https://vectara.com/pricing/ for more details on becoming a Scale customer.
+    See [pricing](https://vectara.com/pricing/) for more details on becoming a Scale customer.
     WARNING: This is an experimental feature, and breakable at any point with virtually no
     notice. It is meant for experimentation to converge on optimal parameters that can then
     be set in the prompt definitions.

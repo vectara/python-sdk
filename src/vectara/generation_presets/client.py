@@ -3,7 +3,7 @@
 from ..core.client_wrapper import SyncClientWrapper
 import typing
 from ..core.request_options import RequestOptions
-from ..types.list_ll_ms_response import ListLlMsResponse
+from ..types.list_generation_presets_response import ListGenerationPresetsResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.forbidden_error import ForbiddenError
 from ..types.error import Error
@@ -12,40 +12,51 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper
 
 
-class LargeLanguageModelsClient:
+class GenerationPresetsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def list(
+    def list_generation_presets(
         self,
         *,
-        filter: typing.Optional[str] = None,
+        llm_name: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListLlMsResponse:
+    ) -> ListGenerationPresetsResponse:
         """
-        List LLMs that can be used with query and chat endpoints.
+        List generation presets used for query or chat requests. Generation presets are
+        the build of properties used to configure generation for a request. This includes
+        the template that renders the prompt, and various generation settings like
+        `temperature`.
 
         Parameters
         ----------
-        filter : typing.Optional[str]
-            A regular expression to match names and descriptions of the LLMs.
+        llm_name : typing.Optional[str]
+            Filter presets by the LLM name.
 
         limit : typing.Optional[int]
             The maximum number of results to return in the list.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of LLMs after the limit has been reached.
+            Used to the retrieve the next page of generation presets after the limit has been reached.
             This parameter is not needed for the first page of results.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ListLlMsResponse
-            List of LLMs.
+        ListGenerationPresetsResponse
+            List of Generation Presets.
 
         Examples
         --------
@@ -56,25 +67,29 @@ class LargeLanguageModelsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.large_language_models.list()
+        client.generation_presets.list_generation_presets()
         """
         _response = self._client_wrapper.httpx_client.request(
-            "v2/llms",
+            "v2/generation_presets",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
-                "filter": filter,
+                "llm_name": llm_name,
                 "limit": limit,
                 "page_key": page_key,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    ListLlMsResponse,
+                    ListGenerationPresetsResponse,
                     parse_obj_as(
-                        type_=ListLlMsResponse,  # type: ignore
+                        type_=ListGenerationPresetsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -94,40 +109,51 @@ class LargeLanguageModelsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
 
-class AsyncLargeLanguageModelsClient:
+class AsyncGenerationPresetsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def list(
+    async def list_generation_presets(
         self,
         *,
-        filter: typing.Optional[str] = None,
+        llm_name: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListLlMsResponse:
+    ) -> ListGenerationPresetsResponse:
         """
-        List LLMs that can be used with query and chat endpoints.
+        List generation presets used for query or chat requests. Generation presets are
+        the build of properties used to configure generation for a request. This includes
+        the template that renders the prompt, and various generation settings like
+        `temperature`.
 
         Parameters
         ----------
-        filter : typing.Optional[str]
-            A regular expression to match names and descriptions of the LLMs.
+        llm_name : typing.Optional[str]
+            Filter presets by the LLM name.
 
         limit : typing.Optional[int]
             The maximum number of results to return in the list.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of LLMs after the limit has been reached.
+            Used to the retrieve the next page of generation presets after the limit has been reached.
             This parameter is not needed for the first page of results.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ListLlMsResponse
-            List of LLMs.
+        ListGenerationPresetsResponse
+            List of Generation Presets.
 
         Examples
         --------
@@ -143,28 +169,32 @@ class AsyncLargeLanguageModelsClient:
 
 
         async def main() -> None:
-            await client.large_language_models.list()
+            await client.generation_presets.list_generation_presets()
 
 
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "v2/llms",
+            "v2/generation_presets",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
-                "filter": filter,
+                "llm_name": llm_name,
                 "limit": limit,
                 "page_key": page_key,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    ListLlMsResponse,
+                    ListGenerationPresetsResponse,
                     parse_obj_as(
-                        type_=ListLlMsResponse,  # type: ignore
+                        type_=ListGenerationPresetsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

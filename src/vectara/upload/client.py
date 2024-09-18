@@ -32,11 +32,20 @@ class UploadClient:
         corpus_key: CorpusKey,
         *,
         file: core.File,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
         Upload files such as PDFs and Word Documents. Vectara will attempt to automatically extract text and any metadata.
+        The File Upload endpoint request expects a `multipart/form-data` request containing the following parts:
+
+        - `metadata` - (Optional) Specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
+        - `file` - Specifies the file that you want to upload.
+        - `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
+
+        For more detailed information see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)
 
         Parameters
         ----------
@@ -45,6 +54,12 @@ class UploadClient:
 
         file : core.File
             See core.File for more documentation
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Arbitrary object that will be attached as document metadata to the extracted document.
@@ -77,7 +92,14 @@ class UploadClient:
             data={},
             files={
                 "metadata": (None, json.dumps(jsonable_encoder(metadata)), "application/json"),
-                "file": core.with_content_type(file=file, content_type="application/octet-stream"),
+                "file": core.with_content_type(
+                    file=file,
+                    content_type="application/octet-stream, application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.oasis.opendocument.text, application/epub+zip, application/rtf, text/html, text/plain, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, text/markdown",
+                ),
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -136,11 +158,20 @@ class AsyncUploadClient:
         corpus_key: CorpusKey,
         *,
         file: core.File,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
         Upload files such as PDFs and Word Documents. Vectara will attempt to automatically extract text and any metadata.
+        The File Upload endpoint request expects a `multipart/form-data` request containing the following parts:
+
+        - `metadata` - (Optional) Specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
+        - `file` - Specifies the file that you want to upload.
+        - `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
+
+        For more detailed information see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)
 
         Parameters
         ----------
@@ -149,6 +180,12 @@ class AsyncUploadClient:
 
         file : core.File
             See core.File for more documentation
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Arbitrary object that will be attached as document metadata to the extracted document.
@@ -189,7 +226,14 @@ class AsyncUploadClient:
             data={},
             files={
                 "metadata": (None, json.dumps(jsonable_encoder(metadata)), "application/json"),
-                "file": core.with_content_type(file=file, content_type="application/octet-stream"),
+                "file": core.with_content_type(
+                    file=file,
+                    content_type="application/octet-stream, application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.oasis.opendocument.text, application/epub+zip, application/rtf, text/html, text/plain, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, text/markdown",
+                ),
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

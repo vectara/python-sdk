@@ -26,7 +26,7 @@ class FilterAttribute(UniversalBaseModel):
 
     indexed: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    Whether an index is created for the filter. Creating an index will improve query latency when using the filter.
+    Indicates whether an index should be created for the filter. Creating an index will improve query latency when using the filter.
     """
 
     type: FilterAttributeType = pydantic.Field()
