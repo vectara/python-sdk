@@ -6,18 +6,40 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
-class ModelParameters(UniversalBaseModel):
+class GenerationPreset(UniversalBaseModel):
     """
-    The parameters for the model. These are currently a Scale-only feature.
-    See [pricing](https://vectara.com/pricing/) for more details on becoming a Scale customer.
-    WARNING: This is an experimental feature, and breakable at any point with virtually no
-    notice. It is meant for experimentation to converge on optimal parameters that can then
-    be set in the prompt definitions.
+    Bundle of default values used when calling generation. All values except
+    model name can be overriden at generation time.
+    """
+
+    name: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Name of the generation preset to be used with configuring generation.
+    """
+
+    description: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Description of the generation preset.
+    """
+
+    llm_name: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Name of the model that these presets are used with.
+    """
+
+    prompt_template: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Preset template used to render the prompt sent to generation.
+    """
+
+    max_used_search_results: typing.Optional[int] = pydantic.Field(default=None)
+    """
+    Preset maximum number of search results to be available to the prompt.
     """
 
     max_tokens: typing.Optional[int] = pydantic.Field(default=None)
     """
-    The maximum number of tokens to be returned by the model.
+    Preset maximum number of tokens to be returned by the generation.
     """
 
     temperature: typing.Optional[float] = pydantic.Field(default=None)
@@ -36,6 +58,16 @@ class ModelParameters(UniversalBaseModel):
     """
     Higher values penalize new tokens based on whether they appear in the text so far,
     increasing the model's likelihood to talk about new topics.
+    """
+
+    enabled: typing.Optional[bool] = pydantic.Field(default=None)
+    """
+    Indicates whether the prompt is enabled.
+    """
+
+    default: typing.Optional[bool] = pydantic.Field(default=None)
+    """
+    Indicates if this prompt is the default prompt used with the LLM.
     """
 
     if IS_PYDANTIC_V2:

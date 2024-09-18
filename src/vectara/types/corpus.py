@@ -53,6 +53,12 @@ class Corpus(UniversalBaseModel):
     encoder_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The encoder used by the corpus.
+    _Deprecated_: use `encoder_name` instead
+    """
+
+    encoder_name: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The encoder used by the corpus.
     """
 
     filter_attributes: typing.Optional[typing.List[FilterAttribute]] = pydantic.Field(default=None)
