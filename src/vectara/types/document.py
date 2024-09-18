@@ -3,7 +3,7 @@
 from ..core.pydantic_utilities import UniversalBaseModel
 import typing
 import pydantic
-from .core_document_part import CoreDocumentPart
+from .document_part import DocumentPart
 from .document_storage_usage import DocumentStorageUsage
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
@@ -19,9 +19,11 @@ class Document(UniversalBaseModel):
     The document metadata.
     """
 
-    parts: typing.Optional[typing.List[CoreDocumentPart]] = pydantic.Field(default=None)
+    parts: typing.Optional[typing.List[DocumentPart]] = pydantic.Field(default=None)
     """
-    The document parts stored - in the case of a structured document, the converted document.
+    Parts of the document that make up the document. However, parts are not available when
+    retrieving a list of documents or when creating a document. This property is only available
+    when retrieving a document by id.
     """
 
     storage_usage: typing.Optional[DocumentStorageUsage] = None

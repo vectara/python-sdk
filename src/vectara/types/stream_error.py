@@ -11,7 +11,6 @@ class StreamError(UniversalBaseModel):
     Event signaling there was an error with the request.
     """
 
-    type: typing.Literal["error"] = "error"
     messages: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
     """
     The error messages.

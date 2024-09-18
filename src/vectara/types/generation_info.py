@@ -11,7 +11,6 @@ class GenerationInfo(UniversalBaseModel):
     Event containing information on how the generation was accomplished.
     """
 
-    type: typing.Literal["generation_info"] = "generation_info"
     rendered_prompt: typing.Optional[str] = pydantic.Field(default=None)
     """
     The rendered prompt sent to the LLM. Useful when creating customer `prompt_text` templates. Only available

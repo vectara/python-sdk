@@ -16,92 +16,33 @@ pip install vectara
 Instantiate and use the client with the following:
 
 ```python
-from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.api_keys.create(
-    name="name",
-    api_key_role="serving",
-)
-```
-
-## Async Client
-
-The SDK also exports an `async` client so that you can make non-blocking calls to our API.
-
-```python
-import asyncio
-
-from vectara import AsyncVectara
-
-client = AsyncVectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-
-
-async def main() -> None:
-    await client.api_keys.create(
-        name="name",
-        api_key_role="serving",
-    )
-
-
-asyncio.run(main())
-```
-
-## Exception Handling
-
-When the API returns a non-success status code (4xx or 5xx response), a subclass of the following error
-will be thrown.
-
-```python
-from vectara.core.api_error import ApiError
-
-try:
-    client.api_keys.create(...)
-except ApiError as e:
-    print(e.status_code)
-    print(e.body)
-```
-
-## Streaming
-
-The SDK supports streaming responses, as well, the response will be a generator that you can loop over.
-
-```python
 from vectara import (
-    ChatParameters,
     CitationParameters,
     ContextConfiguration,
-    CustomerSpecificReranker,
     GenerationParameters,
     KeyedSearchCorpus,
     ModelParameters,
     SearchCorporaParameters,
+    SearchReranker_CustomerReranker,
     Vectara,
 )
 
 client = Vectara(
-    api_key="YOUR_API_KEY",
+    request_timeout="YOUR_REQUEST_TIMEOUT",
+    request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.chats.create_stream(
+response = client.query_stream(
     query="string",
     search=SearchCorporaParameters(
         corpora=[
             KeyedSearchCorpus(
                 corpus_key={"key": "value"},
-                custom_dimensions={"key": "value"},
-                metadata_filter={"key": "value"},
-                lexical_interpolation={"key": "value"},
-                semantics={"key": "value"},
+                custom_dimensions={"string": 1.1},
+                metadata_filter="string",
+                lexical_interpolation=1.1,
+                semantics="default",
             )
         ],
         offset=1,
@@ -114,13 +55,13 @@ response = client.chats.create_stream(
             start_tag="string",
             end_tag="string",
         ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="string",
-        ),
+        reranker=SearchReranker_CustomerReranker(),
     ),
     generation=GenerationParameters(
+        generation_preset_name="string",
         prompt_name="string",
         max_used_search_results=1,
+        prompt_template="string",
         prompt_text="string",
         max_response_characters=1,
         response_language="auto",
@@ -137,8 +78,167 @@ response = client.chats.create_stream(
         ),
         enable_factual_consistency_score=True,
     ),
-    chat=ChatParameters(
-        store=True,
+)
+for chunk in response:
+    yield chunk
+```
+
+## Async Client
+
+The SDK also exports an `async` client so that you can make non-blocking calls to our API.
+
+```python
+import asyncio
+
+from vectara import (
+    AsyncVectara,
+    CitationParameters,
+    ContextConfiguration,
+    GenerationParameters,
+    KeyedSearchCorpus,
+    ModelParameters,
+    SearchCorporaParameters,
+    SearchReranker_CustomerReranker,
+)
+
+client = AsyncVectara(
+    request_timeout="YOUR_REQUEST_TIMEOUT",
+    request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+
+
+async def main() -> None:
+    response = await client.query_stream(
+        query="string",
+        search=SearchCorporaParameters(
+            corpora=[
+                KeyedSearchCorpus(
+                    corpus_key={"key": "value"},
+                    custom_dimensions={"string": 1.1},
+                    metadata_filter="string",
+                    lexical_interpolation=1.1,
+                    semantics="default",
+                )
+            ],
+            offset=1,
+            limit=1,
+            context_configuration=ContextConfiguration(
+                characters_before=1,
+                characters_after=1,
+                sentences_before=1,
+                sentences_after=1,
+                start_tag="string",
+                end_tag="string",
+            ),
+            reranker=SearchReranker_CustomerReranker(),
+        ),
+        generation=GenerationParameters(
+            generation_preset_name="string",
+            prompt_name="string",
+            max_used_search_results=1,
+            prompt_template="string",
+            prompt_text="string",
+            max_response_characters=1,
+            response_language="auto",
+            model_parameters=ModelParameters(
+                max_tokens=1,
+                temperature=1.1,
+                frequency_penalty=1.1,
+                presence_penalty=1.1,
+            ),
+            citations=CitationParameters(
+                style="none",
+                url_pattern="string",
+                text_pattern="string",
+            ),
+            enable_factual_consistency_score=True,
+        ),
+    )
+    async for chunk in response:
+        yield chunk
+
+
+asyncio.run(main())
+```
+
+## Exception Handling
+
+When the API returns a non-success status code (4xx or 5xx response), a subclass of the following error
+will be thrown.
+
+```python
+from vectara.core.api_error import ApiError
+
+try:
+    client.query_stream(...)
+except ApiError as e:
+    print(e.status_code)
+    print(e.body)
+```
+
+## Streaming
+
+The SDK supports streaming responses, as well, the response will be a generator that you can loop over.
+
+```python
+from vectara import (
+    CitationParameters,
+    ContextConfiguration,
+    GenerationParameters,
+    ModelParameters,
+    SearchReranker_CustomerReranker,
+    Vectara,
+)
+from vectara.corpora import SearchCorpusParameters
+
+client = Vectara(
+    request_timeout="YOUR_REQUEST_TIMEOUT",
+    request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+response = client.corpora.query_stream(
+    corpus_key="string",
+    query="string",
+    search=SearchCorpusParameters(
+        custom_dimensions={"string": 1.1},
+        metadata_filter="string",
+        lexical_interpolation=1.1,
+        semantics="default",
+        offset=1,
+        limit=1,
+        context_configuration=ContextConfiguration(
+            characters_before=1,
+            characters_after=1,
+            sentences_before=1,
+            sentences_after=1,
+            start_tag="string",
+            end_tag="string",
+        ),
+        reranker=SearchReranker_CustomerReranker(),
+    ),
+    generation=GenerationParameters(
+        generation_preset_name="string",
+        prompt_name="string",
+        max_used_search_results=1,
+        prompt_template="string",
+        prompt_text="string",
+        max_response_characters=1,
+        response_language="auto",
+        model_parameters=ModelParameters(
+            max_tokens=1,
+            temperature=1.1,
+            frequency_penalty=1.1,
+            presence_penalty=1.1,
+        ),
+        citations=CitationParameters(
+            style="none",
+            url_pattern="string",
+            text_pattern="string",
+        ),
+        enable_factual_consistency_score=True,
     ),
 )
 for chunk in response:
@@ -153,11 +253,12 @@ Paginated requests will return a `SyncPager` or `AsyncPager`, which can be used 
 from vectara import Vectara
 
 client = Vectara(
-    api_key="YOUR_API_KEY",
+    request_timeout="YOUR_REQUEST_TIMEOUT",
+    request_timeout_millis="YOUR_REQUEST_TIMEOUT_MILLIS",
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.chats.list()
+response = client.corpora.list()
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
@@ -182,7 +283,7 @@ A request is deemed retriable when any of the following HTTP status codes is ret
 Use the `max_retries` request option to configure this behavior.
 
 ```python
-client.api_keys.create(..., {
+client.query_stream(..., {
     "max_retries": 1
 })
 ```
@@ -202,7 +303,7 @@ client = Vectara(
 
 
 # Override timeout for a specific method
-client.api_keys.create(..., {
+client.query_stream(..., {
     "timeout_in_seconds": 1
 })
 ```

@@ -3,30 +3,31 @@
 from ..core.pydantic_utilities import UniversalBaseModel
 import pydantic
 import typing
-from .core_document_part import CoreDocumentPart
+from .custom_dimensions import CustomDimensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
-class CoreDocument(UniversalBaseModel):
+class DocumentPart(UniversalBaseModel):
     """
-    The document structure that most closely corresponds to Vectara's internal document data model.
+    A part of a document. This section gets converted into an embedding and directly maps to a search result. Usually a sentence.
     """
 
-    id: str = pydantic.Field()
+    text: str = pydantic.Field()
     """
-    The Document ID, must be unique within the corpus.
+    The text of the document part.
     """
 
     metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
     """
-    Arbitrary object of document level metadata. Properties of this object
-    can be used by document filter if defined as a corpus filter attribute.
+    The metadata for a document part. Attributes matching corpus document part filter attributes are used as document part filter attributes.
     """
 
-    document_parts: typing.List[CoreDocumentPart] = pydantic.Field()
+    context: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Parts of the document that make up the document.
+    The context text for the document part.
     """
+
+    custom_dimensions: typing.Optional[CustomDimensions] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

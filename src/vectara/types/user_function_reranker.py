@@ -6,10 +6,10 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
-class MmrReranker(UniversalBaseModel):
-    diversity_bias: typing.Optional[float] = pydantic.Field(default=None)
+class UserFunctionReranker(UniversalBaseModel):
+    user_function: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The diversity bias. Higher values indicate more diversity.
+    The user defined function.
     """
 
     if IS_PYDANTIC_V2:

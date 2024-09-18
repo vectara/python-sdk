@@ -20,7 +20,7 @@ class ApiOperationPolicy(UniversalBaseModel):
     """
     Object with keys of resource paths to a list of allowed resources.
     A resource path starts with either body, path, or implicit.
-    A body or path resource is within the operation body, and implicit
+    A body or path resource is within the operation body, and an implicit
     resource is a resource implied by the request.
     """
 
