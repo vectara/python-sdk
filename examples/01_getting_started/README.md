@@ -17,13 +17,13 @@ Use the chronological ordering of the notebooks to work through them one by one.
 3. [Index API](./02_index_api.ipynb) - Get familiar with the index APIs, looking at both structured and core index and the difference 
    between them
 4. [Upload API](./03_upload_api.ipynb) - Get familiar with the upload API for binary documents.
-5. [Corpus Modelling](./04_corpus_modelling.ipynb) - Work with the corpus API to perform lifecycle operations on a corpus.
+5. [Corpus Basics](./04_corpus_basics.ipynb) - Work with the corpus API to perform lifecycle operations on a corpus.
 
 ## Questions/Comments
 If you have any questions or comments, please send them to feedback@vectara.com
 
 ## Author
-David Levy (creator) - Field Engineering APAC - Vectara
-Justin Hayes (contributor) - Head of Field Engineering - Vectara
+* David Levy (creator) - Field Engineering APAC - Vectara
+* Justin Hayes (contributor) - Head of Field Engineering - Vectara
 
 

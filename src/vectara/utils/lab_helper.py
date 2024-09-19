@@ -1,13 +1,14 @@
 from vectara.managers import CreateCorpusRequest, CorpusManager
 from vectara.corpora.client import CorporaClient
 from vectara.config import ClientConfig, HomeConfigLoader, ApiKeyAuthConfig, OAuth2AuthConfig
-from vectara.types import Corpus
-from typing import Union, Optional
+from vectara.types import Corpus, QueryFullResponse
+from typing import Union, Optional, List
+from abc import ABC
 import logging
 import os
 import re
 import getpass
-
+import json
 
 
 class LabHelper:
@@ -99,50 +100,52 @@ class LabHelper:
         response = self.corpus_manager.create_corpus(corpus_clone, delete_existing=True) # type: ignore
         return response
 
-    #def cleanup_labs(self, name: ):
-
-    def valid_bool(self, user_input: str):
+    @classmethod
+    def valid_bool(cls, user_input: str):
         if user_input == 'y' or user_input == 'n':
             return True
         else:
             print("Invalid value, must be [y] or [n].")
             return False
 
-    def valid_int(self, value: str, min_value=None, max_value=None) -> bool:
+    @classmethod
+    def valid_int(cls, value: str, min_value=None, max_value=None) -> bool:
+        logger = logging.getLogger(cls.__class__.__name__)
+
         value_int: int = -1
         try:
             value_int = int(value)
         except ValueError as e:
-            self.logger.error(f"Not a number [{value}]")
+            logger.error(f"Not a number [{value}]")
             return False
 
         if (min_value and value_int < min_value) or (max_value and value_int > max_value):
             return False
         else:
-            self.logger.info(f"Value [{value}] is between min_value [{min_value}] and [{max_value}]")
+            logger.info(f"Value [{value}] is between min_value [{min_value}] and [{max_value}]")
             return True
 
-    def setup_authentication(self, profile="lab"):
+    @classmethod
+    def setup_authentication(cls, profile="lab"):
         """
         Sets up the .vec_auth.yaml file in the users home directory in the "lab" profile.
         """
-
-        #from vectara.config import ClientConfig, HomeConfigLoader, ApiKeyAuthConfig
+        logger = logging.getLogger(cls.__class__.__name__)
 
         loader = HomeConfigLoader(profile)
         if loader.has_profile():
-            self.logger.info(f"We already have a configuration for [{profile}]")
-            self.logger.info("If you proceed, THIS WILL BE OVERWRITTEN!!")
+            logger.info(f"We already have a configuration for [{profile}]")
+            logger.info("If you proceed, THIS WILL BE OVERWRITTEN!!")
             valid_choice = False
             user_input = None
             while not valid_choice:
                 user_input = str(input("Do you want to update existing profile? y/[n]").strip() or "n").lower()
-                valid_choice = self.valid_bool(user_input)
+                valid_choice = cls.valid_bool(user_input)
             if user_input == 'n':
-                self.logger.info("Exiting")
+                logger.info("Exiting")
                 return
         else:
-            self.logger.info("No existing profile found")
+            logger.info("No existing profile found")
 
         def get_non_blank(field_name: str, sensitive=False) -> str:
             valid_field = False
@@ -155,11 +158,11 @@ class LabHelper:
                     field_value = str(input(message).strip())
                 valid_field = len(field_value) > 0
                 if not valid_field:
-                    self.logger.error(f"Not a valid {field_name}: [{field_value}]")
+                    logger.error(f"Not a valid {field_name}: [{field_value}]")
 
             return field_value
 
-        # Get a valid customer Id.
+        # Get a valid customerId.
         customer_id = get_non_blank("Customer Id")
 
         auth_question = "Please select authentication type:\n\t1. API Key (Default)\n\t 2. OAuth2\nEnter 1 or 2:"
@@ -167,7 +170,7 @@ class LabHelper:
         user_input: str = ""
         while not valid_choice:
             user_input = input(auth_question).strip()
-            valid_choice = self.valid_int(user_input, min_value=1, max_value=2)
+            valid_choice = cls.valid_int(user_input, min_value=1, max_value=2)
         choice = int(user_input)
 
         config: ClientConfig
@@ -184,7 +187,7 @@ class LabHelper:
         else:
             raise Exception(f"Unexpected value: [{choice}]")
 
-        self.logger.info(f"Saving configuration for profile [{profile}]")
+        logger.info(f"Saving configuration for profile [{profile}]")
         loader.save(config)
 
     def delete_labs(self, group_name:str, user_prefix=True):
@@ -203,3 +206,225 @@ class LabHelper:
         for corpus in corpora:
             self.logger.info(f"Deleting corpus [{corpus.name}] with key [{corpus.key}]")
             self.corpus_manager.delete(corpus.key)
+
+
+class BaseFormatter(ABC):
+
+    def __init__(self):
+        pass
+
+    def heading(self, heading: str, level: int = 1):
+        raise Exception("Implement in subclass")
+
+    def sentence(self, sentence: str):
+        raise Exception("Implement in subclass")
+
+    def link(self, text: str, url: str):
+        raise Exception("Implement in subclass")
+
+    def paragraph(self, paragraph: str):
+        raise Exception("Implement in subclass")
+
+    def bold(self, text: str):
+        raise Exception("Implement in subclass")
+
+    def italic(self, text: str):
+        raise Exception("Implement in subclass")
+
+    def list(self, items: List[str], level: int = 1):
+        raise Exception("Implement in subclass")
+
+    def rtl(self, text: str):
+        raise Exception("Implement in subclass")
+
+    def code(self, text: str, language=None):
+        raise Exception("Implement in subclass")
+
+class MarkdownFormatter(BaseFormatter):
+
+    def __init__(self):
+        super().__init__()
+
+    def heading(self, heading: str, level: int = 1):
+        indent = "#" * level
+        return f'\n{indent} {heading}'
+
+    def sentence(self, sentence: str):
+        return sentence
+
+    def link(self, text, url):
+        return f"[{text}]({url})"
+
+    def paragraph(self, paragraph: str):
+        return f"\n\n{paragraph}\n"
+
+    def bold(self, text: str):
+        return f"**{text}**"
+
+    def italic(self, text: str):
+        return f"*{text}*"
+
+    def list(self, items: List[str], level: int = 1):
+        if level < 1:
+            raise TypeError("List level must be greater than 0")
+        indent = " " * (level - 1)
+        results = [f"{indent} {idx + 1}. {item}" for idx, item in enumerate(items)]
+        return "\n" + "\n".join(results) + "\n"
+
+    def rtl(self, text):
+        return '<div dir="rtl">\n' + text + '</div>'
+
+    def code(self, text: str, language=None):
+        result = "\n```"
+        if language:
+            result += language
+        result += str(text)
+        result += "\n```\n"
+        return result
+
+class CitationUtil:
+
+    def __init__(self):
+        self.logger = logging.getLogger(self.__class__.__name__)
+
+    def streamline(self, search_response: QueryFullResponse):
+        """
+        Streamlines a vectara response (starting with a specific response under the outer array)
+
+        :param search_response: the first response inside the array response
+        :return: a dict containing a "summary" with citations streamlined and a list of results used with ordering preserved
+        """
+
+        # TODO 1. Create a list of search results
+        # TODO 2. Iterate through the summary, and record which search result is used at which index
+
+        summary_text = search_response.summary
+
+        find_result = re.finditer(r"\[(\d)\]", summary_text)
+
+        index = 1
+        dict_map = {}
+
+        # The end index of the last match.
+        last_end = None
+
+        results = []
+
+        result_index = []
+
+        for match_obj in find_result:
+            match = match_obj.group(1)
+            self.logger.debug(f"At {index} we found {match}")
+            start = match_obj.start()
+            end = match_obj.end()
+
+            if match in dict_map:
+                self.logger.debug(f"We already have result [{match}] at position [{dict_map[match]}]")
+                pass
+            else:
+                self.logger.debug(f"Recording result [{match}] at position [{index}]")
+                dict_map[match] = index
+                result_index.append(int(match))
+                index += 1
+
+            if last_end:
+                self.logger.debug("Using end of the last match to get last text chunk")
+                results.append(summary_text[last_end:start])
+            else:
+                self.logger.debug("First iteration, use everything from beginning to start")
+                if start > 0:
+                    results.append(summary_text[0:start])
+
+            results.append("[" + str(dict_map[match]) + "]")
+
+            last_end = end
+
+        if last_end < len(summary_text):
+            results.append(summary_text[last_end:])
+
+        result_summary = "".join(results)
+
+        self.logger.debug(f"After transformation, we have the following summary:\n{result_summary}")
+
+        self.logger.debug(f"The mapping to the result summary is as follows:\n{result_index}")
+
+        streamline_response = {
+            "summary": result_summary,
+            "result_indexes": result_index
+        }
+        return streamline_response
+
+class ResponseSetRenderer:
+
+    def __init__(self, formatter: BaseFormatter):
+        self.formatter = formatter
+        self.logger = logging.getLogger(self.__class__.__name__)
+
+    def render(self, query: str, response: QueryFullResponse, rtl=False, show_search_results=True, heading_level=1,
+               expect_summary=True):
+        f = self.formatter
+        results = []
+
+        # Build Heading
+        results.append(f.heading(f"Query: {query}", level=heading_level))
+
+
+
+        summary_text = None
+
+        results_included = False
+
+        # Build Summary
+        if expect_summary:
+            if response.summary:
+                citation_util = CitationUtil()
+                streamlined_response = citation_util.streamline(response)
+                results.append(f.paragraph(streamlined_response["summary"]))
+
+                if show_search_results:
+                    docs = []
+                    for id in streamlined_response["result_indexes"]:
+                        result = response.search_results[id]
+                        doc_id = result.document_id
+                        item = f.sentence(result.text) + " " + f.italic("score: " + str(result.score) + ", doc-id: " + doc_id)
+                        docs.append(item)
+                    list_text = f.list(docs)
+                    results.append(list_text)
+                    results_included = True
+            else:
+                summary_text = "We did not receive a summary, there are insufficient results returned from the corpus"
+                results.append(f.paragraph(summary_text))
+
+        # Build items
+        if show_search_results and not results_included:
+            docs = []
+            for index, result in enumerate(response.search_results):
+                doc_id = result.document_id
+
+                item = f.sentence(result.text) + " " + f.italic("score: " + str(result.score) + ", doc-id: " + doc_id)
+                docs.append(item)
+
+            list_text = f.list(docs)
+            results.append(list_text)
+
+        results_text = "".join(results)
+
+        if rtl:
+            return f.rtl(results_text)
+        else:
+            return results_text
+
+
+def render_markdown(query: str, response: QueryFullResponse, rtl=False, show_search_results=True, heading_level=1,
+                    expect_summary=True):
+    formatter = MarkdownFormatter()
+    renderer = ResponseSetRenderer(formatter)
+    return renderer.render(query, response, rtl, show_search_results, heading_level, expect_summary=expect_summary)
+
+def render_markdown_req(request:dict):
+    formatter = MarkdownFormatter()
+
+    result = formatter.heading(f"Request Operation [{request['operation']}] with payload:", level=3)
+    result += formatter.code(json.dumps(request, indent=4), "json")
+
+    return result

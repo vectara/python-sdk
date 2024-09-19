@@ -5,3 +5,5 @@ poetry.toml
 .ruff_cache/
 
 .idea
+
+**/.ipynb_checkpoints

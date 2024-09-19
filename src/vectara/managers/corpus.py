@@ -133,7 +133,7 @@ class CorpusManager:
         self.logger = logging.getLogger(self.__class__.__name__)
         self.corpora_client = corpora_client
 
-    def find_corpora_with_filter(self, name_filter: Optional[str]) -> List[Corpus]:
+    def find_corpora_with_filter(self, name_filter: Optional[str] = "", limit: Optional[int] = None) -> List[Corpus]:
         if not name_filter:
             name_filter = ""
 
@@ -143,8 +143,11 @@ class CorpusManager:
                 yield item
 
         corpora = []
+
         for corpus in list_corpora_gen():
             corpora.append(corpus)
+            if limit and len(corpora) >= limit:
+                break
 
         return corpora
 
