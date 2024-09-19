@@ -3,6 +3,8 @@
 import typing
 from ..core.client_wrapper import SyncClientWrapper
 from ..core.request_options import RequestOptions
+from ..core.pagination import SyncPager
+from ..types.app_client import AppClient
 from ..types.list_app_clients_response import ListAppClientsResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.bad_request_error import BadRequestError
@@ -12,9 +14,9 @@ from ..types.error import Error
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..types.api_role import ApiRole
-from ..types.app_client import AppClient
 from ..core.jsonable_encoder import jsonable_encoder
 from ..core.client_wrapper import AsyncClientWrapper
+from ..core.pagination import AsyncPager
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -30,8 +32,10 @@ class AppClientsClient:
         limit: typing.Optional[int] = None,
         filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListAppClientsResponse:
+    ) -> SyncPager[AppClient]:
         """
         Parameters
         ----------
@@ -44,12 +48,18 @@ class AppClientsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of App Clients after the limit has been reached.
 
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ListAppClientsResponse
+        SyncPager[AppClient]
             An array of App Clients.
 
         Examples
@@ -61,7 +71,12 @@ class AppClientsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.app_clients.list()
+        response = client.app_clients.list()
+        for item in response:
+            yield item
+        # alternatively, you can paginate page-by-page
+        for page in response.iter_pages():
+            yield page
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/app_clients",
@@ -72,17 +87,36 @@ class AppClientsClient:
                 "filter": filter,
                 "page_key": page_key,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListAppClientsResponse,
                     parse_obj_as(
                         type_=ListAppClientsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        limit=limit,
+                        filter=filter,
+                        page_key=_parsed_next,
+                        request_timeout=request_timeout,
+                        request_timeout_millis=request_timeout_millis,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.app_clients
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
@@ -112,6 +146,8 @@ class AppClientsClient:
         self,
         *,
         name: str,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -123,6 +159,12 @@ class AppClientsClient:
         ----------
         name : str
             Name of the client credentials.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         description : typing.Optional[str]
             Description of the client credentials.
@@ -161,6 +203,10 @@ class AppClientsClient:
                 "api_roles": api_roles,
                 "type": "client_credentials",
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
             omit=OMIT,
         )
@@ -198,12 +244,25 @@ class AppClientsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def get(self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> AppClient:
+    def get(
+        self,
+        app_client_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AppClient:
         """
         Parameters
         ----------
         app_client_id : str
             The name of the App Client.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -230,6 +289,10 @@ class AppClientsClient:
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -256,12 +319,25 @@ class AppClientsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def delete(self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    def delete(
+        self,
+        app_client_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> None:
         """
         Parameters
         ----------
         app_client_id : str
             The name of App Client.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -287,6 +363,10 @@ class AppClientsClient:
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -311,6 +391,8 @@ class AppClientsClient:
         self,
         app_client_id: str,
         *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -320,6 +402,12 @@ class AppClientsClient:
         ----------
         app_client_id : str
             The name of App Client.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         description : typing.Optional[str]
             The new App Client description.
@@ -355,6 +443,10 @@ class AppClientsClient:
             json={
                 "description": description,
                 "api_roles": api_roles,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -394,8 +486,10 @@ class AsyncAppClientsClient:
         limit: typing.Optional[int] = None,
         filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListAppClientsResponse:
+    ) -> AsyncPager[AppClient]:
         """
         Parameters
         ----------
@@ -408,12 +502,18 @@ class AsyncAppClientsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of App Clients after the limit has been reached.
 
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ListAppClientsResponse
+        AsyncPager[AppClient]
             An array of App Clients.
 
         Examples
@@ -430,7 +530,12 @@ class AsyncAppClientsClient:
 
 
         async def main() -> None:
-            await client.app_clients.list()
+            response = await client.app_clients.list()
+            async for item in response:
+                yield item
+            # alternatively, you can paginate page-by-page
+            async for page in response.iter_pages():
+                yield page
 
 
         asyncio.run(main())
@@ -444,17 +549,36 @@ class AsyncAppClientsClient:
                 "filter": filter,
                 "page_key": page_key,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListAppClientsResponse,
                     parse_obj_as(
                         type_=ListAppClientsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        limit=limit,
+                        filter=filter,
+                        page_key=_parsed_next,
+                        request_timeout=request_timeout,
+                        request_timeout_millis=request_timeout_millis,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.app_clients
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
@@ -484,6 +608,8 @@ class AsyncAppClientsClient:
         self,
         *,
         name: str,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -495,6 +621,12 @@ class AsyncAppClientsClient:
         ----------
         name : str
             Name of the client credentials.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         description : typing.Optional[str]
             Description of the client credentials.
@@ -541,6 +673,10 @@ class AsyncAppClientsClient:
                 "api_roles": api_roles,
                 "type": "client_credentials",
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
             omit=OMIT,
         )
@@ -578,12 +714,25 @@ class AsyncAppClientsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def get(self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> AppClient:
+    async def get(
+        self,
+        app_client_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AppClient:
         """
         Parameters
         ----------
         app_client_id : str
             The name of the App Client.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -618,6 +767,10 @@ class AsyncAppClientsClient:
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -644,12 +797,25 @@ class AsyncAppClientsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def delete(self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    async def delete(
+        self,
+        app_client_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> None:
         """
         Parameters
         ----------
         app_client_id : str
             The name of App Client.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -683,6 +849,10 @@ class AsyncAppClientsClient:
             f"v2/app_clients/{jsonable_encoder(app_client_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -707,6 +877,8 @@ class AsyncAppClientsClient:
         self,
         app_client_id: str,
         *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -716,6 +888,12 @@ class AsyncAppClientsClient:
         ----------
         app_client_id : str
             The name of App Client.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         description : typing.Optional[str]
             The new App Client description.
@@ -759,6 +937,10 @@ class AsyncAppClientsClient:
             json={
                 "description": description,
                 "api_roles": api_roles,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

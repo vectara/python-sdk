@@ -3,6 +3,8 @@
 from ..core.client_wrapper import SyncClientWrapper
 import typing
 from ..core.request_options import RequestOptions
+from ..core.pagination import SyncPager
+from ..types.encoder import Encoder
 from ..types.list_encoders_response import ListEncodersResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.forbidden_error import ForbiddenError
@@ -10,6 +12,7 @@ from ..types.error import Error
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper
+from ..core.pagination import AsyncPager
 
 
 class EncodersClient:
@@ -22,8 +25,10 @@ class EncodersClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListEncodersResponse:
+    ) -> SyncPager[Encoder]:
         """
         Encoders are used to store and retrieve from a corpus.
 
@@ -38,12 +43,18 @@ class EncodersClient:
         page_key : typing.Optional[str]
             Used to the retrieve the next page of encoders after the limit has been reached.
 
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ListEncodersResponse
+        SyncPager[Encoder]
             List of encoders.
 
         Examples
@@ -55,9 +66,14 @@ class EncodersClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.encoders.list(
+        response = client.encoders.list(
             filter="vectara.*",
         )
+        for item in response:
+            yield item
+        # alternatively, you can paginate page-by-page
+        for page in response.iter_pages():
+            yield page
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/encoders",
@@ -68,17 +84,36 @@ class EncodersClient:
                 "limit": limit,
                 "page_key": page_key,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListEncodersResponse,
                     parse_obj_as(
                         type_=ListEncodersResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        filter=filter,
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_timeout=request_timeout,
+                        request_timeout_millis=request_timeout_millis,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.encoders
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -105,8 +140,10 @@ class AsyncEncodersClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListEncodersResponse:
+    ) -> AsyncPager[Encoder]:
         """
         Encoders are used to store and retrieve from a corpus.
 
@@ -121,12 +158,18 @@ class AsyncEncodersClient:
         page_key : typing.Optional[str]
             Used to the retrieve the next page of encoders after the limit has been reached.
 
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ListEncodersResponse
+        AsyncPager[Encoder]
             List of encoders.
 
         Examples
@@ -143,9 +186,14 @@ class AsyncEncodersClient:
 
 
         async def main() -> None:
-            await client.encoders.list(
+            response = await client.encoders.list(
                 filter="vectara.*",
             )
+            async for item in response:
+                yield item
+            # alternatively, you can paginate page-by-page
+            async for page in response.iter_pages():
+                yield page
 
 
         asyncio.run(main())
@@ -159,17 +207,36 @@ class AsyncEncodersClient:
                 "limit": limit,
                 "page_key": page_key,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListEncodersResponse,
                     parse_obj_as(
                         type_=ListEncodersResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        filter=filter,
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_timeout=request_timeout,
+                        request_timeout_millis=request_timeout_millis,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.encoders
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(

@@ -17,8 +17,7 @@ from .documents.client import AsyncDocumentsClient, DocumentsClient
 from .encoders.client import AsyncEncodersClient, EncodersClient
 from .environment import VectaraEnvironment
 from .jobs.client import AsyncJobsClient, JobsClient
-from .large_language_models.client import AsyncLargeLanguageModelsClient, LargeLanguageModelsClient
-from .queries.client import AsyncQueriesClient, QueriesClient
+from .llms.client import AsyncLlmsClient, LlmsClient
 from .rerankers.client import AsyncRerankersClient, RerankersClient
 from .upload.client import AsyncUploadClient, UploadClient
 from .users.client import AsyncUsersClient, UsersClient
@@ -124,8 +123,7 @@ class Vectara:
         self.documents = DocumentsClient(client_wrapper=self._client_wrapper)
         self.encoders = EncodersClient(client_wrapper=self._client_wrapper)
         self.jobs = JobsClient(client_wrapper=self._client_wrapper)
-        self.large_language_models = LargeLanguageModelsClient(client_wrapper=self._client_wrapper)
-        self.queries = QueriesClient(client_wrapper=self._client_wrapper)
+        self.large_language_models = LlmsClient(client_wrapper=self._client_wrapper)
         self.rerankers = RerankersClient(client_wrapper=self._client_wrapper)
         self.upload = UploadClient(client_wrapper=self._client_wrapper)
         self.users = UsersClient(client_wrapper=self._client_wrapper)
@@ -232,8 +230,7 @@ class AsyncVectara:
         self.documents = AsyncDocumentsClient(client_wrapper=self._client_wrapper)
         self.encoders = AsyncEncodersClient(client_wrapper=self._client_wrapper)
         self.jobs = AsyncJobsClient(client_wrapper=self._client_wrapper)
-        self.large_language_models = AsyncLargeLanguageModelsClient(client_wrapper=self._client_wrapper)
-        self.queries = AsyncQueriesClient(client_wrapper=self._client_wrapper)
+        self.large_language_models = AsyncLlmsClient(client_wrapper=self._client_wrapper)
         self.rerankers = AsyncRerankersClient(client_wrapper=self._client_wrapper)
         self.upload = AsyncUploadClient(client_wrapper=self._client_wrapper)
         self.users = AsyncUsersClient(client_wrapper=self._client_wrapper)

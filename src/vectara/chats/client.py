@@ -17,7 +17,6 @@ from ..types.search_corpora_parameters import SearchCorporaParameters
 from ..types.generation_parameters import GenerationParameters
 from ..types.chat_parameters import ChatParameters
 from ..types.chat_streamed_response import ChatStreamedResponse
-import httpx_sse
 import json
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
@@ -41,6 +40,8 @@ class ChatsClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Chat]:
         """
@@ -53,6 +54,12 @@ class ChatsClient:
 
         page_key : typing.Optional[str]
             Used to the retrieve the next page of chats after the limit has been reached.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -86,6 +93,10 @@ class ChatsClient:
                 "limit": limit,
                 "page_key": page_key,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -105,6 +116,8 @@ class ChatsClient:
                     _get_next = lambda: self.list(
                         limit=limit,
                         page_key=_parsed_next,
+                        request_timeout=request_timeout,
+                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 _items = _parsed_response.chats
@@ -139,6 +152,8 @@ class ChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -152,6 +167,12 @@ class ChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -185,15 +206,17 @@ class ChatsClient:
             client_secret="YOUR_CLIENT_SECRET",
         )
         response = client.chats.create_stream(
+            request_timeout=1,
+            request_timeout_millis=1,
             query="string",
             search=SearchCorporaParameters(
                 corpora=[
                     KeyedSearchCorpus(
                         corpus_key={"key": "value"},
-                        custom_dimensions={"key": "value"},
-                        metadata_filter={"key": "value"},
-                        lexical_interpolation={"key": "value"},
-                        semantics={"key": "value"},
+                        custom_dimensions={"string": 1.1},
+                        metadata_filter="string",
+                        lexical_interpolation=1.1,
+                        semantics="default",
                     )
                 ],
                 offset=1,
@@ -208,11 +231,14 @@ class ChatsClient:
                 ),
                 reranker=CustomerSpecificReranker(
                     reranker_id="string",
+                    reranker_name="string",
                 ),
             ),
             generation=GenerationParameters(
+                generation_preset_name="string",
                 prompt_name="string",
                 max_used_search_results=1,
+                prompt_template="string",
                 prompt_text="string",
                 max_response_characters=1,
                 response_language="auto",
@@ -247,19 +273,24 @@ class ChatsClient:
                 "chat": chat,
                 "stream_response": True,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
             omit=OMIT,
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    for _sse in _event_source.iter_sse():
+                    for _text in _response.iter_lines():
                         try:
+                            if len(_text) == 0:
+                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_sse.data),
+                                    object_=json.loads(_text),
                                 ),
                             )
                         except:
@@ -306,6 +337,8 @@ class ChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -319,6 +352,12 @@ class ChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -356,6 +395,10 @@ class ChatsClient:
                 "generation": generation,
                 "chat": chat,
                 "stream_response": False,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -404,7 +447,14 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def get(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Chat:
+    def get(
+        self,
+        chat_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Chat:
         """
         Get a chat summary to view what started the chat, but not subsequent turns.
 
@@ -412,6 +462,12 @@ class ChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -438,6 +494,10 @@ class ChatsClient:
             f"v2/chats/{jsonable_encoder(chat_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -474,7 +534,14 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def delete(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    def delete(
+        self,
+        chat_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> None:
         """
         Delete a chat and any turns it contains permanently.
 
@@ -482,6 +549,12 @@ class ChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -507,6 +580,10 @@ class ChatsClient:
             f"v2/chats/{jsonable_encoder(chat_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -538,7 +615,12 @@ class ChatsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
     def list_turns(
-        self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        chat_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> ListChatTurnsResponse:
         """
         List all turns in a chat to see all message and response pairs that make up the dialog.
@@ -547,6 +629,12 @@ class ChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -573,6 +661,10 @@ class ChatsClient:
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -609,12 +701,14 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_turn_stream(
+    def create_turns_stream(
         self,
         chat_id: str,
         *,
         query: str,
         search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -631,6 +725,12 @@ class ChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -663,17 +763,19 @@ class ChatsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        response = client.chats.create_turn_stream(
+        response = client.chats.create_turns_stream(
             chat_id="string",
+            request_timeout=1,
+            request_timeout_millis=1,
             query="string",
             search=SearchCorporaParameters(
                 corpora=[
                     KeyedSearchCorpus(
                         corpus_key={"key": "value"},
-                        custom_dimensions={"key": "value"},
-                        metadata_filter={"key": "value"},
-                        lexical_interpolation={"key": "value"},
-                        semantics={"key": "value"},
+                        custom_dimensions={"string": 1.1},
+                        metadata_filter="string",
+                        lexical_interpolation=1.1,
+                        semantics="default",
                     )
                 ],
                 offset=1,
@@ -688,11 +790,14 @@ class ChatsClient:
                 ),
                 reranker=CustomerSpecificReranker(
                     reranker_id="string",
+                    reranker_name="string",
                 ),
             ),
             generation=GenerationParameters(
+                generation_preset_name="string",
                 prompt_name="string",
                 max_used_search_results=1,
+                prompt_template="string",
                 prompt_text="string",
                 max_response_characters=1,
                 response_language="auto",
@@ -727,19 +832,24 @@ class ChatsClient:
                 "chat": chat,
                 "stream_response": True,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
             omit=OMIT,
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    for _sse in _event_source.iter_sse():
+                    for _text in _response.iter_lines():
                         try:
+                            if len(_text) == 0:
+                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_sse.data),
+                                    object_=json.loads(_text),
                                 ),
                             )
                         except:
@@ -781,12 +891,14 @@ class ChatsClient:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def create_turn(
+    def create_turns(
         self,
         chat_id: str,
         *,
         query: str,
         search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -803,6 +915,12 @@ class ChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -825,7 +943,7 @@ class ChatsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.chats.create_turn(
+        client.chats.create_turns(
             chat_id="chat_id",
             query="How can I use the Vectara platform?",
             search=SearchCorporaParameters(),
@@ -841,6 +959,10 @@ class ChatsClient:
                 "generation": generation,
                 "chat": chat,
                 "stream_response": False,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -889,7 +1011,15 @@ class ChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def get_turn(self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Turn:
+    def get_turn(
+        self,
+        chat_id: str,
+        turn_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Turn:
         """
         Get a specific turn from a chat, which is a message and response pair from the conversation.
 
@@ -900,6 +1030,12 @@ class ChatsClient:
 
         turn_id : str
             The ID of the turn.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -927,6 +1063,10 @@ class ChatsClient:
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -964,7 +1104,13 @@ class ChatsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
     def delete_turn(
-        self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        chat_id: str,
+        turn_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
         Delete a turn from a chat. This will delete all subsequent turns in the chat.
@@ -976,6 +1122,12 @@ class ChatsClient:
 
         turn_id : str
             The ID of the turn.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1002,6 +1154,10 @@ class ChatsClient:
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -1037,6 +1193,8 @@ class ChatsClient:
         chat_id: str,
         turn_id: str,
         *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Turn:
@@ -1050,6 +1208,12 @@ class ChatsClient:
 
         turn_id : str
             The ID of the turn.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Indicates whether to disable a turn. It will disable this turn and all subsequent turns.
@@ -1084,6 +1248,10 @@ class ChatsClient:
             method="PATCH",
             json={
                 "enabled": enabled,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1132,6 +1300,8 @@ class AsyncChatsClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Chat]:
         """
@@ -1144,6 +1314,12 @@ class AsyncChatsClient:
 
         page_key : typing.Optional[str]
             Used to the retrieve the next page of chats after the limit has been reached.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1185,6 +1361,10 @@ class AsyncChatsClient:
                 "limit": limit,
                 "page_key": page_key,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -1204,6 +1384,8 @@ class AsyncChatsClient:
                     _get_next = lambda: self.list(
                         limit=limit,
                         page_key=_parsed_next,
+                        request_timeout=request_timeout,
+                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 _items = _parsed_response.chats
@@ -1238,6 +1420,8 @@ class AsyncChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -1251,6 +1435,12 @@ class AsyncChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -1289,15 +1479,17 @@ class AsyncChatsClient:
 
         async def main() -> None:
             response = await client.chats.create_stream(
+                request_timeout=1,
+                request_timeout_millis=1,
                 query="string",
                 search=SearchCorporaParameters(
                     corpora=[
                         KeyedSearchCorpus(
                             corpus_key={"key": "value"},
-                            custom_dimensions={"key": "value"},
-                            metadata_filter={"key": "value"},
-                            lexical_interpolation={"key": "value"},
-                            semantics={"key": "value"},
+                            custom_dimensions={"string": 1.1},
+                            metadata_filter="string",
+                            lexical_interpolation=1.1,
+                            semantics="default",
                         )
                     ],
                     offset=1,
@@ -1312,11 +1504,14 @@ class AsyncChatsClient:
                     ),
                     reranker=CustomerSpecificReranker(
                         reranker_id="string",
+                        reranker_name="string",
                     ),
                 ),
                 generation=GenerationParameters(
+                    generation_preset_name="string",
                     prompt_name="string",
                     max_used_search_results=1,
+                    prompt_template="string",
                     prompt_text="string",
                     max_response_characters=1,
                     response_language="auto",
@@ -1354,19 +1549,24 @@ class AsyncChatsClient:
                 "chat": chat,
                 "stream_response": True,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
             omit=OMIT,
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    async for _sse in _event_source.aiter_sse():
+                    async for _text in _response.aiter_lines():
                         try:
+                            if len(_text) == 0:
+                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_sse.data),
+                                    object_=json.loads(_text),
                                 ),
                             )
                         except:
@@ -1413,6 +1613,8 @@ class AsyncChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -1426,6 +1628,12 @@ class AsyncChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -1471,6 +1679,10 @@ class AsyncChatsClient:
                 "generation": generation,
                 "chat": chat,
                 "stream_response": False,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1519,7 +1731,14 @@ class AsyncChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def get(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Chat:
+    async def get(
+        self,
+        chat_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Chat:
         """
         Get a chat summary to view what started the chat, but not subsequent turns.
 
@@ -1527,6 +1746,12 @@ class AsyncChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1561,6 +1786,10 @@ class AsyncChatsClient:
             f"v2/chats/{jsonable_encoder(chat_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -1597,7 +1826,14 @@ class AsyncChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def delete(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
+    async def delete(
+        self,
+        chat_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> None:
         """
         Delete a chat and any turns it contains permanently.
 
@@ -1605,6 +1841,12 @@ class AsyncChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1638,6 +1880,10 @@ class AsyncChatsClient:
             f"v2/chats/{jsonable_encoder(chat_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -1669,7 +1915,12 @@ class AsyncChatsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
     async def list_turns(
-        self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        chat_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> ListChatTurnsResponse:
         """
         List all turns in a chat to see all message and response pairs that make up the dialog.
@@ -1678,6 +1929,12 @@ class AsyncChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1712,6 +1969,10 @@ class AsyncChatsClient:
             f"v2/chats/{jsonable_encoder(chat_id)}/turns",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -1748,12 +2009,14 @@ class AsyncChatsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_turn_stream(
+    async def create_turns_stream(
         self,
         chat_id: str,
         *,
         query: str,
         search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -1770,6 +2033,12 @@ class AsyncChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -1807,17 +2076,19 @@ class AsyncChatsClient:
 
 
         async def main() -> None:
-            response = await client.chats.create_turn_stream(
+            response = await client.chats.create_turns_stream(
                 chat_id="string",
+                request_timeout=1,
+                request_timeout_millis=1,
                 query="string",
                 search=SearchCorporaParameters(
                     corpora=[
                         KeyedSearchCorpus(
                             corpus_key={"key": "value"},
-                            custom_dimensions={"key": "value"},
-                            metadata_filter={"key": "value"},
-                            lexical_interpolation={"key": "value"},
-                            semantics={"key": "value"},
+                            custom_dimensions={"string": 1.1},
+                            metadata_filter="string",
+                            lexical_interpolation=1.1,
+                            semantics="default",
                         )
                     ],
                     offset=1,
@@ -1832,11 +2103,14 @@ class AsyncChatsClient:
                     ),
                     reranker=CustomerSpecificReranker(
                         reranker_id="string",
+                        reranker_name="string",
                     ),
                 ),
                 generation=GenerationParameters(
+                    generation_preset_name="string",
                     prompt_name="string",
                     max_used_search_results=1,
+                    prompt_template="string",
                     prompt_text="string",
                     max_response_characters=1,
                     response_language="auto",
@@ -1874,19 +2148,24 @@ class AsyncChatsClient:
                 "chat": chat,
                 "stream_response": True,
             },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
             omit=OMIT,
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    _event_source = httpx_sse.EventSource(_response)
-                    async for _sse in _event_source.aiter_sse():
+                    async for _text in _response.aiter_lines():
                         try:
+                            if len(_text) == 0:
+                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_sse.data),
+                                    object_=json.loads(_text),
                                 ),
                             )
                         except:
@@ -1928,12 +2207,14 @@ class AsyncChatsClient:
                 raise ApiError(status_code=_response.status_code, body=_response.text)
             raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def create_turn(
+    async def create_turns(
         self,
         chat_id: str,
         *,
         query: str,
         search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -1950,6 +2231,12 @@ class AsyncChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -1977,7 +2264,7 @@ class AsyncChatsClient:
 
 
         async def main() -> None:
-            await client.chats.create_turn(
+            await client.chats.create_turns(
                 chat_id="chat_id",
                 query="How can I use the Vectara platform?",
                 search=SearchCorporaParameters(),
@@ -1996,6 +2283,10 @@ class AsyncChatsClient:
                 "generation": generation,
                 "chat": chat,
                 "stream_response": False,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -2045,7 +2336,13 @@ class AsyncChatsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
     async def get_turn(
-        self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        chat_id: str,
+        turn_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> Turn:
         """
         Get a specific turn from a chat, which is a message and response pair from the conversation.
@@ -2057,6 +2354,12 @@ class AsyncChatsClient:
 
         turn_id : str
             The ID of the turn.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -2092,6 +2395,10 @@ class AsyncChatsClient:
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -2129,7 +2436,13 @@ class AsyncChatsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
     async def delete_turn(
-        self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None
+        self,
+        chat_id: str,
+        turn_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
         Delete a turn from a chat. This will delete all subsequent turns in the chat.
@@ -2141,6 +2454,12 @@ class AsyncChatsClient:
 
         turn_id : str
             The ID of the turn.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -2175,6 +2494,10 @@ class AsyncChatsClient:
             f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
             request_options=request_options,
         )
         try:
@@ -2210,6 +2533,8 @@ class AsyncChatsClient:
         chat_id: str,
         turn_id: str,
         *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Turn:
@@ -2223,6 +2548,12 @@ class AsyncChatsClient:
 
         turn_id : str
             The ID of the turn.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Indicates whether to disable a turn. It will disable this turn and all subsequent turns.
@@ -2265,6 +2596,10 @@ class AsyncChatsClient:
             method="PATCH",
             json={
                 "enabled": enabled,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
