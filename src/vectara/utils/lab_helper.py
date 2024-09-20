@@ -2,7 +2,7 @@ from vectara.managers import CreateCorpusRequest, CorpusManager
 from vectara.corpora.client import CorporaClient
 from vectara.config import ClientConfig, HomeConfigLoader, ApiKeyAuthConfig, OAuth2AuthConfig
 from vectara.types import Corpus, QueryFullResponse
-from typing import Union, Optional, List
+from typing import Union, Optional, List, Dict
 from abc import ABC
 import logging
 import os
@@ -300,10 +300,12 @@ class CitationUtil:
 
         summary_text = search_response.summary
 
+        if not summary_text:
+            raise Exception("You should only call streamline for responses with a summary")
         find_result = re.finditer(r"\[(\d)\]", summary_text)
 
         index = 1
-        dict_map = {}
+        dict_map: Dict[str, int] = {}
 
         # The end index of the last match.
         last_end = None
@@ -339,7 +341,7 @@ class CitationUtil:
 
             last_end = end
 
-        if last_end < len(summary_text):
+        if last_end and last_end < len(summary_text):
             results.append(summary_text[last_end:])
 
         result_summary = "".join(results)
@@ -384,6 +386,9 @@ class ResponseSetRenderer:
                 if show_search_results:
                     docs = []
                     for id in streamlined_response["result_indexes"]:
+                        if not response.search_results:
+                            self.logger.warning(f"Search results are empty, can not reference result [{id}]")
+                            continue
                         result = response.search_results[id]
                         doc_id = result.document_id
                         item = f.sentence(result.text) + " " + f.italic("score: " + str(result.score) + ", doc-id: " + doc_id)
@@ -398,11 +403,14 @@ class ResponseSetRenderer:
         # Build items
         if show_search_results and not results_included:
             docs = []
-            for index, result in enumerate(response.search_results):
-                doc_id = result.document_id
+            if not response.search_results:
+                self.logger.warning("Search results are empty, can not create final results")
+            else:
+                for index, result in enumerate(response.search_results):
+                    doc_id = result.document_id
 
-                item = f.sentence(result.text) + " " + f.italic("score: " + str(result.score) + ", doc-id: " + doc_id)
-                docs.append(item)
+                    item = f.sentence(result.text) + " " + f.italic("score: " + str(result.score) + ", doc-id: " + doc_id)
+                    docs.append(item)
 
             list_text = f.list(docs)
             results.append(list_text)
