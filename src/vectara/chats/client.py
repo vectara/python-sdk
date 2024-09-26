@@ -17,6 +17,7 @@ from ..types.search_corpora_parameters import SearchCorporaParameters
 from ..types.generation_parameters import GenerationParameters
 from ..types.chat_parameters import ChatParameters
 from ..types.chat_streamed_response import ChatStreamedResponse
+from ..core.serialization import convert_and_respect_annotation_metadata
 import json
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
@@ -268,9 +269,15 @@ class ChatsClient:
             method="POST",
             json={
                 "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
                 "stream_response": True,
             },
             headers={
@@ -391,9 +398,15 @@ class ChatsClient:
             method="POST",
             json={
                 "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
                 "stream_response": False,
             },
             headers={
@@ -827,9 +840,15 @@ class ChatsClient:
             method="POST",
             json={
                 "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
                 "stream_response": True,
             },
             headers={
@@ -955,9 +974,15 @@ class ChatsClient:
             method="POST",
             json={
                 "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
                 "stream_response": False,
             },
             headers={
@@ -1544,9 +1569,15 @@ class AsyncChatsClient:
             method="POST",
             json={
                 "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
                 "stream_response": True,
             },
             headers={
@@ -1675,9 +1706,15 @@ class AsyncChatsClient:
             method="POST",
             json={
                 "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
                 "stream_response": False,
             },
             headers={
@@ -2143,9 +2180,15 @@ class AsyncChatsClient:
             method="POST",
             json={
                 "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
                 "stream_response": True,
             },
             headers={
@@ -2279,9 +2322,15 @@ class AsyncChatsClient:
             method="POST",
             json={
                 "query": query,
-                "search": search,
-                "generation": generation,
-                "chat": chat,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
                 "stream_response": False,
             },
             headers={

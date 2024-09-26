@@ -16,6 +16,7 @@ from ..types.not_found_error_body import NotFoundErrorBody
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..types.create_document_request import CreateDocumentRequest
+from ..core.serialization import convert_and_respect_annotation_metadata
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
 from ..core.client_wrapper import AsyncClientWrapper
@@ -212,7 +213,9 @@ class DocumentsClient:
             f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            json=request,
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=CreateDocumentRequest, direction="write"
+            ),
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
@@ -643,7 +646,9 @@ class AsyncDocumentsClient:
             f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            json=request,
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=CreateDocumentRequest, direction="write"
+            ),
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
