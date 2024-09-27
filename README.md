@@ -269,7 +269,9 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.corpora.list()
+response = client.corpora.list(
+    limit=1,
+)
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page

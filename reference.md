@@ -285,6 +285,294 @@ client.query(
 </dl>
 </details>
 
+<details><summary><code>client.<a href="src/vectara/client.py">chat_stream</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a chat while specifying the default retrieval parameters used by the prompt.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import (
+    ChatParameters,
+    CitationParameters,
+    ContextConfiguration,
+    CustomerSpecificReranker,
+    GenerationParameters,
+    KeyedSearchCorpus,
+    ModelParameters,
+    SearchCorporaParameters,
+    Vectara,
+)
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+response = client.chat_stream(
+    request_timeout=1,
+    request_timeout_millis=1,
+    query="string",
+    search=SearchCorporaParameters(
+        corpora=[
+            KeyedSearchCorpus(
+                corpus_key={"key": "value"},
+                custom_dimensions={"string": 1.1},
+                metadata_filter="string",
+                lexical_interpolation=1.1,
+                semantics="default",
+            )
+        ],
+        offset=1,
+        limit=1,
+        context_configuration=ContextConfiguration(
+            characters_before=1,
+            characters_after=1,
+            sentences_before=1,
+            sentences_after=1,
+            start_tag="string",
+            end_tag="string",
+        ),
+        reranker=CustomerSpecificReranker(
+            reranker_id="string",
+            reranker_name="string",
+        ),
+    ),
+    generation=GenerationParameters(
+        generation_preset_name="string",
+        prompt_name="string",
+        max_used_search_results=1,
+        prompt_template="string",
+        prompt_text="string",
+        max_response_characters=1,
+        response_language="auto",
+        model_parameters=ModelParameters(
+            max_tokens=1,
+            temperature=1.1,
+            frequency_penalty=1.1,
+            presence_penalty=1.1,
+        ),
+        citations=CitationParameters(
+            style="none",
+            url_pattern="string",
+            text_pattern="string",
+        ),
+        enable_factual_consistency_score=True,
+    ),
+    chat=ChatParameters(
+        store=True,
+    ),
+)
+for chunk in response:
+    yield chunk
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**query:** `str` — The chat message or question.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**search:** `SearchCorporaParameters` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**generation:** `typing.Optional[GenerationParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**chat:** `typing.Optional[ChatParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.<a href="src/vectara/client.py">chat</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a chat while specifying the default retrieval parameters used by the prompt.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import SearchCorporaParameters, Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.chat(
+    query="How can I use the Vectara platform?",
+    search=SearchCorporaParameters(),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**query:** `str` — The chat message or question.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**search:** `SearchCorporaParameters` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**generation:** `typing.Optional[GenerationParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**chat:** `typing.Optional[ChatParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Corpora
 <details><summary><code>client.corpora.<a href="src/vectara/corpora/client.py">list</a>(...)</code></summary>
 <dl>
@@ -321,7 +609,9 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.corpora.list()
+response = client.corpora.list(
+    limit=1,
+)
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
@@ -2039,294 +2329,6 @@ for page in response.iter_pages():
 <dd>
 
 **request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.chats.<a href="src/vectara/chats/client.py">create_stream</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Create a chat while specifying the default retrieval parameters used by the prompt.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from vectara import (
-    ChatParameters,
-    CitationParameters,
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    ModelParameters,
-    SearchCorporaParameters,
-    Vectara,
-)
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-response = client.chats.create_stream(
-    request_timeout=1,
-    request_timeout_millis=1,
-    query="string",
-    search=SearchCorporaParameters(
-        corpora=[
-            KeyedSearchCorpus(
-                corpus_key={"key": "value"},
-                custom_dimensions={"string": 1.1},
-                metadata_filter="string",
-                lexical_interpolation=1.1,
-                semantics="default",
-            )
-        ],
-        offset=1,
-        limit=1,
-        context_configuration=ContextConfiguration(
-            characters_before=1,
-            characters_after=1,
-            sentences_before=1,
-            sentences_after=1,
-            start_tag="string",
-            end_tag="string",
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="string",
-            reranker_name="string",
-        ),
-    ),
-    generation=GenerationParameters(
-        generation_preset_name="string",
-        prompt_name="string",
-        max_used_search_results=1,
-        prompt_template="string",
-        prompt_text="string",
-        max_response_characters=1,
-        response_language="auto",
-        model_parameters=ModelParameters(
-            max_tokens=1,
-            temperature=1.1,
-            frequency_penalty=1.1,
-            presence_penalty=1.1,
-        ),
-        citations=CitationParameters(
-            style="none",
-            url_pattern="string",
-            text_pattern="string",
-        ),
-        enable_factual_consistency_score=True,
-    ),
-    chat=ChatParameters(
-        store=True,
-    ),
-)
-for chunk in response:
-    yield chunk
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**query:** `str` — The chat message or question.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**search:** `SearchCorporaParameters` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**generation:** `typing.Optional[GenerationParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**chat:** `typing.Optional[ChatParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.chats.<a href="src/vectara/chats/client.py">create</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Create a chat while specifying the default retrieval parameters used by the prompt.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from vectara import SearchCorporaParameters, Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.chats.create(
-    query="How can I use the Vectara platform?",
-    search=SearchCorporaParameters(),
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**query:** `str` — The chat message or question.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**search:** `SearchCorporaParameters` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**generation:** `typing.Optional[GenerationParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**chat:** `typing.Optional[ChatParameters]` 
     
 </dd>
 </dl>
