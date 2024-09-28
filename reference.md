@@ -1,5 +1,5 @@
 # Reference
-<details><summary><code>client.<a href="src/vectara/client.py">query_stream</a>(...)</code></summary>
+<details><summary><code>client.<a href="src/vectara/base_client.py">query_stream</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -171,7 +171,7 @@ for chunk in response:
 </dl>
 </details>
 
-<details><summary><code>client.<a href="src/vectara/client.py">query</a>(...)</code></summary>
+<details><summary><code>client.<a href="src/vectara/base_client.py">query</a>(...)</code></summary>
 <dl>
 <dd>
 
