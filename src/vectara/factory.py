@@ -29,13 +29,13 @@ class WrappedVectara(Vectara):
         self.lab_helper: Union[None, LabHelper] = None
 
 
-    def set_corpus_manager(self, corpus_manager: CorpusManager):
+    def set_corpus_manager(self, corpus_manager: CorpusManager) -> None:
         self.corpus_manager = corpus_manager
 
-    def set_upload_manager(self, upload_manager: UploadManager):
+    def set_upload_manager(self, upload_manager: UploadManager) -> None:
         self.upload_manager = upload_manager
 
-    def set_lab_helper(self, lab_helper: LabHelper):
+    def set_lab_helper(self, lab_helper: LabHelper) -> None:
         self.lab_helper = lab_helper
 
 
