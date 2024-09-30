@@ -13,40 +13,40 @@ class CreateCorpusRequest(BaseModel):
     Created temporarily as we don't have wrapper around parameters for Corpus Creation.
     """
 
-    key: Optional[str] = Field(default=None, allow_mutation=True)
-    name: Optional[str] = Field(default=None, allow_mutation=True)
+    key: Optional[str] = Field(default=None)
+    name: Optional[str] = Field(default=None)
     """
     Name for the corpus. This value defaults to the key.
     """
 
-    description: Optional[str] = Field(default=None, allow_mutation=True)
+    description: Optional[str] = Field(default=None)
     """
     Corpus description.
     """
 
-    queries_are_answers: Optional[bool] = Field(default=None, allow_mutation=True)
+    queries_are_answers: Optional[bool] = Field(default=None)
     """
     Queries made to this corpus are considered answers, and not questions.
     This swaps the semantics of the encoder used at query time.
     """
 
-    documents_are_questions: Optional[bool] = Field(default=None, allow_mutation=True)
+    documents_are_questions: Optional[bool] = Field(default=None)
     """
     Documents inside this corpus are considered questions, and not answers.
     This swaps the semantics of the encoder used at indexing.
     """
 
-    encoder_id: Optional[str] = Field(default=None, allow_mutation=True)
+    encoder_id: Optional[str] = Field(default=None)
     """
     The encoder used by the corpus.
     """
 
-    filter_attributes: Optional[List[FilterAttribute]] = Field(default=None, allow_mutation=True)
+    filter_attributes: Optional[List[FilterAttribute]] = Field(default=None)
     """
     The new filter attributes of the corpus.
     """
 
-    custom_dimensions: Optional[List[CorpusCustomDimension]] = Field(default=None, allow_mutation=True)
+    custom_dimensions: Optional[List[CorpusCustomDimension]] = Field(default=None)
     """
     The custom dimensions of all document parts inside the corpus.
     """

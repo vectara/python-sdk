@@ -1,5 +1,5 @@
 from .config.config import JsonConfigLoader, PathConfigLoader, HomeConfigLoader, BaseConfigLoader
-from .client import Vectara
+from .base_client import BaseVectara
 from vectara.managers.corpus import CorpusManager
 from vectara.managers.upload import UploadManager, UploadWrapper
 from vectara.utils import LabHelper
@@ -12,7 +12,7 @@ from typing import Union, Optional, Callable
 import logging
 import os
 
-class WrappedVectara(Vectara):
+class WrappedVectara(BaseVectara):
     """
     We extend the Vectara client, adding additional helper services. Due to the methodology used in the
     Vectara constructor, hard-coding dependencies and using an internal wrapper, we use lazy initialization
