@@ -5,6 +5,10 @@
 
 The Vectara Python library provides convenient access to the Vectara API from Python.
 
+## Documentation
+
+API reference documentation is available [here](https://vectara.docs.buildwithfern.com/).
+
 ## Installation
 
 ```sh
@@ -20,74 +24,17 @@ A full reference for this library is available [here](./reference.md).
 Instantiate and use the client with the following:
 
 ```python
-from vectara import (
-    CitationParameters,
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    ModelParameters,
-    SearchCorporaParameters,
-    Vectara,
-)
+from vectara import SearchCorporaParameters, Vectara
 
 client = Vectara(
     api_key="YOUR_API_KEY",
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.query_stream(
-    request_timeout=1,
-    request_timeout_millis=1,
-    query="string",
-    search=SearchCorporaParameters(
-        corpora=[
-            KeyedSearchCorpus(
-                custom_dimensions={"string": 1.1},
-                metadata_filter="string",
-                lexical_interpolation=1.1,
-                semantics="default",
-            )
-        ],
-        offset=1,
-        limit=1,
-        context_configuration=ContextConfiguration(
-            characters_before=1,
-            characters_after=1,
-            sentences_before=1,
-            sentences_after=1,
-            start_tag="string",
-            end_tag="string",
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="string",
-            reranker_name="string",
-        ),
-    ),
-    generation=GenerationParameters(
-        generation_preset_name="string",
-        prompt_name="string",
-        max_used_search_results=1,
-        prompt_template="string",
-        prompt_text="string",
-        max_response_characters=1,
-        response_language="auto",
-        model_parameters=ModelParameters(
-            max_tokens=1,
-            temperature=1.1,
-            frequency_penalty=1.1,
-            presence_penalty=1.1,
-        ),
-        citations=CitationParameters(
-            style="none",
-            url_pattern="string",
-            text_pattern="string",
-        ),
-        enable_factual_consistency_score=True,
-    ),
+client.query(
+    query="Am I allowed to bring pets to work?",
+    search=SearchCorporaParameters(),
 )
-for chunk in response:
-    yield chunk
 ```
 
 ## Async Client
@@ -97,16 +44,7 @@ The SDK also exports an `async` client so that you can make non-blocking calls t
 ```python
 import asyncio
 
-from vectara import (
-    AsyncVectara,
-    CitationParameters,
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    ModelParameters,
-    SearchCorporaParameters,
-)
+from vectara import AsyncVectara, SearchCorporaParameters
 
 client = AsyncVectara(
     api_key="YOUR_API_KEY",
@@ -116,58 +54,10 @@ client = AsyncVectara(
 
 
 async def main() -> None:
-    response = await client.query_stream(
-        request_timeout=1,
-        request_timeout_millis=1,
-        query="string",
-        search=SearchCorporaParameters(
-            corpora=[
-                KeyedSearchCorpus(
-                    custom_dimensions={"string": 1.1},
-                    metadata_filter="string",
-                    lexical_interpolation=1.1,
-                    semantics="default",
-                )
-            ],
-            offset=1,
-            limit=1,
-            context_configuration=ContextConfiguration(
-                characters_before=1,
-                characters_after=1,
-                sentences_before=1,
-                sentences_after=1,
-                start_tag="string",
-                end_tag="string",
-            ),
-            reranker=CustomerSpecificReranker(
-                reranker_id="string",
-                reranker_name="string",
-            ),
-        ),
-        generation=GenerationParameters(
-            generation_preset_name="string",
-            prompt_name="string",
-            max_used_search_results=1,
-            prompt_template="string",
-            prompt_text="string",
-            max_response_characters=1,
-            response_language="auto",
-            model_parameters=ModelParameters(
-                max_tokens=1,
-                temperature=1.1,
-                frequency_penalty=1.1,
-                presence_penalty=1.1,
-            ),
-            citations=CitationParameters(
-                style="none",
-                url_pattern="string",
-                text_pattern="string",
-            ),
-            enable_factual_consistency_score=True,
-        ),
+    await client.query(
+        query="Am I allowed to bring pets to work?",
+        search=SearchCorporaParameters(),
     )
-    async for chunk in response:
-        yield chunk
 
 
 asyncio.run(main())
@@ -182,7 +72,7 @@ will be thrown.
 from vectara.core.api_error import ApiError
 
 try:
-    client.query_stream(...)
+    client.query(...)
 except ApiError as e:
     print(e.status_code)
     print(e.body)
@@ -298,7 +188,7 @@ A request is deemed retriable when any of the following HTTP status codes is ret
 Use the `max_retries` request option to configure this behavior.
 
 ```python
-client.query_stream(..., request_options={
+client.query(..., request_options={
     "max_retries": 1
 })
 ```
@@ -318,7 +208,7 @@ client = Vectara(
 
 
 # Override timeout for a specific method
-client.query_stream(..., request_options={
+client.query(..., request_options={
     "timeout_in_seconds": 1
 })
 ```
