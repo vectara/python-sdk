@@ -34,7 +34,7 @@ class UploadClient:
         file: core.File,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = None,
+        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
@@ -160,7 +160,7 @@ class AsyncUploadClient:
         file: core.File,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = None,
+        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
