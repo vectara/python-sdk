@@ -35,6 +35,9 @@ from .errors.not_found_error import NotFoundError
 from .types.not_found_error_body import NotFoundErrorBody
 from json.decoder import JSONDecodeError
 from .types.query_full_response import QueryFullResponse
+from .types.chat_parameters import ChatParameters
+from .types.chat_streamed_response import ChatStreamedResponse
+from .types.chat_full_response import ChatFullResponse
 from .core.client_wrapper import AsyncClientWrapper
 from .corpora.client import AsyncCorporaClient
 from .upload.client import AsyncUploadClient
@@ -54,7 +57,7 @@ from .auth.client import AsyncAuthClient
 OMIT = typing.cast(typing.Any, ...)
 
 
-class Vectara:
+class BaseVectara:
     """
     Use this class to access the different functions within the SDK. You can instantiate any number of clients with different configuration that will propagate to these functions.
 
@@ -221,7 +224,6 @@ class Vectara:
             search=SearchCorporaParameters(
                 corpora=[
                     KeyedSearchCorpus(
-                        corpus_key={"key": "value"},
                         custom_dimensions={"string": 1.1},
                         metadata_filter="string",
                         lexical_interpolation=1.1,
@@ -465,8 +467,319 @@ class Vectara:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
+    def chat_stream(
+        self,
+        *,
+        query: str,
+        search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        chat: typing.Optional[ChatParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> typing.Iterator[ChatStreamedResponse]:
+        """
+        Create a chat while specifying the default retrieval parameters used by the prompt.
 
-class AsyncVectara:
+        Parameters
+        ----------
+        query : str
+            The chat message or question.
+
+        search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        generation : typing.Optional[GenerationParameters]
+
+        chat : typing.Optional[ChatParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Yields
+        ------
+        typing.Iterator[ChatStreamedResponse]
+
+
+        Examples
+        --------
+        from vectara import (
+            ChatParameters,
+            CitationParameters,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            ModelParameters,
+            SearchCorporaParameters,
+            Vectara,
+        )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        response = client.chat_stream(
+            request_timeout=1,
+            request_timeout_millis=1,
+            query="string",
+            search=SearchCorporaParameters(
+                corpora=[
+                    KeyedSearchCorpus(
+                        custom_dimensions={"string": 1.1},
+                        metadata_filter="string",
+                        lexical_interpolation=1.1,
+                        semantics="default",
+                    )
+                ],
+                offset=1,
+                limit=1,
+                context_configuration=ContextConfiguration(
+                    characters_before=1,
+                    characters_after=1,
+                    sentences_before=1,
+                    sentences_after=1,
+                    start_tag="string",
+                    end_tag="string",
+                ),
+                reranker=CustomerSpecificReranker(
+                    reranker_id="string",
+                    reranker_name="string",
+                ),
+            ),
+            generation=GenerationParameters(
+                generation_preset_name="string",
+                prompt_name="string",
+                max_used_search_results=1,
+                prompt_template="string",
+                prompt_text="string",
+                max_response_characters=1,
+                response_language="auto",
+                model_parameters=ModelParameters(
+                    max_tokens=1,
+                    temperature=1.1,
+                    frequency_penalty=1.1,
+                    presence_penalty=1.1,
+                ),
+                citations=CitationParameters(
+                    style="none",
+                    url_pattern="string",
+                    text_pattern="string",
+                ),
+                enable_factual_consistency_score=True,
+            ),
+            chat=ChatParameters(
+                store=True,
+            ),
+        )
+        for chunk in response:
+            yield chunk
+        """
+        with self._client_wrapper.httpx_client.stream(
+            "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            json={
+                "query": query,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
+                "stream_response": True,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        ) as _response:
+            try:
+                if 200 <= _response.status_code < 300:
+                    for _text in _response.iter_lines():
+                        try:
+                            if len(_text) == 0:
+                                continue
+                            yield typing.cast(
+                                ChatStreamedResponse,
+                                parse_obj_as(
+                                    type_=ChatStreamedResponse,  # type: ignore
+                                    object_=json.loads(_text),
+                                ),
+                            )
+                        except:
+                            pass
+                    return
+                _response.read()
+                if _response.status_code == 400:
+                    raise BadRequestError(
+                        typing.cast(
+                            BadRequestErrorBody,
+                            parse_obj_as(
+                                type_=BadRequestErrorBody,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                if _response.status_code == 403:
+                    raise ForbiddenError(
+                        typing.cast(
+                            Error,
+                            parse_obj_as(
+                                type_=Error,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                if _response.status_code == 404:
+                    raise NotFoundError(
+                        typing.cast(
+                            NotFoundErrorBody,
+                            parse_obj_as(
+                                type_=NotFoundErrorBody,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                _response_json = _response.json()
+            except JSONDecodeError:
+                raise ApiError(status_code=_response.status_code, body=_response.text)
+            raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def chat(
+        self,
+        *,
+        query: str,
+        search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        chat: typing.Optional[ChatParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ChatFullResponse:
+        """
+        Create a chat while specifying the default retrieval parameters used by the prompt.
+
+        Parameters
+        ----------
+        query : str
+            The chat message or question.
+
+        search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        generation : typing.Optional[GenerationParameters]
+
+        chat : typing.Optional[ChatParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ChatFullResponse
+
+
+        Examples
+        --------
+        from vectara import SearchCorporaParameters, Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.chat(
+            query="How can I use the Vectara platform?",
+            search=SearchCorporaParameters(),
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            json={
+                "query": query,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
+                "stream_response": False,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    ChatFullResponse,
+                    parse_obj_as(
+                        type_=ChatFullResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+
+class AsyncBaseVectara:
     """
     Use this class to access the different functions within the SDK. You can instantiate any number of clients with different configuration that will propagate to these functions.
 
@@ -638,7 +951,6 @@ class AsyncVectara:
                 search=SearchCorporaParameters(
                     corpora=[
                         KeyedSearchCorpus(
-                            corpus_key={"key": "value"},
                             custom_dimensions={"string": 1.1},
                             metadata_filter="string",
                             lexical_interpolation=1.1,
@@ -855,6 +1167,333 @@ class AsyncVectara:
                     QueryFullResponse,
                     parse_obj_as(
                         type_=QueryFullResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def chat_stream(
+        self,
+        *,
+        query: str,
+        search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        chat: typing.Optional[ChatParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> typing.AsyncIterator[ChatStreamedResponse]:
+        """
+        Create a chat while specifying the default retrieval parameters used by the prompt.
+
+        Parameters
+        ----------
+        query : str
+            The chat message or question.
+
+        search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        generation : typing.Optional[GenerationParameters]
+
+        chat : typing.Optional[ChatParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Yields
+        ------
+        typing.AsyncIterator[ChatStreamedResponse]
+
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import (
+            AsyncVectara,
+            ChatParameters,
+            CitationParameters,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            ModelParameters,
+            SearchCorporaParameters,
+        )
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
+        async def main() -> None:
+            response = await client.chat_stream(
+                request_timeout=1,
+                request_timeout_millis=1,
+                query="string",
+                search=SearchCorporaParameters(
+                    corpora=[
+                        KeyedSearchCorpus(
+                            custom_dimensions={"string": 1.1},
+                            metadata_filter="string",
+                            lexical_interpolation=1.1,
+                            semantics="default",
+                        )
+                    ],
+                    offset=1,
+                    limit=1,
+                    context_configuration=ContextConfiguration(
+                        characters_before=1,
+                        characters_after=1,
+                        sentences_before=1,
+                        sentences_after=1,
+                        start_tag="string",
+                        end_tag="string",
+                    ),
+                    reranker=CustomerSpecificReranker(
+                        reranker_id="string",
+                        reranker_name="string",
+                    ),
+                ),
+                generation=GenerationParameters(
+                    generation_preset_name="string",
+                    prompt_name="string",
+                    max_used_search_results=1,
+                    prompt_template="string",
+                    prompt_text="string",
+                    max_response_characters=1,
+                    response_language="auto",
+                    model_parameters=ModelParameters(
+                        max_tokens=1,
+                        temperature=1.1,
+                        frequency_penalty=1.1,
+                        presence_penalty=1.1,
+                    ),
+                    citations=CitationParameters(
+                        style="none",
+                        url_pattern="string",
+                        text_pattern="string",
+                    ),
+                    enable_factual_consistency_score=True,
+                ),
+                chat=ChatParameters(
+                    store=True,
+                ),
+            )
+            async for chunk in response:
+                yield chunk
+
+
+        asyncio.run(main())
+        """
+        async with self._client_wrapper.httpx_client.stream(
+            "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            json={
+                "query": query,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
+                "stream_response": True,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        ) as _response:
+            try:
+                if 200 <= _response.status_code < 300:
+                    async for _text in _response.aiter_lines():
+                        try:
+                            if len(_text) == 0:
+                                continue
+                            yield typing.cast(
+                                ChatStreamedResponse,
+                                parse_obj_as(
+                                    type_=ChatStreamedResponse,  # type: ignore
+                                    object_=json.loads(_text),
+                                ),
+                            )
+                        except:
+                            pass
+                    return
+                await _response.aread()
+                if _response.status_code == 400:
+                    raise BadRequestError(
+                        typing.cast(
+                            BadRequestErrorBody,
+                            parse_obj_as(
+                                type_=BadRequestErrorBody,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                if _response.status_code == 403:
+                    raise ForbiddenError(
+                        typing.cast(
+                            Error,
+                            parse_obj_as(
+                                type_=Error,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                if _response.status_code == 404:
+                    raise NotFoundError(
+                        typing.cast(
+                            NotFoundErrorBody,
+                            parse_obj_as(
+                                type_=NotFoundErrorBody,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                _response_json = _response.json()
+            except JSONDecodeError:
+                raise ApiError(status_code=_response.status_code, body=_response.text)
+            raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def chat(
+        self,
+        *,
+        query: str,
+        search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        chat: typing.Optional[ChatParameters] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ChatFullResponse:
+        """
+        Create a chat while specifying the default retrieval parameters used by the prompt.
+
+        Parameters
+        ----------
+        query : str
+            The chat message or question.
+
+        search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        generation : typing.Optional[GenerationParameters]
+
+        chat : typing.Optional[ChatParameters]
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ChatFullResponse
+
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara, SearchCorporaParameters
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
+        async def main() -> None:
+            await client.chat(
+                query="How can I use the Vectara platform?",
+                search=SearchCorporaParameters(),
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            json={
+                "query": query,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
+                "stream_response": False,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    ChatFullResponse,
+                    parse_obj_as(
+                        type_=ChatFullResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

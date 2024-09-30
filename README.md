@@ -1,6 +1,6 @@
 # Vectara Python Library
 
-[![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-SDK%20generated%20by%20Fern-brightgreen)](https://github.com/fern-api/fern)
+[![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2Fvectara%2Fpython-sdk)
 [![pypi](https://img.shields.io/pypi/v/vectara)](https://pypi.python.org/pypi/vectara)
 
 The Vectara Python library provides convenient access to the Vectara API from Python.
@@ -39,7 +39,6 @@ response = client.query_stream(
     search=SearchCorporaParameters(
         corpora=[
             KeyedSearchCorpus(
-                corpus_key={"key": "value"},
                 custom_dimensions={"string": 1.1},
                 metadata_filter="string",
                 lexical_interpolation=1.1,
@@ -120,7 +119,6 @@ async def main() -> None:
         search=SearchCorporaParameters(
             corpora=[
                 KeyedSearchCorpus(
-                    corpus_key={"key": "value"},
                     custom_dimensions={"string": 1.1},
                     metadata_filter="string",
                     lexical_interpolation=1.1,
@@ -269,7 +267,9 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.corpora.list()
+response = client.corpora.list(
+    limit=1,
+)
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
