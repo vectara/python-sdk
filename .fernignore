@@ -3,6 +3,7 @@
 .github/workflows/ci.yml
 
 src/vectara/auth/client.py
+src/vectara/base_client.py
 
 src/vectara/config/
 src/vectara/config/*.py
@@ -15,7 +16,6 @@ src/vectara/managers/__init__.py
 
 src/vectara/utils/
 
-tests/
 int_tests/
 
 examples/
