@@ -13,6 +13,35 @@ class UserFunctionReranker(UniversalBaseModel):
     The user defined function.
     """
 
+    limit: typing.Optional[int] = pydantic.Field(default=None)
+    """
+    Specifies the maximum number of results to be returned after the reranking process.
+    When a reranker is applied, it performs the following steps:
+    
+    1. Reranks all input results according to its algorithm.
+    2. Sorts the reranked results based on their new scores.
+    3. Returns the top N results, where N is the value specified by this limit.
+    
+    Note: This limit is applied per reranking stage. In a chain of rerankers,
+    each reranker can have its own limit, potentially reducing the number of
+    results at each stage.
+    """
+
+    cutoff: typing.Optional[float] = pydantic.Field(default=None)
+    """
+    Specifies the minimum score threshold for results to be included after the reranking process.
+    When a reranker is applied with a cutoff, it performs the following steps:
+    
+    1. Reranks all input results according to its algorithm.
+    2. Applies the cutoff, removing any results with scores below the specified threshold.
+    3. Returns the remaining results, sorted by their new scores.
+    
+    Note: This cutoff is applied per reranking stage. In a chain of rerankers,
+    each reranker can have its own cutoff, potentially further reducing the number of
+    results at each stage. If both 'limit' and 'cutoff' are specified, the cutoff
+    is applied first, followed by the limit.
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

@@ -20,7 +20,7 @@ class Encoder(UniversalBaseModel):
     output_dimensions: typing.Optional[int] = pydantic.Field(default=None)
     """
     When this encoder is used to create an embedding, it shows the count of dimensions for the output embedding.
-    A high dimensionality will consume more storage space, but it allows for an increase the quality of
+    A high dimensionality will consume more storage space, but it allows for an increase in the quality of
     the embedding.
     """
 
@@ -31,7 +31,7 @@ class Encoder(UniversalBaseModel):
 
     default: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    Indicates whether the encoder is default used when creating a corpus.
+    Indicates whether the default encoder is used when creating a corpus.
     """
 
     enabled: typing.Optional[bool] = pydantic.Field(default=None)

@@ -41,7 +41,7 @@ class RerankersClient:
             The maximum number of rerankers to return in the list.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of rerankers after the limit has been reached.
+            Used to retrieve the next page of rerankers after the limit has been reached.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -156,7 +156,7 @@ class AsyncRerankersClient:
             The maximum number of rerankers to return in the list.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of rerankers after the limit has been reached.
+            Used to retrieve the next page of rerankers after the limit has been reached.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.

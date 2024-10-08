@@ -9,7 +9,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 class NotFoundErrorBody(UniversalBaseModel):
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The ID cannot found.
+    The ID cannot be found.
     """
 
     messages: typing.Optional[typing.List[str]] = None

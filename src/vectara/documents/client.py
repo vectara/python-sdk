@@ -55,7 +55,7 @@ class DocumentsClient:
             allows filtering on document metadata.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of documents after the limit has been reached.
+            Used to retrieve the next page of documents after the limit has been reached.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -165,7 +165,7 @@ class DocumentsClient:
     ) -> Document:
         """
         Add a document to a corpus. You can add documents that are either in a typical structured format,
-        or in a format that explicitly specifies each document part that becomes a search result.
+        or in a format that explicitly specifies each document part. Each part becomes a separate search result.
 
         Parameters
         ----------
@@ -472,7 +472,7 @@ class AsyncDocumentsClient:
             allows filtering on document metadata.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of documents after the limit has been reached.
+            Used to retrieve the next page of documents after the limit has been reached.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -590,7 +590,7 @@ class AsyncDocumentsClient:
     ) -> Document:
         """
         Add a document to a corpus. You can add documents that are either in a typical structured format,
-        or in a format that explicitly specifies each document part that becomes a search result.
+        or in a format that explicitly specifies each document part. Each part becomes a separate search result.
 
         Parameters
         ----------

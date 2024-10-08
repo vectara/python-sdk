@@ -41,7 +41,7 @@ class GenerationPresetsClient:
             The maximum number of results to return in the list.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of generation presets after the limit has been reached.
+            Used to retrieve the next page of generation presets after the limit has been reached.
             This parameter is not needed for the first page of results.
 
         request_timeout : typing.Optional[int]
@@ -138,7 +138,7 @@ class AsyncGenerationPresetsClient:
             The maximum number of results to return in the list.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of generation presets after the limit has been reached.
+            Used to retrieve the next page of generation presets after the limit has been reached.
             This parameter is not needed for the first page of results.
 
         request_timeout : typing.Optional[int]

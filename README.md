@@ -121,6 +121,8 @@ response = client.corpora.query_stream(
         reranker=CustomerSpecificReranker(
             reranker_id="string",
             reranker_name="string",
+            limit=1,
+            cutoff=1.1,
         ),
     ),
     generation=GenerationParameters(

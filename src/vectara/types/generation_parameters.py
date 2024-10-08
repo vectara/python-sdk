@@ -20,7 +20,7 @@ class GenerationParameters(UniversalBaseModel):
     
     A `generation_preset` is an object with a bundle of properties that specifies:
     
-    - The `prompt_template` that is rendered then sent to the LLM.
+    - The `prompt_template` that is rendered and then sent to the LLM.
     - The LLM used.
     - `model_parameter`s such as temperature.
     
@@ -28,7 +28,7 @@ class GenerationParameters(UniversalBaseModel):
     object. Even when a `prompt_template` is set, the `generation_preset_name` is used to set
     the model used.
     
-    If `generation_preset_name` is not set the Vectara platform will use the default model and
+    If `generation_preset_name` is not set, the Vectara platform will use the default model and
     prompt.
     """
 
@@ -54,7 +54,7 @@ class GenerationParameters(UniversalBaseModel):
 
     prompt_text: typing.Optional[str] = pydantic.Field(default=None)
     """
-    This is property is deprecated in favor clearer naming. Use `prompt_template`. This property will be
+    This property is deprecated in favor clearer naming. Use `prompt_template`. This property will be
     ignored if `prompt_template` is set.
     """
 
@@ -66,7 +66,7 @@ class GenerationParameters(UniversalBaseModel):
     prompt, and the LLM's instruction following capability dictates how closely the generated output
     is limited.
     
-    So, this value This is currently a Scale-only feature.
+    This is currently a Scale-only feature.
     See [pricing](https://vectara.com/pricing/) for more details on becoming a Scale customer.
     """
 

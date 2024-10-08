@@ -13,31 +13,31 @@ class ContextConfiguration(UniversalBaseModel):
 
     characters_before: typing.Optional[int] = pydantic.Field(default=None)
     """
-    The number of characters before the matching document part that are shown.
+    The number of characters that are shown before the matching document part.
     This is useful to show the context of the document part in the wider document.
     Ignored if `sentences_before` is set.
     Vectara will capture the full sentence that contains the captured characters,
-    so as to not lose the meaning caused by a truncated word or sentence.
+    to not lose the meaning caused by a truncated word or sentence.
     """
 
     characters_after: typing.Optional[int] = pydantic.Field(default=None)
     """
-    The number of characters after the matching document part that are shown.
+    The number of characters that are shown after the matching document part.
     This is useful to show the context of the document part in the wider document.
     Ignored if `sentences_after` is set.
     Vectara will capture the full sentence that contains the captured characters,
-    so as to not lose the meaning caused by a truncated word or sentence.
+    to not lose the meaning caused by a truncated word or sentence.
     """
 
     sentences_before: typing.Optional[int] = pydantic.Field(default=None)
     """
-    The number of sentences before the matching document part that are shown.
+    The number of sentences that are shown before the matching document part.
     This is useful to show the context of the document part in the wider document.
     """
 
     sentences_after: typing.Optional[int] = pydantic.Field(default=None)
     """
-    The number of sentences after the matching document part that are shown.
+    The number of sentences that are shown after the matching document part.
     This is useful to show the context of the document part in the wider document.
     """
 

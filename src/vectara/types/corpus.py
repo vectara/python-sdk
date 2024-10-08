@@ -35,7 +35,7 @@ class Corpus(UniversalBaseModel):
 
     chat_history_corpus: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    Indicates that this corpus does not store documents amd stores chats instead.
+    Indicates that this corpus does not store documents and stores chats instead.
     """
 
     queries_are_answers: typing.Optional[bool] = pydantic.Field(default=None)
