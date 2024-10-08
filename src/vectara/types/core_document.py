@@ -14,7 +14,7 @@ class CoreDocument(UniversalBaseModel):
 
     id: str = pydantic.Field()
     """
-    The Document ID, must be unique within the corpus.
+    The document ID, must be unique within the corpus.
     """
 
     type: typing.Literal["core"] = "core"

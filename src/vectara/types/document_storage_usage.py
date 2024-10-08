@@ -9,7 +9,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 class DocumentStorageUsage(UniversalBaseModel):
     """
     How much storage the document used. This information is currently not returned when
-    retrieving the document, and only returned when indexing document.
+    retrieving the document, and only returned when indexing a document.
     """
 
     bytes_used: typing.Optional[int] = pydantic.Field(default=None)
@@ -20,7 +20,7 @@ class DocumentStorageUsage(UniversalBaseModel):
 
     metadata_bytes_used: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Number of metadata bytes used by document metadata.
+    Number of metadata bytes used by a document.
     """
 
     if IS_PYDANTIC_V2:

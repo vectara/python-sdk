@@ -2,6 +2,7 @@
 
 import typing
 from ..core.client_wrapper import SyncClientWrapper
+from ..types.corpus_key import CorpusKey
 from ..core.request_options import RequestOptions
 from ..core.pagination import SyncPager
 from ..types.api_key import ApiKey
@@ -14,7 +15,6 @@ from ..types.error import Error
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..types.api_key_role import ApiKeyRole
-from ..types.corpus_key import CorpusKey
 from ..core.jsonable_encoder import jsonable_encoder
 from ..core.client_wrapper import AsyncClientWrapper
 from ..core.pagination import AsyncPager
@@ -32,6 +32,7 @@ class ApiKeysClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
+        corpus_key: typing.Optional[CorpusKey] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
@@ -43,7 +44,10 @@ class ApiKeysClient:
             Max number of API keys to return at one time.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of API keys after the limit has been reached.
+            Used to retrieve the next page of API keys after the limit has been reached.
+
+        corpus_key : typing.Optional[CorpusKey]
+            Filters the API keys to only those with permissions on the specified corpus key.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -68,7 +72,9 @@ class ApiKeysClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        response = client.api_keys.list()
+        response = client.api_keys.list(
+            corpus_key="my-corpus",
+        )
         for item in response:
             yield item
         # alternatively, you can paginate page-by-page
@@ -82,6 +88,7 @@ class ApiKeysClient:
             params={
                 "limit": limit,
                 "page_key": page_key,
+                "corpus_key": corpus_key,
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -106,6 +113,7 @@ class ApiKeysClient:
                     _get_next = lambda: self.list(
                         limit=limit,
                         page_key=_parsed_next,
+                        corpus_key=corpus_key,
                         request_timeout=request_timeout,
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
@@ -175,7 +183,7 @@ class ApiKeysClient:
         Returns
         -------
         ApiKey
-            An API Key object, used to query the Vectara API with the assigned roles.
+            An API key object, used to query the Vectara API with the assigned roles.
 
         Examples
         --------
@@ -253,7 +261,7 @@ class ApiKeysClient:
         Parameters
         ----------
         api_key_id : str
-            The name of the API key.
+            The ID of the API key.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -330,7 +338,7 @@ class ApiKeysClient:
         Parameters
         ----------
         api_key_id : str
-            The name of the API key.
+            The ID of the API key.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -401,7 +409,7 @@ class ApiKeysClient:
         Parameters
         ----------
         api_key_id : str
-            The name of the API key.
+            The ID of the API key.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -481,6 +489,7 @@ class AsyncApiKeysClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
+        corpus_key: typing.Optional[CorpusKey] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
@@ -492,7 +501,10 @@ class AsyncApiKeysClient:
             Max number of API keys to return at one time.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of API keys after the limit has been reached.
+            Used to retrieve the next page of API keys after the limit has been reached.
+
+        corpus_key : typing.Optional[CorpusKey]
+            Filters the API keys to only those with permissions on the specified corpus key.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -522,7 +534,9 @@ class AsyncApiKeysClient:
 
 
         async def main() -> None:
-            response = await client.api_keys.list()
+            response = await client.api_keys.list(
+                corpus_key="my-corpus",
+            )
             async for item in response:
                 yield item
             # alternatively, you can paginate page-by-page
@@ -539,6 +553,7 @@ class AsyncApiKeysClient:
             params={
                 "limit": limit,
                 "page_key": page_key,
+                "corpus_key": corpus_key,
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -563,6 +578,7 @@ class AsyncApiKeysClient:
                     _get_next = lambda: self.list(
                         limit=limit,
                         page_key=_parsed_next,
+                        corpus_key=corpus_key,
                         request_timeout=request_timeout,
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
@@ -632,7 +648,7 @@ class AsyncApiKeysClient:
         Returns
         -------
         ApiKey
-            An API Key object, used to query the Vectara API with the assigned roles.
+            An API key object, used to query the Vectara API with the assigned roles.
 
         Examples
         --------
@@ -718,7 +734,7 @@ class AsyncApiKeysClient:
         Parameters
         ----------
         api_key_id : str
-            The name of the API key.
+            The ID of the API key.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -803,7 +819,7 @@ class AsyncApiKeysClient:
         Parameters
         ----------
         api_key_id : str
-            The name of the API key.
+            The ID of the API key.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -882,7 +898,7 @@ class AsyncApiKeysClient:
         Parameters
         ----------
         api_key_id : str
-            The name of the API key.
+            The ID of the API key.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.

@@ -11,7 +11,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 class Document(UniversalBaseModel):
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The Document ID.
+    The document ID.
     """
 
     metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
@@ -23,7 +23,7 @@ class Document(UniversalBaseModel):
     """
     Parts of the document that make up the document. However, parts are not available when
     retrieving a list of documents or when creating a document. This property is only available
-    when retrieving a document by id.
+    when retrieving a document by ID.
     """
 
     storage_usage: typing.Optional[DocumentStorageUsage] = None

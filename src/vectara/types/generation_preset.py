@@ -34,7 +34,7 @@ class GenerationPreset(UniversalBaseModel):
 
     max_used_search_results: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Preset maximum number of search results to be available to the prompt.
+    Preset maximum number of search results that will be available to the prompt.
     """
 
     max_tokens: typing.Optional[int] = pydantic.Field(default=None)
@@ -50,13 +50,13 @@ class GenerationPreset(UniversalBaseModel):
 
     frequency_penalty: typing.Optional[float] = pydantic.Field(default=None)
     """
-    Higher values penalize new tokens based on their existing frequency in the text so far,
+    Higher values penalize new tokens based on their existing frequency in the generation so far,
     decreasing the model's likelihood to repeat the same line verbatim.
     """
 
     presence_penalty: typing.Optional[float] = pydantic.Field(default=None)
     """
-    Higher values penalize new tokens based on whether they appear in the text so far,
+    Higher values penalize new tokens based on whether they appear in the generation so far,
     increasing the model's likelihood to talk about new topics.
     """
 

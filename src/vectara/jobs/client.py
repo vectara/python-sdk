@@ -47,16 +47,16 @@ class JobsClient:
             The unique key identifying the corpus with the job.
 
         after : typing.Optional[dt.datetime]
-            Get jobs after a date time.
+            Filter by jobs created after a particular date-time.
 
         state : typing.Optional[typing.Union[JobState, typing.Sequence[JobState]]]
-            Indicates the states the jobs can be in.
+            Filter by jobs in particular states.
 
         limit : typing.Optional[int]
-            The maximum number of documents to return at one time.
+            The maximum number of jobs to return at one time.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of documents after the limit has been reached.
+            Used to retrieve the next page of jobs after the limit has been reached.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -160,7 +160,7 @@ class JobsClient:
         Parameters
         ----------
         job_id : str
-            The ID of job to get.
+            The ID of the job to get.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -259,16 +259,16 @@ class AsyncJobsClient:
             The unique key identifying the corpus with the job.
 
         after : typing.Optional[dt.datetime]
-            Get jobs after a date time.
+            Filter by jobs created after a particular date-time.
 
         state : typing.Optional[typing.Union[JobState, typing.Sequence[JobState]]]
-            Indicates the states the jobs can be in.
+            Filter by jobs in particular states.
 
         limit : typing.Optional[int]
-            The maximum number of documents to return at one time.
+            The maximum number of jobs to return at one time.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of documents after the limit has been reached.
+            Used to retrieve the next page of jobs after the limit has been reached.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -380,7 +380,7 @@ class AsyncJobsClient:
         Parameters
         ----------
         job_id : str
-            The ID of job to get.
+            The ID of the job to get.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.

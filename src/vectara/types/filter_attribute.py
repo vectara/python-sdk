@@ -16,7 +16,7 @@ class FilterAttribute(UniversalBaseModel):
 
     level: FilterAttributeLevel = pydantic.Field()
     """
-    Indicates whether this a document or document part metadata filter.
+    Indicates whether this is a document or document part metadata filter.
     """
 
     description: typing.Optional[str] = pydantic.Field(default=None)

@@ -54,7 +54,7 @@ class ChatsClient:
             The maximum number of results to return in the list.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of chats after the limit has been reached.
+            Used to retrieve the next page of chats after the limit has been reached.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -415,7 +415,7 @@ class ChatsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Iterator[ChatStreamedResponse]:
         """
-        Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs tha make up the dialog.
+        Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs that make up the dialog.
 
         Parameters
         ----------
@@ -491,6 +491,8 @@ class ChatsClient:
                 reranker=CustomerSpecificReranker(
                     reranker_id="string",
                     reranker_name="string",
+                    limit=1,
+                    cutoff=1.1,
                 ),
             ),
             generation=GenerationParameters(
@@ -610,7 +612,7 @@ class ChatsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ChatFullResponse:
         """
-        Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs tha make up the dialog.
+        Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs that make up the dialog.
 
         Parameters
         ----------
@@ -1025,7 +1027,7 @@ class AsyncChatsClient:
             The maximum number of results to return in the list.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of chats after the limit has been reached.
+            Used to retrieve the next page of chats after the limit has been reached.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -1418,7 +1420,7 @@ class AsyncChatsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.AsyncIterator[ChatStreamedResponse]:
         """
-        Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs tha make up the dialog.
+        Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs that make up the dialog.
 
         Parameters
         ----------
@@ -1499,6 +1501,8 @@ class AsyncChatsClient:
                     reranker=CustomerSpecificReranker(
                         reranker_id="string",
                         reranker_name="string",
+                        limit=1,
+                        cutoff=1.1,
                     ),
                 ),
                 generation=GenerationParameters(
@@ -1621,7 +1625,7 @@ class AsyncChatsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ChatFullResponse:
         """
-        Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs tha make up the dialog.
+        Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs that make up the dialog.
 
         Parameters
         ----------

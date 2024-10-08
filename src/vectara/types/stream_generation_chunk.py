@@ -8,7 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 class StreamGenerationChunk(UniversalBaseModel):
     """
-    The chunk response from the generation, possibly a partial generation.
+    The chunk response from the generation, which may be a partial generation.
     """
 
     type: typing.Literal["generation_chunk"] = "generation_chunk"

@@ -256,7 +256,7 @@ class AppClientsClient:
         Parameters
         ----------
         app_client_id : str
-            The name of the App Client.
+            The ID of the App Client.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -726,7 +726,7 @@ class AsyncAppClientsClient:
         Parameters
         ----------
         app_client_id : str
-            The name of the App Client.
+            The ID of the App Client.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.

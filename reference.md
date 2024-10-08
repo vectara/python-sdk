@@ -11,12 +11,13 @@
 <dl>
 <dd>
 
-Perform a multi-purpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
+Perform a multipurpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
 
+- Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
 - Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
   will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
-- Specify a RAG-specific LLM like Mockingbird (`mockingbird-1.0-2024-07-16`) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
+- Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
 - Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
 - Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
 
@@ -38,10 +39,8 @@ For more detailed information, see this [Query API guide](https://docs.vectara.c
 from vectara import (
     CitationParameters,
     ContextConfiguration,
-    CustomerSpecificReranker,
     GenerationParameters,
     KeyedSearchCorpus,
-    ModelParameters,
     SearchCorporaParameters,
     Vectara,
 )
@@ -52,53 +51,28 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 response = client.query_stream(
-    request_timeout=1,
-    request_timeout_millis=1,
-    query="string",
+    query="hello, world?",
     search=SearchCorporaParameters(
         corpora=[
             KeyedSearchCorpus(
-                custom_dimensions={"string": 1.1},
-                metadata_filter="string",
-                lexical_interpolation=1.1,
-                semantics="default",
+                lexical_interpolation=0.005,
             )
         ],
-        offset=1,
-        limit=1,
+        offset=0,
+        limit=10,
         context_configuration=ContextConfiguration(
-            characters_before=1,
-            characters_after=1,
-            sentences_before=1,
-            sentences_after=1,
-            start_tag="string",
-            end_tag="string",
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="string",
-            reranker_name="string",
+            sentences_before=2,
+            sentences_after=2,
+            start_tag="<em>",
+            end_tag="</em>",
         ),
     ),
     generation=GenerationParameters(
-        generation_preset_name="string",
-        prompt_name="string",
-        max_used_search_results=1,
-        prompt_template="string",
-        prompt_text="string",
-        max_response_characters=1,
-        response_language="auto",
-        model_parameters=ModelParameters(
-            max_tokens=1,
-            temperature=1.1,
-            frequency_penalty=1.1,
-            presence_penalty=1.1,
-        ),
+        max_used_search_results=5,
         citations=CitationParameters(
             style="none",
-            url_pattern="string",
-            text_pattern="string",
         ),
-        enable_factual_consistency_score=True,
+        response_language="auto",
     ),
 )
 for chunk in response:
@@ -182,12 +156,13 @@ for chunk in response:
 <dl>
 <dd>
 
-Perform a multi-purpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
+Perform a multipurpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
 
+- Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
 - Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
   will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
-- Specify a RAG-specific LLM like Mockingbird (`mockingbird-1.0-2024-07-16`) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
+- Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
 - Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
 - Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
 
@@ -354,6 +329,8 @@ response = client.chat_stream(
         reranker=CustomerSpecificReranker(
             reranker_id="string",
             reranker_name="string",
+            limit=1,
+            cutoff=1.1,
         ),
     ),
     generation=GenerationParameters(
@@ -694,7 +671,11 @@ for page in response.iter_pages():
 <dl>
 <dd>
 
-Create a corpus, which is a container to store documents and associated metadata.
+Create a corpus, which is a container to store documents and associated metadata. This is where you
+create the unique `corpus_key` that identifies the corpus. The `corpus_key` can be custom-defined
+following your preferred naming convention, allowing you to easily manage the corpus's data and
+reference it in queries. For more information, see
+[Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 </dd>
 </dl>
 </dd>
@@ -766,7 +747,7 @@ client.corpora.create(
 <dl>
 <dd>
 
-**description:** `typing.Optional[str]` — Description for the corpus.
+**description:** `typing.Optional[str]` — Description of the corpus.
     
 </dd>
 </dl>
@@ -823,7 +804,7 @@ If unset then the corpus will not have filter attributes.
 
 A custom dimension is an additional numerical field attached to a document part. You
 can then multiply this numerical field with a query time custom dimension of the same
-name. This allows boosting (or deboosting) document parts for arbitrary reasons.
+name. This allows boosting (or burying) document parts for arbitrary reasons.
 This feature is only enabled for Scale customers.
 
     
@@ -858,6 +839,10 @@ This feature is only enabled for Scale customers.
 <dd>
 
 Get metadata about a corpus. This operation is not a method of searching a corpus.
+Specify the `corpus_key` to identify the corpus whose metadata you want to
+retrieve. The `corpus_key` is created when the corpus is set up, either through
+the Vectara Console UI or the Create Corpus API. For more information,
+see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 </dd>
 </dl>
 </dd>
@@ -945,7 +930,8 @@ client.corpora.get(
 <dl>
 <dd>
 
-Delete a corpus and all the data that it contains.
+Delete a corpus and all the data that it contains. The `corpus_key` uniquely identifies
+the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 </dd>
 </dl>
 </dd>
@@ -1035,8 +1021,10 @@ client.corpora.delete(
 
 Enable, disable, or update the name and description of a corpus. This lets you
 manage data availability without deleting the corpus, which is useful for
-maintenance and security purposes. Update the name and description of a corpus
-dynamically to help keep your data aligned with changing business needs.
+maintenance and security purposes. The `corpus_key` uniquely identifies the corpus.
+For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+Update the name and description of a corpus dynamically to help keep your data
+aligned with changing business needs.
 </dd>
 </dl>
 </dd>
@@ -1108,7 +1096,7 @@ client.corpora.update(
 <dl>
 <dd>
 
-**name:** `typing.Optional[str]` — The name for the corpus. If unset or null then the corpus will remain in the same state.
+**name:** `typing.Optional[str]` — The name for the corpus. If unset or null, then the corpus will remain in the same state.
     
 </dd>
 </dl>
@@ -1116,7 +1104,7 @@ client.corpora.update(
 <dl>
 <dd>
 
-**description:** `typing.Optional[str]` — Description of the corpus. If unset or null then the corpus will remain in the same state.
+**description:** `typing.Optional[str]` — Description of the corpus. If unset or null, then the corpus will remain in the same state.
     
 </dd>
 </dl>
@@ -1148,7 +1136,9 @@ client.corpora.update(
 <dl>
 <dd>
 
-Resets a corpus, which removes all documents and data from the specified corpus, while keeping the corpus itself.
+Resets a corpus, which removes all documents and data from the specified corpus,
+while keeping the corpus itself. The `corpus_key` uniquely identifies the corpus.
+For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 </dd>
 </dl>
 </dd>
@@ -1240,7 +1230,9 @@ Replace the filter attributes of a corpus. This does not happen immediately, but
 instead creates a job and will complete when that job completes. Until that
 job completes, using new filter attributes will not work.
 
-You can monitor the status of the filter change using the returned job id.
+You can monitor the status of the filter change using the returned job ID. The
+`corpus_key` uniquely identifies the corpus. For more information, see
+[Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 </dd>
 </dl>
 </dd>
@@ -1345,7 +1337,8 @@ client.corpora.replace_filter_attributes(
 
 Search a single corpus with a straightforward query request, specifying the corpus key and query parameters.
 
-- Specify the unique `corpus_key` identifying the corpus to query.
+- Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is
+  [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 - Enter the search `query` string for the corpus, which is the question you want to ask.
 - Set the maximum number of results (`limit`) to return. **Default**: 10, **minimum**: 1
 - Define the `offset` position from which to start in the result set.
@@ -1465,11 +1458,12 @@ client.corpora.search(
 
 Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
 
+- Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
 - Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
   will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
 - Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.025`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
-- Specify a RAG-specific LLM like Mockingbird (`mockingbird-1.0-2024-07-16`) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
+- Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
 - Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-options)
 
 For more detailed information, see [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
@@ -1525,6 +1519,8 @@ response = client.corpora.query_stream(
         reranker=CustomerSpecificReranker(
             reranker_id="string",
             reranker_name="string",
+            limit=1,
+            cutoff=1.1,
         ),
     ),
     generation=GenerationParameters(
@@ -1640,11 +1636,12 @@ for chunk in response:
 
 Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
 
+- Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
 - Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
   will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
 - Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.025`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
-- Specify a RAG-specific LLM like Mockingbird (`mockingbird-1.0-2024-07-16`) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
+- Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
 - Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-options)
 
 For more detailed information, see [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
@@ -1768,7 +1765,7 @@ The File Upload endpoint request expects a `multipart/form-data` request contain
 - `file` - Specifies the file that you want to upload.
 - `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
 
-For more detailed information see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)
+For more detailed information, see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)
 </dd>
 </dl>
 </dd>
@@ -1843,6 +1840,14 @@ core.File` — See core.File for more documentation
 <dd>
 
 **metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Arbitrary object that will be attached as document metadata to the extracted document.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**filename:** `typing.Optional[str]` — Optional multipart section to override the filename.
     
 </dd>
 </dl>
@@ -1933,7 +1938,7 @@ allows filtering on document metadata.
 <dl>
 <dd>
 
-**page_key:** `typing.Optional[str]` — Used to the retrieve the next page of documents after the limit has been reached.
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of documents after the limit has been reached.
     
 </dd>
 </dl>
@@ -1982,7 +1987,7 @@ allows filtering on document metadata.
 <dd>
 
 Add a document to a corpus. You can add documents that are either in a typical structured format,
-or in a format that explicitly specifies each document part that becomes a search result.
+or in a format that explicitly specifies each document part. Each part becomes a separate search result.
 </dd>
 </dl>
 </dd>
@@ -2310,7 +2315,7 @@ for page in response.iter_pages():
 <dl>
 <dd>
 
-**page_key:** `typing.Optional[str]` — Used to the retrieve the next page of chats after the limit has been reached.
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of chats after the limit has been reached.
     
 </dd>
 </dl>
@@ -2622,7 +2627,7 @@ client.chats.list_turns(
 <dl>
 <dd>
 
-Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs tha make up the dialog.
+Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs that make up the dialog.
 </dd>
 </dl>
 </dd>
@@ -2681,6 +2686,8 @@ response = client.chats.create_turns_stream(
         reranker=CustomerSpecificReranker(
             reranker_id="string",
             reranker_name="string",
+            limit=1,
+            cutoff=1.1,
         ),
     ),
     generation=GenerationParameters(
@@ -2805,7 +2812,7 @@ for chunk in response:
 <dl>
 <dd>
 
-Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs tha make up the dialog.
+Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs that make up the dialog.
 </dd>
 </dl>
 </dd>
@@ -3294,7 +3301,7 @@ for page in response.iter_pages():
 
 **page_key:** `typing.Optional[str]` 
 
-Used to the retrieve the next page of LLMs after the limit has been reached.
+Used to retrieve the next page of LLMs after the limit has been reached.
 This parameter is not needed for the first page of results.
     
 </dd>
@@ -3403,7 +3410,7 @@ client.generation_presets.list_generation_presets()
 
 **page_key:** `typing.Optional[str]` 
 
-Used to the retrieve the next page of generation presets after the limit has been reached.
+Used to retrieve the next page of generation presets after the limit has been reached.
 This parameter is not needed for the first page of results.
     
 </dd>
@@ -3514,7 +3521,7 @@ for page in response.iter_pages():
 <dl>
 <dd>
 
-**page_key:** `typing.Optional[str]` — Used to the retrieve the next page of encoders after the limit has been reached.
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of encoders after the limit has been reached.
     
 </dd>
 </dl>
@@ -3624,7 +3631,7 @@ for page in response.iter_pages():
 <dl>
 <dd>
 
-**page_key:** `typing.Optional[str]` — Used to the retrieve the next page of rerankers after the limit has been reached.
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of rerankers after the limit has been reached.
     
 </dd>
 </dl>
@@ -3724,7 +3731,7 @@ for page in response.iter_pages():
 <dl>
 <dd>
 
-**after:** `typing.Optional[dt.datetime]` — Get jobs after a date time.
+**after:** `typing.Optional[dt.datetime]` — Filter by jobs created after a particular date-time.
     
 </dd>
 </dl>
@@ -3732,7 +3739,7 @@ for page in response.iter_pages():
 <dl>
 <dd>
 
-**state:** `typing.Optional[typing.Union[JobState, typing.Sequence[JobState]]]` — Indicates the states the jobs can be in.
+**state:** `typing.Optional[typing.Union[JobState, typing.Sequence[JobState]]]` — Filter by jobs in particular states.
     
 </dd>
 </dl>
@@ -3740,7 +3747,7 @@ for page in response.iter_pages():
 <dl>
 <dd>
 
-**limit:** `typing.Optional[int]` — The maximum number of documents to return at one time.
+**limit:** `typing.Optional[int]` — The maximum number of jobs to return at one time.
     
 </dd>
 </dl>
@@ -3748,7 +3755,7 @@ for page in response.iter_pages():
 <dl>
 <dd>
 
-**page_key:** `typing.Optional[str]` — Used to the retrieve the next page of documents after the limit has been reached.
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of jobs after the limit has been reached.
     
 </dd>
 </dl>
@@ -3836,7 +3843,7 @@ client.jobs.get(
 <dl>
 <dd>
 
-**job_id:** `str` — The ID of job to get.
+**job_id:** `str` — The ID of the job to get.
     
 </dd>
 </dl>
@@ -3936,7 +3943,7 @@ for page in response.iter_pages():
 <dl>
 <dd>
 
-**page_key:** `typing.Optional[str]` — Used to the retrieve the next page of users after the limit has been reached.
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of users after the limit has been reached.
     
 </dd>
 </dl>
@@ -4056,7 +4063,7 @@ client.users.create(
 <dl>
 <dd>
 
-**description:** `typing.Optional[str]` — The description for the user.
+**description:** `typing.Optional[str]` — The description of the user.
     
 </dd>
 </dl>
@@ -4096,7 +4103,7 @@ client.users.create(
 <dl>
 <dd>
 
-Get a user and view details like the email, username, and roles associated with a user.
+Get a user and view details like thei email, username, and associated roles.
 </dd>
 </dl>
 </dd>
@@ -4138,8 +4145,8 @@ client.users.get(
 
 **username:** `str` 
 
-Specifies the User ID that to retrieve.
-Note the username must be percent encoded.
+Specifies the user ID that to retrieve.
+Note that the username must be percent encoded.
     
 </dd>
 </dl>
@@ -4229,8 +4236,8 @@ client.users.delete(
 
 **username:** `str` 
 
-Specifies the username to delete.
-Note the username must be percent encoded.
+Specifies the user ID to delete.
+Note that the username must be percent encoded.
     
 </dd>
 </dl>
@@ -4320,8 +4327,8 @@ client.users.update(
 
 **username:** `str` 
 
-Specifies the User ID to update.
-Note the username must be percent encoded.
+Specifies the user ID to update.
+Note that the username must be percent encoded.
     
 </dd>
 </dl>
@@ -4345,7 +4352,7 @@ Note the username must be percent encoded.
 <dl>
 <dd>
 
-**enabled:** `typing.Optional[bool]` — Indicates whether to disable or disable the user.
+**enabled:** `typing.Optional[bool]` — Indicates whether to enable or disable the user.
     
 </dd>
 </dl>
@@ -4427,8 +4434,8 @@ client.users.reset_password(
 
 **username:** `str` 
 
-Specifies the username to update.
-Note the username must be percent encoded and URI safe.
+Specifies the user ID to update.
+Note that the username must be percent encoded and URI safe.
     
 </dd>
 </dl>
@@ -4485,7 +4492,9 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.api_keys.list()
+response = client.api_keys.list(
+    corpus_key="my-corpus",
+)
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
@@ -4514,7 +4523,15 @@ for page in response.iter_pages():
 <dl>
 <dd>
 
-**page_key:** `typing.Optional[str]` — Used to the retrieve the next page of API keys after the limit has been reached.
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of API keys after the limit has been reached.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**corpus_key:** `typing.Optional[CorpusKey]` — Filters the API keys to only those with permissions on the specified corpus key.
     
 </dd>
 </dl>
@@ -4698,7 +4715,7 @@ client.api_keys.get(
 <dl>
 <dd>
 
-**api_key_id:** `str` — The name of the API key.
+**api_key_id:** `str` — The ID of the API key.
     
 </dd>
 </dl>
@@ -4786,7 +4803,7 @@ client.api_keys.delete(
 <dl>
 <dd>
 
-**api_key_id:** `str` — The name of the API key.
+**api_key_id:** `str` — The ID of the API key.
     
 </dd>
 </dl>
@@ -4874,7 +4891,7 @@ client.api_keys.update(
 <dl>
 <dd>
 
-**api_key_id:** `str` — The name of the API key.
+**api_key_id:** `str` — The ID of the API key.
     
 </dd>
 </dl>
@@ -5154,7 +5171,7 @@ client.app_clients.get(
 <dl>
 <dd>
 
-**app_client_id:** `str` — The name of the App Client.
+**app_client_id:** `str` — The ID of the App Client.
     
 </dd>
 </dl>

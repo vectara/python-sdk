@@ -35,6 +35,7 @@ class UploadClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        filename: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
@@ -45,7 +46,7 @@ class UploadClient:
         - `file` - Specifies the file that you want to upload.
         - `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
 
-        For more detailed information see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)
+        For more detailed information, see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)
 
         Parameters
         ----------
@@ -63,6 +64,9 @@ class UploadClient:
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Arbitrary object that will be attached as document metadata to the extracted document.
+
+        filename : typing.Optional[str]
+            Optional multipart section to override the filename.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -92,6 +96,7 @@ class UploadClient:
             data={},
             files={
                 "metadata": (None, json.dumps(jsonable_encoder(metadata)), "application/json"),
+                "filename": (None, json.dumps(jsonable_encoder(filename)), "text/plain"),
                 "file": core.with_content_type(
                     file=file,
                     content_type="application/octet-stream, application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.oasis.opendocument.text, application/epub+zip, application/rtf, text/html, text/plain, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, text/markdown",
@@ -161,6 +166,7 @@ class AsyncUploadClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        filename: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
@@ -171,7 +177,7 @@ class AsyncUploadClient:
         - `file` - Specifies the file that you want to upload.
         - `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
 
-        For more detailed information see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)
+        For more detailed information, see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)
 
         Parameters
         ----------
@@ -189,6 +195,9 @@ class AsyncUploadClient:
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Arbitrary object that will be attached as document metadata to the extracted document.
+
+        filename : typing.Optional[str]
+            Optional multipart section to override the filename.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -226,6 +235,7 @@ class AsyncUploadClient:
             data={},
             files={
                 "metadata": (None, json.dumps(jsonable_encoder(metadata)), "application/json"),
+                "filename": (None, json.dumps(jsonable_encoder(filename)), "text/plain"),
                 "file": core.with_content_type(
                     file=file,
                     content_type="application/octet-stream, application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.oasis.opendocument.text, application/epub+zip, application/rtf, text/html, text/plain, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, text/markdown",

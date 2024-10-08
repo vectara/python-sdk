@@ -17,6 +17,11 @@ class CorpusCustomDimension(UniversalBaseModel):
     The name of the custom dimension.
     """
 
+    description: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Description of the custom dimension.
+    """
+
     indexing_default: typing.Optional[float] = pydantic.Field(default=None)
     """
     Default value of a custom dimension on a document part if the custom

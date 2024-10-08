@@ -46,7 +46,7 @@ class UsersClient:
             The maximum number of users to return at one time.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of users after the limit has been reached.
+            Used to retrieve the next page of users after the limit has been reached.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -159,7 +159,7 @@ class UsersClient:
             The username for the user. The value defaults to the email.
 
         description : typing.Optional[str]
-            The description for the user.
+            The description of the user.
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
             The role names assigned to the user.
@@ -245,13 +245,13 @@ class UsersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> User:
         """
-        Get a user and view details like the email, username, and roles associated with a user.
+        Get a user and view details like thei email, username, and associated roles.
 
         Parameters
         ----------
         username : str
-            Specifies the User ID that to retrieve.
-            Note the username must be percent encoded.
+            Specifies the user ID that to retrieve.
+            Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -338,8 +338,8 @@ class UsersClient:
         Parameters
         ----------
         username : str
-            Specifies the username to delete.
-            Note the username must be percent encoded.
+            Specifies the user ID to delete.
+            Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -421,8 +421,8 @@ class UsersClient:
         Parameters
         ----------
         username : str
-            Specifies the User ID to update.
-            Note the username must be percent encoded.
+            Specifies the user ID to update.
+            Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -431,7 +431,7 @@ class UsersClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
-            Indicates whether to disable or disable the user.
+            Indicates whether to enable or disable the user.
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
             The new role names of the user.
@@ -520,8 +520,8 @@ class UsersClient:
         Parameters
         ----------
         username : str
-            Specifies the username to update.
-            Note the username must be percent encoded and URI safe.
+            Specifies the user ID to update.
+            Note that the username must be percent encoded and URI safe.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -610,7 +610,7 @@ class AsyncUsersClient:
             The maximum number of users to return at one time.
 
         page_key : typing.Optional[str]
-            Used to the retrieve the next page of users after the limit has been reached.
+            Used to retrieve the next page of users after the limit has been reached.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -731,7 +731,7 @@ class AsyncUsersClient:
             The username for the user. The value defaults to the email.
 
         description : typing.Optional[str]
-            The description for the user.
+            The description of the user.
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
             The role names assigned to the user.
@@ -825,13 +825,13 @@ class AsyncUsersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> User:
         """
-        Get a user and view details like the email, username, and roles associated with a user.
+        Get a user and view details like thei email, username, and associated roles.
 
         Parameters
         ----------
         username : str
-            Specifies the User ID that to retrieve.
-            Note the username must be percent encoded.
+            Specifies the user ID that to retrieve.
+            Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -926,8 +926,8 @@ class AsyncUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the username to delete.
-            Note the username must be percent encoded.
+            Specifies the user ID to delete.
+            Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -1017,8 +1017,8 @@ class AsyncUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the User ID to update.
-            Note the username must be percent encoded.
+            Specifies the user ID to update.
+            Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -1027,7 +1027,7 @@ class AsyncUsersClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
-            Indicates whether to disable or disable the user.
+            Indicates whether to enable or disable the user.
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
             The new role names of the user.
@@ -1124,8 +1124,8 @@ class AsyncUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the username to update.
-            Note the username must be percent encoded and URI safe.
+            Specifies the user ID to update.
+            Note that the username must be percent encoded and URI safe.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.

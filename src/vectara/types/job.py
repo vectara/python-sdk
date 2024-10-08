@@ -42,6 +42,11 @@ class Job(UniversalBaseModel):
     Specifies when the job was completed.
     """
 
+    created_by_username: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The username of the user who created the job. This property may be missing, e.g., if the job was created by the system, not a user.
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

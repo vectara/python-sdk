@@ -102,7 +102,7 @@ from . import (
     users,
 )
 from .auth import GetTokenResponse
-from .base_client import AsyncBaseVectara, BaseVectara
+from .client import AsyncVectara, Vectara
 from .corpora import SearchCorpusParameters
 from .environment import VectaraEnvironment
 from .version import __version__
