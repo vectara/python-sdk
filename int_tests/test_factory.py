@@ -3,7 +3,7 @@ import logging
 
 from vectara.factory import Factory
 from vectara.corpora.client import CorporaClient
-from vectara.client import Vectara
+from vectara import Vectara
 
 class FactoryTest(unittest.TestCase):
 
@@ -11,7 +11,7 @@ class FactoryTest(unittest.TestCase):
         super().__init__(*args, **kwargs)
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def test_list_corpora_filter(self):
+    def test_list_corpora_filter(self) -> None:
 
         self.logger.info("Starting test")
 

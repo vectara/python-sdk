@@ -25,7 +25,7 @@ class BaseClientWrapper:
         headers: typing.Dict[str, str] = {
             "X-Fern-Language": "Python",
             "X-Fern-SDK-Name": "vectara",
-            "X-Fern-SDK-Version": "0.2.23",
+            "X-Fern-SDK-Version": "0.2.25",
         }
         if self._api_key is not None:
             headers["x-api-key"] = self._api_key
@@ -59,7 +59,7 @@ class SyncClientWrapper(BaseClientWrapper):
     ):
         super().__init__(api_key=api_key, token=token, environment=environment, timeout=timeout)
         self.httpx_client = HttpClient(
-            httpx_client=httpx_client, base_headers=self.get_headers(), base_timeout=self.get_timeout()
+            httpx_client=httpx_client, base_headers=self.get_headers, base_timeout=self.get_timeout
         )
 
 
@@ -75,5 +75,5 @@ class AsyncClientWrapper(BaseClientWrapper):
     ):
         super().__init__(api_key=api_key, token=token, environment=environment, timeout=timeout)
         self.httpx_client = AsyncHttpClient(
-            httpx_client=httpx_client, base_headers=self.get_headers(), base_timeout=self.get_timeout()
+            httpx_client=httpx_client, base_headers=self.get_headers, base_timeout=self.get_timeout
         )

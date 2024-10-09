@@ -14,6 +14,7 @@ from ..core.api_error import ApiError
 from ..types.corpus_key import CorpusKey
 from ..types.filter_attribute import FilterAttribute
 from ..types.corpus_custom_dimension import CorpusCustomDimension
+from ..core.serialization import convert_and_respect_annotation_metadata
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
 from ..core.jsonable_encoder import jsonable_encoder
@@ -238,8 +239,12 @@ class CorporaClient:
                 "documents_are_questions": documents_are_questions,
                 "encoder_id": encoder_id,
                 "encoder_name": encoder_name,
-                "filter_attributes": filter_attributes,
-                "custom_dimensions": custom_dimensions,
+                "filter_attributes": convert_and_respect_annotation_metadata(
+                    object_=filter_attributes, annotation=typing.Sequence[FilterAttribute], direction="write"
+                ),
+                "custom_dimensions": convert_and_respect_annotation_metadata(
+                    object_=custom_dimensions, annotation=typing.Sequence[CorpusCustomDimension], direction="write"
+                ),
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -700,7 +705,9 @@ class CorporaClient:
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
-                "filter_attributes": filter_attributes,
+                "filter_attributes": convert_and_respect_annotation_metadata(
+                    object_=filter_attributes, annotation=typing.Sequence[FilterAttribute], direction="write"
+                ),
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -988,8 +995,12 @@ class CorporaClient:
             method="POST",
             json={
                 "query": query,
-                "search": search,
-                "generation": generation,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorpusParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
                 "stream_response": True,
             },
             headers={
@@ -1121,8 +1132,12 @@ class CorporaClient:
             method="POST",
             json={
                 "query": query,
-                "search": search,
-                "generation": generation,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorpusParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
                 "stream_response": False,
             },
             headers={
@@ -1399,8 +1414,12 @@ class AsyncCorporaClient:
                 "documents_are_questions": documents_are_questions,
                 "encoder_id": encoder_id,
                 "encoder_name": encoder_name,
-                "filter_attributes": filter_attributes,
-                "custom_dimensions": custom_dimensions,
+                "filter_attributes": convert_and_respect_annotation_metadata(
+                    object_=filter_attributes, annotation=typing.Sequence[FilterAttribute], direction="write"
+                ),
+                "custom_dimensions": convert_and_respect_annotation_metadata(
+                    object_=custom_dimensions, annotation=typing.Sequence[CorpusCustomDimension], direction="write"
+                ),
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -1901,7 +1920,9 @@ class AsyncCorporaClient:
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
-                "filter_attributes": filter_attributes,
+                "filter_attributes": convert_and_respect_annotation_metadata(
+                    object_=filter_attributes, annotation=typing.Sequence[FilterAttribute], direction="write"
+                ),
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -2205,8 +2226,12 @@ class AsyncCorporaClient:
             method="POST",
             json={
                 "query": query,
-                "search": search,
-                "generation": generation,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorpusParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
                 "stream_response": True,
             },
             headers={
@@ -2346,8 +2371,12 @@ class AsyncCorporaClient:
             method="POST",
             json={
                 "query": query,
-                "search": search,
-                "generation": generation,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search, annotation=SearchCorpusParameters, direction="write"
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation, annotation=GenerationParameters, direction="write"
+                ),
                 "stream_response": False,
             },
             headers={
