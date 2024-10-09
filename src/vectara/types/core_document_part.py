@@ -9,7 +9,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 class CoreDocumentPart(UniversalBaseModel):
     """
-    A part of a document. This section gets converted into an embedding and directly maps to a search result. Usually a sentence.
+    A part of a document. This section gets converted into an embedding and directly maps to a search result. Usually this is a sentence.
     """
 
     text: str = pydantic.Field()
@@ -19,7 +19,7 @@ class CoreDocumentPart(UniversalBaseModel):
 
     metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
     """
-    The metadata for a document part. Attributes matching corpus document part filter attributes are used as document part filter attributes.
+    The metadata for a document part. These may be used in metadata filters at query time if filter attributes are configured on the corpus.
     """
 
     context: typing.Optional[str] = pydantic.Field(default=None)

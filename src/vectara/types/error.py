@@ -14,7 +14,7 @@ class Error(UniversalBaseModel):
 
     request_id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The ID of the request that can be used to help Vectara support debug what went wrong .
+    The ID of the request that can be used to help Vectara support debug what went wrong.
     """
 
     if IS_PYDANTIC_V2:

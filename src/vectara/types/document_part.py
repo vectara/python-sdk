@@ -19,7 +19,7 @@ class DocumentPart(UniversalBaseModel):
 
     metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
     """
-    The metadata for a document part. Attributes matching corpus document part filter attributes are used as document part filter attributes.
+    The metadata for a document part. These may be used in metadata filters at query time if filter attributes are configured on the corpus.
     """
 
     context: typing.Optional[str] = pydantic.Field(default=None)

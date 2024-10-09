@@ -15,7 +15,7 @@ class StructuredDocumentSection(UniversalBaseModel):
 
     id: typing.Optional[int] = pydantic.Field(default=None)
     """
-    The section ID. Gets converted to a metadata field.
+    The section ID. This gets converted to a metadata field automatically.
     """
 
     title: typing.Optional[str] = pydantic.Field(default=None)

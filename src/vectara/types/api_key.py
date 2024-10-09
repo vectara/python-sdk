@@ -21,7 +21,7 @@ class ApiKey(UniversalBaseModel):
 
     secret_key: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The key used in API requests. Should be kept secure.
+    The key used in API requests. The key should be kept secure.
     """
 
     enabled: typing.Optional[bool] = pydantic.Field(default=None)

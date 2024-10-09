@@ -12,7 +12,7 @@ class ChainReranker(UniversalBaseModel):
     type: typing.Literal["chain"] = "chain"
     rerankers: typing.List["SearchReranker"] = pydantic.Field()
     """
-    Specify an array of rerankers to search results consecutively after each other.
+    Specify an array of rerankers to apply to search results consecutively.
     """
 
     if IS_PYDANTIC_V2:

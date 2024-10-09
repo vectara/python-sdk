@@ -17,7 +17,7 @@ class StructuredDocument(UniversalBaseModel):
 
     id: str = pydantic.Field()
     """
-    The Document ID, must be unique within the corpus.
+    The document ID, must be unique within the corpus.
     """
 
     type: typing.Literal["structured"] = "structured"
@@ -33,7 +33,7 @@ class StructuredDocument(UniversalBaseModel):
 
     metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
     """
-    The metadata for a document and is an arbitrary JSON object. Properties of this object
+    The metadata for a document as an arbitrary JSON object. Properties of this object
     can be used by document level filter attributes.
     """
 
