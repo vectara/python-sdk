@@ -61,9 +61,10 @@ config = ClientConfig.model_validate({...})
 client = Factory(config=config).build()
 ```
 
-### Environment Base Configuration
+### Environment Based Configuration
 When running in Docker environments, it is useful to initialize Vectara using
-environment variables. If you want to do this, please set the following, using either API Key or both OAuth2 properties:
+environment variables. If you want to do this, please set the following, using either API Key or both of the
+OAuth2 properties:
 
 | Environment Variable | Description |
 |----------------------|-------------|
@@ -82,7 +83,7 @@ or sharing inadvertently. To meet this need, we also have the YAML method of con
 
 By default, when configured with no arguments, the system will look for a file `.vec_auth.yaml`
 in the users home directory. If there is another location for the YAML file, it can be
-specified with the `config_path` parameter to the the `vectara.Factory` initialization.
+specified with the `config_path` parameter to the `vectara.Factory` initialization.
 
 ```
 # Default from the users home directory.
