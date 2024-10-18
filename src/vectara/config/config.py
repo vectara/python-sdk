@@ -5,7 +5,7 @@ from pydantic import BaseModel, Discriminator, Tag
 from typing_extensions import Annotated
 import json
 import yaml
-from os import path, sep
+from os import path, sep, getenv
 from pathlib import Path
 
 """
@@ -77,30 +77,19 @@ class ClientConfig(BaseModel):
         Discriminator(get_discriminator_value),
     ]
 
-def loadConfig(config: str) -> ClientConfig:
-    """
-    Loads our configuration from JSON onto our data classes.
-
-    :param config: the input configuration in JSON format.
-    :return: the parsed client configuration1
-    :raises TypeError: if the configuration cannot be parsed correctly
-    """
-    logger.info(f"Loading config from {config}")
-    return ClientConfig.model_validate_json(config)
+CONFIG_FILE_NAME = ".vec_auth.yaml"
+DEFAULT_CONFIG_NAME = "default"
 
 class BaseConfigLoader(ABC):
-    CONFIG_FILE_NAME = ".vec_auth.yaml"
-
-    DEFAULT_CONFIG_NAME = "default"
 
     def __init__(self, profile: Union[str, None] = DEFAULT_CONFIG_NAME):
         self.logger = logging.getLogger(self.__class__.__name__)
         if not profile:
-            self.profile = self.DEFAULT_CONFIG_NAME
+            self.profile = DEFAULT_CONFIG_NAME
         else:
             self.profile = profile
 
-    def load(self):
+    def load(self) -> ClientConfig:
         """
         :return: The client configuration in our domain class ClientConfig
         :raises TypeError: Should be implemented in subclasses.
@@ -120,8 +109,8 @@ class BaseConfigLoader(ABC):
             self.logger.info(f"Loading specified profile [{self.profile}]")
             profile_to_load = self.profile
         else:
-            self.logger.info(f"Loading default configuration [{BaseConfigLoader.DEFAULT_CONFIG_NAME}]")
-            profile_to_load = BaseConfigLoader.DEFAULT_CONFIG_NAME
+            self.logger.info(f"Loading default configuration [{DEFAULT_CONFIG_NAME}]")
+            profile_to_load = DEFAULT_CONFIG_NAME
 
 
         if profile_to_load in creds:
@@ -129,14 +118,14 @@ class BaseConfigLoader(ABC):
         else:
             raise TypeError(f"Specified profile [{profile_to_load}] not found in [{final_config_path}]")
 
-    def _save(self, client_config: ClientConfig, final_config_path: str):
+    def _save(self, client_config: ClientConfig, final_config_path: Path):
         creds = self._load_yaml_full(final_config_path)
         creds[self.profile] = client_config.model_dump()
 
         with open(final_config_path, 'w') as yaml_stream:
             yaml.safe_dump(creds, yaml_stream)
 
-    def _delete(self, final_config_path: str):
+    def _delete(self, final_config_path: Path):
         creds = self._load_yaml_full(final_config_path)
         del creds[self.profile]
 
@@ -144,19 +133,54 @@ class BaseConfigLoader(ABC):
             yaml.safe_dump(creds, yaml_stream)
 
 
-class JsonConfigLoader(BaseConfigLoader):
-    """
-    Loads our configuration from JSON
-    """
+class EnvConfigLoader:
 
-    def __init__(self, config_json: str, profile: Union[str, None] = BaseConfigLoader.DEFAULT_CONFIG_NAME):
-        super().__init__(profile=profile)
-        self.config_json = config_json
+    """
+    The environment variable containing the customer id
+    """
+    ENV_CUSTOMER_ID = "VECTARA_CUSTOMER_ID"
 
-    def load(self):
-        self.logger.info("Loading configuration from JSON string")
-        config_dict = json.loads(self.config_json)
-        return ClientConfig.model_validate(config_dict)
+    """
+    The environment variable containing the API key 
+    """
+    ENV_API_KEY = "VECTARA_API_KEY"
+
+    """
+    The environment variable containing the OAuth2 Client ID 
+    """
+    ENV_OAUTH2_CLIENT_ID = "VECTARA_CLIENT_ID"
+
+    """
+    The environment variable containing the OAuth2 Client Secret 
+    """
+    ENV_OAUTH2_CLIENT_SECRET = "VECTARA_CLIENT_SECRET"
+
+    def __init__(self):
+        self.logger = logging.getLogger(self.__class__.__name__)
+
+    def load(self) -> Optional[ClientConfig]:
+        api_key = getenv(self.ENV_API_KEY)
+        oauth2_client_id = getenv(self.ENV_OAUTH2_CLIENT_ID)
+        oauth2_client_secret = getenv(self.ENV_OAUTH2_CLIENT_SECRET)
+        customer_id = getenv(self.ENV_CUSTOMER_ID)
+
+        if api_key or (oauth2_client_id and oauth2_client_secret):
+
+            if not customer_id:
+                self.logger.warning("No customer ID, using foo value as placeholder since deprecated for V2 API")
+                customer_id = "foo"
+            if api_key:
+                return ClientConfig.model_validate({
+                    "customer_id": customer_id,
+                    "auth": {"api_key": api_key}
+                })
+            else:
+                return ClientConfig.model_validate({
+                    "customer_id": customer_id,
+                    "auth": {"app_client_id": oauth2_client_id, "app_client_secret": oauth2_client_secret}
+                })
+        else:
+            return None
 
 
 class PathConfigLoader(BaseConfigLoader):
@@ -164,19 +188,22 @@ class PathConfigLoader(BaseConfigLoader):
     Loads our configuration from the specified folder/file
     """
 
-    def __init__(self, config_path : str, profile: Union[str, None] = BaseConfigLoader.DEFAULT_CONFIG_NAME):
+    def __init__(self, config_path: Union[str, Path], profile: Union[str, None] = DEFAULT_CONFIG_NAME):
         super().__init__(profile=profile)
 
-        self.config_path = config_path
+        if isinstance(config_path, Path):
+            self.config_path = config_path
+        else:
+            self.config_path = Path(config_path)
 
     def load(self):
         self.logger.info(f"Loading configuration from path {self.config_path}")
 
         if path.exists(self.config_path) and path.isdir(self.config_path):
-            self.logger.info(f"Configuration param is a path, looking for {BaseConfigLoader.CONFIG_FILE_NAME}")
-            looking_for = self.config_path / BaseConfigLoader.CONFIG_FILE_NAME
+            self.logger.info(f"Configuration param is a path, looking for {CONFIG_FILE_NAME}")
+            looking_for = self.config_path / CONFIG_FILE_NAME
             if not path.exists(looking_for) or not path.isfile(looking_for):
-                raise TypeError(f"Unable to find configuration file [{BaseConfigLoader.CONFIG_FILE_NAME}]"
+                raise TypeError(f"Unable to find configuration file [{CONFIG_FILE_NAME}]"
                                 f" within specified directory [{self.config_path}]")
         elif path.exists(self.config_path) and path.isfile(self.config_path):
             self.logger.info(f"Configuration param is a file")
@@ -188,23 +215,23 @@ class PathConfigLoader(BaseConfigLoader):
         return ClientConfig.model_validate(config_dict)
 
 
-
 class HomeConfigLoader(BaseConfigLoader):
     """
     Loads our configuration from the users home directory
     """
 
-    def __init__(self, profile: Union[str, None] = BaseConfigLoader.DEFAULT_CONFIG_NAME):
+    def __init__(self, profile: Union[str, None] = DEFAULT_CONFIG_NAME):
         super().__init__(profile=profile)
 
-    def _build_config_path(self) -> str:
-        home = str(Path.home())
-        self.logger.info(f"Loading configuration from users home directory [{home}]")
+    def _build_config_path(self) -> Path:
+        home_path = Path.home()
+        home_str = str(home_path.resolve())
+        self.logger.info(f"Loading configuration from users home directory [{home_str}]")
 
-        looking_for = home + sep + BaseConfigLoader.CONFIG_FILE_NAME
+        looking_for = home_path / CONFIG_FILE_NAME
         if not path.exists(looking_for) or not path.isfile(looking_for):
-            raise TypeError(f"Unable to find configuration file [{BaseConfigLoader.CONFIG_FILE_NAME}]"
-                            f" within home directory [{home}]")
+            raise TypeError(f"Unable to find configuration file [{CONFIG_FILE_NAME}]"
+                            f" within home directory [{home_str}]")
         return looking_for
 
     def load(self):

@@ -1,9 +1,10 @@
-from vectara.factory import Factory, WrappedVectara
+from vectara.factory import Factory
 from vectara.managers import CreateCorpusRequest
 from pathlib import Path
 from vectara.types import StructuredDocument
 from typing import List, Dict
 from vectara.utils import LabHelper
+from vectara import Vectara
 import re
 import logging
 
@@ -14,11 +15,11 @@ class GettingStartedUtil:
                             datefmt='%H:%M:%S %z')
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def _check_initialized(self, client: WrappedVectara):
+    def _check_initialized(self, client: Vectara):
         if not client.lab_helper:
             raise Exception("Client not initialized correctly")
 
-    def setup_01(self, client: WrappedVectara) -> str:
+    def setup_01(self, client: Vectara) -> str:
         self.logger.info("Setting up Lab 01")
         self._check_initialized(client)
         request = CreateCorpusRequest(name="Getting Started - Query API", key="01-getting-started-query-api")
@@ -49,7 +50,7 @@ class GettingStartedUtil:
         self.logger.info("Lab setup for 01 complete")
         return response.key
 
-    def setup_02(self, client: WrappedVectara) -> str:
+    def setup_02(self, client: Vectara) -> str:
         self.logger.info("Setting up Lab 02")
         self._check_initialized(client)  # type: ignore
         request = CreateCorpusRequest(name="Getting Started - Index API", key="02-getting-started-index-api")
