@@ -1,48 +1,30 @@
-from .config.config import JsonConfigLoader, PathConfigLoader, HomeConfigLoader, BaseConfigLoader
-from .base_client import BaseVectara
+from vectara.config.config import (PathConfigLoader, HomeConfigLoader, ClientConfig, EnvConfigLoader, ApiKeyAuthConfig,
+                                   OAuth2AuthConfig)
+from .client import Vectara
 from vectara.managers.corpus import CorpusManager
 from vectara.managers.upload import UploadManager, UploadWrapper
 from vectara.utils import LabHelper
 
-import httpx
-
-from .environment import VectaraEnvironment
-
-from typing import Union, Optional, Callable
+from typing import Union, Optional, Callable, Dict, Any
 import logging
 import os
-
-class WrappedVectara(BaseVectara):
-    """
-    We extend the Vectara client, adding additional helper services. Due to the methodology used in the
-    Vectara constructor, hard-coding dependencies and using an internal wrapper, we use lazy initialization
-    for the helper classes like the CorpusManager.
-    """
-
-
-    def __init__(self, *args,
-                 **kwargs):
-        super().__init__(*args, **kwargs)
-        self.logger = logging.getLogger(self.__class__.__name__)
-        self.corpus_manager: Union[None, CorpusManager] = None
-        self.upload_manager: Union[None, UploadManager] = None
-        self.lab_helper: Union[None, LabHelper] = None
-
-
-    def set_corpus_manager(self, corpus_manager: CorpusManager) -> None:
-        self.corpus_manager = corpus_manager
-
-    def set_upload_manager(self, upload_manager: UploadManager) -> None:
-        self.upload_manager = upload_manager
-
-    def set_lab_helper(self, lab_helper: LabHelper) -> None:
-        self.lab_helper = lab_helper
-
 
 class Factory():
 
     """
     Allows us to access multiple API keys from an environment or local configuration by name.
+
+    This loader uses the following precedence (priority given to first satisfied):
+
+    1. Explicit Configuration via param "config" as ClientConfig which matches
+    2. Explicit Configuration via param "config" as Dict which matches pydantic ClientConfig
+    3. TODO Explicit Configuration via YAML given by path (Need to fix this)
+    3. TODO Environment Variables for Profile (See below)
+    4. TODO General Environment Variables
+    5. Profile for param "profile" within YAML file ".vec_auth.yaml" in users home directory.
+    6. Default profile called "default" within YAML file ".vec_auth.yaml" in users home directory.
+
+
 
     Environment variable which indicates which profile to use, either from other environment variables, or the users
     profile. This will be overridden by explicitly indicating the profile as a parameter.
@@ -57,25 +39,8 @@ class Factory():
     * VECTARA_TEST_API_KEY = "asdf"
 
     """
-    ENV_VAR_PROFILE = "VECTARA_PROFILE"
 
-    """
-    The default environment variable containing the API key if no profile is requested. 
-    """
-    ENV_VAR_API_KEY = "VECTARA_API_KEY"
-
-    """
-    The default environment variable containing the OAuth2 Client ID if no profile is requested. 
-    """
-    ENV_VAR_OAUTH2_CLIENT_ID = "VECTARA_CLIENT_ID"
-
-    """
-    The default environment variable containing the OAuth2 Client Secret if no profile is requested. 
-    """
-    ENV_VAR_OAUTH2_CLIENT_SECRET = "VECTARA_CLIENT_SECRET"
-
-
-    def __init__(self, config_path: Union[str, None] = None, config_json: Union[str, None] = None, profile: Union[str,  None] = None):
+    def __init__(self, config_path: Union[str, None] = None, config: Optional[Union[ClientConfig, Dict[str, Any]]] = None, profile: Union[str,  None] = None):
         """
         Initialize our factory using configuration which may either be in a file or serialized in a JSON string
 
@@ -86,66 +51,69 @@ class Factory():
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info("initializing builder")
         self.config_path = config_path
-        self.config_json = config_json
+        self.config = config
         self.profile = profile
+        self.load_method: Optional[str] = None
 
-    def _check_profile_env(self) -> Optional[str]:
-        profile: Optional[str] = os.getenv(self.ENV_VAR_PROFILE)
-        if profile:
-            self.logger.info(f"We found the profile [{profile}] from the environment")
-        return profile
-
-        #api_key: typing.Optional[str] = os.getenv("VECTARA_API_KEY"),
-        #client_id: typing.Optional[str] = os.getenv("VECTARA_CLIENT_ID"),
-        #client_secret: typing.Optional[str] = os.getenv("VECTARA_CLIENT_SECRET")
-
-    def build(self) -> WrappedVectara:
+    def build(self) -> Vectara:
         """
         Builds our client using the configuration which .
         :return:
         """
 
-        config_loader: BaseConfigLoader
+        client_config: Optional[ClientConfig] = None
 
         # 1. Load the config whether we're doing file or we've had it passed in as a String.
-        if self.config_path:
-            self.logger.info("Factory will load configuration from path")
-            config_loader = PathConfigLoader(config_path=self.config_path, profile=self.profile)
-        elif self.config_json:
-            self.logger.info("Factory will load configuration from JSON")
-            config_loader = JsonConfigLoader(config_json=self.config_json, profile=self.profile)
-        else:
-            self.logger.info("Factory will load configuration from home directory")
-            config_loader = HomeConfigLoader(profile=self.profile)
+        if self.config:
+            if isinstance(self.config, ClientConfig):
+                self.logger.info("Using explicit configuration from pydantic typed config")
+                client_config = self.config
+                self.load_method = "explicit_typed"
+            elif isinstance(self.config, Dict):
+                self.logger.info("Using explicit configuration from dict config")
+                client_config = ClientConfig.model_validate(self.config)
+                self.load_method = "explicit_dict"
+            else:
+                raise Exception(f"Unexpected type for config [{type(self.config)}]")
 
-        # 2. Parse and validate the client configuration
-        try:
-            client_config = config_loader.load()
-        except Exception as e:
-            # Raise a new exception without extra stack trace. We know the JSON failed to parse.
-            raise TypeError(f"Unable to build factory due to configuration error: {e}")
+        if not client_config:
+            client_config = EnvConfigLoader().load()
+            if client_config:
+                self.logger.info("Using configuration from env variables")
+                self.load_method = "env"
 
-        # 3. Load the validated configuration into our client.
+        if not client_config:
+            if self.config_path:
+                self.logger.info("Factory will load configuration from path")
+                client_config = PathConfigLoader(config_path=self.config_path, profile=self.profile).load()
+                self.load_method = "path_explicit"
+            else:
+                self.logger.info("Factory will load configuration from home directory")
+                client_config = HomeConfigLoader(profile=self.profile).load()
+                self.load_method = "path_home"
+
+        if not client_config:
+            raise Exception("No client configuration specified by any method (explicit, env or home location)")
+
         auth_config = client_config.auth
-        auth_type = auth_config.get_auth_type()
-        logging.info(f"We are processing authentication type [{auth_type}]")
+        logging.info(f"We are processing authentication type [{auth_config.get_auth_type()}]")
 
-        # Defining the host is optional and defaults to https://api.vectara.io
-        # See configuration.py for a list of all supported configuration parameters.
-        client: WrappedVectara
-        if auth_type == "ApiKey":
-            client = WrappedVectara(
-                api_key=client_config.auth.api_key,
+        # Bind our configuration onto our client class.
+        client: Vectara
+        if isinstance(auth_config, ApiKeyAuthConfig):
+            client = Vectara(
+                api_key=auth_config.api_key,
             )
-        elif auth_type == "OAuth2":
-            client = WrappedVectara(
+        elif isinstance(auth_config, OAuth2AuthConfig):
+            client = Vectara(
                 client_id=auth_config.app_client_id,
                 client_secret=auth_config.app_client_secret,
             )
         else:
-            raise TypeError(f"Unknown authentication type: {auth_type}")
+            raise TypeError(f"Unknown authentication type: {type(auth_config)}")
 
         # Inject our convenience managers
+        # TODO Move this into Vectara client
         corpus_manager = CorpusManager(client.corpora)
         client.set_corpus_manager(corpus_manager)
 

@@ -3,9 +3,7 @@ from pathlib import Path
 from typing import Union
 from abc import ABC, abstractmethod
 from vectara.upload.client import UploadClient
-from vectara.core.client_wrapper import SyncClientWrapper
 from vectara.core.jsonable_encoder import jsonable_encoder
-from vectara import VectaraEnvironment
 import httpx
 import asyncio
 from httpx import Response
@@ -39,7 +37,7 @@ class UploadWrapper(UploadClient):
 
         http_client = self._client_wrapper.httpx_client
 
-        url = VectaraEnvironment.PRODUCTION.default + f"/v2/corpora/{jsonable_encoder(corpus_key)}/upload_file"
+        url = f"https://api.vectara.io/v2/corpora/{jsonable_encoder(corpus_key)}/upload_file"
 
         def log_request(request):
             logging.debug(f"Request headers: {request.headers}")
