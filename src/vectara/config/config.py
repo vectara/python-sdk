@@ -120,6 +120,8 @@ class BaseConfigLoader(ABC):
 
     def _save(self, client_config: ClientConfig, final_config_path: Path):
         creds = self._load_yaml_full(final_config_path)
+        if not creds:
+            creds = {}
         creds[self.profile] = client_config.model_dump()
 
         with open(final_config_path, 'w') as yaml_stream:
@@ -223,13 +225,13 @@ class HomeConfigLoader(BaseConfigLoader):
     def __init__(self, profile: Union[str, None] = DEFAULT_CONFIG_NAME):
         super().__init__(profile=profile)
 
-    def _build_config_path(self) -> Path:
+    def _build_config_path(self, expect_exist=True) -> Path:
         home_path = Path.home()
         home_str = str(home_path.resolve())
         self.logger.info(f"Loading configuration from users home directory [{home_str}]")
 
         looking_for = home_path / CONFIG_FILE_NAME
-        if not path.exists(looking_for) or not path.isfile(looking_for):
+        if expect_exist and not path.exists(looking_for) or not path.isfile(looking_for):
             raise TypeError(f"Unable to find configuration file [{CONFIG_FILE_NAME}]"
                             f" within home directory [{home_str}]")
         return looking_for
@@ -250,7 +252,7 @@ class HomeConfigLoader(BaseConfigLoader):
             return False
 
     def save(self, to_save: ClientConfig):
-        config_path = self._build_config_path()
+        config_path = self._build_config_path(expect_exist=False)
         self._save(to_save, config_path)
 
     def delete(self):
