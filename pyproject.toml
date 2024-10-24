@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vectara"
-version = "0.2.27"
+version = "0.2.28"
 description = ""
 readme = "README.md"
 authors = []
