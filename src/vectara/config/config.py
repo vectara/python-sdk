@@ -96,13 +96,16 @@ class BaseConfigLoader(ABC):
         """
         raise Exception("Define in sublcass")
 
-    def _load_yaml_full(self, final_config_path):
-        with open(final_config_path, 'r') as yaml_stream:
-            return yaml.safe_load(yaml_stream)
+    def _load_yaml_full(self, final_config_path: Path) -> Dict:
+        if final_config_path.exists() and final_config_path.is_file():
+            with open(final_config_path, 'r') as yaml_stream:
+                return yaml.safe_load(yaml_stream)
+        else:
+            return {}
 
 
 
-    def _load_yaml_config(self, final_config_path):
+    def _load_yaml_config(self, final_config_path:Path):
         creds = self._load_yaml_full(final_config_path)
 
         if self.profile:
