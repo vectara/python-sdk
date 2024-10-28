@@ -231,9 +231,13 @@ class HomeConfigLoader(BaseConfigLoader):
         self.logger.info(f"Loading configuration from users home directory [{home_str}]")
 
         looking_for = home_path / CONFIG_FILE_NAME
-        if expect_exist is True and not path.exists(looking_for) or not path.isfile(looking_for):
-            raise TypeError(f"Unable to find configuration file [{CONFIG_FILE_NAME}]"
-                            f" within home directory [{home_str}]")
+        if expect_exist:
+            if not path.exists(looking_for):
+                raise TypeError(f"Unable to find configuration file [{CONFIG_FILE_NAME}]"
+                                f" within home directory [{home_str}]")
+            if not path.isfile(looking_for):
+                raise TypeError(f"Configuration path [{str(looking_for.resolve())}]"
+                                f" is not a file")
         return looking_for
 
     def load(self):
