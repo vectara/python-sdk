@@ -18,7 +18,7 @@ from .core import RequestOptions
 class ChatSessionManager:
     def __init__(self, session_expiry_time: timedelta = timedelta(days=7),
                  cleanup_interval_in_seconds: int = 43200):
-        self.sessions: typing.Dict[str, any] = {}
+        self.sessions: typing.Dict[str, typing.Any] = {}
         self.session_expiry_time = session_expiry_time
         self.lock = threading.Lock()
         self.cleanup_event = threading.Event()
