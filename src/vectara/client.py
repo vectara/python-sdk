@@ -18,7 +18,7 @@ from .core import RequestOptions
 class ChatSessionManager:
     def __init__(self, session_expiry_time: timedelta = timedelta(days=7),
                  cleanup_interval_in_seconds: int = 43200):
-        self.sessions = {}
+        self.sessions: typing.Dict[str, any] = {}
         self.session_expiry_time = session_expiry_time
         self.lock = threading.Lock()
         self.cleanup_event = threading.Event()
@@ -136,8 +136,8 @@ class Vectara(BaseVectara):
         ChatFullResponse
         """
 
-        # if not chat_id and not search:
-        #     raise ValueError("`search` parameter is required when `chat_id` is not provided.")
+        if not chat_id and not search:
+            raise ValueError("`search` parameter is required when `chat_id` is not provided.")
 
         if chat_id:
             session = self.session_manager.get_session(chat_id)
