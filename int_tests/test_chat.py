@@ -1,4 +1,3 @@
-import time
 import unittest
 from datetime import timedelta
 from pathlib import Path
@@ -24,7 +23,7 @@ class TestChat(unittest.TestCase):
         self.search_params = SearchCorporaParameters(
             corpora=[
                 KeyedSearchCorpus(
-                    corpus_key=self.key,
+                    corpus_key="int-test-upload-fern",
                     lexical_interpolation=0,
                 )
             ],
@@ -41,7 +40,7 @@ class TestChat(unittest.TestCase):
             citations=CitationParameters(
                 style="none",
             ),
-            enable_factual_consistency_score=True,
+            enable_factual_consistency_score=False,
         )
         self.chat_params = ChatParameters(store=True)
 
@@ -53,7 +52,7 @@ class TestChat(unittest.TestCase):
 
     def test_chat(self):
         response = self.client.chat(
-            query="what is vectara?",
+            query="Robot Utility Models",
             search=self.search_params,
             generation=self.generation_params,
             chat=self.chat_params

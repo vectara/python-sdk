@@ -101,7 +101,7 @@ class Vectara(BaseVectara):
             self,
             *,
             query: str,
-            search: typing.Optional[SearchCorporaParameters] = OMIT,
+            search: SearchCorporaParameters = OMIT,
             request_timeout: typing.Optional[int] = None,
             request_timeout_millis: typing.Optional[int] = None,
             generation: typing.Optional[GenerationParameters] = OMIT,
@@ -136,8 +136,8 @@ class Vectara(BaseVectara):
         ChatFullResponse
         """
 
-        if not chat_id and not search:
-            raise ValueError("`search` parameter is required when `chat_id` is not provided.")
+        # if not chat_id and not search:
+        #     raise ValueError("`search` parameter is required when `chat_id` is not provided.")
 
         if chat_id:
             session = self.session_manager.get_session(chat_id)
