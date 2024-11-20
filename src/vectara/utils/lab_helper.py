@@ -91,7 +91,7 @@ class LabHelper:
 
         corpus_clone = corpus.copy()
 
-        name, key = self._build_lab_name_and_key(corpus.name, corpus.key)
+        name, key = self._build_lab_name_and_key(corpus.name, corpus.key, user_prefix)
         corpus_clone.name = name
         corpus_clone.key = key
 
