@@ -9,7 +9,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 class GenerationPreset(UniversalBaseModel):
     """
     Bundle of default values used when calling generation. All values except
-    model name can be overriden at generation time.
+    model name can be overridden at generation time.
     """
 
     name: typing.Optional[str] = pydantic.Field(default=None)

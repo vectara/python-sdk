@@ -42,6 +42,10 @@ class DocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Document]:
         """
+        Retrieve a list of documents stored in a specifi corpus. This endpoint
+        provides an overview of document metadata without returning the full content of
+        each document.
+
         Parameters
         ----------
         corpus_key : CorpusKey
@@ -164,8 +168,17 @@ class DocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
-        Add a document to a corpus. You can add documents that are either in a typical structured format,
-        or in a format that explicitly specifies each document part. Each part becomes a separate search result.
+        Add a document to a corpus. This endpoint supports two document formats, structured and core.
+
+        - **Structured** documents have a more conventional structure that provide document sections
+          and parts in a format created by Vectara's proprietary strategy automatically. You provide
+          a logical document structure, and Vectara handles the partitioning.
+        - **Core** documents differ in that they follow an advanced, granular structure that
+          explicitly defines each document part in an array. Each part becomes a distinct,
+          searchable item in query results. You have precise control over the document structure
+          and content.
+
+        For more details, see [Indexing](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
 
         Parameters
         ----------
@@ -277,14 +290,17 @@ class DocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
+        Retrieve the content and metadata of a specific document, identified by its
+        unique `document_id` from a specific corpus.
+
         Parameters
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus containing the document to retrieve.
 
         document_id : str
-            The Document ID of the document to retrieve.
-            The `document_id` must be percent encoded.
+            The document ID of the document to retrieve.
+            This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -368,14 +384,17 @@ class DocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
+        Permanently delete a document identified by its unique `document_id` from a specific
+        corpus. This operation cannot be undone, so use it with caution.
+
         Parameters
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus with the document to delete.
 
         document_id : str
-            The Document ID of the document to delete.
-            The `document_id` must be percent encoded.
+            The document ID of the document to delete.
+            This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -459,6 +478,10 @@ class AsyncDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Document]:
         """
+        Retrieve a list of documents stored in a specifi corpus. This endpoint
+        provides an overview of document metadata without returning the full content of
+        each document.
+
         Parameters
         ----------
         corpus_key : CorpusKey
@@ -589,8 +612,17 @@ class AsyncDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
-        Add a document to a corpus. You can add documents that are either in a typical structured format,
-        or in a format that explicitly specifies each document part. Each part becomes a separate search result.
+        Add a document to a corpus. This endpoint supports two document formats, structured and core.
+
+        - **Structured** documents have a more conventional structure that provide document sections
+          and parts in a format created by Vectara's proprietary strategy automatically. You provide
+          a logical document structure, and Vectara handles the partitioning.
+        - **Core** documents differ in that they follow an advanced, granular structure that
+          explicitly defines each document part in an array. Each part becomes a distinct,
+          searchable item in query results. You have precise control over the document structure
+          and content.
+
+        For more details, see [Indexing](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
 
         Parameters
         ----------
@@ -710,14 +742,17 @@ class AsyncDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
+        Retrieve the content and metadata of a specific document, identified by its
+        unique `document_id` from a specific corpus.
+
         Parameters
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus containing the document to retrieve.
 
         document_id : str
-            The Document ID of the document to retrieve.
-            The `document_id` must be percent encoded.
+            The document ID of the document to retrieve.
+            This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -809,14 +844,17 @@ class AsyncDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
+        Permanently delete a document identified by its unique `document_id` from a specific
+        corpus. This operation cannot be undone, so use it with caution.
+
         Parameters
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus with the document to delete.
 
         document_id : str
-            The Document ID of the document to delete.
-            The `document_id` must be percent encoded.
+            The document ID of the document to delete.
+            This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.

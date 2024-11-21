@@ -24,7 +24,7 @@ class GenerationParameters(UniversalBaseModel):
     - The LLM used.
     - `model_parameter`s such as temperature.
     
-    All of these properties except the model can be overriden by setting them in this
+    All of these properties except the model can be overridden by setting them in this
     object. Even when a `prompt_template` is set, the `generation_preset_name` is used to set
     the model used.
     
@@ -54,7 +54,7 @@ class GenerationParameters(UniversalBaseModel):
 
     prompt_text: typing.Optional[str] = pydantic.Field(default=None)
     """
-    This property is deprecated in favor clearer naming. Use `prompt_template`. This property will be
+    This property is deprecated in favor of clearer naming. Use `prompt_template`. This property will be
     ignored if `prompt_template` is set.
     """
 

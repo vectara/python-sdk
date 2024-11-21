@@ -12,10 +12,10 @@ class SearchCorpus(UniversalBaseModel):
     custom_dimensions: typing.Optional[CustomDimensions] = None
     metadata_filter: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The filter string to narrow the search to according to metadata attributes. The query against this
-    corpus will be confined to document parts that match the `metadata_filter`. Only metadata
-    set as `filter_attributes` on the corpus can be filtered. Filter syntax is similiar to
-    a SQL where clause. See [metadata filters documentation](https://docs.vectara.com/docs/learn/metadata-search-filtering/filter-overview)
+    The filter string used to narrow the search based on metadata attributes. The query against this
+    corpus will be confined to document parts that match the `metadata_filter`. Only metadata fields
+    set as `filter_attributes` on the corpus can be filtered. Filter syntax is similar to
+    a SQL WHERE clause. See [metadata filters documentation](https://docs.vectara.com/docs/learn/metadata-search-filtering/filter-overview)
     for more information.
     """
 

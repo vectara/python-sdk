@@ -48,8 +48,8 @@ class CorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Corpus]:
         """
-        List corpora in the account. The corpus objects that are returned are less
-        detailed than the direct corpus retrieval operation.
+        List corpora in the account. The returned corpus objects contain less
+        detail compared to those retrieved the direct corpus retrieval operation.
 
         Parameters
         ----------
@@ -163,8 +163,8 @@ class CorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Corpus:
         """
-        Create a corpus, which is a container to store documents and associated metadata. This is where you
-        create the unique `corpus_key` that identifies the corpus. The `corpus_key` can be custom-defined
+        Create a corpus, which is a container to store documents and associated metadata. Here, you
+        define the unique `corpus_key` that identifies the corpus. The `corpus_key` can be custom-defined
         following your preferred naming convention, allowing you to easily manage the corpus's data and
         reference it in queries. For more information, see
         [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
@@ -300,7 +300,7 @@ class CorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Corpus:
         """
-        Get metadata about a corpus. This operation is not a method of searching a corpus.
+        Get metadata about a corpus. This operation does not search the corpus contents.
         Specify the `corpus_key` to identify the corpus whose metadata you want to
         retrieve. The `corpus_key` is created when the corpus is set up, either through
         the Vectara Console UI or the Create Corpus API. For more information,
@@ -391,13 +391,13 @@ class CorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Delete a corpus and all the data that it contains. The `corpus_key` uniquely identifies
+        Permanently delete a corpus and all its associated data. The `corpus_key` uniquely identifies
         the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 
         Parameters
         ----------
         corpus_key : CorpusKey
-            The unique key identifying the corpus to delete
+            The unique key identifying the corpus to delete.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -479,7 +479,7 @@ class CorporaClient:
         manage data availability without deleting the corpus, which is useful for
         maintenance and security purposes. The `corpus_key` uniquely identifies the corpus.
         For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
-        Update the name and description of a corpus dynamically to help keep your data
+        Consider updating the name and description of a corpus dynamically to help keep your data
         aligned with changing business needs.
 
         Parameters
@@ -665,9 +665,9 @@ class CorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ReplaceFilterAttributesResponse:
         """
-        Replace the filter attributes of a corpus. This does not happen immediately, but
-        instead creates a job and will complete when that job completes. Until that
-        job completes, using new filter attributes will not work.
+        Replace the filter attributes of a corpus. This does not happen immediately, as
+        this operation creates a job that completes asynchronously. These new filter
+        attributes will not work until the job completes.
 
         You can monitor the status of the filter change using the returned job ID. The
         `corpus_key` uniquely identifies the corpus. For more information, see
@@ -676,7 +676,7 @@ class CorporaClient:
         Parameters
         ----------
         corpus_key : CorpusKey
-            Key of the corpus to have filters replaced.
+            The unique key identifying the corpus having its filters replaced.
 
         filter_attributes : typing.Sequence[FilterAttribute]
             The new filter attributes.
@@ -796,10 +796,10 @@ class CorporaClient:
             The search query string for the corpus, which is the question the user is asking.
 
         limit : typing.Optional[int]
-            Maximum number of results to return.
+            The maximum number of results to return.
 
         offset : typing.Optional[int]
-            Position from which to start in the result set.
+            The position from which to start in the result set.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -900,7 +900,7 @@ class CorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Iterator[QueryStreamedResponse]:
         """
-        Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
+        Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
 
         - Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
         - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
@@ -941,15 +941,7 @@ class CorporaClient:
 
         Examples
         --------
-        from vectara import (
-            CitationParameters,
-            ContextConfiguration,
-            CustomerSpecificReranker,
-            GenerationParameters,
-            ModelParameters,
-            Vectara,
-        )
-        from vectara.corpora import SearchCorpusParameters
+        from vectara import Vectara
 
         client = Vectara(
             api_key="YOUR_API_KEY",
@@ -957,53 +949,8 @@ class CorporaClient:
             client_secret="YOUR_CLIENT_SECRET",
         )
         response = client.corpora.query_stream(
-            corpus_key="string",
-            request_timeout=1,
-            request_timeout_millis=1,
-            query="string",
-            search=SearchCorpusParameters(
-                custom_dimensions={"string": 1.1},
-                metadata_filter="string",
-                lexical_interpolation=1.1,
-                semantics="default",
-                offset=1,
-                limit=1,
-                context_configuration=ContextConfiguration(
-                    characters_before=1,
-                    characters_after=1,
-                    sentences_before=1,
-                    sentences_after=1,
-                    start_tag="string",
-                    end_tag="string",
-                ),
-                reranker=CustomerSpecificReranker(
-                    reranker_id="string",
-                    reranker_name="string",
-                    limit=1,
-                    cutoff=1.1,
-                ),
-            ),
-            generation=GenerationParameters(
-                generation_preset_name="string",
-                prompt_name="string",
-                max_used_search_results=1,
-                prompt_template="string",
-                prompt_text="string",
-                max_response_characters=1,
-                response_language="auto",
-                model_parameters=ModelParameters(
-                    max_tokens=1,
-                    temperature=1.1,
-                    frequency_penalty=1.1,
-                    presence_penalty=1.1,
-                ),
-                citations=CitationParameters(
-                    style="none",
-                    url_pattern="string",
-                    text_pattern="string",
-                ),
-                enable_factual_consistency_score=True,
-            ),
+            corpus_key="my-corpus",
+            query="query",
         )
         for chunk in response:
             yield chunk
@@ -1093,7 +1040,7 @@ class CorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> QueryFullResponse:
         """
-        Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
+        Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
 
         - Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
         - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
@@ -1227,8 +1174,8 @@ class AsyncCorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Corpus]:
         """
-        List corpora in the account. The corpus objects that are returned are less
-        detailed than the direct corpus retrieval operation.
+        List corpora in the account. The returned corpus objects contain less
+        detail compared to those retrieved the direct corpus retrieval operation.
 
         Parameters
         ----------
@@ -1350,8 +1297,8 @@ class AsyncCorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Corpus:
         """
-        Create a corpus, which is a container to store documents and associated metadata. This is where you
-        create the unique `corpus_key` that identifies the corpus. The `corpus_key` can be custom-defined
+        Create a corpus, which is a container to store documents and associated metadata. Here, you
+        define the unique `corpus_key` that identifies the corpus. The `corpus_key` can be custom-defined
         following your preferred naming convention, allowing you to easily manage the corpus's data and
         reference it in queries. For more information, see
         [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
@@ -1495,7 +1442,7 @@ class AsyncCorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Corpus:
         """
-        Get metadata about a corpus. This operation is not a method of searching a corpus.
+        Get metadata about a corpus. This operation does not search the corpus contents.
         Specify the `corpus_key` to identify the corpus whose metadata you want to
         retrieve. The `corpus_key` is created when the corpus is set up, either through
         the Vectara Console UI or the Create Corpus API. For more information,
@@ -1594,13 +1541,13 @@ class AsyncCorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Delete a corpus and all the data that it contains. The `corpus_key` uniquely identifies
+        Permanently delete a corpus and all its associated data. The `corpus_key` uniquely identifies
         the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 
         Parameters
         ----------
         corpus_key : CorpusKey
-            The unique key identifying the corpus to delete
+            The unique key identifying the corpus to delete.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -1690,7 +1637,7 @@ class AsyncCorporaClient:
         manage data availability without deleting the corpus, which is useful for
         maintenance and security purposes. The `corpus_key` uniquely identifies the corpus.
         For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
-        Update the name and description of a corpus dynamically to help keep your data
+        Consider updating the name and description of a corpus dynamically to help keep your data
         aligned with changing business needs.
 
         Parameters
@@ -1892,9 +1839,9 @@ class AsyncCorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ReplaceFilterAttributesResponse:
         """
-        Replace the filter attributes of a corpus. This does not happen immediately, but
-        instead creates a job and will complete when that job completes. Until that
-        job completes, using new filter attributes will not work.
+        Replace the filter attributes of a corpus. This does not happen immediately, as
+        this operation creates a job that completes asynchronously. These new filter
+        attributes will not work until the job completes.
 
         You can monitor the status of the filter change using the returned job ID. The
         `corpus_key` uniquely identifies the corpus. For more information, see
@@ -1903,7 +1850,7 @@ class AsyncCorporaClient:
         Parameters
         ----------
         corpus_key : CorpusKey
-            Key of the corpus to have filters replaced.
+            The unique key identifying the corpus having its filters replaced.
 
         filter_attributes : typing.Sequence[FilterAttribute]
             The new filter attributes.
@@ -2031,10 +1978,10 @@ class AsyncCorporaClient:
             The search query string for the corpus, which is the question the user is asking.
 
         limit : typing.Optional[int]
-            Maximum number of results to return.
+            The maximum number of results to return.
 
         offset : typing.Optional[int]
-            Position from which to start in the result set.
+            The position from which to start in the result set.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -2143,7 +2090,7 @@ class AsyncCorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.AsyncIterator[QueryStreamedResponse]:
         """
-        Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
+        Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
 
         - Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
         - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
@@ -2186,15 +2133,7 @@ class AsyncCorporaClient:
         --------
         import asyncio
 
-        from vectara import (
-            AsyncVectara,
-            CitationParameters,
-            ContextConfiguration,
-            CustomerSpecificReranker,
-            GenerationParameters,
-            ModelParameters,
-        )
-        from vectara.corpora import SearchCorpusParameters
+        from vectara import AsyncVectara
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
@@ -2205,53 +2144,8 @@ class AsyncCorporaClient:
 
         async def main() -> None:
             response = await client.corpora.query_stream(
-                corpus_key="string",
-                request_timeout=1,
-                request_timeout_millis=1,
-                query="string",
-                search=SearchCorpusParameters(
-                    custom_dimensions={"string": 1.1},
-                    metadata_filter="string",
-                    lexical_interpolation=1.1,
-                    semantics="default",
-                    offset=1,
-                    limit=1,
-                    context_configuration=ContextConfiguration(
-                        characters_before=1,
-                        characters_after=1,
-                        sentences_before=1,
-                        sentences_after=1,
-                        start_tag="string",
-                        end_tag="string",
-                    ),
-                    reranker=CustomerSpecificReranker(
-                        reranker_id="string",
-                        reranker_name="string",
-                        limit=1,
-                        cutoff=1.1,
-                    ),
-                ),
-                generation=GenerationParameters(
-                    generation_preset_name="string",
-                    prompt_name="string",
-                    max_used_search_results=1,
-                    prompt_template="string",
-                    prompt_text="string",
-                    max_response_characters=1,
-                    response_language="auto",
-                    model_parameters=ModelParameters(
-                        max_tokens=1,
-                        temperature=1.1,
-                        frequency_penalty=1.1,
-                        presence_penalty=1.1,
-                    ),
-                    citations=CitationParameters(
-                        style="none",
-                        url_pattern="string",
-                        text_pattern="string",
-                    ),
-                    enable_factual_consistency_score=True,
-                ),
+                corpus_key="my-corpus",
+                query="query",
             )
             async for chunk in response:
                 yield chunk
@@ -2344,7 +2238,7 @@ class AsyncCorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> QueryFullResponse:
         """
-        Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
+        Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
 
         - Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
         - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)

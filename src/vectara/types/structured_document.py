@@ -6,6 +6,7 @@ from .structured_document_section import StructuredDocumentSection
 import pydantic
 import typing
 from .custom_dimensions import CustomDimensions
+from .components_schemas_max_chars_chunking_strategy import ComponentsSchemasMaxCharsChunkingStrategy
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 from ..core.pydantic_utilities import update_forward_refs
 
@@ -17,7 +18,7 @@ class StructuredDocument(UniversalBaseModel):
 
     id: str = pydantic.Field()
     """
-    The document ID, must be unique within the corpus.
+    The document ID must be unique within the corpus.
     """
 
     type: typing.Literal["structured"] = "structured"
@@ -42,6 +43,8 @@ class StructuredDocument(UniversalBaseModel):
     """
     The subsection of the document.
     """
+
+    chunking_strategy: typing.Optional[ComponentsSchemasMaxCharsChunkingStrategy] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

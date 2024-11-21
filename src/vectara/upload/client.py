@@ -4,6 +4,7 @@ import typing
 from ..core.client_wrapper import SyncClientWrapper
 from ..types.corpus_key import CorpusKey
 from .. import core
+from ..types.components_schemas_max_chars_chunking_strategy import ComponentsSchemasMaxCharsChunkingStrategy
 from ..core.request_options import RequestOptions
 from ..types.document import Document
 from ..core.jsonable_encoder import jsonable_encoder
@@ -35,14 +36,16 @@ class UploadClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        chunking_strategy: typing.Optional[ComponentsSchemasMaxCharsChunkingStrategy] = OMIT,
         filename: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
-        Upload files such as PDFs and Word Documents. Vectara will attempt to automatically extract text and any metadata.
-        The File Upload endpoint request expects a `multipart/form-data` request containing the following parts:
+        Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing.
+        The request expects a `multipart/form-data` format containing the following parts:
 
         - `metadata` - (Optional) Specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
+        - `chunking_strategy` - (Optional) Specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. For example, `'chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":200};type=application/json'`
         - `file` - Specifies the file that you want to upload.
         - `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
 
@@ -64,6 +67,8 @@ class UploadClient:
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Arbitrary object that will be attached as document metadata to the extracted document.
+
+        chunking_strategy : typing.Optional[ComponentsSchemasMaxCharsChunkingStrategy]
 
         filename : typing.Optional[str]
             Optional multipart section to override the filename.
@@ -95,12 +100,22 @@ class UploadClient:
             method="POST",
             data={},
             files={
-                "metadata": (None, json.dumps(jsonable_encoder(metadata)), "application/json"),
-                "filename": (None, json.dumps(jsonable_encoder(filename)), "text/plain"),
-                "file": core.with_content_type(
-                    file=file,
-                    content_type="application/octet-stream, application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.oasis.opendocument.text, application/epub+zip, application/rtf, text/html, text/plain, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, text/markdown",
+                **(
+                    {"metadata": (None, json.dumps(jsonable_encoder(metadata)), "application/json")}
+                    if metadata is not OMIT
+                    else {}
                 ),
+                **(
+                    {"chunking_strategy": (None, json.dumps(jsonable_encoder(chunking_strategy)), "application/json")}
+                    if chunking_strategy is not OMIT
+                    else {}
+                ),
+                **(
+                    {"filename": (None, json.dumps(jsonable_encoder(filename)), "text/plain")}
+                    if filename is not OMIT
+                    else {}
+                ),
+                "file": core.with_content_type(file=file, default_content_type="application/octet-stream"),
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -166,14 +181,16 @@ class AsyncUploadClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        chunking_strategy: typing.Optional[ComponentsSchemasMaxCharsChunkingStrategy] = OMIT,
         filename: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
-        Upload files such as PDFs and Word Documents. Vectara will attempt to automatically extract text and any metadata.
-        The File Upload endpoint request expects a `multipart/form-data` request containing the following parts:
+        Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing.
+        The request expects a `multipart/form-data` format containing the following parts:
 
         - `metadata` - (Optional) Specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
+        - `chunking_strategy` - (Optional) Specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. For example, `'chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":200};type=application/json'`
         - `file` - Specifies the file that you want to upload.
         - `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
 
@@ -195,6 +212,8 @@ class AsyncUploadClient:
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Arbitrary object that will be attached as document metadata to the extracted document.
+
+        chunking_strategy : typing.Optional[ComponentsSchemasMaxCharsChunkingStrategy]
 
         filename : typing.Optional[str]
             Optional multipart section to override the filename.
@@ -234,12 +253,22 @@ class AsyncUploadClient:
             method="POST",
             data={},
             files={
-                "metadata": (None, json.dumps(jsonable_encoder(metadata)), "application/json"),
-                "filename": (None, json.dumps(jsonable_encoder(filename)), "text/plain"),
-                "file": core.with_content_type(
-                    file=file,
-                    content_type="application/octet-stream, application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.oasis.opendocument.text, application/epub+zip, application/rtf, text/html, text/plain, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, text/markdown",
+                **(
+                    {"metadata": (None, json.dumps(jsonable_encoder(metadata)), "application/json")}
+                    if metadata is not OMIT
+                    else {}
                 ),
+                **(
+                    {"chunking_strategy": (None, json.dumps(jsonable_encoder(chunking_strategy)), "application/json")}
+                    if chunking_strategy is not OMIT
+                    else {}
+                ),
+                **(
+                    {"filename": (None, json.dumps(jsonable_encoder(filename)), "text/plain")}
+                    if filename is not OMIT
+                    else {}
+                ),
+                "file": core.with_content_type(file=file, default_content_type="application/octet-stream"),
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,

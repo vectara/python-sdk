@@ -14,14 +14,14 @@ class CoreDocument(UniversalBaseModel):
 
     id: str = pydantic.Field()
     """
-    The document ID, must be unique within the corpus.
+    The document ID must be unique within the corpus.
     """
 
     type: typing.Literal["core"] = "core"
     metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
     """
     Arbitrary object of document level metadata. Properties of this object
-    can be used by document filter if defined as a corpus filter attribute.
+    can be used by document filters if defined as a corpus filter attribute.
     """
 
     document_parts: typing.List[CoreDocumentPart] = pydantic.Field()

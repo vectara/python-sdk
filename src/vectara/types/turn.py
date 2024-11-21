@@ -30,7 +30,7 @@ class Turn(UniversalBaseModel):
 
     enabled: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    Indicates whether the turn is enabled and shown in futures turns of the chat.
+    Indicates whether the turn is enabled and shown in future turns of the chat.
     """
 
     created_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)

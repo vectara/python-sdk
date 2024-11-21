@@ -245,7 +245,7 @@ class UsersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> User:
         """
-        Get a user and view details like thei email, username, and associated roles.
+        Get a user and view details like the email, username, and associated roles.
 
         Parameters
         ----------
@@ -825,7 +825,7 @@ class AsyncUsersClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> User:
         """
-        Get a user and view details like thei email, username, and associated roles.
+        Get a user and view details like the email, username, and associated roles.
 
         Parameters
         ----------

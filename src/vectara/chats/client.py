@@ -447,17 +447,7 @@ class ChatsClient:
 
         Examples
         --------
-        from vectara import (
-            ChatParameters,
-            CitationParameters,
-            ContextConfiguration,
-            CustomerSpecificReranker,
-            GenerationParameters,
-            KeyedSearchCorpus,
-            ModelParameters,
-            SearchCorporaParameters,
-            Vectara,
-        )
+        from vectara import SearchCorporaParameters, Vectara
 
         client = Vectara(
             api_key="YOUR_API_KEY",
@@ -465,60 +455,9 @@ class ChatsClient:
             client_secret="YOUR_CLIENT_SECRET",
         )
         response = client.chats.create_turns_stream(
-            chat_id="string",
-            request_timeout=1,
-            request_timeout_millis=1,
-            query="string",
-            search=SearchCorporaParameters(
-                corpora=[
-                    KeyedSearchCorpus(
-                        custom_dimensions={"string": 1.1},
-                        metadata_filter="string",
-                        lexical_interpolation=1.1,
-                        semantics="default",
-                    )
-                ],
-                offset=1,
-                limit=1,
-                context_configuration=ContextConfiguration(
-                    characters_before=1,
-                    characters_after=1,
-                    sentences_before=1,
-                    sentences_after=1,
-                    start_tag="string",
-                    end_tag="string",
-                ),
-                reranker=CustomerSpecificReranker(
-                    reranker_id="string",
-                    reranker_name="string",
-                    limit=1,
-                    cutoff=1.1,
-                ),
-            ),
-            generation=GenerationParameters(
-                generation_preset_name="string",
-                prompt_name="string",
-                max_used_search_results=1,
-                prompt_template="string",
-                prompt_text="string",
-                max_response_characters=1,
-                response_language="auto",
-                model_parameters=ModelParameters(
-                    max_tokens=1,
-                    temperature=1.1,
-                    frequency_penalty=1.1,
-                    presence_penalty=1.1,
-                ),
-                citations=CitationParameters(
-                    style="none",
-                    url_pattern="string",
-                    text_pattern="string",
-                ),
-                enable_factual_consistency_score=True,
-            ),
-            chat=ChatParameters(
-                store=True,
-            ),
+            chat_id="chat_id",
+            query="How can I use the Vectara platform?",
+            search=SearchCorporaParameters(),
         )
         for chunk in response:
             yield chunk
@@ -1454,17 +1393,7 @@ class AsyncChatsClient:
         --------
         import asyncio
 
-        from vectara import (
-            AsyncVectara,
-            ChatParameters,
-            CitationParameters,
-            ContextConfiguration,
-            CustomerSpecificReranker,
-            GenerationParameters,
-            KeyedSearchCorpus,
-            ModelParameters,
-            SearchCorporaParameters,
-        )
+        from vectara import AsyncVectara, SearchCorporaParameters
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
@@ -1475,60 +1404,9 @@ class AsyncChatsClient:
 
         async def main() -> None:
             response = await client.chats.create_turns_stream(
-                chat_id="string",
-                request_timeout=1,
-                request_timeout_millis=1,
-                query="string",
-                search=SearchCorporaParameters(
-                    corpora=[
-                        KeyedSearchCorpus(
-                            custom_dimensions={"string": 1.1},
-                            metadata_filter="string",
-                            lexical_interpolation=1.1,
-                            semantics="default",
-                        )
-                    ],
-                    offset=1,
-                    limit=1,
-                    context_configuration=ContextConfiguration(
-                        characters_before=1,
-                        characters_after=1,
-                        sentences_before=1,
-                        sentences_after=1,
-                        start_tag="string",
-                        end_tag="string",
-                    ),
-                    reranker=CustomerSpecificReranker(
-                        reranker_id="string",
-                        reranker_name="string",
-                        limit=1,
-                        cutoff=1.1,
-                    ),
-                ),
-                generation=GenerationParameters(
-                    generation_preset_name="string",
-                    prompt_name="string",
-                    max_used_search_results=1,
-                    prompt_template="string",
-                    prompt_text="string",
-                    max_response_characters=1,
-                    response_language="auto",
-                    model_parameters=ModelParameters(
-                        max_tokens=1,
-                        temperature=1.1,
-                        frequency_penalty=1.1,
-                        presence_penalty=1.1,
-                    ),
-                    citations=CitationParameters(
-                        style="none",
-                        url_pattern="string",
-                        text_pattern="string",
-                    ),
-                    enable_factual_consistency_score=True,
-                ),
-                chat=ChatParameters(
-                    store=True,
-                ),
+                chat_id="chat_id",
+                query="How can I use the Vectara platform?",
+                search=SearchCorporaParameters(),
             )
             async for chunk in response:
                 yield chunk

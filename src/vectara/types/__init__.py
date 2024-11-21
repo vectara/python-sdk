@@ -16,6 +16,7 @@ from .chat_streamed_response import ChatStreamedResponse
 from .citation_parameters import CitationParameters
 from .citation_parameters_style import CitationParametersStyle
 from .components_schemas_create_client_credentials_request import ComponentsSchemasCreateClientCredentialsRequest
+from .components_schemas_max_chars_chunking_strategy import ComponentsSchemasMaxCharsChunkingStrategy
 from .context_configuration import ContextConfiguration
 from .core_document import CoreDocument
 from .core_document_part import CoreDocumentPart
@@ -59,6 +60,7 @@ from .list_metadata import ListMetadata
 from .list_rerankers_response import ListRerankersResponse
 from .list_users_response import ListUsersResponse
 from .llm import Llm
+from .max_chars_chunking_strategy import MaxCharsChunkingStrategy
 from .mmr_reranker import MmrReranker
 from .model_parameters import ModelParameters
 from .none_reranker import NoneReranker
@@ -101,6 +103,7 @@ __all__ = [
     "CitationParameters",
     "CitationParametersStyle",
     "ComponentsSchemasCreateClientCredentialsRequest",
+    "ComponentsSchemasMaxCharsChunkingStrategy",
     "ContextConfiguration",
     "CoreDocument",
     "CoreDocumentPart",
@@ -144,6 +147,7 @@ __all__ = [
     "ListRerankersResponse",
     "ListUsersResponse",
     "Llm",
+    "MaxCharsChunkingStrategy",
     "MmrReranker",
     "ModelParameters",
     "NoneReranker",

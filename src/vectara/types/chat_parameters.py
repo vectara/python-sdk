@@ -13,7 +13,7 @@ class ChatParameters(UniversalBaseModel):
 
     store: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    Indicates whether to store chat message and response message.
+    Indicates whether to store chat messages and response messages.
     """
 
     if IS_PYDANTIC_V2:

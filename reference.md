@@ -11,7 +11,7 @@
 <dl>
 <dd>
 
-Perform a multipurpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
+Perform a multipurpose query across to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
 
 - Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
@@ -156,7 +156,7 @@ for chunk in response:
 <dl>
 <dd>
 
-Perform a multipurpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
+Perform a multipurpose query across to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
 
 - Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
@@ -286,17 +286,7 @@ Create a chat while specifying the default retrieval parameters used by the prom
 <dd>
 
 ```python
-from vectara import (
-    ChatParameters,
-    CitationParameters,
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    ModelParameters,
-    SearchCorporaParameters,
-    Vectara,
-)
+from vectara import SearchCorporaParameters, Vectara
 
 client = Vectara(
     api_key="YOUR_API_KEY",
@@ -304,59 +294,8 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 response = client.chat_stream(
-    request_timeout=1,
-    request_timeout_millis=1,
-    query="string",
-    search=SearchCorporaParameters(
-        corpora=[
-            KeyedSearchCorpus(
-                custom_dimensions={"string": 1.1},
-                metadata_filter="string",
-                lexical_interpolation=1.1,
-                semantics="default",
-            )
-        ],
-        offset=1,
-        limit=1,
-        context_configuration=ContextConfiguration(
-            characters_before=1,
-            characters_after=1,
-            sentences_before=1,
-            sentences_after=1,
-            start_tag="string",
-            end_tag="string",
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="string",
-            reranker_name="string",
-            limit=1,
-            cutoff=1.1,
-        ),
-    ),
-    generation=GenerationParameters(
-        generation_preset_name="string",
-        prompt_name="string",
-        max_used_search_results=1,
-        prompt_template="string",
-        prompt_text="string",
-        max_response_characters=1,
-        response_language="auto",
-        model_parameters=ModelParameters(
-            max_tokens=1,
-            temperature=1.1,
-            frequency_penalty=1.1,
-            presence_penalty=1.1,
-        ),
-        citations=CitationParameters(
-            style="none",
-            url_pattern="string",
-            text_pattern="string",
-        ),
-        enable_factual_consistency_score=True,
-    ),
-    chat=ChatParameters(
-        store=True,
-    ),
+    query="How can I use the Vectara platform?",
+    search=SearchCorporaParameters(),
 )
 for chunk in response:
     yield chunk
@@ -561,8 +500,8 @@ client.chat(
 <dl>
 <dd>
 
-List corpora in the account. The corpus objects that are returned are less
-detailed than the direct corpus retrieval operation.
+List corpora in the account. The returned corpus objects contain less
+detail compared to those retrieved the direct corpus retrieval operation.
 </dd>
 </dl>
 </dd>
@@ -671,8 +610,8 @@ for page in response.iter_pages():
 <dl>
 <dd>
 
-Create a corpus, which is a container to store documents and associated metadata. This is where you
-create the unique `corpus_key` that identifies the corpus. The `corpus_key` can be custom-defined
+Create a corpus, which is a container to store documents and associated metadata. Here, you
+define the unique `corpus_key` that identifies the corpus. The `corpus_key` can be custom-defined
 following your preferred naming convention, allowing you to easily manage the corpus's data and
 reference it in queries. For more information, see
 [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
@@ -838,7 +777,7 @@ This feature is only enabled for Scale customers.
 <dl>
 <dd>
 
-Get metadata about a corpus. This operation is not a method of searching a corpus.
+Get metadata about a corpus. This operation does not search the corpus contents.
 Specify the `corpus_key` to identify the corpus whose metadata you want to
 retrieve. The `corpus_key` is created when the corpus is set up, either through
 the Vectara Console UI or the Create Corpus API. For more information,
@@ -930,7 +869,7 @@ client.corpora.get(
 <dl>
 <dd>
 
-Delete a corpus and all the data that it contains. The `corpus_key` uniquely identifies
+Permanently delete a corpus and all its associated data. The `corpus_key` uniquely identifies
 the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 </dd>
 </dl>
@@ -971,7 +910,7 @@ client.corpora.delete(
 <dl>
 <dd>
 
-**corpus_key:** `CorpusKey` — The unique key identifying the corpus to delete
+**corpus_key:** `CorpusKey` — The unique key identifying the corpus to delete.
     
 </dd>
 </dl>
@@ -1023,7 +962,7 @@ Enable, disable, or update the name and description of a corpus. This lets you
 manage data availability without deleting the corpus, which is useful for
 maintenance and security purposes. The `corpus_key` uniquely identifies the corpus.
 For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
-Update the name and description of a corpus dynamically to help keep your data
+Consider updating the name and description of a corpus dynamically to help keep your data
 aligned with changing business needs.
 </dd>
 </dl>
@@ -1226,9 +1165,9 @@ client.corpora.reset(
 <dl>
 <dd>
 
-Replace the filter attributes of a corpus. This does not happen immediately, but
-instead creates a job and will complete when that job completes. Until that
-job completes, using new filter attributes will not work.
+Replace the filter attributes of a corpus. This does not happen immediately, as
+this operation creates a job that completes asynchronously. These new filter
+attributes will not work until the job completes.
 
 You can monitor the status of the filter change using the returned job ID. The
 `corpus_key` uniquely identifies the corpus. For more information, see
@@ -1279,7 +1218,7 @@ client.corpora.replace_filter_attributes(
 <dl>
 <dd>
 
-**corpus_key:** `CorpusKey` — Key of the corpus to have filters replaced.
+**corpus_key:** `CorpusKey` — The unique key identifying the corpus having its filters replaced.
     
 </dd>
 </dl>
@@ -1400,7 +1339,7 @@ client.corpora.search(
 <dl>
 <dd>
 
-**limit:** `typing.Optional[int]` — Maximum number of results to return.
+**limit:** `typing.Optional[int]` — The maximum number of results to return.
     
 </dd>
 </dl>
@@ -1408,7 +1347,7 @@ client.corpora.search(
 <dl>
 <dd>
 
-**offset:** `typing.Optional[int]` — Position from which to start in the result set.
+**offset:** `typing.Optional[int]` — The position from which to start in the result set.
     
 </dd>
 </dl>
@@ -1456,7 +1395,7 @@ client.corpora.search(
 <dl>
 <dd>
 
-Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
+Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
 
 - Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
@@ -1481,15 +1420,7 @@ For more detailed information, see [Query API guide](https://docs.vectara.com/do
 <dd>
 
 ```python
-from vectara import (
-    CitationParameters,
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    ModelParameters,
-    Vectara,
-)
-from vectara.corpora import SearchCorpusParameters
+from vectara import Vectara
 
 client = Vectara(
     api_key="YOUR_API_KEY",
@@ -1497,53 +1428,8 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 response = client.corpora.query_stream(
-    corpus_key="string",
-    request_timeout=1,
-    request_timeout_millis=1,
-    query="string",
-    search=SearchCorpusParameters(
-        custom_dimensions={"string": 1.1},
-        metadata_filter="string",
-        lexical_interpolation=1.1,
-        semantics="default",
-        offset=1,
-        limit=1,
-        context_configuration=ContextConfiguration(
-            characters_before=1,
-            characters_after=1,
-            sentences_before=1,
-            sentences_after=1,
-            start_tag="string",
-            end_tag="string",
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="string",
-            reranker_name="string",
-            limit=1,
-            cutoff=1.1,
-        ),
-    ),
-    generation=GenerationParameters(
-        generation_preset_name="string",
-        prompt_name="string",
-        max_used_search_results=1,
-        prompt_template="string",
-        prompt_text="string",
-        max_response_characters=1,
-        response_language="auto",
-        model_parameters=ModelParameters(
-            max_tokens=1,
-            temperature=1.1,
-            frequency_penalty=1.1,
-            presence_penalty=1.1,
-        ),
-        citations=CitationParameters(
-            style="none",
-            url_pattern="string",
-            text_pattern="string",
-        ),
-        enable_factual_consistency_score=True,
-    ),
+    corpus_key="my-corpus",
+    query="query",
 )
 for chunk in response:
     yield chunk
@@ -1634,7 +1520,7 @@ for chunk in response:
 <dl>
 <dd>
 
-Query a specific corpus and find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
+Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
 
 - Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
@@ -1758,10 +1644,11 @@ client.corpora.query(
 <dl>
 <dd>
 
-Upload files such as PDFs and Word Documents. Vectara will attempt to automatically extract text and any metadata.
-The File Upload endpoint request expects a `multipart/form-data` request containing the following parts:
+Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing.
+The request expects a `multipart/form-data` format containing the following parts:
 
 - `metadata` - (Optional) Specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
+- `chunking_strategy` - (Optional) Specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. For example, `'chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":200};type=application/json'`
 - `file` - Specifies the file that you want to upload.
 - `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
 
@@ -1847,6 +1734,14 @@ core.File` — See core.File for more documentation
 <dl>
 <dd>
 
+**chunking_strategy:** `typing.Optional[ComponentsSchemasMaxCharsChunkingStrategy]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **filename:** `typing.Optional[str]` — Optional multipart section to override the filename.
     
 </dd>
@@ -1871,6 +1766,22 @@ core.File` — See core.File for more documentation
 <details><summary><code>client.documents.<a href="src/vectara/documents/client.py">list</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve a list of documents stored in a specifi corpus. This endpoint
+provides an overview of document metadata without returning the full content of
+each document.
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -1986,8 +1897,17 @@ allows filtering on document metadata.
 <dl>
 <dd>
 
-Add a document to a corpus. You can add documents that are either in a typical structured format,
-or in a format that explicitly specifies each document part. Each part becomes a separate search result.
+Add a document to a corpus. This endpoint supports two document formats, structured and core.
+
+- **Structured** documents have a more conventional structure that provide document sections
+  and parts in a format created by Vectara's proprietary strategy automatically. You provide
+  a logical document structure, and Vectara handles the partitioning.
+- **Core** documents differ in that they follow an advanced, granular structure that
+  explicitly defines each document part in an array. Each part becomes a distinct,
+  searchable item in query results. You have precise control over the document structure
+  and content.
+
+For more details, see [Indexing](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
 </dd>
 </dl>
 </dd>
@@ -2083,6 +2003,21 @@ client.documents.create(
 <dl>
 <dd>
 
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve the content and metadata of a specific document, identified by its
+unique `document_id` from a specific corpus.
+</dd>
+</dl>
+</dd>
+</dl>
+
 #### 🔌 Usage
 
 <dl>
@@ -2128,8 +2063,8 @@ client.documents.get_corpus_document(
 
 **document_id:** `str` 
 
-The Document ID of the document to retrieve.
-The `document_id` must be percent encoded.
+The document ID of the document to retrieve.
+This `document_id` must be percent encoded.
     
 </dd>
 </dl>
@@ -2168,6 +2103,21 @@ The `document_id` must be percent encoded.
 <details><summary><code>client.documents.<a href="src/vectara/documents/client.py">delete</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Permanently delete a document identified by its unique `document_id` from a specific
+corpus. This operation cannot be undone, so use it with caution.
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -2214,8 +2164,8 @@ client.documents.delete(
 
 **document_id:** `str` 
 
-The Document ID of the document to delete.
-The `document_id` must be percent encoded.
+The document ID of the document to delete.
+This `document_id` must be percent encoded.
     
 </dd>
 </dl>
@@ -2642,17 +2592,7 @@ Create a new turn in the chat. Each conversation has a series of `turn` objects,
 <dd>
 
 ```python
-from vectara import (
-    ChatParameters,
-    CitationParameters,
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    ModelParameters,
-    SearchCorporaParameters,
-    Vectara,
-)
+from vectara import SearchCorporaParameters, Vectara
 
 client = Vectara(
     api_key="YOUR_API_KEY",
@@ -2660,60 +2600,9 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 response = client.chats.create_turns_stream(
-    chat_id="string",
-    request_timeout=1,
-    request_timeout_millis=1,
-    query="string",
-    search=SearchCorporaParameters(
-        corpora=[
-            KeyedSearchCorpus(
-                custom_dimensions={"string": 1.1},
-                metadata_filter="string",
-                lexical_interpolation=1.1,
-                semantics="default",
-            )
-        ],
-        offset=1,
-        limit=1,
-        context_configuration=ContextConfiguration(
-            characters_before=1,
-            characters_after=1,
-            sentences_before=1,
-            sentences_after=1,
-            start_tag="string",
-            end_tag="string",
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="string",
-            reranker_name="string",
-            limit=1,
-            cutoff=1.1,
-        ),
-    ),
-    generation=GenerationParameters(
-        generation_preset_name="string",
-        prompt_name="string",
-        max_used_search_results=1,
-        prompt_template="string",
-        prompt_text="string",
-        max_response_characters=1,
-        response_language="auto",
-        model_parameters=ModelParameters(
-            max_tokens=1,
-            temperature=1.1,
-            frequency_penalty=1.1,
-            presence_penalty=1.1,
-        ),
-        citations=CitationParameters(
-            style="none",
-            url_pattern="string",
-            text_pattern="string",
-        ),
-        enable_factual_consistency_score=True,
-    ),
-    chat=ChatParameters(
-        store=True,
-    ),
+    chat_id="chat_id",
+    query="How can I use the Vectara platform?",
+    search=SearchCorporaParameters(),
 )
 for chunk in response:
     yield chunk
@@ -4103,7 +3992,7 @@ client.users.create(
 <dl>
 <dd>
 
-Get a user and view details like thei email, username, and associated roles.
+Get a user and view details like the email, username, and associated roles.
 </dd>
 </dl>
 </dd>
