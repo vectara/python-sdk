@@ -207,7 +207,7 @@ class CorporaClient:
             A custom dimension is an additional numerical field attached to a document part. You
             can then multiply this numerical field with a query time custom dimension of the same
             name. This allows boosting (or burying) document parts for arbitrary reasons.
-            This feature is only enabled for Scale customers.
+            This feature is only enabled for Pro and Enterprise customers.
 
 
         request_options : typing.Optional[RequestOptions]
@@ -772,6 +772,7 @@ class CorporaClient:
         query: str,
         limit: typing.Optional[int] = None,
         offset: typing.Optional[int] = None,
+        save_history: typing.Optional[bool] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
@@ -800,6 +801,9 @@ class CorporaClient:
 
         offset : typing.Optional[int]
             The position from which to start in the result set.
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the query in the query history.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -837,6 +841,7 @@ class CorporaClient:
                 "query": query,
                 "limit": limit,
                 "offset": offset,
+                "save_history": save_history,
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -897,6 +902,7 @@ class CorporaClient:
         request_timeout_millis: typing.Optional[int] = None,
         search: typing.Optional[SearchCorpusParameters] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Iterator[QueryStreamedResponse]:
         """
@@ -930,6 +936,9 @@ class CorporaClient:
             The parameters to search one corpus.
 
         generation : typing.Optional[GenerationParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the query in the query history.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -967,6 +976,7 @@ class CorporaClient:
                 "generation": convert_and_respect_annotation_metadata(
                     object_=generation, annotation=GenerationParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": True,
             },
             headers={
@@ -1037,6 +1047,7 @@ class CorporaClient:
         request_timeout_millis: typing.Optional[int] = None,
         search: typing.Optional[SearchCorpusParameters] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> QueryFullResponse:
         """
@@ -1070,6 +1081,9 @@ class CorporaClient:
             The parameters to search one corpus.
 
         generation : typing.Optional[GenerationParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the query in the query history.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1105,6 +1119,7 @@ class CorporaClient:
                 "generation": convert_and_respect_annotation_metadata(
                     object_=generation, annotation=GenerationParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": False,
             },
             headers={
@@ -1341,7 +1356,7 @@ class AsyncCorporaClient:
             A custom dimension is an additional numerical field attached to a document part. You
             can then multiply this numerical field with a query time custom dimension of the same
             name. This allows boosting (or burying) document parts for arbitrary reasons.
-            This feature is only enabled for Scale customers.
+            This feature is only enabled for Pro and Enterprise customers.
 
 
         request_options : typing.Optional[RequestOptions]
@@ -1954,6 +1969,7 @@ class AsyncCorporaClient:
         query: str,
         limit: typing.Optional[int] = None,
         offset: typing.Optional[int] = None,
+        save_history: typing.Optional[bool] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
@@ -1982,6 +1998,9 @@ class AsyncCorporaClient:
 
         offset : typing.Optional[int]
             The position from which to start in the result set.
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the query in the query history.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -2027,6 +2046,7 @@ class AsyncCorporaClient:
                 "query": query,
                 "limit": limit,
                 "offset": offset,
+                "save_history": save_history,
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -2087,6 +2107,7 @@ class AsyncCorporaClient:
         request_timeout_millis: typing.Optional[int] = None,
         search: typing.Optional[SearchCorpusParameters] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.AsyncIterator[QueryStreamedResponse]:
         """
@@ -2120,6 +2141,9 @@ class AsyncCorporaClient:
             The parameters to search one corpus.
 
         generation : typing.Optional[GenerationParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the query in the query history.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -2165,6 +2189,7 @@ class AsyncCorporaClient:
                 "generation": convert_and_respect_annotation_metadata(
                     object_=generation, annotation=GenerationParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": True,
             },
             headers={
@@ -2235,6 +2260,7 @@ class AsyncCorporaClient:
         request_timeout_millis: typing.Optional[int] = None,
         search: typing.Optional[SearchCorpusParameters] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> QueryFullResponse:
         """
@@ -2268,6 +2294,9 @@ class AsyncCorporaClient:
             The parameters to search one corpus.
 
         generation : typing.Optional[GenerationParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the query in the query history.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -2311,6 +2340,7 @@ class AsyncCorporaClient:
                 "generation": convert_and_respect_annotation_metadata(
                     object_=generation, annotation=GenerationParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": False,
             },
             headers={

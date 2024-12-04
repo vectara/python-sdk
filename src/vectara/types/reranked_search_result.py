@@ -6,21 +6,24 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
-class GenerationInfo(UniversalBaseModel):
+class RerankedSearchResult(UniversalBaseModel):
     """
-    Event containing information on how the generation was accomplished.
-    """
-
-    type: typing.Literal["generation_info"] = "generation_info"
-    rendered_prompt: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    The rendered prompt sent to the LLM. Useful when creating customer `prompt_template` templates.
+    An individual reranked search result from a query.
     """
 
-    rephrased_query: typing.Optional[str] = pydantic.Field(default=None)
+    text: typing.Optional[str] = pydantic.Field(default=None)
     """
-    View the actual query made to backend that was rephrased
-    by the LLM from the input query.
+    The document part altered by the context configuration that matches the query.
+    """
+
+    score: typing.Optional[float] = pydantic.Field(default=None)
+    """
+    The score of the individual result.
+    """
+
+    original_score: typing.Optional[float] = pydantic.Field(default=None)
+    """
+    The original score of the individual result before reranking.
     """
 
     if IS_PYDANTIC_V2:

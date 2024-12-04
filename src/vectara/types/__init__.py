@@ -34,12 +34,14 @@ from .document_storage_usage import DocumentStorageUsage
 from .encoder import Encoder
 from .error import Error
 from .factual_consistency_score import FactualConsistencyScore
+from .factual_consistency_score_span import FactualConsistencyScoreSpan
 from .filter_attribute import FilterAttribute
 from .filter_attribute_level import FilterAttributeLevel
 from .filter_attribute_type import FilterAttributeType
 from .generation_info import GenerationInfo
 from .generation_parameters import GenerationParameters
 from .generation_preset import GenerationPreset
+from .generation_span import GenerationSpan
 from .individual_search_result import IndividualSearchResult
 from .job import Job
 from .job_state import JobState
@@ -57,6 +59,8 @@ from .list_generation_presets_response import ListGenerationPresetsResponse
 from .list_jobs_response import ListJobsResponse
 from .list_ll_ms_response import ListLlMsResponse
 from .list_metadata import ListMetadata
+from .list_query_histories_response import ListQueryHistoriesResponse
+from .list_query_histories_response_metadata import ListQueryHistoriesResponseMetadata
 from .list_rerankers_response import ListRerankersResponse
 from .list_users_response import ListUsersResponse
 from .llm import Llm
@@ -67,14 +71,21 @@ from .none_reranker import NoneReranker
 from .not_found_error_body import NotFoundErrorBody
 from .prompt import Prompt
 from .query_full_response import QueryFullResponse
+from .query_history import QueryHistory
+from .query_history_span import QueryHistorySpan
+from .query_history_summary import QueryHistorySummary
 from .query_streamed_response import QueryStreamedResponse
+from .rephrase_span import RephraseSpan
 from .replace_filter_attributes_response import ReplaceFilterAttributesResponse
+from .rerank_span import RerankSpan
+from .reranked_search_result import RerankedSearchResult
 from .reranker import Reranker
 from .search_corpora_parameters import SearchCorporaParameters
 from .search_corpus import SearchCorpus
 from .search_parameters import SearchParameters
 from .search_reranker import SearchReranker
 from .search_semantics import SearchSemantics
+from .search_span import SearchSpan
 from .stream_error import StreamError
 from .stream_generation_chunk import StreamGenerationChunk
 from .stream_generation_end import StreamGenerationEnd
@@ -121,12 +132,14 @@ __all__ = [
     "Encoder",
     "Error",
     "FactualConsistencyScore",
+    "FactualConsistencyScoreSpan",
     "FilterAttribute",
     "FilterAttributeLevel",
     "FilterAttributeType",
     "GenerationInfo",
     "GenerationParameters",
     "GenerationPreset",
+    "GenerationSpan",
     "IndividualSearchResult",
     "Job",
     "JobState",
@@ -144,6 +157,8 @@ __all__ = [
     "ListJobsResponse",
     "ListLlMsResponse",
     "ListMetadata",
+    "ListQueryHistoriesResponse",
+    "ListQueryHistoriesResponseMetadata",
     "ListRerankersResponse",
     "ListUsersResponse",
     "Llm",
@@ -154,14 +169,21 @@ __all__ = [
     "NotFoundErrorBody",
     "Prompt",
     "QueryFullResponse",
+    "QueryHistory",
+    "QueryHistorySpan",
+    "QueryHistorySummary",
     "QueryStreamedResponse",
+    "RephraseSpan",
     "ReplaceFilterAttributesResponse",
+    "RerankSpan",
+    "RerankedSearchResult",
     "Reranker",
     "SearchCorporaParameters",
     "SearchCorpus",
     "SearchParameters",
     "SearchReranker",
     "SearchSemantics",
+    "SearchSpan",
     "StreamError",
     "StreamGenerationChunk",
     "StreamGenerationEnd",

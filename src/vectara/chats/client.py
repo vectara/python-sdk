@@ -412,6 +412,7 @@ class ChatsClient:
         request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Iterator[ChatStreamedResponse]:
         """
@@ -436,6 +437,9 @@ class ChatsClient:
         generation : typing.Optional[GenerationParameters]
 
         chat : typing.Optional[ChatParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -477,6 +481,7 @@ class ChatsClient:
                 "chat": convert_and_respect_annotation_metadata(
                     object_=chat, annotation=ChatParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": True,
             },
             headers={
@@ -548,6 +553,7 @@ class ChatsClient:
         request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ChatFullResponse:
         """
@@ -572,6 +578,9 @@ class ChatsClient:
         generation : typing.Optional[GenerationParameters]
 
         chat : typing.Optional[ChatParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -611,6 +620,7 @@ class ChatsClient:
                 "chat": convert_and_respect_annotation_metadata(
                     object_=chat, annotation=ChatParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": False,
             },
             headers={
@@ -1356,6 +1366,7 @@ class AsyncChatsClient:
         request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.AsyncIterator[ChatStreamedResponse]:
         """
@@ -1380,6 +1391,9 @@ class AsyncChatsClient:
         generation : typing.Optional[GenerationParameters]
 
         chat : typing.Optional[ChatParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1429,6 +1443,7 @@ class AsyncChatsClient:
                 "chat": convert_and_respect_annotation_metadata(
                     object_=chat, annotation=ChatParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": True,
             },
             headers={
@@ -1500,6 +1515,7 @@ class AsyncChatsClient:
         request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ChatFullResponse:
         """
@@ -1524,6 +1540,9 @@ class AsyncChatsClient:
         generation : typing.Optional[GenerationParameters]
 
         chat : typing.Optional[ChatParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1571,6 +1590,7 @@ class AsyncChatsClient:
                 "chat": convert_and_respect_annotation_metadata(
                     object_=chat, annotation=ChatParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": False,
             },
             headers={

@@ -31,8 +31,7 @@ class QueryFullResponse(UniversalBaseModel):
 
     rendered_prompt: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The rendered prompt sent to the LLM. Useful when creating customer `prompt_text` templates. Only available
-    to Scale customers.
+    The rendered prompt sent to the LLM. Useful when creating customer `prompt_template` templates.
     """
 
     if IS_PYDANTIC_V2:

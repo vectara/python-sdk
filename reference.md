@@ -132,6 +132,14 @@ for chunk in response:
 <dl>
 <dd>
 
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the query in the query history.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -240,6 +248,14 @@ client.query(
 <dd>
 
 **generation:** `typing.Optional[GenerationParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the query in the query history.
     
 </dd>
 </dl>
@@ -362,6 +378,14 @@ for chunk in response:
 <dl>
 <dd>
 
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -468,6 +492,14 @@ client.chat(
 <dd>
 
 **chat:** `typing.Optional[ChatParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
     
 </dd>
 </dl>
@@ -744,7 +776,7 @@ If unset then the corpus will not have filter attributes.
 A custom dimension is an additional numerical field attached to a document part. You
 can then multiply this numerical field with a query time custom dimension of the same
 name. This allows boosting (or burying) document parts for arbitrary reasons.
-This feature is only enabled for Scale customers.
+This feature is only enabled for Pro and Enterprise customers.
 
     
 </dd>
@@ -1355,6 +1387,14 @@ client.corpora.search(
 <dl>
 <dd>
 
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the query in the query history.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
     
 </dd>
@@ -1496,6 +1536,14 @@ for chunk in response:
 <dl>
 <dd>
 
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the query in the query history.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -1612,6 +1660,14 @@ client.corpora.query(
 <dd>
 
 **generation:** `typing.Optional[GenerationParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the query in the query history.
     
 </dd>
 </dl>
@@ -2677,6 +2733,14 @@ for chunk in response:
 <dl>
 <dd>
 
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -2792,6 +2856,14 @@ client.chats.create_turns(
 <dd>
 
 **chat:** `typing.Optional[ChatParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
     
 </dd>
 </dl>
@@ -5134,7 +5206,7 @@ client.app_clients.delete(
 <dl>
 <dd>
 
-**app_client_id:** `str` — The name of App Client.
+**app_client_id:** `str` — The ID of App Client.
     
 </dd>
 </dl>
@@ -5241,6 +5313,221 @@ client.app_clients.update(
 <dd>
 
 **api_roles:** `typing.Optional[typing.Sequence[ApiRole]]` — The new roles attached to the App Client. These roles will replace the current roles.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## QueryHistory
+<details><summary><code>client.query_history.<a href="src/vectara/query_history/client.py">get_query_history</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve a detailed history of previously executed query.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.query_history.get_query_history(
+    query_id="query_id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**query_id:** `str` — The ID of the query history
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.query_history.<a href="src/vectara/query_history/client.py">get_query_histories</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve query histories.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.query_history.get_query_histories()
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**corpus_key:** `typing.Optional[str]` — Specifies the `corpus_key` used in the query.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**started_after:** `typing.Optional[dt.datetime]` — Queries that started after a particular date-time.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**started_before:** `typing.Optional[dt.datetime]` — Queries that started before a particular date-time.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**chat_id:** `typing.Optional[str]` — Specifies the chat_id of the query, this will return all queries in the specified chat.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — Specifies the maximum number of query history listed.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of query histories after the limit has been reached.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>

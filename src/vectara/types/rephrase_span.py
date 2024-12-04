@@ -3,24 +3,29 @@
 from ..core.pydantic_utilities import UniversalBaseModel
 import typing
 import pydantic
+import datetime as dt
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
-class GenerationInfo(UniversalBaseModel):
+class RephraseSpan(UniversalBaseModel):
     """
-    Event containing information on how the generation was accomplished.
+    During the query pipeline, the query may be rephrased to better suit the corpus.
     """
 
-    type: typing.Literal["generation_info"] = "generation_info"
-    rendered_prompt: typing.Optional[str] = pydantic.Field(default=None)
+    type: typing.Literal["rephrase"] = "rephrase"
+    latency_millis: typing.Optional[int] = pydantic.Field(default=None)
     """
-    The rendered prompt sent to the LLM. Useful when creating customer `prompt_template` templates.
+    Time taken in milliseconds.
+    """
+
+    started_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)
+    """
+    When the span started.
     """
 
     rephrased_query: typing.Optional[str] = pydantic.Field(default=None)
     """
-    View the actual query made to backend that was rephrased
-    by the LLM from the input query.
+    Query made to the corpora.
     """
 
     if IS_PYDANTIC_V2:

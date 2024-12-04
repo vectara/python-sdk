@@ -45,11 +45,10 @@ class GenerationParameters(UniversalBaseModel):
     prompt_template: typing.Optional[str] = pydantic.Field(default=None)
     """
     Vectara manages both system and user roles and prompts for the generative
-    LLM out of the box by default. However, Scale customers can override the
+    LLM out of the box by default. However, users can override the
     `prompt_template` via this variable. The `prompt_template` is in the form of an
     Apache Velocity template. For more details on how to configure the
     `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
-    See [pricing](https://vectara.com/pricing/) for more details on becoming a Scale customer.
     """
 
     prompt_text: typing.Optional[str] = pydantic.Field(default=None)
@@ -65,16 +64,12 @@ class GenerationParameters(UniversalBaseModel):
     than this value. This is generally implemented by including the `max_response_characters` in the
     prompt, and the LLM's instruction following capability dictates how closely the generated output
     is limited.
-    
-    This is currently a Scale-only feature.
-    See [pricing](https://vectara.com/pricing/) for more details on becoming a Scale customer.
     """
 
     response_language: typing.Optional[Language] = None
     model_parameters: typing.Optional[ModelParameters] = pydantic.Field(default=None)
     """
-    The parameters for the model. These are currently a Scale-only feature.
-    See [pricing](https://vectara.com/pricing/) for more details on becoming a Scale customer.
+    The parameters for the model.
     WARNING: This is an experimental feature, and breakable at any point with virtually no
     notice. It is meant for experimentation to converge on optimal parameters that can then
     be set in the prompt definitions.

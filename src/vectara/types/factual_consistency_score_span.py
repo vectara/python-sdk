@@ -3,24 +3,29 @@
 from ..core.pydantic_utilities import UniversalBaseModel
 import typing
 import pydantic
+import datetime as dt
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
-class GenerationInfo(UniversalBaseModel):
+class FactualConsistencyScoreSpan(UniversalBaseModel):
     """
-    Event containing information on how the generation was accomplished.
-    """
-
-    type: typing.Literal["generation_info"] = "generation_info"
-    rendered_prompt: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    The rendered prompt sent to the LLM. Useful when creating customer `prompt_template` templates.
+    The factual consistency of the generation.
     """
 
-    rephrased_query: typing.Optional[str] = pydantic.Field(default=None)
+    type: typing.Literal["fcs"] = "fcs"
+    latency_millis: typing.Optional[int] = pydantic.Field(default=None)
     """
-    View the actual query made to backend that was rephrased
-    by the LLM from the input query.
+    Time taken in milliseconds.
+    """
+
+    started_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)
+    """
+    When the span started.
+    """
+
+    score: typing.Optional[float] = pydantic.Field(default=None)
+    """
+    The probability that the summary is factually consistent with the results.
     """
 
     if IS_PYDANTIC_V2:
