@@ -2,7 +2,8 @@ from vectara.config.config import (PathConfigLoader, HomeConfigLoader, ClientCon
                                    OAuth2AuthConfig)
 from .client import Vectara
 from vectara.managers.corpus import CorpusManager
-from vectara.managers.upload import UploadManager, UploadWrapper
+from vectara.managers.upload import UploadManager
+from vectara.managers.document import DocumentManager
 from vectara.utils import LabHelper
 
 from typing import Union, Optional, Callable, Dict, Any
@@ -117,13 +118,14 @@ class Factory():
         corpus_manager = CorpusManager(client.corpora)
         client.set_corpus_manager(corpus_manager)
 
-        upload_wrapper = UploadWrapper(upload_client=client.upload, customer_id=client_config.customer_id)
-        upload_manager = UploadManager(upload_wrapper)
+        upload_manager = UploadManager(client.upload)
         client.set_upload_manager(upload_manager)
 
         lab_helper = LabHelper(corpus_manager)
         client.set_lab_helper(lab_helper)
 
+        document_manager = DocumentManager(client.documents)
+        client.set_document_manager(document_manager)
 
         # Return the client
         return client
