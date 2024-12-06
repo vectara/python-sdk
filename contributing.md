@@ -1,0 +1,56 @@
+# Contributing to the Vectara Python SDK
+
+We appreciate your interest in contributing to the Vectara Python SDK!
+
+---
+
+## About This SDK
+
+This SDK is **programmatically generated**, meaning that much of the code is automatically created by a generation system. As a result:
+1. **Direct changes to the SDK code** (e.g., methods, classes) would need to be replicated in the generation system.
+2. Contributions such as **proof-of-concepts** or **bug fixes** are welcome, but they may require additional work on our end to integrate into the generation process.
+
+---
+
+## How to Contribute
+
+### 1. Open an Issue
+Before submitting a pull request (PR), we encourage you to:
+- Open an issue to describe your proposed changes.
+- Discuss the idea with the maintainers to ensure alignment with the project goals.
+
+## Getting started
+
+1. Fork the repository and clone your fork.
+2. Create a new branch for your changes (e.g. `bug-fix-1234`)
+3. Make your changes in the new branch and test.
+4. Commit and push your changes to your fork. Add useful comments to describe your changes.
+5. Create a pull request following the guidelines in the [Submitting Pull Requests](#submitting-pull-requests) section.
+
+## Contributing
+
+### Reporting bugs
+
+If you find a bug in the project, please create an issue on GitHub with the following information:
+
+- A clear, descriptive title for the issue.
+- A description of the problem, including steps to reproduce the issue.
+- Any relevant logs, screenshots, or other supporting information.
+
+### Suggesting enhancements
+
+If you have an idea for a new feature or improvement, please create an issue on GitHub with the following information:
+
+- A clear, descriptive title for the issue.
+- A detailed description of the proposed enhancement, including any benefits and potential drawbacks.
+- Any relevant examples, mockups, or supporting information.
+
+### Submitting pull requests
+
+When submitting a pull request, please ensure that your changes meet the following criteria:
+
+- Your pull request should be atomic and focus on a single change.
+- You should have thoroughly tested your changes with multiple different scenarios.
+- You should have considered potential risks and mitigations for your changes.
+- You should have documented your changes clearly and comprehensively.
+- Please do not include any unrelated or "extra" small tweaks or changes.
