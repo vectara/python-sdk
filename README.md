@@ -24,12 +24,14 @@ Complete examples can be found in the [Getting Started notebooks](./examples/01_
 
 ### Usage
 
-* Querying the corpora
+* Querying the corpora <br />
+  You can use either `api_key` or `client_id` and `client_secret` for authentication.
     ```python
     from vectara import SearchCorporaParameters, Vectara
     client = Vectara(
-        api_key="YOUR_API_KEY",
-        client_id="YOUR_CLIENT_ID",
+        api_key="YOUR_API_KEY", # Use this for API key-based authentication
+        # OR
+        client_id="YOUR_CLIENT_ID", # Use these for OAuth-based authentication
         client_secret="YOUR_CLIENT_SECRET",
     )
     
@@ -47,7 +49,7 @@ Complete examples can be found in the [Getting Started notebooks](./examples/01_
     )
     ```
  
-* Starting the chat session
+* Start a chat session
    ```python
    from vectara import SearchCorporaParameters, Vectara
    client = Vectara(
@@ -70,6 +72,7 @@ Complete examples can be found in the [Getting Started notebooks](./examples/01_
    )
    
    response = session.chat(query="Tell me about machine learning.")
+   response_1 = session.chat(query="what is generative AI.")
    print(response.answer)
    ```
   
@@ -128,6 +131,31 @@ The SDK supports streaming responses, as well, the response will be a generator 
     for chunk in response:
       yield response
     ```
+  
+### Add a document to a corpus
+Add a document, either in structured or core format, to a corpus. For more information, refer to the [Indexing Guide](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
+  ```python
+  client.documents.create(
+      corpus_key="my-corpus",
+      request=CoreDocument(
+          id="my-doc-id",
+          document_parts=[
+              CoreDocumentPart(
+                  text="I'm a nice document part.",
+              )
+          ],
+      ),
+  )
+  ```
+
+### Upload a file to the corpus
+Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing. The request expects a multipart/form-data format.
+  ```python
+  path = Path("examples.pdf")
+  with open(path, "rb") as f:
+      content = f.read()
+  client.upload.file(corpus_key, file=(file_name, content, content_type), metadata={"key": "value"})
+  ```
 
 ### Exception Handling
 
