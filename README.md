@@ -24,23 +24,68 @@ Complete examples can be found in the [Getting Started notebooks](./examples/01_
 
 ### Usage
 
-* Querying the corpora <br />
-  You can use either `api_key` or `client_id` and `client_secret` for authentication.
-    ```python
-    from vectara import SearchCorporaParameters, Vectara
+* Creating the client for usage <br />
+You can use either `api_key` or `client_id` and `client_secret` for authentication.
+  ```python
+  from vectara import Vectara
+  
+    # creating the client using API key
     client = Vectara(
-        api_key="YOUR_API_KEY", # Use this for API key-based authentication
-        # OR
-        client_id="YOUR_CLIENT_ID", # Use these for OAuth-based authentication
-        client_secret="YOUR_CLIENT_SECRET",
+        api_key="YOUR_API_KEY"
     )
-    
+     
+    # creating the client using oauth credentials
+    client = Vectara(
+      client_id="YOUR_CLIENT_ID",
+      client_secret="YOUR_CLIENT_SECRET",
+      )  
+  ```
+
+* Creating the corpus
+  ```python
+  client.corpora.create(name="test-corpus", key="test-corpus")
+  ```
+  
+### Add a document to a corpus
+Add a document, either in structured or core format, to a corpus. For more information, refer to the [Indexing Guide](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
+  ```python
+  client.documents.create(
+      corpus_key="test-corpus",
+      request=CoreDocument(
+          id="my-doc-id",
+          document_parts=[
+              CoreDocumentPart(
+                  text="I'm a nice document part.",
+              )
+          ],
+      ),
+  )
+  ```
+
+* Querying the corpora <br />
+Perform a multipurpose query across to retrieve relevant information from one or more corpora. For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search)
+    ```python 
     search = SearchCorporaParameters(
-        corpora=[...],
-        ...
-    )
-    generation = GenerationParameters(...)
-    
+          corpora=[
+              KeyedSearchCorpus(
+                  corpus_key="test-corpus",
+                  metadata_filter="",
+                  lexical_interpolation=0.005,
+              )
+          ],
+          context_configuration=ContextConfiguration(
+              sentences_before=2,
+              sentences_after=2,
+          ),
+          reranker=CustomerSpecificReranker(
+              reranker_id="rnk_272725719"
+          ),
+      )
+    generation = GenerationParameters(
+            response_language="eng",
+            enable_factual_consistency_score=True,
+        )
+
     client.query(
         query="Am I allowed to bring pets to work?",
         search=search,
@@ -59,16 +104,34 @@ Complete examples can be found in the [Getting Started notebooks](./examples/01_
    )
     
    search = SearchCorporaParameters(
-       corpora=[...],
-       ...
-   )
-   generation = GenerationParameters(...)
-   chat_params = ChatParameters(store=True)
+          corpora=[
+              KeyedSearchCorpus(
+                  corpus_key="test-corpus",
+                  metadata_filter="",
+                  lexical_interpolation=0.005,
+              )
+          ],
+          context_configuration=ContextConfiguration(
+              sentences_before=2,
+              sentences_after=2,
+          ),
+          reranker=CustomerSpecificReranker(
+              reranker_id="rnk_272725719"
+          ),
+      )
+    generation = GenerationParameters(
+            response_language="eng",
+            citations=CitationParameters(
+                style="none",
+            ),
+            enable_factual_consistency_score=True,
+        )
+   chat = ChatParameters(store=True)
 
    session = client.create_chat_session(
-       search=search_params,
-       generation=generation_params,
-       chat_config=chat_params,
+       search=search,
+       generation=generation,
+       chat_config=chat,
    )
    
    response = session.chat(query="Tell me about machine learning.")
@@ -131,22 +194,6 @@ The SDK supports streaming responses, as well, the response will be a generator 
     for chunk in response:
       yield response
     ```
-  
-### Add a document to a corpus
-Add a document, either in structured or core format, to a corpus. For more information, refer to the [Indexing Guide](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
-  ```python
-  client.documents.create(
-      corpus_key="my-corpus",
-      request=CoreDocument(
-          id="my-doc-id",
-          document_parts=[
-              CoreDocumentPart(
-                  text="I'm a nice document part.",
-              )
-          ],
-      ),
-  )
-  ```
 
 ### Upload a file to the corpus
 Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing. The request expects a multipart/form-data format.
