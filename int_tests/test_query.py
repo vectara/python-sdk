@@ -4,8 +4,9 @@ import unittest
 from vectara.core import RequestOptions
 from vectara.factory import Factory
 from vectara import CoreDocument, CoreDocumentPart, SearchCorporaParameters, KeyedSearchCorpus, \
-    ContextConfiguration, CustomerSpecificReranker, GenerationParameters, ModelParameters, CitationParameters, \
-    ChatParameters, QueryStreamedResponse, QueryFullResponse
+    ContextConfiguration, CustomerSpecificReranker, GenerationParameters, CitationParameters, \
+    QueryStreamedResponse, QueryFullResponse, MmrReranker, NoneReranker, UserFunctionReranker, \
+    ChainReranker
 
 
 class TestMultipleCorporaQuery(unittest.TestCase):
@@ -64,14 +65,212 @@ class TestMultipleCorporaQuery(unittest.TestCase):
             citations=CitationParameters(
                 style="none",
             ),
-            enable_factual_consistency_score=True,
+            enable_factual_consistency_score=False,
         )
-        self.chat_params = ChatParameters(store=True)
+
         self.request_options = RequestOptions(timeout_in_seconds=100)
 
     def test_query(self):
         response = self.client.query(query="Robot Utility Models", search=self.search_params,
                                      generation=self.generation_params,
+                                     request_options=self.request_options)
+        self.assertIsInstance(response, QueryFullResponse)
+        self.assertIsNotNone(response.summary)
+        self.assertGreater(len(response.search_results), 0)
+
+    def test_query_with_different_lambda(self):
+        search = SearchCorporaParameters(
+            corpora=[
+                KeyedSearchCorpus(
+                    corpus_key="test-search-1",
+                    metadata_filter="",
+                    lexical_interpolation=0,
+                ),
+                KeyedSearchCorpus(
+                    corpus_key="test-search-2",
+                    metadata_filter="",
+                    lexical_interpolation=0,
+                )
+            ],
+            context_configuration=ContextConfiguration(
+                sentences_before=2,
+                sentences_after=2,
+            ),
+            reranker=CustomerSpecificReranker(
+                reranker_id="rnk_272725719"
+            ),
+        )
+
+        response = self.client.query(query="Robot Utility Models", search=search,
+                                     generation=self.generation_params,
+                                     request_options=self.request_options)
+        self.assertIsInstance(response, QueryFullResponse)
+        self.assertIsNotNone(response.summary)
+        self.assertGreater(len(response.search_results), 0)
+
+        search = SearchCorporaParameters(
+            corpora=[
+                KeyedSearchCorpus(
+                    corpus_key="test-search-1",
+                    metadata_filter="",
+                    lexical_interpolation=0.1,
+                ),
+                KeyedSearchCorpus(
+                    corpus_key="test-search-2",
+                    metadata_filter="",
+                    lexical_interpolation=0.1,
+                )
+            ],
+            context_configuration=ContextConfiguration(
+                sentences_before=2,
+                sentences_after=2,
+            ),
+            reranker=CustomerSpecificReranker(
+                reranker_id="rnk_272725719"
+            ),
+        )
+
+        response = self.client.query(query="Robot Utility Models", search=search,
+                                     generation=self.generation_params,
+                                     request_options=self.request_options)
+        self.assertIsInstance(response, QueryFullResponse)
+        self.assertIsNotNone(response.summary)
+        self.assertGreater(len(response.search_results), 0)
+
+    def test_query_with_mmr_reranker(self):
+        search = SearchCorporaParameters(
+            corpora=[
+                KeyedSearchCorpus(
+                    corpus_key="test-search-1",
+                    metadata_filter="",
+                    lexical_interpolation=0,
+                ),
+                KeyedSearchCorpus(
+                    corpus_key="test-search-2",
+                    metadata_filter="",
+                    lexical_interpolation=0,
+                )
+            ],
+            context_configuration=ContextConfiguration(
+                sentences_before=2,
+                sentences_after=2,
+            ),
+            reranker=MmrReranker(
+                diversity_bias=0.3
+            ),
+        )
+
+        response = self.client.query(query="Robot Utility Models", search=search,
+                                     generation=self.generation_params,
+                                     request_options=self.request_options)
+        self.assertIsInstance(response, QueryFullResponse)
+        self.assertIsNotNone(response.summary)
+        self.assertGreater(len(response.search_results), 0)
+
+    def test_query_with_none_reranker(self):
+        search = SearchCorporaParameters(
+            corpora=[
+                KeyedSearchCorpus(
+                    corpus_key="test-search-1",
+                    metadata_filter="",
+                    lexical_interpolation=0,
+                ),
+                KeyedSearchCorpus(
+                    corpus_key="test-search-2",
+                    metadata_filter="",
+                    lexical_interpolation=0,
+                )
+            ],
+            context_configuration=ContextConfiguration(
+                sentences_before=2,
+                sentences_after=2,
+            ),
+            reranker=NoneReranker(),
+        )
+
+        response = self.client.query(query="Robot Utility Models", search=search,
+                                     generation=self.generation_params,
+                                     request_options=self.request_options)
+        self.assertIsInstance(response, QueryFullResponse)
+        self.assertIsNotNone(response.summary)
+        self.assertGreater(len(response.search_results), 0)
+
+    def test_query_with_udf_reranker(self):
+        search = SearchCorporaParameters(
+            corpora=[
+                KeyedSearchCorpus(
+                    corpus_key="test-search-1",
+                    metadata_filter="",
+                    lexical_interpolation=0,
+                ),
+                KeyedSearchCorpus(
+                    corpus_key="test-search-2",
+                    metadata_filter="",
+                    lexical_interpolation=0,
+                )
+            ],
+            context_configuration=ContextConfiguration(
+                sentences_before=2,
+                sentences_after=2,
+            ),
+            reranker=UserFunctionReranker(
+                user_function="if (get('$.score') < 0.7) null else get('$.score') + 1"
+            ),
+        )
+
+        response = self.client.query(query="Robot Utility Models", search=search,
+                                     generation=self.generation_params,
+                                     request_options=self.request_options)
+        self.assertIsInstance(response, QueryFullResponse)
+        for result in response.search_results:
+            self.assertGreater(result.score, 1)
+
+    def test_query_with_chain_reranker(self):
+        search = SearchCorporaParameters(
+            corpora=[
+                KeyedSearchCorpus(
+                    corpus_key="test-search-1",
+                    metadata_filter="",
+                    lexical_interpolation=0,
+                ),
+                KeyedSearchCorpus(
+                    corpus_key="test-search-2",
+                    metadata_filter="",
+                    lexical_interpolation=0,
+                )
+            ],
+            context_configuration=ContextConfiguration(
+                sentences_before=2,
+                sentences_after=2,
+            ),
+            reranker=ChainReranker(
+                rerankers=[
+                    CustomerSpecificReranker(
+                        reranker_id="rnk_272725719"
+                    ),
+                    UserFunctionReranker(
+                        user_function="if (get('$.score') < 0.7) null else get('$.score') + 1"),
+                ]
+            )
+        )
+
+        response = self.client.query(query="Robot Utility Models", search=search,
+                                     generation=self.generation_params,
+                                     request_options=self.request_options)
+        self.assertIsInstance(response, QueryFullResponse)
+        for result in response.search_results:
+            self.assertGreater(result.score, 1)
+
+    def test_query_with_fcs_enabled(self):
+        generation_params = GenerationParameters(
+            response_language="eng",
+            citations=CitationParameters(
+                style="none",
+            ),
+            enable_factual_consistency_score=True,
+        )
+        response = self.client.query(query="Robot Utility Models", search=self.search_params,
+                                     generation=generation_params,
                                      request_options=self.request_options)
         self.assertIsInstance(response, QueryFullResponse)
         self.assertIsNotNone(response.summary)

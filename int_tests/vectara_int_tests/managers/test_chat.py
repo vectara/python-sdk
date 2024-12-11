@@ -37,8 +37,8 @@ class TestChatManager(unittest.TestCase):
             id="my-doc-id",
             document_parts=[
                 CoreDocumentPart(
-                    text="Robot Utility Models are trained on a diverse set of environments and objects, and then can "
-                         "be deployed in novel environments with novel objects without any further data or training.",
+                    text="""Robot Utility Models are trained on a diverse set of environments and objects, and then can
+                         be deployed in novel environments with novel objects without any further data or training.""",
                 )
             ],
         )
@@ -60,7 +60,6 @@ class TestChatManager(unittest.TestCase):
 
     def test_list_chats(self):
         chat_ids = [self.chat_id]
-        print(self.chat_id)
         for _ in range(2):
             response = self.client.chat(
                 query="Robot Utility Models",
@@ -68,13 +67,11 @@ class TestChatManager(unittest.TestCase):
                 generation=self.generation_params,
                 chat=self.chat_params
             )
-            print(response.chat_id)
             chat_ids.append(response.chat_id)
 
         response = self.client.chats.list()
         for chat in response:
-            print(f'{chat.id} -- response')
-            # self.assertIn(chat.id, chat_ids)
+            self.assertIn(chat.id, chat_ids)
 
     def test_delete_chat(self):
         response = self.client.chats.delete(chat_id=self.chat_id)
