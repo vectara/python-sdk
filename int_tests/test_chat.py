@@ -1,7 +1,7 @@
 import time
 import unittest
 
-from vectara.core import RequestOptions
+from vectara.core import RequestOptions, ApiError
 from vectara.factory import Factory
 
 from vectara import CoreDocument, CoreDocumentPart, SearchCorporaParameters, KeyedSearchCorpus, \
@@ -83,6 +83,20 @@ class TestChat(unittest.TestCase):
         response = session.chat(query="Robot Utility Models")
         self.assertIsNotNone(response.chat_id)
         self.assertIsNotNone(response.answer)
+
+    def test_exception_in_chat(self):
+        session = self.client.create_chat_session(
+            search=SearchCorporaParameters()
+        )
+        with self.assertRaises(ApiError) as context:
+            session.chat(query="Robot Utility Models")
+
+        exception = context.exception
+        self.assertEqual(exception.status_code, 400)
+        self.assertEqual(
+            exception.body.field_errors,
+            {"body.search.corpora": "[] should have at least 1 items."},
+        )
 
     def test_chat_stream(self):
         session = self.client.create_chat_session(
