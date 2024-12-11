@@ -3,6 +3,7 @@ import unittest
 
 from vectara.core import RequestOptions
 from vectara.factory import Factory
+
 from vectara import CoreDocument, CoreDocumentPart, SearchCorporaParameters, KeyedSearchCorpus, \
     ContextConfiguration, CustomerSpecificReranker, GenerationParameters, CitationParameters, \
     ChatParameters
@@ -65,6 +66,21 @@ class TestChat(unittest.TestCase):
         self.assertIsNotNone(response.answer)
 
         response = session.chat(query="Utility Models")
+        self.assertIsNotNone(response.chat_id)
+        self.assertIsNotNone(response.answer)
+
+    def test_chat_with_default_params(self):
+        session = self.client.create_chat_session(
+            search=SearchCorporaParameters(corpora=[
+                KeyedSearchCorpus(
+                    corpus_key="test-chat",
+                    metadata_filter="",
+                    lexical_interpolation=1,
+                )
+            ])
+        )
+
+        response = session.chat(query="Robot Utility Models")
         self.assertIsNotNone(response.chat_id)
         self.assertIsNotNone(response.answer)
 

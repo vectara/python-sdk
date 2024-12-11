@@ -1,15 +1,13 @@
-from . import SearchCorporaParameters, GenerationParameters, ChatParameters, ChatStreamedResponse
-from .base_client import BaseVectara, AsyncBaseVectara, OMIT
+import logging
+from typing import Union, Iterator, Optional
+
 from vectara.managers.corpus import CorpusManager
 from vectara.managers.upload import UploadManager
 from vectara.managers.document import DocumentManager
 from vectara.utils import LabHelper
 
-from typing import Union, Iterator
-import logging
-
-from typing import Optional
-
+from . import SearchCorporaParameters, GenerationParameters, ChatParameters, ChatStreamedResponse
+from .base_client import BaseVectara, AsyncBaseVectara, OMIT
 from .core import RequestOptions
 
 
@@ -18,10 +16,10 @@ class ChatSession:
             self,
             client,
             search: SearchCorporaParameters,
+            generation: Optional[GenerationParameters] = OMIT,
             chat_id: Optional[str] = None,
             request_timeout: Optional[int] = None,
             request_timeout_millis: Optional[int] = None,
-            generation: Optional[GenerationParameters] = OMIT,
             chat_config: Optional[ChatParameters] = OMIT,
             request_options: Optional[RequestOptions] = None,
     ):
