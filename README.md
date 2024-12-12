@@ -24,187 +24,244 @@ Complete examples can be found in the [Getting Started notebooks](./examples/01_
 
 ### Usage
 
-* Creating the client for usage <br />
-You can use either `api_key` or `client_id` and `client_secret` for authentication.
-  ```python
-  from vectara import Vectara
-  
-    # creating the client using API key
-    client = Vectara(
-        api_key="YOUR_API_KEY"
-    )
-     
-    # creating the client using oauth credentials
-    client = Vectara(
-      client_id="YOUR_CLIENT_ID",
-      client_secret="YOUR_CLIENT_SECRET",
-      )  
-  ```
+First, create an SDK client.<br />
+You can use either an `api_key` or OAuth (`client_id` and `client_secret`) for [authentication](https://docs.vectara.com/docs/console-ui/api-access-overview).
 
-* Creating the corpus
-  ```python
-  client.corpora.create(name="test-corpus", key="test-corpus")
-  ```
+```python
+from vectara import Vectara
+
+# creating the client using API key
+client = Vectara(
+    api_key="YOUR_API_KEY"
+)
+    
+# creating the client using oauth credentials
+client = Vectara(
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)  
+```
+
+If you don't already have a corpus, you can create it using the SDK:
+
+```python
+client.corpora.create(name="my-corpus", key="my-corpus-key")
+```
   
 ### Add a document to a corpus
-Add a document, either in structured or core format, to a corpus. For more information, refer to the [Indexing Guide](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
+You can add documents to a corpus in two formats: [structured](https://docs.vectara.com/docs/learn/select-ideal-indexing-api#structured-document-definition) or [core](https://docs.vectara.com/docs/learn/select-ideal-indexing-api#core-document-definition).<br/> For more information, refer to the [Indexing Guide](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
+
+Here is an example for adding a Structured document
   ```python
+  from vectara import StructuredDocument, StructuredDocumentSection
   client.documents.create(
-      corpus_key="test-corpus",
-      request=CoreDocument(
+      corpus_key="my-corpus-key",
+      request=StructuredDocument(
           id="my-doc-id",
-          document_parts=[
-              CoreDocumentPart(
-                  text="I'm a nice document part.",
-              )
+          type="structured",
+          sections=[
+            StructuredDocumentSection(
+                id="id_1",
+                title="A nice title.",
+                text="I'm a nice document section.",
+                metadata={'section': '1.1'}
+            ),
+            StructuredDocumentSection(
+                id="id_2",
+                title="Another nice title.",
+                text="I'm another document section on something else.",
+                metadata={'section': '1.2'}
+            ),
           ],
+          metadata={'url': 'https://example.com'}
       ),
   )
   ```
 
-* Querying the corpora <br />
-Perform a multipurpose query across to retrieve relevant information from one or more corpora. For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search)
-    ```python 
-    search = SearchCorporaParameters(
-          corpora=[
-              KeyedSearchCorpus(
-                  corpus_key="test-corpus",
-                  metadata_filter="",
-                  lexical_interpolation=0.005,
-              )
-          ],
-          context_configuration=ContextConfiguration(
-              sentences_before=2,
-              sentences_after=2,
-          ),
-          reranker=CustomerSpecificReranker(
-              reranker_id="rnk_272725719"
-          ),
-      )
-    generation = GenerationParameters(
-            response_language="eng",
-            enable_factual_consistency_score=True,
-        )
 
-    client.query(
-        query="Am I allowed to bring pets to work?",
-        search=search,
-        generation=generation
-        
-    )
-    ```
- 
-* Start a chat session
-   ```python
-   from vectara import SearchCorporaParameters, Vectara
-   client = Vectara(
-       api_key="YOUR_API_KEY",
-       client_id="YOUR_CLIENT_ID",
-       client_secret="YOUR_CLIENT_SECRET",
-   )
-    
-   search = SearchCorporaParameters(
-          corpora=[
-              KeyedSearchCorpus(
-                  corpus_key="test-corpus",
-                  metadata_filter="",
-                  lexical_interpolation=0.005,
-              )
-          ],
-          context_configuration=ContextConfiguration(
-              sentences_before=2,
-              sentences_after=2,
-          ),
-          reranker=CustomerSpecificReranker(
-              reranker_id="rnk_272725719"
-          ),
-      )
-    generation = GenerationParameters(
-            response_language="eng",
-            citations=CitationParameters(
-                style="none",
-            ),
-            enable_factual_consistency_score=True,
-        )
-   chat = ChatParameters(store=True)
+And here is one with Core document:
+```python
+from vectara import CoreDocument, CoreDocumentPart
 
-   session = client.create_chat_session(
-       search=search,
-       generation=generation,
-       chat_config=chat,
-   )
-   
-   response = session.chat(query="Tell me about machine learning.")
-   response_1 = session.chat(query="what is generative AI.")
-   print(response.answer)
-   ```
-  
-### Streaming
-
-The SDK supports streaming responses, as well, the response will be a generator that you can loop over.
-  
-* Streaming the query response
-    ```python
-    from vectara import SearchCorporaParameters, Vectara
-    client = Vectara(
-       api_key="YOUR_API_KEY",
-       client_id="YOUR_CLIENT_ID",
-       client_secret="YOUR_CLIENT_SECRET",
-    )
-    
-    search = SearchCorporaParameters(
-       corpora=[...],
-       ...
-    )
-    generation = GenerationParameters(...)
-    
-    response = client.query_stream(
-       query="Am I allowed to bring pets to work?",
-       search=search,
-       generation=generation
-        
-    )
-    for chunk in response:
-       yield chunk
-    ```
-
-* Streaming the chat response
-    ```python
-    from vectara import SearchCorporaParameters, Vectara
-    client = Vectara(
-       api_key="YOUR_API_KEY",
-       client_id="YOUR_CLIENT_ID",
-       client_secret="YOUR_CLIENT_SECRET",
-    )
-    
-    search = SearchCorporaParameters(
-       corpora=[...],
-       ...
-    )
-    generation = GenerationParameters(...)
-    chat_params = ChatParameters(store=True)
-    
-    session = client.create_chat_session(
-       search=search_params,
-       generation=generation_params,
-       chat_config=chat_params,
-    )
-    
-    response = session.chat_stream(query="Tell me about machine learning.")
-    for chunk in response:
-      yield response
-    ```
+client.documents.create(
+    corpus_key="my-corpus-key",
+    request=CoreDocument(
+        id="my-doc-id",
+        type="core",
+        document_parts=[
+            CoreDocumentPart(
+                text="I'm a first document part.",
+                metadata={'author': 'Ofer'}
+            )
+            CoreDocumentPart(
+                text="I'm a second document part.",
+                metadata={'author': 'Adeel'}
+            )
+        ],
+        metadata={'url': 'https://example.com'}
+    ),
+)
+```
 
 ### Upload a file to the corpus
-Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing. The request expects a multipart/form-data format.
-  ```python
-  path = Path("examples.pdf")
-  with open(path, "rb") as f:
-      content = f.read()
-  client.upload.file(corpus_key, file=(file_name, content, content_type), metadata={"key": "value"})
-  ```
+In addition to creating a document as shown above (using StructuredDocument or CoreDocument), you can also upload files (such as PDFs or Word Documents) directly to Vectara.
+In this case Vectara will parse the files automatically, extract text and metadata, chunk them and add them to the corpus.
 
-### Exception Handling
+Using the SDK you need to provide both the file name, the binary content of the file, and the content_type, as follows:
+
+```python
+filename = "examples.pdf"
+with open(filename, "rb") as f:
+    content = f.read()
+
+client.upload.file(
+    'my-corpus-key', 
+    file=content,
+    filename=filename,
+    metadata={"author": "Adeel"}
+)
+```
+
+
+### Querying the corpora
+With the SDK it's super easy to run a query from one or more corpora. For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search)
+
+A query uses two important objects:
+* The `SearchCorporaParameters` object defines parameters for search such as hybrid search, metadata filtering or reranking
+* The `GenerationParameters` object defines parameters for the generative step.
+
+Here is an example query for our corpus above:
+
+```python 
+search = SearchCorporaParameters(
+        corpora=[
+            KeyedSearchCorpus(
+                corpus_key="my-corpus-key",
+                metadata_filter="",
+                lexical_interpolation=0.005,
+            )
+        ],
+        context_configuration=ContextConfiguration(
+            sentences_before=2,
+            sentences_after=2,
+        ),
+        reranker=CustomerSpecificReranker(
+            reranker_id="rnk_272725719"
+        ),
+    )
+generation = GenerationParameters(
+        response_language="eng",
+        enable_factual_consistency_score=True,
+    )
+
+client.query(
+    query="Am I allowed to bring pets to work?",
+    search=search,
+    generation=generation
+    
+)
+```
+ 
+### Using Chat
+
+Vectara [chat](https://docs.vectara.com/docs/api-reference/chat-apis/chat-apis-overview) provides a way to automatically store chat history to support multi-turn conversations.
+
+Here is an example of how to start a chat with the SDK:
+
+```python
+from vectara import SearchCorporaParameters    
+search = SearchCorporaParameters(
+        corpora=[
+            KeyedSearchCorpus(
+                corpus_key="test-corpus",
+                metadata_filter="",
+                lexical_interpolation=0.005,
+            )
+        ],
+        context_configuration=ContextConfiguration(
+            sentences_before=2,
+            sentences_after=2,
+        ),
+        reranker=CustomerSpecificReranker(
+            reranker_id="rnk_272725719"
+        ),
+    )
+generation = GenerationParameters(
+        response_language="eng",
+        citations=CitationParameters(
+            style="none",
+        ),
+        enable_factual_consistency_score=True,
+    )
+chat = ChatParameters(store=True)
+
+session = client.create_chat_session(
+    search=search,
+    generation=generation,
+    chat_config=chat,
+)
+
+response = session.chat(query="Tell me about machine learning.")
+response_1 = session.chat(query="what is generative AI.")
+print(response.answer)
+```
+
+Note that we used the `create_chat_session` with `chat_config` set for storing chat history. The resulting session can then be used for turn-by-turn chat, simply by using the `chat()` method of the session object.
+
+
+### Streaming
+
+The SDK supports streaming responses for both query and chat. When using streaming, the response will be a generator that you can iterate.
+
+Here's an example of calling `query_stream`:
+  
+Streaming the query response
+```python
+from vectara import SearchCorporaParameters
+search = SearchCorporaParameters(
+    corpora=[...],
+    ...
+)
+generation = GenerationParameters(...)
+
+response = client.query_stream(
+    query="Am I allowed to bring pets to work?",
+    search=search,
+    generation=generation
+    
+)
+for chunk in response:
+    yield chunk
+```
+
+And streaming the chat response:
+
+```python
+from vectara import SearchCorporaParameters
+
+search = SearchCorporaParameters(
+    corpora=[...],
+    ...
+)
+generation = GenerationParameters(...)
+chat_params = ChatParameters(store=True)
+
+session = client.create_chat_session(
+    search=search_params,
+    generation=generation_params,
+    chat_config=chat_params,
+)
+
+response = session.chat_stream(query="Tell me about machine learning.")
+for chunk in response:
+    yield response
+```
+
+## Additional Functionality
+There is a lot more functionality packed into the SDK, matching [all API endpoints](https://docs.vectara.com/docs/rest-api) that are available in Vectara including for things like managing documents, corpora, api keys, users, and even for query history retrieval. 
+
+
+## Exception Handling
 
 When the API returns a non-success status code (4xx or 5xx response), a subclass of the following error
 will be thrown.
@@ -218,6 +275,7 @@ except ApiError as e:
     print(e.status_code)
     print(e.body)
 ```  
+
 ## Pagination
 
 Paginated requests will return a `SyncPager` or `AsyncPager`, which can be used as generators for the underlying object.
@@ -242,11 +300,11 @@ for page in response.iter_pages():
 
 ### Advance Usage
 
-For more information related to customization, Timeouts and Retries, refer to the [Advanced Usage Guide](./advanced.md)
+For more information related to customization, Timeouts and Retries in the SDK, refer to the [Advanced Usage Guide](./advanced.md)
 
 
 ### Using the SDK in Different Contexts
-The Python library is designed to run in a number of environments with different requirements:
+The Python library can be used in a number of environments with different requirements:
 
 1. **Notebooks** - using implicit configuration from a users home directory
 2. **Docker Environments** - using ENV variables for configuration
