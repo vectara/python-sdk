@@ -201,9 +201,10 @@ session = client.create_chat_session(
     chat_config=chat,
 )
 
-response = session.chat(query="Tell me about machine learning.")
-response_1 = session.chat(query="what is generative AI.")
-print(response.answer)
+response_1 = session.chat(query="Tell me about machine learning.")
+print(response_1.answer)
+response_2 = session.chat(query="what is generative AI?")
+print(response_2.answer)
 ```
 
 Note that we used the `create_chat_session` with `chat_config` set for storing chat history. The resulting session can then be used for turn-by-turn chat, simply by using the `chat()` method of the session object.
