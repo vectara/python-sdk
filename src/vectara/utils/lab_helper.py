@@ -30,7 +30,7 @@ class LabHelper:
         return ''.join([s[0].lower(), s[1:]])
 
     def _discover_user(self) -> str:
-        username = os.environ.get("USERNAME")
+        username = getpass.getuser()
         if not username:
             raise Exception("Could not extract username from environment prefix")
         else:

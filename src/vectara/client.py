@@ -145,3 +145,4 @@ class Vectara(BaseVectara):
 
 class AsyncVectara(AsyncBaseVectara):
     pass
+
