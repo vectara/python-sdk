@@ -4,7 +4,6 @@
 
 src/vectara/client.py
 src/vectara/auth/client.py
-src/vectara/base_client.py # TODO: check with fern team if its okay to remove
 
 src/vectara/config/
 src/vectara/config/*.py
