@@ -10,6 +10,7 @@ from .core.client_wrapper import SyncClientWrapper
 from .corpora.client import CorporaClient
 from .upload.client import UploadClient
 from .documents.client import DocumentsClient
+from .index.client import IndexClient
 from .chats.client import ChatsClient
 from .llms.client import LlmsClient
 from .generation_presets.client import GenerationPresetsClient
@@ -19,12 +20,14 @@ from .jobs.client import JobsClient
 from .users.client import UsersClient
 from .api_keys.client import ApiKeysClient
 from .app_clients.client import AppClientsClient
+from .query_history.client import QueryHistoryClient
 from .auth.client import AuthClient
 from .types.search_corpora_parameters import SearchCorporaParameters
 from .types.generation_parameters import GenerationParameters
 from .core.request_options import RequestOptions
 from .types.query_streamed_response import QueryStreamedResponse
 from .core.serialization import convert_and_respect_annotation_metadata
+import httpx_sse
 from .core.pydantic_utilities import parse_obj_as
 import json
 from .errors.bad_request_error import BadRequestError
@@ -42,6 +45,7 @@ from .core.client_wrapper import AsyncClientWrapper
 from .corpora.client import AsyncCorporaClient
 from .upload.client import AsyncUploadClient
 from .documents.client import AsyncDocumentsClient
+from .index.client import AsyncIndexClient
 from .chats.client import AsyncChatsClient
 from .llms.client import AsyncLlmsClient
 from .generation_presets.client import AsyncGenerationPresetsClient
@@ -51,6 +55,7 @@ from .jobs.client import AsyncJobsClient
 from .users.client import AsyncUsersClient
 from .api_keys.client import AsyncApiKeysClient
 from .app_clients.client import AsyncAppClientsClient
+from .query_history.client import AsyncQueryHistoryClient
 from .auth.client import AsyncAuthClient
 
 # this is used as the default value for optional parameters
@@ -151,6 +156,7 @@ class BaseVectara:
         self.corpora = CorporaClient(client_wrapper=self._client_wrapper)
         self.upload = UploadClient(client_wrapper=self._client_wrapper)
         self.documents = DocumentsClient(client_wrapper=self._client_wrapper)
+        self.index = IndexClient(client_wrapper=self._client_wrapper)
         self.chats = ChatsClient(client_wrapper=self._client_wrapper)
         self.llms = LlmsClient(client_wrapper=self._client_wrapper)
         self.generation_presets = GenerationPresetsClient(client_wrapper=self._client_wrapper)
@@ -160,6 +166,7 @@ class BaseVectara:
         self.users = UsersClient(client_wrapper=self._client_wrapper)
         self.api_keys = ApiKeysClient(client_wrapper=self._client_wrapper)
         self.app_clients = AppClientsClient(client_wrapper=self._client_wrapper)
+        self.query_history = QueryHistoryClient(client_wrapper=self._client_wrapper)
         self.auth = AuthClient(client_wrapper=self._client_wrapper)
 
     def query_stream(
@@ -170,17 +177,19 @@ class BaseVectara:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Iterator[QueryStreamedResponse]:
         """
-        Perform a multi-purpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
+        Perform a multipurpose query across to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
 
-        - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
-        - Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
-          will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
-        - Specify a RAG-specific LLM like Mockingbird (`mockingbird-1.0-2024-07-16`) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
-        - Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
-        - Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
+        * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
+        * Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
+        will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
+        * Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
+        * Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
+        * Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
 
         For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
 
@@ -199,6 +208,9 @@ class BaseVectara:
 
         generation : typing.Optional[GenerationParameters]
 
+        save_history : typing.Optional[bool]
+            Indicates whether to save the query in the query history.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -212,10 +224,8 @@ class BaseVectara:
         from vectara import (
             CitationParameters,
             ContextConfiguration,
-            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
-            ModelParameters,
             SearchCorporaParameters,
             Vectara,
         )
@@ -226,53 +236,28 @@ class BaseVectara:
             client_secret="YOUR_CLIENT_SECRET",
         )
         response = client.query_stream(
-            request_timeout=1,
-            request_timeout_millis=1,
-            query="string",
+            query="hello, world?",
             search=SearchCorporaParameters(
                 corpora=[
                     KeyedSearchCorpus(
-                        custom_dimensions={"string": 1.1},
-                        metadata_filter="string",
-                        lexical_interpolation=1.1,
-                        semantics="default",
+                        lexical_interpolation=0.005,
                     )
                 ],
-                offset=1,
-                limit=1,
+                offset=0,
+                limit=10,
                 context_configuration=ContextConfiguration(
-                    characters_before=1,
-                    characters_after=1,
-                    sentences_before=1,
-                    sentences_after=1,
-                    start_tag="string",
-                    end_tag="string",
-                ),
-                reranker=CustomerSpecificReranker(
-                    reranker_id="string",
-                    reranker_name="string",
+                    sentences_before=2,
+                    sentences_after=2,
+                    start_tag="<em>",
+                    end_tag="</em>",
                 ),
             ),
             generation=GenerationParameters(
-                generation_preset_name="string",
-                prompt_name="string",
-                max_used_search_results=1,
-                prompt_template="string",
-                prompt_text="string",
-                max_response_characters=1,
-                response_language="auto",
-                model_parameters=ModelParameters(
-                    max_tokens=1,
-                    temperature=1.1,
-                    frequency_penalty=1.1,
-                    presence_penalty=1.1,
-                ),
+                max_used_search_results=5,
                 citations=CitationParameters(
                     style="none",
-                    url_pattern="string",
-                    text_pattern="string",
                 ),
-                enable_factual_consistency_score=True,
+                response_language="auto",
             ),
         )
         for chunk in response:
@@ -290,6 +275,7 @@ class BaseVectara:
                 "generation": convert_and_respect_annotation_metadata(
                     object_=generation, annotation=GenerationParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": True,
             },
             headers={
@@ -301,15 +287,14 @@ class BaseVectara:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    for _text in _response.iter_lines():
+                    _event_source = httpx_sse.EventSource(_response)
+                    for _sse in _event_source.iter_sse():
                         try:
-                            if len(_text) == 0:
-                                continue
                             yield typing.cast(
                                 QueryStreamedResponse,
                                 parse_obj_as(
                                     type_=QueryStreamedResponse,  # type: ignore
-                                    object_=json.loads(_text),
+                                    object_=json.loads(_sse.data),
                                 ),
                             )
                         except:
@@ -359,17 +344,19 @@ class BaseVectara:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> QueryFullResponse:
         """
-        Perform a multi-purpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
+        Perform a multipurpose query across to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
 
-        - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
-        - Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
-          will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
-        - Specify a RAG-specific LLM like Mockingbird (`mockingbird-1.0-2024-07-16`) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
-        - Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
-        - Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
+        * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
+        * Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
+        will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
+        * Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
+        * Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
+        * Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
 
         For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
 
@@ -387,6 +374,9 @@ class BaseVectara:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the query in the query history.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -422,6 +412,7 @@ class BaseVectara:
                 "generation": convert_and_respect_annotation_metadata(
                     object_=generation, annotation=GenerationParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": False,
             },
             headers={
@@ -484,6 +475,7 @@ class BaseVectara:
         request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Iterator[ChatStreamedResponse]:
         """
@@ -506,6 +498,9 @@ class BaseVectara:
 
         chat : typing.Optional[ChatParameters]
 
+        save_history : typing.Optional[bool]
+            Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -516,17 +511,7 @@ class BaseVectara:
 
         Examples
         --------
-        from vectara import (
-            ChatParameters,
-            CitationParameters,
-            ContextConfiguration,
-            CustomerSpecificReranker,
-            GenerationParameters,
-            KeyedSearchCorpus,
-            ModelParameters,
-            SearchCorporaParameters,
-            Vectara,
-        )
+        from vectara import SearchCorporaParameters, Vectara
 
         client = Vectara(
             api_key="YOUR_API_KEY",
@@ -534,57 +519,8 @@ class BaseVectara:
             client_secret="YOUR_CLIENT_SECRET",
         )
         response = client.chat_stream(
-            request_timeout=1,
-            request_timeout_millis=1,
-            query="string",
-            search=SearchCorporaParameters(
-                corpora=[
-                    KeyedSearchCorpus(
-                        custom_dimensions={"string": 1.1},
-                        metadata_filter="string",
-                        lexical_interpolation=1.1,
-                        semantics="default",
-                    )
-                ],
-                offset=1,
-                limit=1,
-                context_configuration=ContextConfiguration(
-                    characters_before=1,
-                    characters_after=1,
-                    sentences_before=1,
-                    sentences_after=1,
-                    start_tag="string",
-                    end_tag="string",
-                ),
-                reranker=CustomerSpecificReranker(
-                    reranker_id="string",
-                    reranker_name="string",
-                ),
-            ),
-            generation=GenerationParameters(
-                generation_preset_name="string",
-                prompt_name="string",
-                max_used_search_results=1,
-                prompt_template="string",
-                prompt_text="string",
-                max_response_characters=1,
-                response_language="auto",
-                model_parameters=ModelParameters(
-                    max_tokens=1,
-                    temperature=1.1,
-                    frequency_penalty=1.1,
-                    presence_penalty=1.1,
-                ),
-                citations=CitationParameters(
-                    style="none",
-                    url_pattern="string",
-                    text_pattern="string",
-                ),
-                enable_factual_consistency_score=True,
-            ),
-            chat=ChatParameters(
-                store=True,
-            ),
+            query="How can I use the Vectara platform?",
+            search=SearchCorporaParameters(),
         )
         for chunk in response:
             yield chunk
@@ -604,6 +540,7 @@ class BaseVectara:
                 "chat": convert_and_respect_annotation_metadata(
                     object_=chat, annotation=ChatParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": True,
             },
             headers={
@@ -615,15 +552,14 @@ class BaseVectara:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    for _text in _response.iter_lines():
+                    _event_source = httpx_sse.EventSource(_response)
+                    for _sse in _event_source.iter_sse():
                         try:
-                            if len(_text) == 0:
-                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_text),
+                                    object_=json.loads(_sse.data),
                                 ),
                             )
                         except:
@@ -674,6 +610,7 @@ class BaseVectara:
         request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ChatFullResponse:
         """
@@ -695,6 +632,9 @@ class BaseVectara:
         generation : typing.Optional[GenerationParameters]
 
         chat : typing.Optional[ChatParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -733,6 +673,7 @@ class BaseVectara:
                 "chat": convert_and_respect_annotation_metadata(
                     object_=chat, annotation=ChatParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": False,
             },
             headers={
@@ -881,6 +822,7 @@ class AsyncBaseVectara:
         self.corpora = AsyncCorporaClient(client_wrapper=self._client_wrapper)
         self.upload = AsyncUploadClient(client_wrapper=self._client_wrapper)
         self.documents = AsyncDocumentsClient(client_wrapper=self._client_wrapper)
+        self.index = AsyncIndexClient(client_wrapper=self._client_wrapper)
         self.chats = AsyncChatsClient(client_wrapper=self._client_wrapper)
         self.llms = AsyncLlmsClient(client_wrapper=self._client_wrapper)
         self.generation_presets = AsyncGenerationPresetsClient(client_wrapper=self._client_wrapper)
@@ -890,6 +832,7 @@ class AsyncBaseVectara:
         self.users = AsyncUsersClient(client_wrapper=self._client_wrapper)
         self.api_keys = AsyncApiKeysClient(client_wrapper=self._client_wrapper)
         self.app_clients = AsyncAppClientsClient(client_wrapper=self._client_wrapper)
+        self.query_history = AsyncQueryHistoryClient(client_wrapper=self._client_wrapper)
         self.auth = AsyncAuthClient(client_wrapper=self._client_wrapper)
 
     async def query_stream(
@@ -900,17 +843,19 @@ class AsyncBaseVectara:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.AsyncIterator[QueryStreamedResponse]:
         """
-        Perform a multi-purpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
+        Perform a multipurpose query across to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
 
-        - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
-        - Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
-          will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
-        - Specify a RAG-specific LLM like Mockingbird (`mockingbird-1.0-2024-07-16`) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
-        - Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
-        - Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
+        * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
+        * Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
+        will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
+        * Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
+        * Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
+        * Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
 
         For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
 
@@ -929,6 +874,9 @@ class AsyncBaseVectara:
 
         generation : typing.Optional[GenerationParameters]
 
+        save_history : typing.Optional[bool]
+            Indicates whether to save the query in the query history.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -945,10 +893,8 @@ class AsyncBaseVectara:
             AsyncVectara,
             CitationParameters,
             ContextConfiguration,
-            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
-            ModelParameters,
             SearchCorporaParameters,
         )
 
@@ -961,53 +907,28 @@ class AsyncBaseVectara:
 
         async def main() -> None:
             response = await client.query_stream(
-                request_timeout=1,
-                request_timeout_millis=1,
-                query="string",
+                query="hello, world?",
                 search=SearchCorporaParameters(
                     corpora=[
                         KeyedSearchCorpus(
-                            custom_dimensions={"string": 1.1},
-                            metadata_filter="string",
-                            lexical_interpolation=1.1,
-                            semantics="default",
+                            lexical_interpolation=0.005,
                         )
                     ],
-                    offset=1,
-                    limit=1,
+                    offset=0,
+                    limit=10,
                     context_configuration=ContextConfiguration(
-                        characters_before=1,
-                        characters_after=1,
-                        sentences_before=1,
-                        sentences_after=1,
-                        start_tag="string",
-                        end_tag="string",
-                    ),
-                    reranker=CustomerSpecificReranker(
-                        reranker_id="string",
-                        reranker_name="string",
+                        sentences_before=2,
+                        sentences_after=2,
+                        start_tag="<em>",
+                        end_tag="</em>",
                     ),
                 ),
                 generation=GenerationParameters(
-                    generation_preset_name="string",
-                    prompt_name="string",
-                    max_used_search_results=1,
-                    prompt_template="string",
-                    prompt_text="string",
-                    max_response_characters=1,
-                    response_language="auto",
-                    model_parameters=ModelParameters(
-                        max_tokens=1,
-                        temperature=1.1,
-                        frequency_penalty=1.1,
-                        presence_penalty=1.1,
-                    ),
+                    max_used_search_results=5,
                     citations=CitationParameters(
                         style="none",
-                        url_pattern="string",
-                        text_pattern="string",
                     ),
-                    enable_factual_consistency_score=True,
+                    response_language="auto",
                 ),
             )
             async for chunk in response:
@@ -1028,6 +949,7 @@ class AsyncBaseVectara:
                 "generation": convert_and_respect_annotation_metadata(
                     object_=generation, annotation=GenerationParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": True,
             },
             headers={
@@ -1039,15 +961,14 @@ class AsyncBaseVectara:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    async for _text in _response.aiter_lines():
+                    _event_source = httpx_sse.EventSource(_response)
+                    async for _sse in _event_source.aiter_sse():
                         try:
-                            if len(_text) == 0:
-                                continue
                             yield typing.cast(
                                 QueryStreamedResponse,
                                 parse_obj_as(
                                     type_=QueryStreamedResponse,  # type: ignore
-                                    object_=json.loads(_text),
+                                    object_=json.loads(_sse.data),
                                 ),
                             )
                         except:
@@ -1097,17 +1018,19 @@ class AsyncBaseVectara:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> QueryFullResponse:
         """
-        Perform a multi-purpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
+        Perform a multipurpose query across to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
 
-        - Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
-        - Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
-          will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
-        - Specify a RAG-specific LLM like Mockingbird (`mockingbird-1.0-2024-07-16`) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
-        - Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
-        - Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
+        * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
+        * Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
+        will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
+        * Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
+        * Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
+        * Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
 
         For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
 
@@ -1125,6 +1048,9 @@ class AsyncBaseVectara:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the query in the query history.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1168,6 +1094,7 @@ class AsyncBaseVectara:
                 "generation": convert_and_respect_annotation_metadata(
                     object_=generation, annotation=GenerationParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": False,
             },
             headers={
@@ -1230,6 +1157,7 @@ class AsyncBaseVectara:
         request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.AsyncIterator[ChatStreamedResponse]:
         """
@@ -1252,6 +1180,9 @@ class AsyncBaseVectara:
 
         chat : typing.Optional[ChatParameters]
 
+        save_history : typing.Optional[bool]
+            Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1264,17 +1195,7 @@ class AsyncBaseVectara:
         --------
         import asyncio
 
-        from vectara import (
-            AsyncVectara,
-            ChatParameters,
-            CitationParameters,
-            ContextConfiguration,
-            CustomerSpecificReranker,
-            GenerationParameters,
-            KeyedSearchCorpus,
-            ModelParameters,
-            SearchCorporaParameters,
-        )
+        from vectara import AsyncVectara, SearchCorporaParameters
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
@@ -1285,57 +1206,8 @@ class AsyncBaseVectara:
 
         async def main() -> None:
             response = await client.chat_stream(
-                request_timeout=1,
-                request_timeout_millis=1,
-                query="string",
-                search=SearchCorporaParameters(
-                    corpora=[
-                        KeyedSearchCorpus(
-                            custom_dimensions={"string": 1.1},
-                            metadata_filter="string",
-                            lexical_interpolation=1.1,
-                            semantics="default",
-                        )
-                    ],
-                    offset=1,
-                    limit=1,
-                    context_configuration=ContextConfiguration(
-                        characters_before=1,
-                        characters_after=1,
-                        sentences_before=1,
-                        sentences_after=1,
-                        start_tag="string",
-                        end_tag="string",
-                    ),
-                    reranker=CustomerSpecificReranker(
-                        reranker_id="string",
-                        reranker_name="string",
-                    ),
-                ),
-                generation=GenerationParameters(
-                    generation_preset_name="string",
-                    prompt_name="string",
-                    max_used_search_results=1,
-                    prompt_template="string",
-                    prompt_text="string",
-                    max_response_characters=1,
-                    response_language="auto",
-                    model_parameters=ModelParameters(
-                        max_tokens=1,
-                        temperature=1.1,
-                        frequency_penalty=1.1,
-                        presence_penalty=1.1,
-                    ),
-                    citations=CitationParameters(
-                        style="none",
-                        url_pattern="string",
-                        text_pattern="string",
-                    ),
-                    enable_factual_consistency_score=True,
-                ),
-                chat=ChatParameters(
-                    store=True,
-                ),
+                query="How can I use the Vectara platform?",
+                search=SearchCorporaParameters(),
             )
             async for chunk in response:
                 yield chunk
@@ -1358,6 +1230,7 @@ class AsyncBaseVectara:
                 "chat": convert_and_respect_annotation_metadata(
                     object_=chat, annotation=ChatParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": True,
             },
             headers={
@@ -1369,15 +1242,14 @@ class AsyncBaseVectara:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    async for _text in _response.aiter_lines():
+                    _event_source = httpx_sse.EventSource(_response)
+                    async for _sse in _event_source.aiter_sse():
                         try:
-                            if len(_text) == 0:
-                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_text),
+                                    object_=json.loads(_sse.data),
                                 ),
                             )
                         except:
@@ -1428,6 +1300,7 @@ class AsyncBaseVectara:
         request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ChatFullResponse:
         """
@@ -1449,6 +1322,9 @@ class AsyncBaseVectara:
         generation : typing.Optional[GenerationParameters]
 
         chat : typing.Optional[ChatParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1495,6 +1371,7 @@ class AsyncBaseVectara:
                 "chat": convert_and_respect_annotation_metadata(
                     object_=chat, annotation=ChatParameters, direction="write"
                 ),
+                "save_history": save_history,
                 "stream_response": False,
             },
             headers={
