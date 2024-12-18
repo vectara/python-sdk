@@ -3,6 +3,7 @@
 .github/workflows/ci.yml
 
 src/vectara/client.py
+src/vectara/base_client.py # do not remove
 src/vectara/auth/client.py
 
 src/vectara/config/
