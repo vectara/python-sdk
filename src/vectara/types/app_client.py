@@ -12,7 +12,7 @@ class AppClient(UniversalBaseModel):
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The Vectara App Client ID. This ID is not used during an OAuth
-    flow. However, the ID used within the Vectara API.
+    flow.  However, the ID used within the Vectara API.
     """
 
     name: typing.Optional[str] = pydantic.Field(default=None)
@@ -32,7 +32,7 @@ class AppClient(UniversalBaseModel):
 
     client_secret: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The client secret used in API requests. The secret should be kept secure.
+    The client secret used in API requests.  The secret should be kept secure.
     """
 
     api_roles: typing.Optional[typing.List[ApiRole]] = pydantic.Field(default=None)

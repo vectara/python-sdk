@@ -3,6 +3,7 @@
 from ..core.pydantic_utilities import UniversalBaseModel
 import typing
 import pydantic
+from .table import Table
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
@@ -36,9 +37,14 @@ class IndividualSearchResult(UniversalBaseModel):
     The ID of the document that contains the document part.
     """
 
+    table: typing.Optional[Table] = pydantic.Field(default=None)
+    """
+    The table that the document part is from.
+    """
+
     request_corpora_index: typing.Optional[int] = pydantic.Field(default=None)
     """
-    A query request can search over multiple corpora at a time. This property
+    A query request can search over multiple corpora at a time. This property 
     is set to the index in the list of corpora in the original search request that this
     search result originated from.
     

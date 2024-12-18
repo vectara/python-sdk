@@ -7,6 +7,7 @@ from .api_policy import ApiPolicy
 from .api_role import ApiRole
 from .app_client import AppClient
 from .bad_request_error_body import BadRequestErrorBody
+from .cell import Cell
 from .chain_reranker import ChainReranker
 from .chat import Chat
 from .chat_full_response import ChatFullResponse
@@ -28,6 +29,7 @@ from .create_client_credentials_request import CreateClientCredentialsRequest
 from .create_document_request import CreateDocumentRequest
 from .custom_dimensions import CustomDimensions
 from .customer_specific_reranker import CustomerSpecificReranker
+from .data import Data
 from .document import Document
 from .document_part import DocumentPart
 from .document_storage_usage import DocumentStorageUsage
@@ -42,6 +44,7 @@ from .generation_info import GenerationInfo
 from .generation_parameters import GenerationParameters
 from .generation_preset import GenerationPreset
 from .generation_span import GenerationSpan
+from .header import Header
 from .individual_search_result import IndividualSearchResult
 from .job import Job
 from .job_state import JobState
@@ -80,6 +83,7 @@ from .replace_filter_attributes_response import ReplaceFilterAttributesResponse
 from .rerank_span import RerankSpan
 from .reranked_search_result import RerankedSearchResult
 from .reranker import Reranker
+from .row import Row
 from .search_corpora_parameters import SearchCorporaParameters
 from .search_corpus import SearchCorpus
 from .search_parameters import SearchParameters
@@ -93,7 +97,10 @@ from .stream_response_end import StreamResponseEnd
 from .stream_search_response import StreamSearchResponse
 from .structured_document import StructuredDocument
 from .structured_document_section import StructuredDocumentSection
+from .table import Table
+from .table_extraction_config import TableExtractionConfig
 from .turn import Turn
+from .update_document_request import UpdateDocumentRequest
 from .user import User
 from .user_function_reranker import UserFunctionReranker
 
@@ -105,6 +112,7 @@ __all__ = [
     "ApiRole",
     "AppClient",
     "BadRequestErrorBody",
+    "Cell",
     "ChainReranker",
     "Chat",
     "ChatFullResponse",
@@ -126,6 +134,7 @@ __all__ = [
     "CreateDocumentRequest",
     "CustomDimensions",
     "CustomerSpecificReranker",
+    "Data",
     "Document",
     "DocumentPart",
     "DocumentStorageUsage",
@@ -140,6 +149,7 @@ __all__ = [
     "GenerationParameters",
     "GenerationPreset",
     "GenerationSpan",
+    "Header",
     "IndividualSearchResult",
     "Job",
     "JobState",
@@ -178,6 +188,7 @@ __all__ = [
     "RerankSpan",
     "RerankedSearchResult",
     "Reranker",
+    "Row",
     "SearchCorporaParameters",
     "SearchCorpus",
     "SearchParameters",
@@ -191,7 +202,10 @@ __all__ = [
     "StreamSearchResponse",
     "StructuredDocument",
     "StructuredDocumentSection",
+    "Table",
+    "TableExtractionConfig",
     "Turn",
+    "UpdateDocumentRequest",
     "User",
     "UserFunctionReranker",
 ]

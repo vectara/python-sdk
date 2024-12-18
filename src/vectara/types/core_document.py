@@ -3,6 +3,7 @@
 from ..core.pydantic_utilities import UniversalBaseModel
 import pydantic
 import typing
+from .table import Table
 from .core_document_part import CoreDocumentPart
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
@@ -22,6 +23,11 @@ class CoreDocument(UniversalBaseModel):
     """
     Arbitrary object of document level metadata. Properties of this object
     can be used by document filters if defined as a corpus filter attribute.
+    """
+
+    tables: typing.Optional[typing.List[Table]] = pydantic.Field(default=None)
+    """
+    The tables that this document contains.
     """
 
     document_parts: typing.List[CoreDocumentPart] = pydantic.Field()

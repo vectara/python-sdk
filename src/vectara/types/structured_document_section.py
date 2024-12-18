@@ -4,6 +4,7 @@ from __future__ import annotations
 from ..core.pydantic_utilities import UniversalBaseModel
 import typing
 import pydantic
+from .table import Table
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 from ..core.pydantic_utilities import update_forward_refs
 
@@ -30,9 +31,14 @@ class StructuredDocumentSection(UniversalBaseModel):
 
     metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
     """
-    Arbitrary object that becomes document part level metadata on any document part created
-    by this section. Properties of this object can be used by document part level
+    Arbitrary object that becomes document part level metadata on any document part created 
+    by this section. Properties of this object can be used by document part level 
     filters if defined as a corpus filter attribute.
+    """
+
+    tables: typing.Optional[typing.List[Table]] = pydantic.Field(default=None)
+    """
+    The tables that this section contains.
     """
 
     sections: typing.Optional[typing.List["StructuredDocumentSection"]] = pydantic.Field(default=None)

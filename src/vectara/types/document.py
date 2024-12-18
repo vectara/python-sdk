@@ -3,6 +3,7 @@
 from ..core.pydantic_utilities import UniversalBaseModel
 import typing
 import pydantic
+from .table import Table
 from .document_part import DocumentPart
 from .document_storage_usage import DocumentStorageUsage
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
@@ -17,6 +18,11 @@ class Document(UniversalBaseModel):
     metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
     """
     The document metadata.
+    """
+
+    tables: typing.Optional[typing.List[Table]] = pydantic.Field(default=None)
+    """
+    The tables that this document contains. Tables are not available when table extraction is not enabled.
     """
 
     parts: typing.Optional[typing.List[DocumentPart]] = pydantic.Field(default=None)

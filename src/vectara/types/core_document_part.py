@@ -22,6 +22,11 @@ class CoreDocumentPart(UniversalBaseModel):
     The metadata for a document part. These may be used in metadata filters at query time if filter attributes are configured on the corpus.
     """
 
+    table_id: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The ID of the table that this document part belongs to.
+    """
+
     context: typing.Optional[str] = pydantic.Field(default=None)
     """
     The context text for the document part.

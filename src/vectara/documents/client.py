@@ -42,7 +42,7 @@ class DocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Document]:
         """
-        Retrieve a list of documents stored in a specifi corpus. This endpoint
+        Retrieve a list of documents stored in a specific corpus. This endpoint
         provides an overview of document metadata without returning the full content of
         each document.
 
@@ -170,13 +170,13 @@ class DocumentsClient:
         """
         Add a document to a corpus. This endpoint supports two document formats, structured and core.
 
-        - **Structured** documents have a more conventional structure that provide document sections
-          and parts in a format created by Vectara's proprietary strategy automatically. You provide
-          a logical document structure, and Vectara handles the partitioning.
-        - **Core** documents differ in that they follow an advanced, granular structure that
-          explicitly defines each document part in an array. Each part becomes a distinct,
-          searchable item in query results. You have precise control over the document structure
-          and content.
+        * **Structured** documents have a more conventional structure that provide document sections
+        and parts in a format created by Vectara's proprietary strategy automatically. You provide
+        a logical document structure, and Vectara handles the partitioning.
+        * **Core** documents differ in that they follow an advanced, granular structure that
+        explicitly defines each document part in an array. Each part becomes a distinct,
+        searchable item in query results. You have precise control over the document structure
+        and content.
 
         For more details, see [Indexing](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
 
@@ -478,7 +478,7 @@ class AsyncDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Document]:
         """
-        Retrieve a list of documents stored in a specifi corpus. This endpoint
+        Retrieve a list of documents stored in a specific corpus. This endpoint
         provides an overview of document metadata without returning the full content of
         each document.
 
@@ -614,13 +614,13 @@ class AsyncDocumentsClient:
         """
         Add a document to a corpus. This endpoint supports two document formats, structured and core.
 
-        - **Structured** documents have a more conventional structure that provide document sections
-          and parts in a format created by Vectara's proprietary strategy automatically. You provide
-          a logical document structure, and Vectara handles the partitioning.
-        - **Core** documents differ in that they follow an advanced, granular structure that
-          explicitly defines each document part in an array. Each part becomes a distinct,
-          searchable item in query results. You have precise control over the document structure
-          and content.
+        * **Structured** documents have a more conventional structure that provide document sections
+        and parts in a format created by Vectara's proprietary strategy automatically. You provide
+        a logical document structure, and Vectara handles the partitioning.
+        * **Core** documents differ in that they follow an advanced, granular structure that
+        explicitly defines each document part in an array. Each part becomes a distinct,
+        searchable item in query results. You have precise control over the document structure
+        and content.
 
         For more details, see [Indexing](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
 

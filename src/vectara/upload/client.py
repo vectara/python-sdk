@@ -5,6 +5,7 @@ from ..core.client_wrapper import SyncClientWrapper
 from ..types.corpus_key import CorpusKey
 from .. import core
 from ..types.components_schemas_max_chars_chunking_strategy import ComponentsSchemasMaxCharsChunkingStrategy
+from ..types.table_extraction_config import TableExtractionConfig
 from ..core.request_options import RequestOptions
 from ..types.document import Document
 from ..core.jsonable_encoder import jsonable_encoder
@@ -37,17 +38,18 @@ class UploadClient:
         request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         chunking_strategy: typing.Optional[ComponentsSchemasMaxCharsChunkingStrategy] = OMIT,
+        table_extraction_config: typing.Optional[TableExtractionConfig] = OMIT,
         filename: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
         Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing.
         The request expects a `multipart/form-data` format containing the following parts:
-
-        - `metadata` - (Optional) Specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
-        - `chunking_strategy` - (Optional) Specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. For example, `'chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":200};type=application/json'`
-        - `file` - Specifies the file that you want to upload.
-        - `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
+        * `metadata` - (Optional) Specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
+        * `chunking_strategy` - (Optional) Specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. For example, `'chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":200};type=application/json'`
+        * `table_extraction_config` - (Optional) Specifies whether to extract table data from the uploaded file. If you do not set this option, the platform does not extract tables from PDF files. Example config, `'table_extraction_config={"extract_tables":true};type=application/json'`
+        * `file` - Specifies the file that you want to upload.
+        * `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
 
         For more detailed information, see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)
 
@@ -69,6 +71,8 @@ class UploadClient:
             Arbitrary object that will be attached as document metadata to the extracted document.
 
         chunking_strategy : typing.Optional[ComponentsSchemasMaxCharsChunkingStrategy]
+
+        table_extraction_config : typing.Optional[TableExtractionConfig]
 
         filename : typing.Optional[str]
             Optional multipart section to override the filename.
@@ -108,6 +112,17 @@ class UploadClient:
                 **(
                     {"chunking_strategy": (None, json.dumps(jsonable_encoder(chunking_strategy)), "application/json")}
                     if chunking_strategy is not OMIT
+                    else {}
+                ),
+                **(
+                    {
+                        "table_extraction_config": (
+                            None,
+                            json.dumps(jsonable_encoder(table_extraction_config)),
+                            "application/json",
+                        )
+                    }
+                    if table_extraction_config is not OMIT
                     else {}
                 ),
                 **(
@@ -182,17 +197,18 @@ class AsyncUploadClient:
         request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         chunking_strategy: typing.Optional[ComponentsSchemasMaxCharsChunkingStrategy] = OMIT,
+        table_extraction_config: typing.Optional[TableExtractionConfig] = OMIT,
         filename: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
         Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing.
         The request expects a `multipart/form-data` format containing the following parts:
-
-        - `metadata` - (Optional) Specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
-        - `chunking_strategy` - (Optional) Specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. For example, `'chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":200};type=application/json'`
-        - `file` - Specifies the file that you want to upload.
-        - `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
+        * `metadata` - (Optional) Specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
+        * `chunking_strategy` - (Optional) Specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. For example, `'chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":200};type=application/json'`
+        * `table_extraction_config` - (Optional) Specifies whether to extract table data from the uploaded file. If you do not set this option, the platform does not extract tables from PDF files. Example config, `'table_extraction_config={"extract_tables":true};type=application/json'`
+        * `file` - Specifies the file that you want to upload.
+        * `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
 
         For more detailed information, see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)
 
@@ -214,6 +230,8 @@ class AsyncUploadClient:
             Arbitrary object that will be attached as document metadata to the extracted document.
 
         chunking_strategy : typing.Optional[ComponentsSchemasMaxCharsChunkingStrategy]
+
+        table_extraction_config : typing.Optional[TableExtractionConfig]
 
         filename : typing.Optional[str]
             Optional multipart section to override the filename.
@@ -261,6 +279,17 @@ class AsyncUploadClient:
                 **(
                     {"chunking_strategy": (None, json.dumps(jsonable_encoder(chunking_strategy)), "application/json")}
                     if chunking_strategy is not OMIT
+                    else {}
+                ),
+                **(
+                    {
+                        "table_extraction_config": (
+                            None,
+                            json.dumps(jsonable_encoder(table_extraction_config)),
+                            "application/json",
+                        )
+                    }
+                    if table_extraction_config is not OMIT
                     else {}
                 ),
                 **(

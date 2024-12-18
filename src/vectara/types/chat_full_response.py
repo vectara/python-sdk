@@ -45,12 +45,12 @@ class ChatFullResponse(UniversalBaseModel):
 
     rendered_prompt: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The rendered prompt sent to the LLM. Useful when creating customer `prompt_template` templates.
+    The rendered prompt sent to the LLM. Useful when creating customer `prompt_template` templates. 
     """
 
     rephrased_query: typing.Optional[str] = pydantic.Field(default=None)
     """
-    View the actual query made to backend that was rephrased
+    View the actual query made to backend that was rephrased 
     by the LLM from the input query.
     """
 

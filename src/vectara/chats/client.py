@@ -20,6 +20,7 @@ from ..types.generation_parameters import GenerationParameters
 from ..types.chat_parameters import ChatParameters
 from ..types.chat_streamed_response import ChatStreamedResponse
 from ..core.serialization import convert_and_respect_annotation_metadata
+import httpx_sse
 import json
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
@@ -493,15 +494,14 @@ class ChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    for _text in _response.iter_lines():
+                    _event_source = httpx_sse.EventSource(_response)
+                    for _sse in _event_source.iter_sse():
                         try:
-                            if len(_text) == 0:
-                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_text),
+                                    object_=json.loads(_sse.data),
                                 ),
                             )
                         except:
@@ -1455,15 +1455,14 @@ class AsyncChatsClient:
         ) as _response:
             try:
                 if 200 <= _response.status_code < 300:
-                    async for _text in _response.aiter_lines():
+                    _event_source = httpx_sse.EventSource(_response)
+                    async for _sse in _event_source.aiter_sse():
                         try:
-                            if len(_text) == 0:
-                                continue
                             yield typing.cast(
                                 ChatStreamedResponse,
                                 parse_obj_as(
                                     type_=ChatStreamedResponse,  # type: ignore
-                                    object_=json.loads(_text),
+                                    object_=json.loads(_sse.data),
                                 ),
                             )
                         except:

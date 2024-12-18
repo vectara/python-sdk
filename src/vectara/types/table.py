@@ -3,24 +3,33 @@
 from ..core.pydantic_utilities import UniversalBaseModel
 import typing
 import pydantic
+from .data import Data
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
-class GenerationInfo(UniversalBaseModel):
+class Table(UniversalBaseModel):
     """
-    Event containing information on how the generation was accomplished.
-    """
-
-    type: typing.Literal["generation_info"] = "generation_info"
-    rendered_prompt: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    The rendered prompt sent to the LLM. Useful when creating customer `prompt_template` templates.
+    A table in a document.
     """
 
-    rephrased_query: typing.Optional[str] = pydantic.Field(default=None)
+    id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    View the actual query made to backend that was rephrased 
-    by the LLM from the input query.
+    The unique ID of the table within the document.
+    """
+
+    title: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The title of the table.
+    """
+
+    data: typing.Optional[Data] = pydantic.Field(default=None)
+    """
+    The data of the table.
+    """
+
+    description: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The description of the table.
     """
 
     if IS_PYDANTIC_V2:
