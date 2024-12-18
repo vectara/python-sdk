@@ -114,45 +114,37 @@ class BaseVectara:
         httpx_client: typing.Optional[httpx.Client] = None,
     ):
         _defaulted_timeout = timeout if timeout is not None else 60 if httpx_client is None else None
-        if api_key is not None:
-            self._client_wrapper = SyncClientWrapper(
-                environment=environment,
-                api_key=api_key,
-                httpx_client=httpx_client
-                if httpx_client is not None
-                else httpx.Client(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
-                if follow_redirects is not None
-                else httpx.Client(timeout=_defaulted_timeout),
-                timeout=_defaulted_timeout,
-            )            
-        elif client_id is not None and client_secret is not None: 
-            oauth_token_provider = OAuthTokenProvider(
-                client_id=client_id,
-                client_secret=client_secret,
-                client_wrapper=SyncClientWrapper(
-                    environment=environment,
-                    api_key=api_key,
-                    httpx_client=httpx.Client(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
-                    if follow_redirects is not None
-                    else httpx.Client(timeout=_defaulted_timeout),
-                    timeout=_defaulted_timeout,
-                ),
-            )
-            self._client_wrapper = SyncClientWrapper(
-                environment=environment,
-                api_key=api_key,
-                token=_token_getter_override if _token_getter_override is not None else oauth_token_provider.get_token,
-                httpx_client=httpx_client
-                if httpx_client is not None
-                else httpx.Client(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
-                if follow_redirects is not None
-                else httpx.Client(timeout=_defaulted_timeout),
-                timeout=_defaulted_timeout,
-            )
-        else: 
+        if client_id is None:
             raise ApiError(
-                body="The client must be instantiated be either passing in api_key, client_id or client_secret"
-            )  
+                body="The client must be instantiated be either passing in client_id or setting VECTARA_CLIENT_ID"
+            )
+        if client_secret is None:
+            raise ApiError(
+                body="The client must be instantiated be either passing in client_secret or setting VECTARA_CLIENT_SECRET"
+            )
+        oauth_token_provider = OAuthTokenProvider(
+            client_id=client_id,
+            client_secret=client_secret,
+            client_wrapper=SyncClientWrapper(
+                environment=environment,
+                api_key=api_key,
+                httpx_client=httpx.Client(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
+                if follow_redirects is not None
+                else httpx.Client(timeout=_defaulted_timeout),
+                timeout=_defaulted_timeout,
+            ),
+        )
+        self._client_wrapper = SyncClientWrapper(
+            environment=environment,
+            api_key=api_key,
+            token=_token_getter_override if _token_getter_override is not None else oauth_token_provider.get_token,
+            httpx_client=httpx_client
+            if httpx_client is not None
+            else httpx.Client(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
+            if follow_redirects is not None
+            else httpx.Client(timeout=_defaulted_timeout),
+            timeout=_defaulted_timeout,
+        )
         self.corpora = CorporaClient(client_wrapper=self._client_wrapper)
         self.upload = UploadClient(client_wrapper=self._client_wrapper)
         self.documents = DocumentsClient(client_wrapper=self._client_wrapper)
@@ -780,45 +772,37 @@ class AsyncBaseVectara:
         httpx_client: typing.Optional[httpx.AsyncClient] = None,
     ):
         _defaulted_timeout = timeout if timeout is not None else 60 if httpx_client is None else None
-        if api_key is not None:
-            self._client_wrapper = AsyncClientWrapper(
-                environment=environment,
-                api_key=api_key,
-                httpx_client=httpx_client
-                if httpx_client is not None
-                else httpx.AsyncClient(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
-                if follow_redirects is not None
-                else httpx.AsyncClient(timeout=_defaulted_timeout),
-                timeout=_defaulted_timeout,
-            )            
-        elif client_id is not None and client_secret is not None: 
-            oauth_token_provider = OAuthTokenProvider(
-                client_id=client_id,
-                client_secret=client_secret,
-                client_wrapper=SyncClientWrapper(
-                    environment=environment,
-                    api_key=api_key,
-                    httpx_client=httpx.Client(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
-                    if follow_redirects is not None
-                    else httpx.Client(timeout=_defaulted_timeout),
-                    timeout=_defaulted_timeout,
-                ),
-            )
-            self._client_wrapper = AsyncClientWrapper(
-                environment=environment,
-                api_key=api_key,
-                token=_token_getter_override if _token_getter_override is not None else oauth_token_provider.get_token,
-                httpx_client=httpx_client
-                if httpx_client is not None
-                else httpx.AsyncClient(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
-                if follow_redirects is not None
-                else httpx.AsyncClient(timeout=_defaulted_timeout),
-                timeout=_defaulted_timeout,
-            )
-        else: 
+        if client_id is None:
             raise ApiError(
-                body="The client must be instantiated be either passing in api_key, client_id or client_secret"
-            )  
+                body="The client must be instantiated be either passing in client_id or setting VECTARA_CLIENT_ID"
+            )
+        if client_secret is None:
+            raise ApiError(
+                body="The client must be instantiated be either passing in client_secret or setting VECTARA_CLIENT_SECRET"
+            )
+        oauth_token_provider = OAuthTokenProvider(
+            client_id=client_id,
+            client_secret=client_secret,
+            client_wrapper=SyncClientWrapper(
+                environment=environment,
+                api_key=api_key,
+                httpx_client=httpx.Client(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
+                if follow_redirects is not None
+                else httpx.Client(timeout=_defaulted_timeout),
+                timeout=_defaulted_timeout,
+            ),
+        )
+        self._client_wrapper = AsyncClientWrapper(
+            environment=environment,
+            api_key=api_key,
+            token=_token_getter_override if _token_getter_override is not None else oauth_token_provider.get_token,
+            httpx_client=httpx_client
+            if httpx_client is not None
+            else httpx.AsyncClient(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
+            if follow_redirects is not None
+            else httpx.AsyncClient(timeout=_defaulted_timeout),
+            timeout=_defaulted_timeout,
+        )
         self.corpora = AsyncCorporaClient(client_wrapper=self._client_wrapper)
         self.upload = AsyncUploadClient(client_wrapper=self._client_wrapper)
         self.documents = AsyncDocumentsClient(client_wrapper=self._client_wrapper)
