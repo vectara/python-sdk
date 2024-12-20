@@ -232,7 +232,10 @@ response = client.query_stream(
     
 )
 for chunk in response:
-    yield chunk
+    if chunk.type == 'generation_chunk':
+        print(chunk.generation_chunk)
+    if chunk.type == "search_results":
+        print(chunk.search_results)
 ```
 
 And streaming the chat response:
@@ -255,7 +258,13 @@ session = client.create_chat_session(
 
 response = session.chat_stream(query="Tell me about machine learning.")
 for chunk in response:
-    yield response
+    if chunk.type == 'generation_chunk':
+        print(chunk.generation_chunk)
+    if chunk.type == "search_results":
+        print(chunk.search_results)   
+    if chunk.type == "chat_info":
+        print(chunk.chat_id)
+        print(chunk.turn_id)
 ```
 
 ## Additional Functionality
@@ -282,13 +291,6 @@ except ApiError as e:
 Paginated requests will return a `SyncPager` or `AsyncPager`, which can be used as generators for the underlying object.
 
 ```python
-from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
 response = client.corpora.list(
     limit=1,
 )
