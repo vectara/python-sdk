@@ -37,8 +37,8 @@ For more detailed information, see this [Query API guide](https://docs.vectara.c
 
 ```python
 from vectara import (
-    CitationParameters,
     ContextConfiguration,
+    CustomerSpecificReranker,
     GenerationParameters,
     KeyedSearchCorpus,
     SearchCorporaParameters,
@@ -51,28 +51,26 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 response = client.query_stream(
-    query="hello, world?",
+    query="What is a hallucination?",
     search=SearchCorporaParameters(
         corpora=[
             KeyedSearchCorpus(
+                corpus_key="corpus_key",
+                metadata_filter="",
                 lexical_interpolation=0.005,
             )
         ],
-        offset=0,
-        limit=10,
         context_configuration=ContextConfiguration(
             sentences_before=2,
             sentences_after=2,
-            start_tag="<em>",
-            end_tag="</em>",
+        ),
+        reranker=CustomerSpecificReranker(
+            reranker_id="rnk_272725719",
         ),
     ),
     generation=GenerationParameters(
-        max_used_search_results=5,
-        citations=CitationParameters(
-            style="none",
-        ),
-        response_language="auto",
+        response_language="eng",
+        enable_factual_consistency_score=True,
     ),
 )
 for chunk in response:
@@ -189,7 +187,14 @@ For more detailed information, see this [Query API guide](https://docs.vectara.c
 <dd>
 
 ```python
-from vectara import SearchCorporaParameters, Vectara
+from vectara import (
+    ContextConfiguration,
+    CustomerSpecificReranker,
+    GenerationParameters,
+    KeyedSearchCorpus,
+    SearchCorporaParameters,
+    Vectara,
+)
 
 client = Vectara(
     api_key="YOUR_API_KEY",
@@ -197,8 +202,27 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 client.query(
-    query="Am I allowed to bring pets to work?",
-    search=SearchCorporaParameters(),
+    query="What is a hallucination?",
+    search=SearchCorporaParameters(
+        corpora=[
+            KeyedSearchCorpus(
+                corpus_key="corpus_key",
+                metadata_filter="",
+                lexical_interpolation=0.005,
+            )
+        ],
+        context_configuration=ContextConfiguration(
+            sentences_before=2,
+            sentences_after=2,
+        ),
+        reranker=CustomerSpecificReranker(
+            reranker_id="rnk_272725719",
+        ),
+    ),
+    generation=GenerationParameters(
+        response_language="eng",
+        enable_factual_consistency_score=True,
+    ),
 )
 
 ```
@@ -302,7 +326,16 @@ Create a chat while specifying the default retrieval parameters used by the prom
 <dd>
 
 ```python
-from vectara import SearchCorporaParameters, Vectara
+from vectara import (
+    ChatParameters,
+    CitationParameters,
+    ContextConfiguration,
+    CustomerSpecificReranker,
+    GenerationParameters,
+    KeyedSearchCorpus,
+    SearchCorporaParameters,
+    Vectara,
+)
 
 client = Vectara(
     api_key="YOUR_API_KEY",
@@ -310,8 +343,33 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 response = client.chat_stream(
-    query="How can I use the Vectara platform?",
-    search=SearchCorporaParameters(),
+    query="What is a hallucination?",
+    search=SearchCorporaParameters(
+        corpora=[
+            KeyedSearchCorpus(
+                corpus_key="corpus_key",
+                metadata_filter="",
+                lexical_interpolation=0.005,
+            )
+        ],
+        context_configuration=ContextConfiguration(
+            sentences_before=2,
+            sentences_after=2,
+        ),
+        reranker=CustomerSpecificReranker(
+            reranker_id="rnk_272725719",
+        ),
+    ),
+    generation=GenerationParameters(
+        response_language="eng",
+        citations=CitationParameters(
+            style="none",
+        ),
+        enable_factual_consistency_score=True,
+    ),
+    chat=ChatParameters(
+        store=True,
+    ),
 )
 for chunk in response:
     yield chunk
@@ -425,7 +483,16 @@ Create a chat while specifying the default retrieval parameters used by the prom
 <dd>
 
 ```python
-from vectara import SearchCorporaParameters, Vectara
+from vectara import (
+    ChatParameters,
+    CitationParameters,
+    ContextConfiguration,
+    CustomerSpecificReranker,
+    GenerationParameters,
+    KeyedSearchCorpus,
+    SearchCorporaParameters,
+    Vectara,
+)
 
 client = Vectara(
     api_key="YOUR_API_KEY",
@@ -433,8 +500,33 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 client.chat(
-    query="How can I use the Vectara platform?",
-    search=SearchCorporaParameters(),
+    query="What is a hallucination?",
+    search=SearchCorporaParameters(
+        corpora=[
+            KeyedSearchCorpus(
+                corpus_key="corpus_key",
+                metadata_filter="",
+                lexical_interpolation=0.005,
+            )
+        ],
+        context_configuration=ContextConfiguration(
+            sentences_before=2,
+            sentences_after=2,
+        ),
+        reranker=CustomerSpecificReranker(
+            reranker_id="rnk_272725719",
+        ),
+    ),
+    generation=GenerationParameters(
+        response_language="eng",
+        enable_factual_consistency_score=True,
+        citations=CitationParameters(
+            style="none",
+        ),
+    ),
+    chat=ChatParameters(
+        store=True,
+    ),
 )
 
 ```
@@ -555,9 +647,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.corpora.list(
-    limit=1,
-)
+response = client.corpora.list()
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
@@ -1985,7 +2075,7 @@ For more details, see [Indexing](https://docs.vectara.com/docs/learn/select-idea
 <dd>
 
 ```python
-from vectara import CoreDocument, CoreDocumentPart, Vectara
+from vectara import StructuredDocument, StructuredDocumentSection, Vectara
 
 client = Vectara(
     api_key="YOUR_API_KEY",
@@ -1993,14 +2083,24 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 client.documents.create(
-    corpus_key="my-corpus",
-    request=CoreDocument(
+    corpus_key="my-corpus-key",
+    request=StructuredDocument(
         id="my-doc-id",
-        document_parts=[
-            CoreDocumentPart(
-                text="I'm a nice document part.",
-            )
+        sections=[
+            StructuredDocumentSection(
+                id=1,
+                title="A nice title.",
+                text="I'm a nice document section.",
+                metadata={"section": "1.1"},
+            ),
+            StructuredDocumentSection(
+                id=2,
+                title="Another nice title.",
+                text="I'm another document section on something else.",
+                metadata={"section": "1.2"},
+            ),
         ],
+        metadata={"url": "https://example.com"},
     ),
 )
 
