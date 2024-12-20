@@ -37,8 +37,8 @@ For more detailed information, see this [Query API guide](https://docs.vectara.c
 
 ```python
 from vectara import (
-    CitationParameters,
     ContextConfiguration,
+    CustomerSpecificReranker,
     GenerationParameters,
     KeyedSearchCorpus,
     SearchCorporaParameters,
@@ -51,28 +51,26 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 response = client.query_stream(
-    query="hello, world?",
+    query="What is a hallucination?",
     search=SearchCorporaParameters(
         corpora=[
             KeyedSearchCorpus(
+                corpus_key="corpus_key",
+                metadata_filter="",
                 lexical_interpolation=0.005,
             )
         ],
-        offset=0,
-        limit=10,
         context_configuration=ContextConfiguration(
             sentences_before=2,
             sentences_after=2,
-            start_tag="<em>",
-            end_tag="</em>",
+        ),
+        reranker=CustomerSpecificReranker(
+            reranker_id="rnk_272725719",
         ),
     ),
     generation=GenerationParameters(
-        max_used_search_results=5,
-        citations=CitationParameters(
-            style="none",
-        ),
-        response_language="auto",
+        response_language="eng",
+        enable_factual_consistency_score=True,
     ),
 )
 for chunk in response:
@@ -189,7 +187,14 @@ For more detailed information, see this [Query API guide](https://docs.vectara.c
 <dd>
 
 ```python
-from vectara import SearchCorporaParameters, Vectara
+from vectara import (
+    ContextConfiguration,
+    CustomerSpecificReranker,
+    GenerationParameters,
+    KeyedSearchCorpus,
+    SearchCorporaParameters,
+    Vectara,
+)
 
 client = Vectara(
     api_key="YOUR_API_KEY",
@@ -197,8 +202,27 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 client.query(
-    query="Am I allowed to bring pets to work?",
-    search=SearchCorporaParameters(),
+    query="What is a hallucination?",
+    search=SearchCorporaParameters(
+        corpora=[
+            KeyedSearchCorpus(
+                corpus_key="corpus_key",
+                metadata_filter="",
+                lexical_interpolation=0.005,
+            )
+        ],
+        context_configuration=ContextConfiguration(
+            sentences_before=2,
+            sentences_after=2,
+        ),
+        reranker=CustomerSpecificReranker(
+            reranker_id="rnk_272725719",
+        ),
+    ),
+    generation=GenerationParameters(
+        response_language="eng",
+        enable_factual_consistency_score=True,
+    ),
 )
 
 ```
@@ -555,9 +579,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.corpora.list(
-    limit=1,
-)
+response = client.corpora.list()
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
