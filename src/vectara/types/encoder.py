@@ -14,7 +14,7 @@ class Encoder(UniversalBaseModel):
 
     name: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The encoder name.
+    The encoder name, `boomerang-2023-q3`.
     """
 
     output_dimensions: typing.Optional[int] = pydantic.Field(default=None)

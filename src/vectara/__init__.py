@@ -36,6 +36,7 @@ from .types import (
     DocumentStorageUsage,
     Encoder,
     Error,
+    ExtractionUsage,
     FactualConsistencyScore,
     FactualConsistencyScoreSpan,
     FilterAttribute,
@@ -79,6 +80,7 @@ from .types import (
     QueryHistorySpan,
     QueryHistorySummary,
     QueryStreamedResponse,
+    QueryWarning,
     RephraseSpan,
     ReplaceFilterAttributesResponse,
     RerankSpan,
@@ -105,7 +107,7 @@ from .types import (
     User,
     UserFunctionReranker,
 )
-from .errors import BadRequestError, ForbiddenError, NotFoundError
+from .errors import BadRequestError, ForbiddenError, NotFoundError, TooManyRequestsError
 from . import (
     api_keys,
     app_clients,
@@ -167,6 +169,7 @@ __all__ = [
     "DocumentStorageUsage",
     "Encoder",
     "Error",
+    "ExtractionUsage",
     "FactualConsistencyScore",
     "FactualConsistencyScoreSpan",
     "FilterAttribute",
@@ -213,6 +216,7 @@ __all__ = [
     "QueryHistorySpan",
     "QueryHistorySummary",
     "QueryStreamedResponse",
+    "QueryWarning",
     "RephraseSpan",
     "ReplaceFilterAttributesResponse",
     "RerankSpan",
@@ -235,6 +239,7 @@ __all__ = [
     "StructuredDocumentSection",
     "Table",
     "TableExtractionConfig",
+    "TooManyRequestsError",
     "Turn",
     "UpdateDocumentRequest",
     "User",

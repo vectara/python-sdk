@@ -5,6 +5,7 @@ import typing
 import pydantic
 from .language import Language
 from .individual_search_result import IndividualSearchResult
+from .query_warning import QueryWarning
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
@@ -40,12 +41,19 @@ class ChatFullResponse(UniversalBaseModel):
 
     factual_consistency_score: typing.Optional[float] = pydantic.Field(default=None)
     """
-    The probability that the summary is factually consistent with the results.
+    Indicates the probability that the summary is factually consistent with the results.
+    The system excludes this property if it encounters excessively large outputs or search
+    results.
     """
 
     rendered_prompt: typing.Optional[str] = pydantic.Field(default=None)
     """
     The rendered prompt sent to the LLM. Useful when creating customer `prompt_template` templates. 
+    """
+
+    warnings: typing.Optional[typing.List[QueryWarning]] = pydantic.Field(default=None)
+    """
+    Non-fatal warnings that occurred during request processing
     """
 
     rephrased_query: typing.Optional[str] = pydantic.Field(default=None)

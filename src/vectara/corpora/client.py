@@ -197,7 +197,7 @@ class CorporaClient:
 
 
         encoder_name : typing.Optional[str]
-            The encoder used by the corpus.
+            The encoder used by the corpus, `boomerang-2023-q3`.
 
         filter_attributes : typing.Optional[typing.Sequence[FilterAttribute]]
             The new filter attributes of the corpus.
@@ -1344,7 +1344,7 @@ class AsyncCorporaClient:
 
 
         encoder_name : typing.Optional[str]
-            The encoder used by the corpus.
+            The encoder used by the corpus, `boomerang-2023-q3`.
 
         filter_attributes : typing.Optional[typing.Sequence[FilterAttribute]]
             The new filter attributes of the corpus.

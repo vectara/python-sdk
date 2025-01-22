@@ -6,6 +6,7 @@ import pydantic
 from .table import Table
 from .document_part import DocumentPart
 from .document_storage_usage import DocumentStorageUsage
+from .extraction_usage import ExtractionUsage
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
@@ -33,6 +34,7 @@ class Document(UniversalBaseModel):
     """
 
     storage_usage: typing.Optional[DocumentStorageUsage] = None
+    extraction_usage: typing.Optional[ExtractionUsage] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

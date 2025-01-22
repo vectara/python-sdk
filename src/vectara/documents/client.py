@@ -203,7 +203,7 @@ class DocumentsClient:
 
         Examples
         --------
-        from vectara import CoreDocument, CoreDocumentPart, Vectara
+        from vectara import StructuredDocument, StructuredDocumentSection, Vectara
 
         client = Vectara(
             api_key="YOUR_API_KEY",
@@ -211,14 +211,24 @@ class DocumentsClient:
             client_secret="YOUR_CLIENT_SECRET",
         )
         client.documents.create(
-            corpus_key="my-corpus",
-            request=CoreDocument(
+            corpus_key="my-corpus-key",
+            request=StructuredDocument(
                 id="my-doc-id",
-                document_parts=[
-                    CoreDocumentPart(
-                        text="I'm a nice document part.",
-                    )
+                sections=[
+                    StructuredDocumentSection(
+                        id=1,
+                        title="A nice title.",
+                        text="I'm a nice document section.",
+                        metadata={"section": "1.1"},
+                    ),
+                    StructuredDocumentSection(
+                        id=2,
+                        title="Another nice title.",
+                        text="I'm another document section on something else.",
+                        metadata={"section": "1.2"},
+                    ),
                 ],
+                metadata={"url": "https://example.com"},
             ),
         )
         """
@@ -649,7 +659,7 @@ class AsyncDocumentsClient:
         --------
         import asyncio
 
-        from vectara import AsyncVectara, CoreDocument, CoreDocumentPart
+        from vectara import AsyncVectara, StructuredDocument, StructuredDocumentSection
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
@@ -660,14 +670,24 @@ class AsyncDocumentsClient:
 
         async def main() -> None:
             await client.documents.create(
-                corpus_key="my-corpus",
-                request=CoreDocument(
+                corpus_key="my-corpus-key",
+                request=StructuredDocument(
                     id="my-doc-id",
-                    document_parts=[
-                        CoreDocumentPart(
-                            text="I'm a nice document part.",
-                        )
+                    sections=[
+                        StructuredDocumentSection(
+                            id=1,
+                            title="A nice title.",
+                            text="I'm a nice document section.",
+                            metadata={"section": "1.1"},
+                        ),
+                        StructuredDocumentSection(
+                            id=2,
+                            title="Another nice title.",
+                            text="I'm another document section on something else.",
+                            metadata={"section": "1.2"},
+                        ),
                     ],
+                    metadata={"url": "https://example.com"},
                 ),
             )
 

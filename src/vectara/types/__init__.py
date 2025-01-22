@@ -35,6 +35,7 @@ from .document_part import DocumentPart
 from .document_storage_usage import DocumentStorageUsage
 from .encoder import Encoder
 from .error import Error
+from .extraction_usage import ExtractionUsage
 from .factual_consistency_score import FactualConsistencyScore
 from .factual_consistency_score_span import FactualConsistencyScoreSpan
 from .filter_attribute import FilterAttribute
@@ -78,6 +79,7 @@ from .query_history import QueryHistory
 from .query_history_span import QueryHistorySpan
 from .query_history_summary import QueryHistorySummary
 from .query_streamed_response import QueryStreamedResponse
+from .query_warning import QueryWarning
 from .rephrase_span import RephraseSpan
 from .replace_filter_attributes_response import ReplaceFilterAttributesResponse
 from .rerank_span import RerankSpan
@@ -140,6 +142,7 @@ __all__ = [
     "DocumentStorageUsage",
     "Encoder",
     "Error",
+    "ExtractionUsage",
     "FactualConsistencyScore",
     "FactualConsistencyScoreSpan",
     "FilterAttribute",
@@ -183,6 +186,7 @@ __all__ = [
     "QueryHistorySpan",
     "QueryHistorySummary",
     "QueryStreamedResponse",
+    "QueryWarning",
     "RephraseSpan",
     "ReplaceFilterAttributesResponse",
     "RerankSpan",

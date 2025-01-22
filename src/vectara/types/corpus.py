@@ -58,7 +58,7 @@ class Corpus(UniversalBaseModel):
 
     encoder_name: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The encoder used by the corpus.
+    The encoder used by the corpus, `boomerang-2023-q3`.
     """
 
     filter_attributes: typing.Optional[typing.List[FilterAttribute]] = pydantic.Field(default=None)
