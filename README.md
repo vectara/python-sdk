@@ -303,7 +303,7 @@ for page in response.iter_pages():
 
 ### Advance Usage
 
-For more information related to customization, Timeouts and Retries in the SDK, refer to the [Advanced Usage Guide](./advanced.md)
+For more information related to customization, Timeouts and Retries in the SDK, refer to the [Advanced Usage Guide](./ADVANCED.md)
 
 
 ### Using the SDK in Different Contexts
@@ -313,7 +313,7 @@ The Python library can be used in a number of environments with different requir
 2. **Docker Environments** - using ENV variables for configuration
 3. **Complex Applications** - allowing explicit configuration from mutable stores (e.g. RDBMS / NoSQL)
 
-For more details, refer to the [Configuration Guide](./configuration.md)
+For more details, refer to the [Configuration Guide](./CONFIGURATION.md)
 
 ## Author
 
@@ -328,7 +328,7 @@ For more details, refer to the [Configuration Guide](./configuration.md)
 ## 🤝 Contributing
 
 Contributions, issues and feature requests are welcome!<br/>
-Feel free to check [issues page](https://github.com/vectara/python-sdk/issues). You can also take a look at the [contributing guide](./contributing.md).
+Feel free to check [issues page](https://github.com/vectara/python-sdk/issues). You can also take a look at the [contributing guide](./CONTRIBUTING.md).
 
 ## Show your support
 

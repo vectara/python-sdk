@@ -26,4 +26,7 @@ pytest.ini
 mypy.ini
 
 README.md
+ADVANCED.md
+CONTRIBUTING.md
+CONFIGURATION.md
 resources/
