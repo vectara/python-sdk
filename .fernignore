@@ -1,6 +1,7 @@
 # Specify files that shouldn't be modified by Fern
 
 .github/workflows/ci.yml
+.github/ISSUE_TEMPLATE/
 
 src/vectara/client.py
 src/vectara/base_client.py # do not remove
@@ -24,6 +25,7 @@ examples/
 .gitignore
 pytest.ini
 mypy.ini
+
 
 README.md
 ADVANCED.md
