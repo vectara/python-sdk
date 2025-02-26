@@ -68,6 +68,9 @@ class ClientConfig(BaseModel):
     """
 
     customer_id: str
+    api_endpoint: Optional[str] = None
+    auth_endpoint: Optional[str] = None
+    verify_ssl: bool = True
 
     auth: Annotated[
         Union[

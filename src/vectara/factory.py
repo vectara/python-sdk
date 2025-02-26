@@ -1,6 +1,8 @@
 from vectara.config.config import (PathConfigLoader, HomeConfigLoader, ClientConfig, EnvConfigLoader, ApiKeyAuthConfig,
                                    OAuth2AuthConfig)
 from .client import Vectara
+from vectara.environment import VectaraEnvironment
+import httpx
 from vectara.managers.corpus import CorpusManager
 from vectara.managers.upload import UploadManager
 from vectara.managers.document import DocumentManager
@@ -99,17 +101,29 @@ class Factory():
         auth_config = client_config.auth
         logging.info(f"We are processing authentication type [{auth_config.get_auth_type()}]")
 
-        # Bind our configuration onto our client class.
+        # Prepare kwargs for Vectara initialization
+        kwargs = {}
+        
+        # Add custom environment if endpoints are specified
+        if client_config.api_endpoint or client_config.auth_endpoint:
+            kwargs['environment'] = VectaraEnvironment(
+                default=client_config.api_endpoint,
+                auth=client_config.auth_endpoint or client_config.api_endpoint
+            )
+
+        # Add custom httpx client if SSL verification is disabled
+        if not client_config.verify_ssl:
+            kwargs['httpx_client'] = httpx.Client(verify=False)
+
+        # Bind our configuration onto our client class
         client: Vectara
         if isinstance(auth_config, ApiKeyAuthConfig):
-            client = Vectara(
-                api_key=auth_config.api_key,
-            )
+            kwargs['api_key'] = auth_config.api_key
+            client = Vectara(**kwargs)
         elif isinstance(auth_config, OAuth2AuthConfig):
-            client = Vectara(
-                client_id=auth_config.app_client_id,
-                client_secret=auth_config.app_client_secret,
-            )
+            kwargs['client_id'] = auth_config.app_client_id
+            kwargs['client_secret'] = auth_config.app_client_secret
+            client = Vectara(**kwargs)
         else:
             raise TypeError(f"Unknown authentication type: {type(auth_config)}")
 
