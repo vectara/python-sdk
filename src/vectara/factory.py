@@ -102,14 +102,17 @@ class Factory():
         logging.info(f"We are processing authentication type [{auth_config.get_auth_type()}]")
 
         # Prepare kwargs for Vectara initialization
-        kwargs = {}
+        kwargs : dict[str, Any] = {}
         
         # Add custom environment if endpoints are specified
-        if client_config.api_endpoint or client_config.auth_endpoint:
+        if client_config.api_endpoint and client_config.auth_endpoint:
             kwargs['environment'] = VectaraEnvironment(
                 default=client_config.api_endpoint,
                 auth=client_config.auth_endpoint or client_config.api_endpoint
             )
+
+        if client_config.api_endpoint or client_config.auth_endpoint:
+            raise Exception("Expecting api_endpoint and auth_endpoint to both be configured if one is.")
 
         # Add custom httpx client if SSL verification is disabled
         if not client_config.verify_ssl:
