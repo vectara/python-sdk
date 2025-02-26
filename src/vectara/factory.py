@@ -102,7 +102,7 @@ class Factory():
         logging.info(f"We are processing authentication type [{auth_config.get_auth_type()}]")
 
         # Prepare kwargs for Vectara initialization
-        kwargs : dict[str, Any] = {}
+        kwargs : Dict[str, Any] = {}
         
         # Add custom environment if endpoints are specified
         if client_config.api_endpoint and client_config.auth_endpoint:
