@@ -6,5 +6,8 @@ from .search_span import SearchSpan
 from .rerank_span import RerankSpan
 from .generation_span import GenerationSpan
 from .factual_consistency_score_span import FactualConsistencyScoreSpan
+from .rewritten_query_span import RewrittenQuerySpan
 
-QueryHistorySpan = typing.Union[RephraseSpan, SearchSpan, RerankSpan, GenerationSpan, FactualConsistencyScoreSpan]
+QueryHistorySpan = typing.Union[
+    RephraseSpan, SearchSpan, RerankSpan, GenerationSpan, FactualConsistencyScoreSpan, RewrittenQuerySpan
+]

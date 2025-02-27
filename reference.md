@@ -130,7 +130,19 @@ for chunk in response:
 <dl>
 <dd>
 
-**save_history:** `typing.Optional[bool]` — Indicates whether to save the query in the query history.
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the query to query history.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**intelligent_query_rewriting:** `typing.Optional[bool]` 
+
+Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+extract metadata filter and rewrite the query to improve search results.
+
     
 </dd>
 </dl>
@@ -279,7 +291,19 @@ client.query(
 <dl>
 <dd>
 
-**save_history:** `typing.Optional[bool]` — Indicates whether to save the query in the query history.
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the query to query history.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**intelligent_query_rewriting:** `typing.Optional[bool]` 
+
+Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+extract metadata filter and rewrite the query to improve search results.
+
     
 </dd>
 </dl>
@@ -444,6 +468,18 @@ for chunk in response:
 <dl>
 <dd>
 
+**intelligent_query_rewriting:** `typing.Optional[bool]` 
+
+Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+extract metadata filter and rewrite the query to improve search results.
+
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -592,6 +628,18 @@ client.chat(
 <dd>
 
 **save_history:** `typing.Optional[bool]` — Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**intelligent_query_rewriting:** `typing.Optional[bool]` 
+
+Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+extract metadata filter and rewrite the query to improve search results.
+
     
 </dd>
 </dl>
@@ -809,6 +857,14 @@ client.corpora.create(
 <dd>
 
 **description:** `typing.Optional[str]` — Description of the corpus.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**save_history:** `typing.Optional[bool]` — Indicates whether to save corpus queries to query history by default.
     
 </dd>
 </dl>
@@ -1173,6 +1229,14 @@ client.corpora.update(
 <dl>
 <dd>
 
+**save_history:** `typing.Optional[bool]` — Indicates whether to save corpus queries to query history by default.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -1384,6 +1448,96 @@ client.corpora.replace_filter_attributes(
 </dl>
 </details>
 
+<details><summary><code>client.corpora.<a href="src/vectara/corpora/client.py">compute_corpus_size</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Compute the current size of a corpus, including number of documents, parts, and characters.
+The `corpus_key` uniquely identifies the corpus. For more information, see 
+[Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.corpora.compute_corpus_size(
+    corpus_key="my-corpus",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**corpus_key:** `CorpusKey` — The unique key identifying the corpus to compute size for.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.corpora.<a href="src/vectara/corpora/client.py">search</a>(...)</code></summary>
 <dl>
 <dd>
@@ -1477,6 +1631,17 @@ client.corpora.search(
 <dd>
 
 **save_history:** `typing.Optional[bool]` — Indicates whether to save the query in the query history.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**intelligent_query_rewriting:** `typing.Optional[bool]` 
+
+Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+extract metadata filter and rewrite the query to improve search results.
     
 </dd>
 </dl>
@@ -1625,7 +1790,19 @@ for chunk in response:
 <dl>
 <dd>
 
-**save_history:** `typing.Optional[bool]` — Indicates whether to save the query in the query history.
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the query to query history.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**intelligent_query_rewriting:** `typing.Optional[bool]` 
+
+Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+extract metadata filter and rewrite the query to improve search results.
+
     
 </dd>
 </dl>
@@ -1756,7 +1933,19 @@ client.corpora.query(
 <dl>
 <dd>
 
-**save_history:** `typing.Optional[bool]` — Indicates whether to save the query in the query history.
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the query to query history.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**intelligent_query_rewriting:** `typing.Optional[bool]` 
+
+Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+extract metadata filter and rewrite the query to improve search results.
+
     
 </dd>
 </dl>
@@ -2345,6 +2534,147 @@ This `document_id` must be percent encoded.
 <dd>
 
 **request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">summarize</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Summarize a document identified by its unique `document_id` from a specific corpus.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.documents.summarize(
+    corpus_key="my-corpus",
+    document_id="document_id",
+    llm_name="llm_name",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**corpus_key:** `CorpusKey` — The unique key identifying the corpus containing the document to retrieve.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**document_id:** `str` 
+
+The document ID of the document to retrieve.
+This `document_id` must be percent encoded.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**llm_name:** `str` — The name of the LLM.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**prompt_template:** `typing.Optional[str]` 
+
+The prompt template to use when generating the summary. 
+Vectara manages both system and user roles and prompts for the generative
+LLM out of the box by default. However, users can override the
+`prompt_template` via this variable. The `prompt_template` is in the form of an
+Apache Velocity template. For more details on how to configure the
+`prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
+
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**model_parameters:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Optional parameters for the specified model used when generating the summary.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**stream_response:** `typing.Optional[bool]` — Indicates whether the response should be streamed or not.
     
 </dd>
 </dl>
@@ -3074,6 +3404,18 @@ for chunk in response:
 <dl>
 <dd>
 
+**intelligent_query_rewriting:** `typing.Optional[bool]` 
+
+Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+extract metadata filter and rewrite the query to improve search results.
+
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -3197,6 +3539,18 @@ client.chats.create_turns(
 <dd>
 
 **save_history:** `typing.Optional[bool]` — Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**intelligent_query_rewriting:** `typing.Optional[bool]` 
+
+Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+extract metadata filter and rewrite the query to improve search results.
+
     
 </dd>
 </dl>
@@ -3613,6 +3967,140 @@ This parameter is not needed for the first page of results.
 <dd>
 
 **request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.llms.<a href="src/vectara/llms/client.py">create</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a new LLM for use with query and chat endpoints
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.llms.create(
+    name="name",
+    model="model",
+    uri="uri",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**name:** `str` 
+
+Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM.
+If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform),
+then it will override that LLM for all usages.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**model:** `str` — The model name to use with the API (e.g. gpt-4, claude-2, etc). This is used in the API request to the remote LLM provider.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**uri:** `str` — The URI endpoint for the API (can be OpenAI or any compatible API endpoint)
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` — Description of the LLM.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**auth:** `typing.Optional[RemoteAuth]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**test_model_parameters:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Any additional parameters that are required for the LLM during the test call.
     
 </dd>
 </dl>
@@ -4826,6 +5314,14 @@ for page in response.iter_pages():
 <dd>
 
 **corpus_key:** `typing.Optional[CorpusKey]` — Filters the API keys to only those with permissions on the specified corpus key.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**api_key_role:** `typing.Optional[ApiKeyRole]` — Filter API keys by their role.
     
 </dd>
 </dl>

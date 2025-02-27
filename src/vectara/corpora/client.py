@@ -17,10 +17,12 @@ from ..types.corpus_custom_dimension import CorpusCustomDimension
 from ..core.serialization import convert_and_respect_annotation_metadata
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
+from ..errors.conflict_error import ConflictError
 from ..core.jsonable_encoder import jsonable_encoder
 from ..errors.not_found_error import NotFoundError
 from ..types.not_found_error_body import NotFoundErrorBody
 from ..types.replace_filter_attributes_response import ReplaceFilterAttributesResponse
+from ..types.compute_corpus_size_response import ComputeCorpusSizeResponse
 from ..types.query_full_response import QueryFullResponse
 from .types.search_corpus_parameters import SearchCorpusParameters
 from ..types.generation_parameters import GenerationParameters
@@ -155,6 +157,7 @@ class CorporaClient:
         request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         queries_are_answers: typing.Optional[bool] = OMIT,
         documents_are_questions: typing.Optional[bool] = OMIT,
         encoder_id: typing.Optional[str] = OMIT,
@@ -185,6 +188,9 @@ class CorporaClient:
 
         description : typing.Optional[str]
             Description of the corpus.
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save corpus queries to query history by default.
 
         queries_are_answers : typing.Optional[bool]
             Queries made to this corpus are considered answers, and not questions.
@@ -240,6 +246,7 @@ class CorporaClient:
                 "key": key,
                 "name": name,
                 "description": description,
+                "save_history": save_history,
                 "queries_are_answers": queries_are_answers,
                 "documents_are_questions": documents_are_questions,
                 "encoder_id": encoder_id,
@@ -279,6 +286,16 @@ class CorporaClient:
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 409:
+                raise ConflictError(
                     typing.cast(
                         Error,
                         parse_obj_as(
@@ -473,6 +490,7 @@ class CorporaClient:
         enabled: typing.Optional[bool] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Corpus:
         """
@@ -503,6 +521,9 @@ class CorporaClient:
         description : typing.Optional[str]
             Description of the corpus. If unset or null, then the corpus will remain in the same state.
 
+        save_history : typing.Optional[bool]
+            Indicates whether to save corpus queries to query history by default.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -532,6 +553,7 @@ class CorporaClient:
                 "enabled": enabled,
                 "name": name,
                 "description": description,
+                "save_history": save_history,
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -766,6 +788,95 @@ class CorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
+    def compute_corpus_size(
+        self,
+        corpus_key: CorpusKey,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ComputeCorpusSizeResponse:
+        """
+        Compute the current size of a corpus, including number of documents, parts, and characters.
+        The `corpus_key` uniquely identifies the corpus. For more information, see
+        [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus to compute size for.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ComputeCorpusSizeResponse
+            Successfully computed the corpus size.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.corpora.compute_corpus_size(
+            corpus_key="my-corpus",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/compute_size",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    ComputeCorpusSizeResponse,
+                    parse_obj_as(
+                        type_=ComputeCorpusSizeResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
     def search(
         self,
         corpus_key: CorpusKey,
@@ -774,6 +885,7 @@ class CorporaClient:
         limit: typing.Optional[int] = None,
         offset: typing.Optional[int] = None,
         save_history: typing.Optional[bool] = None,
+        intelligent_query_rewriting: typing.Optional[bool] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
@@ -804,6 +916,10 @@ class CorporaClient:
 
         save_history : typing.Optional[bool]
             Indicates whether to save the query in the query history.
+
+        intelligent_query_rewriting : typing.Optional[bool]
+            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+            extract metadata filter and rewrite the query to improve search results.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -842,6 +958,7 @@ class CorporaClient:
                 "limit": limit,
                 "offset": offset,
                 "save_history": save_history,
+                "intelligent_query_rewriting": intelligent_query_rewriting,
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -903,6 +1020,7 @@ class CorporaClient:
         search: typing.Optional[SearchCorpusParameters] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
+        intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Iterator[QueryStreamedResponse]:
         """
@@ -938,7 +1056,12 @@ class CorporaClient:
         generation : typing.Optional[GenerationParameters]
 
         save_history : typing.Optional[bool]
-            Indicates whether to save the query in the query history.
+            Indicates whether to save the query to query history.
+
+        intelligent_query_rewriting : typing.Optional[bool]
+            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+            extract metadata filter and rewrite the query to improve search results.
+
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -977,6 +1100,7 @@ class CorporaClient:
                     object_=generation, annotation=GenerationParameters, direction="write"
                 ),
                 "save_history": save_history,
+                "intelligent_query_rewriting": intelligent_query_rewriting,
                 "stream_response": True,
             },
             headers={
@@ -1047,6 +1171,7 @@ class CorporaClient:
         search: typing.Optional[SearchCorpusParameters] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
+        intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> QueryFullResponse:
         """
@@ -1082,7 +1207,12 @@ class CorporaClient:
         generation : typing.Optional[GenerationParameters]
 
         save_history : typing.Optional[bool]
-            Indicates whether to save the query in the query history.
+            Indicates whether to save the query to query history.
+
+        intelligent_query_rewriting : typing.Optional[bool]
+            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+            extract metadata filter and rewrite the query to improve search results.
+
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1119,6 +1249,7 @@ class CorporaClient:
                     object_=generation, annotation=GenerationParameters, direction="write"
                 ),
                 "save_history": save_history,
+                "intelligent_query_rewriting": intelligent_query_rewriting,
                 "stream_response": False,
             },
             headers={
@@ -1302,6 +1433,7 @@ class AsyncCorporaClient:
         request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         queries_are_answers: typing.Optional[bool] = OMIT,
         documents_are_questions: typing.Optional[bool] = OMIT,
         encoder_id: typing.Optional[str] = OMIT,
@@ -1332,6 +1464,9 @@ class AsyncCorporaClient:
 
         description : typing.Optional[str]
             Description of the corpus.
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save corpus queries to query history by default.
 
         queries_are_answers : typing.Optional[bool]
             Queries made to this corpus are considered answers, and not questions.
@@ -1395,6 +1530,7 @@ class AsyncCorporaClient:
                 "key": key,
                 "name": name,
                 "description": description,
+                "save_history": save_history,
                 "queries_are_answers": queries_are_answers,
                 "documents_are_questions": documents_are_questions,
                 "encoder_id": encoder_id,
@@ -1434,6 +1570,16 @@ class AsyncCorporaClient:
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 409:
+                raise ConflictError(
                     typing.cast(
                         Error,
                         parse_obj_as(
@@ -1644,6 +1790,7 @@ class AsyncCorporaClient:
         enabled: typing.Optional[bool] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Corpus:
         """
@@ -1673,6 +1820,9 @@ class AsyncCorporaClient:
 
         description : typing.Optional[str]
             Description of the corpus. If unset or null, then the corpus will remain in the same state.
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save corpus queries to query history by default.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1711,6 +1861,7 @@ class AsyncCorporaClient:
                 "enabled": enabled,
                 "name": name,
                 "description": description,
+                "save_history": save_history,
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -1961,6 +2112,103 @@ class AsyncCorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
+    async def compute_corpus_size(
+        self,
+        corpus_key: CorpusKey,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ComputeCorpusSizeResponse:
+        """
+        Compute the current size of a corpus, including number of documents, parts, and characters.
+        The `corpus_key` uniquely identifies the corpus. For more information, see
+        [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus to compute size for.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ComputeCorpusSizeResponse
+            Successfully computed the corpus size.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
+        async def main() -> None:
+            await client.corpora.compute_corpus_size(
+                corpus_key="my-corpus",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/compute_size",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    ComputeCorpusSizeResponse,
+                    parse_obj_as(
+                        type_=ComputeCorpusSizeResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
     async def search(
         self,
         corpus_key: CorpusKey,
@@ -1969,6 +2217,7 @@ class AsyncCorporaClient:
         limit: typing.Optional[int] = None,
         offset: typing.Optional[int] = None,
         save_history: typing.Optional[bool] = None,
+        intelligent_query_rewriting: typing.Optional[bool] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
@@ -1999,6 +2248,10 @@ class AsyncCorporaClient:
 
         save_history : typing.Optional[bool]
             Indicates whether to save the query in the query history.
+
+        intelligent_query_rewriting : typing.Optional[bool]
+            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+            extract metadata filter and rewrite the query to improve search results.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -2045,6 +2298,7 @@ class AsyncCorporaClient:
                 "limit": limit,
                 "offset": offset,
                 "save_history": save_history,
+                "intelligent_query_rewriting": intelligent_query_rewriting,
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -2106,6 +2360,7 @@ class AsyncCorporaClient:
         search: typing.Optional[SearchCorpusParameters] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
+        intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.AsyncIterator[QueryStreamedResponse]:
         """
@@ -2141,7 +2396,12 @@ class AsyncCorporaClient:
         generation : typing.Optional[GenerationParameters]
 
         save_history : typing.Optional[bool]
-            Indicates whether to save the query in the query history.
+            Indicates whether to save the query to query history.
+
+        intelligent_query_rewriting : typing.Optional[bool]
+            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+            extract metadata filter and rewrite the query to improve search results.
+
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -2188,6 +2448,7 @@ class AsyncCorporaClient:
                     object_=generation, annotation=GenerationParameters, direction="write"
                 ),
                 "save_history": save_history,
+                "intelligent_query_rewriting": intelligent_query_rewriting,
                 "stream_response": True,
             },
             headers={
@@ -2258,6 +2519,7 @@ class AsyncCorporaClient:
         search: typing.Optional[SearchCorpusParameters] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
+        intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> QueryFullResponse:
         """
@@ -2293,7 +2555,12 @@ class AsyncCorporaClient:
         generation : typing.Optional[GenerationParameters]
 
         save_history : typing.Optional[bool]
-            Indicates whether to save the query in the query history.
+            Indicates whether to save the query to query history.
+
+        intelligent_query_rewriting : typing.Optional[bool]
+            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+            extract metadata filter and rewrite the query to improve search results.
+
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -2338,6 +2605,7 @@ class AsyncCorporaClient:
                     object_=generation, annotation=GenerationParameters, direction="write"
                 ),
                 "save_history": save_history,
+                "intelligent_query_rewriting": intelligent_query_rewriting,
                 "stream_response": False,
             },
             headers={

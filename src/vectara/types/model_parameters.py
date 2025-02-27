@@ -14,6 +14,12 @@ class ModelParameters(UniversalBaseModel):
     be set in the prompt definitions.
     """
 
+    llm_name: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The model (e.g., `gpt-4`) to use for summarization. If specified, it will override the model behind
+    `generation_preset_name`.
+    """
+
     max_tokens: typing.Optional[int] = pydantic.Field(default=None)
     """
     The maximum number of tokens to be returned by the model.

@@ -24,7 +24,8 @@ class GenerationPreset(UniversalBaseModel):
 
     llm_name: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Name of the model that these presets are used with.
+    Name of the model that these presets are used with. The list of available names can be
+    fetched by the `GET /v2/llms` endpoint.
     """
 
     prompt_template: typing.Optional[str] = pydantic.Field(default=None)

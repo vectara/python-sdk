@@ -4,6 +4,7 @@ from ..core.pydantic_utilities import UniversalBaseModel
 import typing
 from .individual_search_result import IndividualSearchResult
 import pydantic
+from .rewritten_query import RewrittenQuery
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
@@ -16,6 +17,12 @@ class StreamSearchResponse(UniversalBaseModel):
     search_results: typing.Optional[typing.List[IndividualSearchResult]] = pydantic.Field(default=None)
     """
     The ranked search results.
+    """
+
+    rewritten_queries: typing.Optional[typing.List[RewrittenQuery]] = pydantic.Field(default=None)
+    """
+    The rewritten queries for the corpora that were searched. Only populated when 
+    intelligent_query_rewriting is enabled.
     """
 
     if IS_PYDANTIC_V2:

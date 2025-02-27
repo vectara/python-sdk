@@ -3,6 +3,7 @@
 import typing
 from ..core.client_wrapper import SyncClientWrapper
 from ..types.corpus_key import CorpusKey
+from ..types.api_key_role import ApiKeyRole
 from ..core.request_options import RequestOptions
 from ..core.pagination import SyncPager
 from ..types.api_key import ApiKey
@@ -14,7 +15,6 @@ from ..errors.forbidden_error import ForbiddenError
 from ..types.error import Error
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
-from ..types.api_key_role import ApiKeyRole
 from ..core.jsonable_encoder import jsonable_encoder
 from ..core.client_wrapper import AsyncClientWrapper
 from ..core.pagination import AsyncPager
@@ -33,6 +33,7 @@ class ApiKeysClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         corpus_key: typing.Optional[CorpusKey] = None,
+        api_key_role: typing.Optional[ApiKeyRole] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
@@ -48,6 +49,9 @@ class ApiKeysClient:
 
         corpus_key : typing.Optional[CorpusKey]
             Filters the API keys to only those with permissions on the specified corpus key.
+
+        api_key_role : typing.Optional[ApiKeyRole]
+            Filter API keys by their role.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -89,6 +93,7 @@ class ApiKeysClient:
                 "limit": limit,
                 "page_key": page_key,
                 "corpus_key": corpus_key,
+                "api_key_role": api_key_role,
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -114,6 +119,7 @@ class ApiKeysClient:
                         limit=limit,
                         page_key=_parsed_next,
                         corpus_key=corpus_key,
+                        api_key_role=api_key_role,
                         request_timeout=request_timeout,
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
@@ -490,6 +496,7 @@ class AsyncApiKeysClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         corpus_key: typing.Optional[CorpusKey] = None,
+        api_key_role: typing.Optional[ApiKeyRole] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
@@ -505,6 +512,9 @@ class AsyncApiKeysClient:
 
         corpus_key : typing.Optional[CorpusKey]
             Filters the API keys to only those with permissions on the specified corpus key.
+
+        api_key_role : typing.Optional[ApiKeyRole]
+            Filter API keys by their role.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -554,6 +564,7 @@ class AsyncApiKeysClient:
                 "limit": limit,
                 "page_key": page_key,
                 "corpus_key": corpus_key,
+                "api_key_role": api_key_role,
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -579,6 +590,7 @@ class AsyncApiKeysClient:
                         limit=limit,
                         page_key=_parsed_next,
                         corpus_key=corpus_key,
+                        api_key_role=api_key_role,
                         request_timeout=request_timeout,
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,

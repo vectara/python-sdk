@@ -25,7 +25,7 @@ class GenerationParameters(UniversalBaseModel):
      
     All of these properties except the model can be overridden by setting them in this
     object. Even when a `prompt_template` is set, the `generation_preset_name` is used to set 
-    the model used.
+    the model used. See `model_parameters.model` if you want to set the model explicitly.
     
     If `generation_preset_name` is not set, the Vectara platform will use the default model and
     prompt.

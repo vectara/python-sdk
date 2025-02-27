@@ -6,6 +6,7 @@ import pydantic
 from .language import Language
 from .individual_search_result import IndividualSearchResult
 from .query_warning import QueryWarning
+from .rewritten_query import RewrittenQuery
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
@@ -60,6 +61,12 @@ class ChatFullResponse(UniversalBaseModel):
     """
     View the actual query made to backend that was rephrased 
     by the LLM from the input query.
+    """
+
+    rewritten_queries: typing.Optional[typing.List[RewrittenQuery]] = pydantic.Field(default=None)
+    """
+    The rewritten queries for the corpora that were searched. Only populated when 
+    intelligent_query_rewriting is enabled.
     """
 
     if IS_PYDANTIC_V2:

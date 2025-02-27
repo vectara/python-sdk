@@ -414,6 +414,7 @@ class ChatsClient:
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
+        intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Iterator[ChatStreamedResponse]:
         """
@@ -441,6 +442,11 @@ class ChatsClient:
 
         save_history : typing.Optional[bool]
             Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+
+        intelligent_query_rewriting : typing.Optional[bool]
+            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+            extract metadata filter and rewrite the query to improve search results.
+
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -483,6 +489,7 @@ class ChatsClient:
                     object_=chat, annotation=ChatParameters, direction="write"
                 ),
                 "save_history": save_history,
+                "intelligent_query_rewriting": intelligent_query_rewriting,
                 "stream_response": True,
             },
             headers={
@@ -554,6 +561,7 @@ class ChatsClient:
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
+        intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ChatFullResponse:
         """
@@ -581,6 +589,11 @@ class ChatsClient:
 
         save_history : typing.Optional[bool]
             Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+
+        intelligent_query_rewriting : typing.Optional[bool]
+            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+            extract metadata filter and rewrite the query to improve search results.
+
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -621,6 +634,7 @@ class ChatsClient:
                     object_=chat, annotation=ChatParameters, direction="write"
                 ),
                 "save_history": save_history,
+                "intelligent_query_rewriting": intelligent_query_rewriting,
                 "stream_response": False,
             },
             headers={
@@ -1367,6 +1381,7 @@ class AsyncChatsClient:
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
+        intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.AsyncIterator[ChatStreamedResponse]:
         """
@@ -1394,6 +1409,11 @@ class AsyncChatsClient:
 
         save_history : typing.Optional[bool]
             Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+
+        intelligent_query_rewriting : typing.Optional[bool]
+            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+            extract metadata filter and rewrite the query to improve search results.
+
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1444,6 +1464,7 @@ class AsyncChatsClient:
                     object_=chat, annotation=ChatParameters, direction="write"
                 ),
                 "save_history": save_history,
+                "intelligent_query_rewriting": intelligent_query_rewriting,
                 "stream_response": True,
             },
             headers={
@@ -1515,6 +1536,7 @@ class AsyncChatsClient:
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
+        intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ChatFullResponse:
         """
@@ -1542,6 +1564,11 @@ class AsyncChatsClient:
 
         save_history : typing.Optional[bool]
             Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+
+        intelligent_query_rewriting : typing.Optional[bool]
+            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+            extract metadata filter and rewrite the query to improve search results.
+
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1590,6 +1617,7 @@ class AsyncChatsClient:
                     object_=chat, annotation=ChatParameters, direction="write"
                 ),
                 "save_history": save_history,
+                "intelligent_query_rewriting": intelligent_query_rewriting,
                 "stream_response": False,
             },
             headers={

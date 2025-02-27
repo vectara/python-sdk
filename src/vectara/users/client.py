@@ -12,11 +12,13 @@ from ..types.error import Error
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..types.api_role import ApiRole
+from .types.users_create_response import UsersCreateResponse
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
 from ..core.jsonable_encoder import jsonable_encoder
 from ..errors.not_found_error import NotFoundError
 from ..types.not_found_error_body import NotFoundErrorBody
+from .types.users_reset_password_response import UsersResetPasswordResponse
 from ..core.client_wrapper import AsyncClientWrapper
 from ..core.pagination import AsyncPager
 
@@ -140,7 +142,7 @@ class UsersClient:
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> User:
+    ) -> UsersCreateResponse:
         """
         Create a user for the current customer account.
 
@@ -169,7 +171,7 @@ class UsersClient:
 
         Returns
         -------
-        User
+        UsersCreateResponse
             The created user.
 
         Examples
@@ -205,9 +207,9 @@ class UsersClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    User,
+                    UsersCreateResponse,
                     parse_obj_as(
-                        type_=User,  # type: ignore
+                        type_=UsersCreateResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -513,7 +515,7 @@ class UsersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    ) -> UsersResetPasswordResponse:
         """
         Reset the password for a user.
 
@@ -534,7 +536,8 @@ class UsersClient:
 
         Returns
         -------
-        None
+        UsersResetPasswordResponse
+            User was sent the password reset email.
 
         Examples
         --------
@@ -561,7 +564,13 @@ class UsersClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return
+                return typing.cast(
+                    UsersResetPasswordResponse,
+                    parse_obj_as(
+                        type_=UsersResetPasswordResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -712,7 +721,7 @@ class AsyncUsersClient:
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> User:
+    ) -> UsersCreateResponse:
         """
         Create a user for the current customer account.
 
@@ -741,7 +750,7 @@ class AsyncUsersClient:
 
         Returns
         -------
-        User
+        UsersCreateResponse
             The created user.
 
         Examples
@@ -785,9 +794,9 @@ class AsyncUsersClient:
         try:
             if 200 <= _response.status_code < 300:
                 return typing.cast(
-                    User,
+                    UsersCreateResponse,
                     parse_obj_as(
-                        type_=User,  # type: ignore
+                        type_=UsersCreateResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -1117,7 +1126,7 @@ class AsyncUsersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    ) -> UsersResetPasswordResponse:
         """
         Reset the password for a user.
 
@@ -1138,7 +1147,8 @@ class AsyncUsersClient:
 
         Returns
         -------
-        None
+        UsersResetPasswordResponse
+            User was sent the password reset email.
 
         Examples
         --------
@@ -1173,7 +1183,13 @@ class AsyncUsersClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return
+                return typing.cast(
+                    UsersResetPasswordResponse,
+                    parse_obj_as(
+                        type_=UsersResetPasswordResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(

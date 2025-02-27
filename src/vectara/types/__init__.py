@@ -7,6 +7,7 @@ from .api_policy import ApiPolicy
 from .api_role import ApiRole
 from .app_client import AppClient
 from .bad_request_error_body import BadRequestErrorBody
+from .bearer_auth import BearerAuth
 from .cell import Cell
 from .chain_reranker import ChainReranker
 from .chat import Chat
@@ -17,7 +18,9 @@ from .chat_streamed_response import ChatStreamedResponse
 from .citation_parameters import CitationParameters
 from .citation_parameters_style import CitationParametersStyle
 from .components_schemas_create_client_credentials_request import ComponentsSchemasCreateClientCredentialsRequest
+from .components_schemas_create_open_aillm_request import ComponentsSchemasCreateOpenAillmRequest
 from .components_schemas_max_chars_chunking_strategy import ComponentsSchemasMaxCharsChunkingStrategy
+from .compute_corpus_size_response import ComputeCorpusSizeResponse
 from .context_configuration import ContextConfiguration
 from .core_document import CoreDocument
 from .core_document_part import CoreDocumentPart
@@ -27,6 +30,7 @@ from .corpus_key import CorpusKey
 from .corpus_limits import CorpusLimits
 from .create_client_credentials_request import CreateClientCredentialsRequest
 from .create_document_request import CreateDocumentRequest
+from .create_open_aillm_request import CreateOpenAillmRequest
 from .custom_dimensions import CustomDimensions
 from .customer_specific_reranker import CustomerSpecificReranker
 from .data import Data
@@ -41,11 +45,13 @@ from .factual_consistency_score_span import FactualConsistencyScoreSpan
 from .filter_attribute import FilterAttribute
 from .filter_attribute_level import FilterAttributeLevel
 from .filter_attribute_type import FilterAttributeType
+from .filter_extraction import FilterExtraction
 from .generation_info import GenerationInfo
 from .generation_parameters import GenerationParameters
 from .generation_preset import GenerationPreset
 from .generation_span import GenerationSpan
 from .header import Header
+from .header_auth import HeaderAuth
 from .individual_search_result import IndividualSearchResult
 from .job import Job
 from .job_state import JobState
@@ -80,11 +86,15 @@ from .query_history_span import QueryHistorySpan
 from .query_history_summary import QueryHistorySummary
 from .query_streamed_response import QueryStreamedResponse
 from .query_warning import QueryWarning
+from .remote_auth import RemoteAuth
 from .rephrase_span import RephraseSpan
 from .replace_filter_attributes_response import ReplaceFilterAttributesResponse
 from .rerank_span import RerankSpan
 from .reranked_search_result import RerankedSearchResult
 from .reranker import Reranker
+from .rewritten_query import RewrittenQuery
+from .rewritten_query_span import RewrittenQuerySpan
+from .rewritten_query_warning import RewrittenQueryWarning
 from .row import Row
 from .search_corpora_parameters import SearchCorporaParameters
 from .search_corpus import SearchCorpus
@@ -99,6 +109,8 @@ from .stream_response_end import StreamResponseEnd
 from .stream_search_response import StreamSearchResponse
 from .structured_document import StructuredDocument
 from .structured_document_section import StructuredDocumentSection
+from .summarize_document_response import SummarizeDocumentResponse
+from .summarize_document_streamed_response import SummarizeDocumentStreamedResponse
 from .table import Table
 from .table_extraction_config import TableExtractionConfig
 from .turn import Turn
@@ -114,6 +126,7 @@ __all__ = [
     "ApiRole",
     "AppClient",
     "BadRequestErrorBody",
+    "BearerAuth",
     "Cell",
     "ChainReranker",
     "Chat",
@@ -124,7 +137,9 @@ __all__ = [
     "CitationParameters",
     "CitationParametersStyle",
     "ComponentsSchemasCreateClientCredentialsRequest",
+    "ComponentsSchemasCreateOpenAillmRequest",
     "ComponentsSchemasMaxCharsChunkingStrategy",
+    "ComputeCorpusSizeResponse",
     "ContextConfiguration",
     "CoreDocument",
     "CoreDocumentPart",
@@ -134,6 +149,7 @@ __all__ = [
     "CorpusLimits",
     "CreateClientCredentialsRequest",
     "CreateDocumentRequest",
+    "CreateOpenAillmRequest",
     "CustomDimensions",
     "CustomerSpecificReranker",
     "Data",
@@ -148,11 +164,13 @@ __all__ = [
     "FilterAttribute",
     "FilterAttributeLevel",
     "FilterAttributeType",
+    "FilterExtraction",
     "GenerationInfo",
     "GenerationParameters",
     "GenerationPreset",
     "GenerationSpan",
     "Header",
+    "HeaderAuth",
     "IndividualSearchResult",
     "Job",
     "JobState",
@@ -187,11 +205,15 @@ __all__ = [
     "QueryHistorySummary",
     "QueryStreamedResponse",
     "QueryWarning",
+    "RemoteAuth",
     "RephraseSpan",
     "ReplaceFilterAttributesResponse",
     "RerankSpan",
     "RerankedSearchResult",
     "Reranker",
+    "RewrittenQuery",
+    "RewrittenQuerySpan",
+    "RewrittenQueryWarning",
     "Row",
     "SearchCorporaParameters",
     "SearchCorpus",
@@ -206,6 +228,8 @@ __all__ = [
     "StreamSearchResponse",
     "StructuredDocument",
     "StructuredDocumentSection",
+    "SummarizeDocumentResponse",
+    "SummarizeDocumentStreamedResponse",
     "Table",
     "TableExtractionConfig",
     "Turn",

@@ -61,6 +61,11 @@ class Corpus(UniversalBaseModel):
     The encoder used by the corpus, `boomerang-2023-q3`.
     """
 
+    save_history: typing.Optional[bool] = pydantic.Field(default=None)
+    """
+    Indicates whether to save corpus queries to query history by default.
+    """
+
     filter_attributes: typing.Optional[typing.List[FilterAttribute]] = pydantic.Field(default=None)
     """
     The new filter attributes of the corpus.
