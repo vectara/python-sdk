@@ -111,9 +111,6 @@ class Factory():
                 auth=client_config.auth_endpoint or client_config.api_endpoint
             )
 
-        if client_config.api_endpoint or client_config.auth_endpoint:
-            raise Exception("Expecting api_endpoint and auth_endpoint to both be configured if one is.")
-
         # Add custom httpx client if SSL verification is disabled
         if not client_config.verify_ssl:
             kwargs['httpx_client'] = httpx.Client(verify=False)
