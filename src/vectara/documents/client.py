@@ -20,6 +20,7 @@ from ..core.serialization import convert_and_respect_annotation_metadata
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
 from ..errors.conflict_error import ConflictError
+from ..errors.too_many_requests_error import TooManyRequestsError
 from ..types.summarize_document_response import SummarizeDocumentResponse
 from ..core.client_wrapper import AsyncClientWrapper
 from ..core.pagination import AsyncPager
@@ -302,7 +303,7 @@ class DocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def get_corpus_document(
+    def get(
         self,
         corpus_key: CorpusKey,
         document_id: str,
@@ -347,7 +348,7 @@ class DocumentsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.documents.get_corpus_document(
+        client.documents.get(
             corpus_key="my-corpus",
             document_id="document_id",
         )
@@ -483,6 +484,233 @@ class DocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
+    def update(
+        self,
+        corpus_key: CorpusKey,
+        document_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Document:
+        """
+        Updates document identified by its unique `document_id` from a specific
+        corpus. The request body metadata is merged with the existing metadata,
+        adding or modifying only the specified fields.
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus with the document to update.
+
+        document_id : str
+            The document ID of the document to update.
+            This `document_id` must be percent encoded.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+            The metadata for a document as an arbitrary object. Properties of this object
+            can be used by document level filter attributes.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Document
+            Successfully updated the document.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.documents.update(
+            corpus_key="my-corpus",
+            document_id="document_id",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="PATCH",
+            json={
+                "metadata": metadata,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    Document,
+                    parse_obj_as(
+                        type_=Document,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def update_metadata(
+        self,
+        corpus_key: CorpusKey,
+        document_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Document:
+        """
+        Replaces metadata of a document identified by its unique `document_id`
+        from a specific corpus.
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus with the document to update.
+
+        document_id : str
+            The document ID of the document to update.
+            This `document_id` must be percent encoded.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+            The metadata for a document as an arbitrary object. Properties of this object
+            can be used by document level filter attributes.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Document
+            Successfully updated the document.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.documents.update_metadata(
+            corpus_key="my-corpus",
+            document_id="document_id",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}/metadata",
+            base_url=self._client_wrapper.get_environment().default,
+            method="PUT",
+            json={
+                "metadata": metadata,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    Document,
+                    parse_obj_as(
+                        type_=Document,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
     def summarize(
         self,
         corpus_key: CorpusKey,
@@ -525,7 +753,6 @@ class DocumentsClient:
             Apache Velocity template. For more details on how to configure the
             `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
 
-
         model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Optional parameters for the specified model used when generating the summary.
 
@@ -566,6 +793,7 @@ class DocumentsClient:
                 "stream_response": stream_response,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -897,7 +1125,7 @@ class AsyncDocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def get_corpus_document(
+    async def get(
         self,
         corpus_key: CorpusKey,
         document_id: str,
@@ -947,7 +1175,7 @@ class AsyncDocumentsClient:
 
 
         async def main() -> None:
-            await client.documents.get_corpus_document(
+            await client.documents.get(
                 corpus_key="my-corpus",
                 document_id="document_id",
             )
@@ -1094,6 +1322,249 @@ class AsyncDocumentsClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
+    async def update(
+        self,
+        corpus_key: CorpusKey,
+        document_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Document:
+        """
+        Updates document identified by its unique `document_id` from a specific
+        corpus. The request body metadata is merged with the existing metadata,
+        adding or modifying only the specified fields.
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus with the document to update.
+
+        document_id : str
+            The document ID of the document to update.
+            This `document_id` must be percent encoded.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+            The metadata for a document as an arbitrary object. Properties of this object
+            can be used by document level filter attributes.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Document
+            Successfully updated the document.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
+        async def main() -> None:
+            await client.documents.update(
+                corpus_key="my-corpus",
+                document_id="document_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="PATCH",
+            json={
+                "metadata": metadata,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    Document,
+                    parse_obj_as(
+                        type_=Document,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def update_metadata(
+        self,
+        corpus_key: CorpusKey,
+        document_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Document:
+        """
+        Replaces metadata of a document identified by its unique `document_id`
+        from a specific corpus.
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus with the document to update.
+
+        document_id : str
+            The document ID of the document to update.
+            This `document_id` must be percent encoded.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+            The metadata for a document as an arbitrary object. Properties of this object
+            can be used by document level filter attributes.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Document
+            Successfully updated the document.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
+        async def main() -> None:
+            await client.documents.update_metadata(
+                corpus_key="my-corpus",
+                document_id="document_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}/metadata",
+            base_url=self._client_wrapper.get_environment().default,
+            method="PUT",
+            json={
+                "metadata": metadata,
+            },
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    Document,
+                    parse_obj_as(
+                        type_=Document,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 429:
+                raise TooManyRequestsError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
     async def summarize(
         self,
         corpus_key: CorpusKey,
@@ -1135,7 +1606,6 @@ class AsyncDocumentsClient:
             `prompt_template` via this variable. The `prompt_template` is in the form of an
             Apache Velocity template. For more details on how to configure the
             `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
-
 
         model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Optional parameters for the specified model used when generating the summary.
@@ -1185,6 +1655,7 @@ class AsyncDocumentsClient:
                 "stream_response": stream_response,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },

@@ -7,6 +7,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class NoneReranker(UniversalBaseModel):
+    """
+    A placeholder reranker that does not modify the original search results ordering.
+    """
+
     type: typing.Literal["none"] = "none"
     limit: typing.Optional[int] = pydantic.Field(default=None)
     """

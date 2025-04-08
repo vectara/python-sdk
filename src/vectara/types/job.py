@@ -11,6 +11,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class Job(UniversalBaseModel):
+    """
+    A background job for processing long-running operations on the platform.
+    """
+
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The ID of the job.

@@ -15,6 +15,9 @@ from ..types.remote_auth import RemoteAuth
 from ..core.serialization import convert_and_respect_annotation_metadata
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
+from ..core.jsonable_encoder import jsonable_encoder
+from ..errors.not_found_error import NotFoundError
+from ..types.not_found_error_body import NotFoundErrorBody
 from ..core.client_wrapper import AsyncClientWrapper
 from ..core.pagination import AsyncPager
 
@@ -248,6 +251,173 @@ class LlmsClient:
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def get(
+        self,
+        llm_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Llm:
+        """
+        Get details about a specific LLM.
+
+        Parameters
+        ----------
+        llm_id : str
+            The name of the LLM to retrieve.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Llm
+            The LLM details.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.llms.get(
+            llm_id="llm_id",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/llms/{jsonable_encoder(llm_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    Llm,
+                    parse_obj_as(
+                        type_=Llm,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def delete(
+        self,
+        llm_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> None:
+        """
+        Delete a custom LLM connection. Built-in LLMs cannot be deleted.
+
+        Parameters
+        ----------
+        llm_id : str
+            The name of the LLM to delete.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.llms.delete(
+            llm_id="llm_id",
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/llms/{jsonable_encoder(llm_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
                     )
@@ -500,6 +670,189 @@ class AsyncLlmsClient:
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def get(
+        self,
+        llm_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Llm:
+        """
+        Get details about a specific LLM.
+
+        Parameters
+        ----------
+        llm_id : str
+            The name of the LLM to retrieve.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Llm
+            The LLM details.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
+        async def main() -> None:
+            await client.llms.get(
+                llm_id="llm_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/llms/{jsonable_encoder(llm_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    Llm,
+                    parse_obj_as(
+                        type_=Llm,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def delete(
+        self,
+        llm_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> None:
+        """
+        Delete a custom LLM connection. Built-in LLMs cannot be deleted.
+
+        Parameters
+        ----------
+        llm_id : str
+            The name of the LLM to delete.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
+        async def main() -> None:
+            await client.llms.delete(
+                llm_id="llm_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/llms/{jsonable_encoder(llm_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
                     )

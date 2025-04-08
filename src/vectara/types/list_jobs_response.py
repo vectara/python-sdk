@@ -9,6 +9,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class ListJobsResponse(UniversalBaseModel):
+    """
+    Response containing a list of background jobs and their current states.
+    """
+
     jobs: typing.Optional[typing.List[Job]] = pydantic.Field(default=None)
     """
     An array of jobs.

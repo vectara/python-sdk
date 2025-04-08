@@ -9,6 +9,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class SearchCorpus(UniversalBaseModel):
+    """
+    Configuration for search parameters specific to a single corpus within a customer account, including filters and semantics.
+    """
+
     custom_dimensions: typing.Optional[CustomDimensions] = None
     metadata_filter: typing.Optional[str] = pydantic.Field(default=None)
     """

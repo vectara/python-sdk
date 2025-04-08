@@ -9,6 +9,10 @@ import pydantic
 
 
 class ListEncodersResponse(UniversalBaseModel):
+    """
+    Response containing a list of available encoders for converting text to vector embeddings.
+    """
+
     encoders: typing.Optional[typing.List[Encoder]] = None
     metadata: typing.Optional[ListMetadata] = None
 

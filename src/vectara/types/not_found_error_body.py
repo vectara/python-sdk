@@ -7,6 +7,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class NotFoundErrorBody(UniversalBaseModel):
+    """
+    Error returned when a requested resource does not exist.
+    """
+
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The ID cannot be found.

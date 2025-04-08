@@ -9,6 +9,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class ListApiKeysResponse(UniversalBaseModel):
+    """
+    Response containing a list of API keys for the authenticated customer.
+    """
+
     api_keys: typing.Optional[typing.List[ApiKey]] = pydantic.Field(default=None)
     """
     List of API keys.

@@ -10,6 +10,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class User(UniversalBaseModel):
+    """
+    A user account with associated profile information and permissions.
+    """
+
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The Vectara ID for the user.

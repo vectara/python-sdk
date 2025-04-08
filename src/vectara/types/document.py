@@ -11,6 +11,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class Document(UniversalBaseModel):
+    """
+    A document stored in a corpus, containing metadata and indexed content.
+    """
+
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The document ID.

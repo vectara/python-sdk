@@ -7,6 +7,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class Error(UniversalBaseModel):
+    """
+    A general error response with an error code and message.
+    """
+
     messages: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
     """
     The messages describing why the error occurred.

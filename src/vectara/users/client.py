@@ -2,6 +2,7 @@
 
 import typing
 from ..core.client_wrapper import SyncClientWrapper
+from ..types.corpus_key import CorpusKey
 from ..core.request_options import RequestOptions
 from ..core.pagination import SyncPager
 from ..types.user import User
@@ -35,6 +36,7 @@ class UsersClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
+        corpus_key: typing.Optional[CorpusKey] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
@@ -49,6 +51,9 @@ class UsersClient:
 
         page_key : typing.Optional[str]
             Used to retrieve the next page of users after the limit has been reached.
+
+        corpus_key : typing.Optional[CorpusKey]
+            Filter users by access to this corpus.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -73,7 +78,9 @@ class UsersClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        response = client.users.list()
+        response = client.users.list(
+            corpus_key="my-corpus",
+        )
         for item in response:
             yield item
         # alternatively, you can paginate page-by-page
@@ -87,6 +94,7 @@ class UsersClient:
             params={
                 "limit": limit,
                 "page_key": page_key,
+                "corpus_key": corpus_key,
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -111,6 +119,7 @@ class UsersClient:
                     _get_next = lambda: self.list(
                         limit=limit,
                         page_key=_parsed_next,
+                        corpus_key=corpus_key,
                         request_timeout=request_timeout,
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
@@ -198,6 +207,7 @@ class UsersClient:
                 "api_roles": api_roles,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -468,6 +478,7 @@ class UsersClient:
                 "api_roles": api_roles,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -606,6 +617,7 @@ class AsyncUsersClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
+        corpus_key: typing.Optional[CorpusKey] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
@@ -620,6 +632,9 @@ class AsyncUsersClient:
 
         page_key : typing.Optional[str]
             Used to retrieve the next page of users after the limit has been reached.
+
+        corpus_key : typing.Optional[CorpusKey]
+            Filter users by access to this corpus.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -649,7 +664,9 @@ class AsyncUsersClient:
 
 
         async def main() -> None:
-            response = await client.users.list()
+            response = await client.users.list(
+                corpus_key="my-corpus",
+            )
             async for item in response:
                 yield item
             # alternatively, you can paginate page-by-page
@@ -666,6 +683,7 @@ class AsyncUsersClient:
             params={
                 "limit": limit,
                 "page_key": page_key,
+                "corpus_key": corpus_key,
             },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -690,6 +708,7 @@ class AsyncUsersClient:
                     _get_next = lambda: self.list(
                         limit=limit,
                         page_key=_parsed_next,
+                        corpus_key=corpus_key,
                         request_timeout=request_timeout,
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
@@ -785,6 +804,7 @@ class AsyncUsersClient:
                 "api_roles": api_roles,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -1079,6 +1099,7 @@ class AsyncUsersClient:
                 "api_roles": api_roles,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },

@@ -15,11 +15,12 @@ from .chat_full_response import ChatFullResponse
 from .chat_info_response import ChatInfoResponse
 from .chat_parameters import ChatParameters
 from .chat_streamed_response import ChatStreamedResponse
+from .chunking_strategy import ChunkingStrategy
 from .citation_parameters import CitationParameters
 from .citation_parameters_style import CitationParametersStyle
 from .components_schemas_create_client_credentials_request import ComponentsSchemasCreateClientCredentialsRequest
+from .components_schemas_create_open_ai_encoder_request import ComponentsSchemasCreateOpenAiEncoderRequest
 from .components_schemas_create_open_aillm_request import ComponentsSchemasCreateOpenAillmRequest
-from .components_schemas_max_chars_chunking_strategy import ComponentsSchemasMaxCharsChunkingStrategy
 from .compute_corpus_size_response import ComputeCorpusSizeResponse
 from .context_configuration import ContextConfiguration
 from .core_document import CoreDocument
@@ -30,6 +31,7 @@ from .corpus_key import CorpusKey
 from .corpus_limits import CorpusLimits
 from .create_client_credentials_request import CreateClientCredentialsRequest
 from .create_document_request import CreateDocumentRequest
+from .create_open_ai_encoder_request import CreateOpenAiEncoderRequest
 from .create_open_aillm_request import CreateOpenAillmRequest
 from .custom_dimensions import CustomDimensions
 from .customer_specific_reranker import CustomerSpecificReranker
@@ -72,6 +74,7 @@ from .list_metadata import ListMetadata
 from .list_query_histories_response import ListQueryHistoriesResponse
 from .list_query_histories_response_metadata import ListQueryHistoriesResponseMetadata
 from .list_rerankers_response import ListRerankersResponse
+from .list_table_extractors_response import ListTableExtractorsResponse
 from .list_users_response import ListUsersResponse
 from .llm import Llm
 from .max_chars_chunking_strategy import MaxCharsChunkingStrategy
@@ -102,6 +105,7 @@ from .search_parameters import SearchParameters
 from .search_reranker import SearchReranker
 from .search_semantics import SearchSemantics
 from .search_span import SearchSpan
+from .sentence_chunking_strategy import SentenceChunkingStrategy
 from .stream_error import StreamError
 from .stream_generation_chunk import StreamGenerationChunk
 from .stream_generation_end import StreamGenerationEnd
@@ -113,6 +117,8 @@ from .summarize_document_response import SummarizeDocumentResponse
 from .summarize_document_streamed_response import SummarizeDocumentStreamedResponse
 from .table import Table
 from .table_extraction_config import TableExtractionConfig
+from .table_extractor import TableExtractor
+from .table_extractor_spec import TableExtractorSpec
 from .turn import Turn
 from .update_document_request import UpdateDocumentRequest
 from .user import User
@@ -134,11 +140,12 @@ __all__ = [
     "ChatInfoResponse",
     "ChatParameters",
     "ChatStreamedResponse",
+    "ChunkingStrategy",
     "CitationParameters",
     "CitationParametersStyle",
     "ComponentsSchemasCreateClientCredentialsRequest",
+    "ComponentsSchemasCreateOpenAiEncoderRequest",
     "ComponentsSchemasCreateOpenAillmRequest",
-    "ComponentsSchemasMaxCharsChunkingStrategy",
     "ComputeCorpusSizeResponse",
     "ContextConfiguration",
     "CoreDocument",
@@ -149,6 +156,7 @@ __all__ = [
     "CorpusLimits",
     "CreateClientCredentialsRequest",
     "CreateDocumentRequest",
+    "CreateOpenAiEncoderRequest",
     "CreateOpenAillmRequest",
     "CustomDimensions",
     "CustomerSpecificReranker",
@@ -191,6 +199,7 @@ __all__ = [
     "ListQueryHistoriesResponse",
     "ListQueryHistoriesResponseMetadata",
     "ListRerankersResponse",
+    "ListTableExtractorsResponse",
     "ListUsersResponse",
     "Llm",
     "MaxCharsChunkingStrategy",
@@ -221,6 +230,7 @@ __all__ = [
     "SearchReranker",
     "SearchSemantics",
     "SearchSpan",
+    "SentenceChunkingStrategy",
     "StreamError",
     "StreamGenerationChunk",
     "StreamGenerationEnd",
@@ -232,6 +242,8 @@ __all__ = [
     "SummarizeDocumentStreamedResponse",
     "Table",
     "TableExtractionConfig",
+    "TableExtractor",
+    "TableExtractorSpec",
     "Turn",
     "UpdateDocumentRequest",
     "User",

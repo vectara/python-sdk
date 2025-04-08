@@ -8,6 +8,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class Turn(UniversalBaseModel):
+    """
+    A single message exchange in a chat conversation, representing one user input and the corresponding response.
+    """
+
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The ID of the turn.

@@ -2,23 +2,17 @@
 
 from ..core.pydantic_utilities import UniversalBaseModel
 import typing
-from .chat import Chat
-import pydantic
-from .list_metadata import ListMetadata
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
+import pydantic
 
 
-class ListChatsResponse(UniversalBaseModel):
+class SentenceChunkingStrategy(UniversalBaseModel):
     """
-    Response containing a list of chat conversations.
-    """
-
-    chats: typing.Optional[typing.List[Chat]] = pydantic.Field(default=None)
-    """
-    List of chats.
+    Sets a chunking strategy that creates one chunk per sentence.
+    This is the default strategy used when no chunking strategy is specified.
     """
 
-    metadata: typing.Optional[ListMetadata] = None
+    type: typing.Literal["sentence_chunking_strategy"] = "sentence_chunking_strategy"
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

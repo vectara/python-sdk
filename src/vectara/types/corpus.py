@@ -12,6 +12,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class Corpus(UniversalBaseModel):
+    """
+    A corpus is a collection of documents and associated configuration for indexing, searching, and generating responses through RAG.
+    """
+
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     Vectara ID of the corpus.

@@ -9,6 +9,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class AppClient(UniversalBaseModel):
+    """
+    An OAuth application client configuration used for authentication.
+    """
+
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The Vectara App Client ID. This ID is not used during an OAuth

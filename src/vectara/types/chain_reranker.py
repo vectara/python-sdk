@@ -9,6 +9,10 @@ from ..core.pydantic_utilities import update_forward_refs
 
 
 class ChainReranker(UniversalBaseModel):
+    """
+    A reranker that applies multiple rerankers in sequence to produce the final search results.
+    """
+
     type: typing.Literal["chain"] = "chain"
     rerankers: typing.List["SearchReranker"] = pydantic.Field()
     """

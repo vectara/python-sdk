@@ -2,23 +2,29 @@
 
 from ..core.pydantic_utilities import UniversalBaseModel
 import typing
-from .chat import Chat
 import pydantic
-from .list_metadata import ListMetadata
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
-class ListChatsResponse(UniversalBaseModel):
+class TableExtractor(UniversalBaseModel):
     """
-    Response containing a list of chat conversations.
-    """
-
-    chats: typing.Optional[typing.List[Chat]] = pydantic.Field(default=None)
-    """
-    List of chats.
+    A table extractor can be used to extract tabular data from documents during indexing.
     """
 
-    metadata: typing.Optional[ListMetadata] = None
+    name: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The name of the table extractor.
+    """
+
+    is_default: typing.Optional[bool] = pydantic.Field(default=None)
+    """
+    Indicates whether it is the default extractor when not specified during indexing.
+    """
+
+    description: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The description of the table extractor.
+    """
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

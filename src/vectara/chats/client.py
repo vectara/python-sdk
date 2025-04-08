@@ -13,8 +13,6 @@ from ..errors.not_found_error import NotFoundError
 from ..types.not_found_error_body import NotFoundErrorBody
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
-from ..core.jsonable_encoder import jsonable_encoder
-from ..types.list_chat_turns_response import ListChatTurnsResponse
 from ..types.search_corpora_parameters import SearchCorporaParameters
 from ..types.generation_parameters import GenerationParameters
 from ..types.chat_parameters import ChatParameters
@@ -25,6 +23,8 @@ import json
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
 from ..types.chat_full_response import ChatFullResponse
+from ..core.jsonable_encoder import jsonable_encoder
+from ..types.list_chat_turns_response import ListChatTurnsResponse
 from ..types.turn import Turn
 from ..core.client_wrapper import AsyncClientWrapper
 from ..core.pagination import AsyncPager
@@ -124,6 +124,357 @@ class ChatsClient:
                     )
                 _items = _parsed_response.chats
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def chat_stream(
+        self,
+        *,
+        query: str,
+        search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        chat: typing.Optional[ChatParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
+        intelligent_query_rewriting: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> typing.Iterator[ChatStreamedResponse]:
+        """
+        Create a chat while specifying the default retrieval parameters used by the prompt.
+
+        Parameters
+        ----------
+        query : str
+            The chat message or question.
+
+        search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        generation : typing.Optional[GenerationParameters]
+
+        chat : typing.Optional[ChatParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+
+        intelligent_query_rewriting : typing.Optional[bool]
+            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+            extract metadata filter and rewrite the query to improve search results.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Yields
+        ------
+        typing.Iterator[ChatStreamedResponse]
+
+
+        Examples
+        --------
+        from vectara import (
+            ChatParameters,
+            CitationParameters,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            SearchCorporaParameters,
+            Vectara,
+        )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        response = client.chats.chat_stream(
+            query="What is a hallucination?",
+            search=SearchCorporaParameters(
+                corpora=[
+                    KeyedSearchCorpus(
+                        corpus_key="corpus_key",
+                        metadata_filter="",
+                        lexical_interpolation=0.005,
+                    )
+                ],
+                context_configuration=ContextConfiguration(
+                    sentences_before=2,
+                    sentences_after=2,
+                ),
+                reranker=CustomerSpecificReranker(
+                    reranker_id="rnk_272725719",
+                ),
+            ),
+            generation=GenerationParameters(
+                response_language="eng",
+                citations=CitationParameters(
+                    style="none",
+                ),
+                enable_factual_consistency_score=True,
+            ),
+            chat=ChatParameters(
+                store=True,
+            ),
+        )
+        for chunk in response:
+            yield chunk
+        """
+        with self._client_wrapper.httpx_client.stream(
+            "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            json={
+                "query": query,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search,
+                    annotation=SearchCorporaParameters,
+                    direction="write",
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation,
+                    annotation=GenerationParameters,
+                    direction="write",
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
+                "save_history": save_history,
+                "intelligent_query_rewriting": intelligent_query_rewriting,
+                "stream_response": True,
+            },
+            headers={
+                "content-type": "application/json",
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        ) as _response:
+            try:
+                if 200 <= _response.status_code < 300:
+                    _event_source = httpx_sse.EventSource(_response)
+                    for _sse in _event_source.iter_sse():
+                        try:
+                            yield typing.cast(
+                                ChatStreamedResponse,
+                                parse_obj_as(
+                                    type_=ChatStreamedResponse,  # type: ignore
+                                    object_=json.loads(_sse.data),
+                                ),
+                            )
+                        except:
+                            pass
+                    return
+                _response.read()
+                if _response.status_code == 400:
+                    raise BadRequestError(
+                        typing.cast(
+                            BadRequestErrorBody,
+                            parse_obj_as(
+                                type_=BadRequestErrorBody,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                if _response.status_code == 403:
+                    raise ForbiddenError(
+                        typing.cast(
+                            Error,
+                            parse_obj_as(
+                                type_=Error,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                if _response.status_code == 404:
+                    raise NotFoundError(
+                        typing.cast(
+                            NotFoundErrorBody,
+                            parse_obj_as(
+                                type_=NotFoundErrorBody,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                _response_json = _response.json()
+            except JSONDecodeError:
+                raise ApiError(status_code=_response.status_code, body=_response.text)
+            raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    def chat(
+        self,
+        *,
+        query: str,
+        search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        chat: typing.Optional[ChatParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
+        intelligent_query_rewriting: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ChatFullResponse:
+        """
+        Create a chat while specifying the default retrieval parameters used by the prompt.
+
+        Parameters
+        ----------
+        query : str
+            The chat message or question.
+
+        search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        generation : typing.Optional[GenerationParameters]
+
+        chat : typing.Optional[ChatParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+
+        intelligent_query_rewriting : typing.Optional[bool]
+            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+            extract metadata filter and rewrite the query to improve search results.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ChatFullResponse
+
+
+        Examples
+        --------
+        from vectara import (
+            ChatParameters,
+            CitationParameters,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            SearchCorporaParameters,
+            Vectara,
+        )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.chats.chat(
+            query="What is a hallucination?",
+            search=SearchCorporaParameters(
+                corpora=[
+                    KeyedSearchCorpus(
+                        corpus_key="corpus_key",
+                        metadata_filter="",
+                        lexical_interpolation=0.005,
+                    )
+                ],
+                context_configuration=ContextConfiguration(
+                    sentences_before=2,
+                    sentences_after=2,
+                ),
+                reranker=CustomerSpecificReranker(
+                    reranker_id="rnk_272725719",
+                ),
+            ),
+            generation=GenerationParameters(
+                response_language="eng",
+                enable_factual_consistency_score=True,
+                citations=CitationParameters(
+                    style="none",
+                ),
+            ),
+            chat=ChatParameters(
+                store=True,
+            ),
+        )
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            json={
+                "query": query,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search,
+                    annotation=SearchCorporaParameters,
+                    direction="write",
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation,
+                    annotation=GenerationParameters,
+                    direction="write",
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
+                "save_history": save_history,
+                "intelligent_query_rewriting": intelligent_query_rewriting,
+                "stream_response": False,
+            },
+            headers={
+                "content-type": "application/json",
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    ChatFullResponse,
+                    parse_obj_as(
+                        type_=ChatFullResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -447,7 +798,6 @@ class ChatsClient:
             Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
             extract metadata filter and rewrite the query to improve search results.
 
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -480,10 +830,14 @@ class ChatsClient:
             json={
                 "query": query,
                 "search": convert_and_respect_annotation_metadata(
-                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                    object_=search,
+                    annotation=SearchCorporaParameters,
+                    direction="write",
                 ),
                 "generation": convert_and_respect_annotation_metadata(
-                    object_=generation, annotation=GenerationParameters, direction="write"
+                    object_=generation,
+                    annotation=GenerationParameters,
+                    direction="write",
                 ),
                 "chat": convert_and_respect_annotation_metadata(
                     object_=chat, annotation=ChatParameters, direction="write"
@@ -493,6 +847,7 @@ class ChatsClient:
                 "stream_response": True,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -594,7 +949,6 @@ class ChatsClient:
             Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
             extract metadata filter and rewrite the query to improve search results.
 
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -625,10 +979,14 @@ class ChatsClient:
             json={
                 "query": query,
                 "search": convert_and_respect_annotation_metadata(
-                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                    object_=search,
+                    annotation=SearchCorporaParameters,
+                    direction="write",
                 ),
                 "generation": convert_and_respect_annotation_metadata(
-                    object_=generation, annotation=GenerationParameters, direction="write"
+                    object_=generation,
+                    annotation=GenerationParameters,
+                    direction="write",
                 ),
                 "chat": convert_and_respect_annotation_metadata(
                     object_=chat, annotation=ChatParameters, direction="write"
@@ -638,6 +996,7 @@ class ChatsClient:
                 "stream_response": False,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -896,7 +1255,6 @@ class ChatsClient:
             Indicates whether to disable a turn. It will disable this turn and all subsequent turns.
             Enabling a turn is not implemented.
 
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -927,6 +1285,7 @@ class ChatsClient:
                 "enabled": enabled,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -1067,6 +1426,373 @@ class AsyncChatsClient:
                     )
                 _items = _parsed_response.chats
                 return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, body=_response.text)
+        raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def chat_stream(
+        self,
+        *,
+        query: str,
+        search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        chat: typing.Optional[ChatParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
+        intelligent_query_rewriting: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> typing.AsyncIterator[ChatStreamedResponse]:
+        """
+        Create a chat while specifying the default retrieval parameters used by the prompt.
+
+        Parameters
+        ----------
+        query : str
+            The chat message or question.
+
+        search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        generation : typing.Optional[GenerationParameters]
+
+        chat : typing.Optional[ChatParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+
+        intelligent_query_rewriting : typing.Optional[bool]
+            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+            extract metadata filter and rewrite the query to improve search results.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Yields
+        ------
+        typing.AsyncIterator[ChatStreamedResponse]
+
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import (
+            AsyncVectara,
+            ChatParameters,
+            CitationParameters,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            SearchCorporaParameters,
+        )
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
+        async def main() -> None:
+            response = await client.chats.chat_stream(
+                query="What is a hallucination?",
+                search=SearchCorporaParameters(
+                    corpora=[
+                        KeyedSearchCorpus(
+                            corpus_key="corpus_key",
+                            metadata_filter="",
+                            lexical_interpolation=0.005,
+                        )
+                    ],
+                    context_configuration=ContextConfiguration(
+                        sentences_before=2,
+                        sentences_after=2,
+                    ),
+                    reranker=CustomerSpecificReranker(
+                        reranker_id="rnk_272725719",
+                    ),
+                ),
+                generation=GenerationParameters(
+                    response_language="eng",
+                    citations=CitationParameters(
+                        style="none",
+                    ),
+                    enable_factual_consistency_score=True,
+                ),
+                chat=ChatParameters(
+                    store=True,
+                ),
+            )
+            async for chunk in response:
+                yield chunk
+
+
+        asyncio.run(main())
+        """
+        async with self._client_wrapper.httpx_client.stream(
+            "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            json={
+                "query": query,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search,
+                    annotation=SearchCorporaParameters,
+                    direction="write",
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation,
+                    annotation=GenerationParameters,
+                    direction="write",
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
+                "save_history": save_history,
+                "intelligent_query_rewriting": intelligent_query_rewriting,
+                "stream_response": True,
+            },
+            headers={
+                "content-type": "application/json",
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        ) as _response:
+            try:
+                if 200 <= _response.status_code < 300:
+                    _event_source = httpx_sse.EventSource(_response)
+                    async for _sse in _event_source.aiter_sse():
+                        try:
+                            yield typing.cast(
+                                ChatStreamedResponse,
+                                parse_obj_as(
+                                    type_=ChatStreamedResponse,  # type: ignore
+                                    object_=json.loads(_sse.data),
+                                ),
+                            )
+                        except:
+                            pass
+                    return
+                await _response.aread()
+                if _response.status_code == 400:
+                    raise BadRequestError(
+                        typing.cast(
+                            BadRequestErrorBody,
+                            parse_obj_as(
+                                type_=BadRequestErrorBody,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                if _response.status_code == 403:
+                    raise ForbiddenError(
+                        typing.cast(
+                            Error,
+                            parse_obj_as(
+                                type_=Error,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                if _response.status_code == 404:
+                    raise NotFoundError(
+                        typing.cast(
+                            NotFoundErrorBody,
+                            parse_obj_as(
+                                type_=NotFoundErrorBody,  # type: ignore
+                                object_=_response.json(),
+                            ),
+                        )
+                    )
+                _response_json = _response.json()
+            except JSONDecodeError:
+                raise ApiError(status_code=_response.status_code, body=_response.text)
+            raise ApiError(status_code=_response.status_code, body=_response_json)
+
+    async def chat(
+        self,
+        *,
+        query: str,
+        search: SearchCorporaParameters,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        generation: typing.Optional[GenerationParameters] = OMIT,
+        chat: typing.Optional[ChatParameters] = OMIT,
+        save_history: typing.Optional[bool] = OMIT,
+        intelligent_query_rewriting: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> ChatFullResponse:
+        """
+        Create a chat while specifying the default retrieval parameters used by the prompt.
+
+        Parameters
+        ----------
+        query : str
+            The chat message or question.
+
+        search : SearchCorporaParameters
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        generation : typing.Optional[GenerationParameters]
+
+        chat : typing.Optional[ChatParameters]
+
+        save_history : typing.Optional[bool]
+            Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+
+        intelligent_query_rewriting : typing.Optional[bool]
+            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+            extract metadata filter and rewrite the query to improve search results.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        ChatFullResponse
+
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import (
+            AsyncVectara,
+            ChatParameters,
+            CitationParameters,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            SearchCorporaParameters,
+        )
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
+        async def main() -> None:
+            await client.chats.chat(
+                query="What is a hallucination?",
+                search=SearchCorporaParameters(
+                    corpora=[
+                        KeyedSearchCorpus(
+                            corpus_key="corpus_key",
+                            metadata_filter="",
+                            lexical_interpolation=0.005,
+                        )
+                    ],
+                    context_configuration=ContextConfiguration(
+                        sentences_before=2,
+                        sentences_after=2,
+                    ),
+                    reranker=CustomerSpecificReranker(
+                        reranker_id="rnk_272725719",
+                    ),
+                ),
+                generation=GenerationParameters(
+                    response_language="eng",
+                    enable_factual_consistency_score=True,
+                    citations=CitationParameters(
+                        style="none",
+                    ),
+                ),
+                chat=ChatParameters(
+                    store=True,
+                ),
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v2/chats",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            json={
+                "query": query,
+                "search": convert_and_respect_annotation_metadata(
+                    object_=search,
+                    annotation=SearchCorporaParameters,
+                    direction="write",
+                ),
+                "generation": convert_and_respect_annotation_metadata(
+                    object_=generation,
+                    annotation=GenerationParameters,
+                    direction="write",
+                ),
+                "chat": convert_and_respect_annotation_metadata(
+                    object_=chat, annotation=ChatParameters, direction="write"
+                ),
+                "save_history": save_history,
+                "intelligent_query_rewriting": intelligent_query_rewriting,
+                "stream_response": False,
+            },
+            headers={
+                "content-type": "application/json",
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return typing.cast(
+                    ChatFullResponse,
+                    parse_obj_as(
+                        type_=ChatFullResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    )
+                )
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -1414,7 +2140,6 @@ class AsyncChatsClient:
             Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
             extract metadata filter and rewrite the query to improve search results.
 
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1455,10 +2180,14 @@ class AsyncChatsClient:
             json={
                 "query": query,
                 "search": convert_and_respect_annotation_metadata(
-                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                    object_=search,
+                    annotation=SearchCorporaParameters,
+                    direction="write",
                 ),
                 "generation": convert_and_respect_annotation_metadata(
-                    object_=generation, annotation=GenerationParameters, direction="write"
+                    object_=generation,
+                    annotation=GenerationParameters,
+                    direction="write",
                 ),
                 "chat": convert_and_respect_annotation_metadata(
                     object_=chat, annotation=ChatParameters, direction="write"
@@ -1468,6 +2197,7 @@ class AsyncChatsClient:
                 "stream_response": True,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -1569,7 +2299,6 @@ class AsyncChatsClient:
             Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
             extract metadata filter and rewrite the query to improve search results.
 
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1608,10 +2337,14 @@ class AsyncChatsClient:
             json={
                 "query": query,
                 "search": convert_and_respect_annotation_metadata(
-                    object_=search, annotation=SearchCorporaParameters, direction="write"
+                    object_=search,
+                    annotation=SearchCorporaParameters,
+                    direction="write",
                 ),
                 "generation": convert_and_respect_annotation_metadata(
-                    object_=generation, annotation=GenerationParameters, direction="write"
+                    object_=generation,
+                    annotation=GenerationParameters,
+                    direction="write",
                 ),
                 "chat": convert_and_respect_annotation_metadata(
                     object_=chat, annotation=ChatParameters, direction="write"
@@ -1621,6 +2354,7 @@ class AsyncChatsClient:
                 "stream_response": False,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -1895,7 +2629,6 @@ class AsyncChatsClient:
             Indicates whether to disable a turn. It will disable this turn and all subsequent turns.
             Enabling a turn is not implemented.
 
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1934,6 +2667,7 @@ class AsyncChatsClient:
                 "enabled": enabled,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },

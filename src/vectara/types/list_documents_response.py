@@ -9,6 +9,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class ListDocumentsResponse(UniversalBaseModel):
+    """
+    Response containing a list of documents stored in a corpus.
+    """
+
     documents: typing.Optional[typing.List[Document]] = pydantic.Field(default=None)
     """
     List of documents.

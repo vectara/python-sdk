@@ -3,50 +3,31 @@
 from ..core.client_wrapper import SyncClientWrapper
 import typing
 from ..core.request_options import RequestOptions
-from ..core.pagination import SyncPager
-from ..types.generation_preset import GenerationPreset
-from ..types.list_generation_presets_response import ListGenerationPresetsResponse
+from ..types.list_table_extractors_response import ListTableExtractorsResponse
 from ..core.pydantic_utilities import parse_obj_as
 from ..errors.forbidden_error import ForbiddenError
 from ..types.error import Error
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper
-from ..core.pagination import AsyncPager
 
 
-class GenerationPresetsClient:
+class TableExtractorsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
     def list(
         self,
         *,
-        llm_name: typing.Optional[str] = None,
-        limit: typing.Optional[int] = None,
-        page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[GenerationPreset]:
+    ) -> ListTableExtractorsResponse:
         """
-        List generation presets used for query or chat requests. Generation presets are
-        the build of properties used to configure generation for a request. This includes
-        the template that renders the prompt, and various generation settings like
-        `temperature`.
+        Table extractors are used to extract tabular data from documents during indexing.
 
         Parameters
         ----------
-        llm_name : typing.Optional[str]
-            Filter presets by the LLM name.
-
-        limit : typing.Optional[int]
-            The maximum number of results to return in the list.
-
-        page_key : typing.Optional[str]
-            Used to retrieve the next page of generation presets after the limit has been reached.
-            This parameter is not needed for the first page of results.
-
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
@@ -58,8 +39,8 @@ class GenerationPresetsClient:
 
         Returns
         -------
-        SyncPager[GenerationPreset]
-            List of Generation Presets.
+        ListTableExtractorsResponse
+            List of supported table extractors.
 
         Examples
         --------
@@ -70,22 +51,12 @@ class GenerationPresetsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        response = client.generation_presets.list()
-        for item in response:
-            yield item
-        # alternatively, you can paginate page-by-page
-        for page in response.iter_pages():
-            yield page
+        client.table_extractors.list()
         """
         _response = self._client_wrapper.httpx_client.request(
-            "v2/generation_presets",
+            "v2/table_extractors",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            params={
-                "llm_name": llm_name,
-                "limit": limit,
-                "page_key": page_key,
-            },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
@@ -94,28 +65,13 @@ class GenerationPresetsClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                _parsed_response = typing.cast(
-                    ListGenerationPresetsResponse,
+                return typing.cast(
+                    ListTableExtractorsResponse,
                     parse_obj_as(
-                        type_=ListGenerationPresetsResponse,  # type: ignore
+                        type_=ListTableExtractorsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
-                _has_next = False
-                _get_next = None
-                if _parsed_response.metadata is not None:
-                    _parsed_next = _parsed_response.metadata.page_key
-                    _has_next = _parsed_next is not None and _parsed_next != ""
-                    _get_next = lambda: self.list(
-                        llm_name=llm_name,
-                        limit=limit,
-                        page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
-                        request_options=request_options,
-                    )
-                _items = _parsed_response.generation_presets
-                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(
@@ -132,38 +88,22 @@ class GenerationPresetsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
 
-class AsyncGenerationPresetsClient:
+class AsyncTableExtractorsClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
     async def list(
         self,
         *,
-        llm_name: typing.Optional[str] = None,
-        limit: typing.Optional[int] = None,
-        page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[GenerationPreset]:
+    ) -> ListTableExtractorsResponse:
         """
-        List generation presets used for query or chat requests. Generation presets are
-        the build of properties used to configure generation for a request. This includes
-        the template that renders the prompt, and various generation settings like
-        `temperature`.
+        Table extractors are used to extract tabular data from documents during indexing.
 
         Parameters
         ----------
-        llm_name : typing.Optional[str]
-            Filter presets by the LLM name.
-
-        limit : typing.Optional[int]
-            The maximum number of results to return in the list.
-
-        page_key : typing.Optional[str]
-            Used to retrieve the next page of generation presets after the limit has been reached.
-            This parameter is not needed for the first page of results.
-
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
@@ -175,8 +115,8 @@ class AsyncGenerationPresetsClient:
 
         Returns
         -------
-        AsyncPager[GenerationPreset]
-            List of Generation Presets.
+        ListTableExtractorsResponse
+            List of supported table extractors.
 
         Examples
         --------
@@ -192,25 +132,15 @@ class AsyncGenerationPresetsClient:
 
 
         async def main() -> None:
-            response = await client.generation_presets.list()
-            async for item in response:
-                yield item
-            # alternatively, you can paginate page-by-page
-            async for page in response.iter_pages():
-                yield page
+            await client.table_extractors.list()
 
 
         asyncio.run(main())
         """
         _response = await self._client_wrapper.httpx_client.request(
-            "v2/generation_presets",
+            "v2/table_extractors",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            params={
-                "llm_name": llm_name,
-                "limit": limit,
-                "page_key": page_key,
-            },
             headers={
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
@@ -219,28 +149,13 @@ class AsyncGenerationPresetsClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                _parsed_response = typing.cast(
-                    ListGenerationPresetsResponse,
+                return typing.cast(
+                    ListTableExtractorsResponse,
                     parse_obj_as(
-                        type_=ListGenerationPresetsResponse,  # type: ignore
+                        type_=ListTableExtractorsResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
-                _has_next = False
-                _get_next = None
-                if _parsed_response.metadata is not None:
-                    _parsed_next = _parsed_response.metadata.page_key
-                    _has_next = _parsed_next is not None and _parsed_next != ""
-                    _get_next = lambda: self.list(
-                        llm_name=llm_name,
-                        limit=limit,
-                        page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
-                        request_options=request_options,
-                    )
-                _items = _parsed_response.generation_presets
-                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     typing.cast(

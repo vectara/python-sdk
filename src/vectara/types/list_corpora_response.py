@@ -9,6 +9,10 @@ import pydantic
 
 
 class ListCorporaResponse(UniversalBaseModel):
+    """
+    Response containing a list of corpora within a customer account.
+    """
+
     corpora: typing.Optional[typing.List[Corpus]] = None
     metadata: typing.Optional[ListMetadata] = None
 

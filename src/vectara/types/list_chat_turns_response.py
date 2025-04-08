@@ -8,6 +8,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class ListChatTurnsResponse(UniversalBaseModel):
+    """
+    Response containing a list of turns (message exchanges) within a chat conversation.
+    """
+
     turns: typing.Optional[typing.List[Turn]] = pydantic.Field(default=None)
     """
     List of turns.

@@ -1,664 +1,4 @@
 # Reference
-<details><summary><code>client.<a href="src/vectara/base_client.py">query_stream</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Perform a multipurpose query across to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
-
-* Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
-* Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
-* Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
-will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
-* Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
-* Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
-* Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
-
-For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from vectara import (
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    SearchCorporaParameters,
-    Vectara,
-)
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-response = client.query_stream(
-    query="What is a hallucination?",
-    search=SearchCorporaParameters(
-        corpora=[
-            KeyedSearchCorpus(
-                corpus_key="corpus_key",
-                metadata_filter="",
-                lexical_interpolation=0.005,
-            )
-        ],
-        context_configuration=ContextConfiguration(
-            sentences_before=2,
-            sentences_after=2,
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="rnk_272725719",
-        ),
-    ),
-    generation=GenerationParameters(
-        response_language="eng",
-        enable_factual_consistency_score=True,
-    ),
-)
-for chunk in response:
-    yield chunk
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**query:** `str` — The search query string, which is the question the user is asking.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**search:** `SearchCorporaParameters` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**generation:** `typing.Optional[GenerationParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**save_history:** `typing.Optional[bool]` — Indicates whether to save the query to query history.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**intelligent_query_rewriting:** `typing.Optional[bool]` 
-
-Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-extract metadata filter and rewrite the query to improve search results.
-
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.<a href="src/vectara/base_client.py">query</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Perform a multipurpose query across to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
-
-* Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
-* Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
-* Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
-will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
-* Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
-* Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
-* Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
-
-For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from vectara import (
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    SearchCorporaParameters,
-    Vectara,
-)
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.query(
-    query="What is a hallucination?",
-    search=SearchCorporaParameters(
-        corpora=[
-            KeyedSearchCorpus(
-                corpus_key="corpus_key",
-                metadata_filter="",
-                lexical_interpolation=0.005,
-            )
-        ],
-        context_configuration=ContextConfiguration(
-            sentences_before=2,
-            sentences_after=2,
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="rnk_272725719",
-        ),
-    ),
-    generation=GenerationParameters(
-        response_language="eng",
-        enable_factual_consistency_score=True,
-    ),
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**query:** `str` — The search query string, which is the question the user is asking.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**search:** `SearchCorporaParameters` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**generation:** `typing.Optional[GenerationParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**save_history:** `typing.Optional[bool]` — Indicates whether to save the query to query history.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**intelligent_query_rewriting:** `typing.Optional[bool]` 
-
-Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-extract metadata filter and rewrite the query to improve search results.
-
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.<a href="src/vectara/base_client.py">chat_stream</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Create a chat while specifying the default retrieval parameters used by the prompt.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from vectara import (
-    ChatParameters,
-    CitationParameters,
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    SearchCorporaParameters,
-    Vectara,
-)
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-response = client.chat_stream(
-    query="What is a hallucination?",
-    search=SearchCorporaParameters(
-        corpora=[
-            KeyedSearchCorpus(
-                corpus_key="corpus_key",
-                metadata_filter="",
-                lexical_interpolation=0.005,
-            )
-        ],
-        context_configuration=ContextConfiguration(
-            sentences_before=2,
-            sentences_after=2,
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="rnk_272725719",
-        ),
-    ),
-    generation=GenerationParameters(
-        response_language="eng",
-        citations=CitationParameters(
-            style="none",
-        ),
-        enable_factual_consistency_score=True,
-    ),
-    chat=ChatParameters(
-        store=True,
-    ),
-)
-for chunk in response:
-    yield chunk
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**query:** `str` — The chat message or question.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**search:** `SearchCorporaParameters` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**generation:** `typing.Optional[GenerationParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**chat:** `typing.Optional[ChatParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**save_history:** `typing.Optional[bool]` — Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**intelligent_query_rewriting:** `typing.Optional[bool]` 
-
-Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-extract metadata filter and rewrite the query to improve search results.
-
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.<a href="src/vectara/base_client.py">chat</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Create a chat while specifying the default retrieval parameters used by the prompt.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from vectara import (
-    ChatParameters,
-    CitationParameters,
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    SearchCorporaParameters,
-    Vectara,
-)
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.chat(
-    query="What is a hallucination?",
-    search=SearchCorporaParameters(
-        corpora=[
-            KeyedSearchCorpus(
-                corpus_key="corpus_key",
-                metadata_filter="",
-                lexical_interpolation=0.005,
-            )
-        ],
-        context_configuration=ContextConfiguration(
-            sentences_before=2,
-            sentences_after=2,
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="rnk_272725719",
-        ),
-    ),
-    generation=GenerationParameters(
-        response_language="eng",
-        enable_factual_consistency_score=True,
-        citations=CitationParameters(
-            style="none",
-        ),
-    ),
-    chat=ChatParameters(
-        store=True,
-    ),
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**query:** `str` — The chat message or question.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**search:** `SearchCorporaParameters` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**generation:** `typing.Optional[GenerationParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**chat:** `typing.Optional[ChatParameters]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**save_history:** `typing.Optional[bool]` — Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**intelligent_query_rewriting:** `typing.Optional[bool]` 
-
-Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-extract metadata filter and rewrite the query to improve search results.
-
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
 ## Corpora
 <details><summary><code>client.corpora.<a href="src/vectara/corpora/client.py">list</a>(...)</code></summary>
 <dl>
@@ -889,7 +229,6 @@ client.corpora.create(
 <dd>
 
 **encoder_id:** `typing.Optional[str]` — *Deprecated*: Use `encoder_name` instead.
-
     
 </dd>
 </dl>
@@ -909,7 +248,6 @@ client.corpora.create(
 
 The new filter attributes of the corpus. 
 If unset then the corpus will not have filter attributes.
-
     
 </dd>
 </dl>
@@ -923,7 +261,6 @@ A custom dimension is an additional numerical field attached to a document part.
 can then multiply this numerical field with a query time custom dimension of the same
 name. This allows boosting (or burying) document parts for arbitrary reasons.
 This feature is only enabled for Pro and Enterprise customers.
-
     
 </dd>
 </dl>
@@ -1448,7 +785,7 @@ client.corpora.replace_filter_attributes(
 </dl>
 </details>
 
-<details><summary><code>client.corpora.<a href="src/vectara/corpora/client.py">compute_corpus_size</a>(...)</code></summary>
+<details><summary><code>client.corpora.<a href="src/vectara/corpora/client.py">compute_size</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -1484,7 +821,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.corpora.compute_corpus_size(
+client.corpora.compute_size(
     corpus_key="my-corpus",
 )
 
@@ -1802,7 +1139,6 @@ for chunk in response:
 
 Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
 extract metadata filter and rewrite the query to improve search results.
-
     
 </dd>
 </dl>
@@ -1945,7 +1281,329 @@ client.corpora.query(
 
 Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
 extract metadata filter and rewrite the query to improve search results.
+    
+</dd>
+</dl>
 
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Queries
+<details><summary><code>client.queries.<a href="src/vectara/queries/client.py">query_stream</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Perform a multipurpose query across to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
+
+* Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+* Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
+* Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
+will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
+* Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
+* Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
+* Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
+
+For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import (
+    ContextConfiguration,
+    CustomerSpecificReranker,
+    GenerationParameters,
+    KeyedSearchCorpus,
+    SearchCorporaParameters,
+    Vectara,
+)
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+response = client.queries.query_stream(
+    query="What is a hallucination?",
+    search=SearchCorporaParameters(
+        corpora=[
+            KeyedSearchCorpus(
+                corpus_key="corpus_key",
+                metadata_filter="",
+                lexical_interpolation=0.005,
+            )
+        ],
+        context_configuration=ContextConfiguration(
+            sentences_before=2,
+            sentences_after=2,
+        ),
+        reranker=CustomerSpecificReranker(
+            reranker_id="rnk_272725719",
+        ),
+    ),
+    generation=GenerationParameters(
+        response_language="eng",
+        enable_factual_consistency_score=True,
+    ),
+)
+for chunk in response:
+    yield chunk
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**query:** `str` — The search query string, which is the question the user is asking.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**search:** `SearchCorporaParameters` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**generation:** `typing.Optional[GenerationParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the query to query history.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**intelligent_query_rewriting:** `typing.Optional[bool]` 
+
+Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+extract metadata filter and rewrite the query to improve search results.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.queries.<a href="src/vectara/queries/client.py">query</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Perform a multipurpose query across to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
+
+* Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+* Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
+* Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
+will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
+* Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
+* Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
+* Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
+
+For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import (
+    ContextConfiguration,
+    CustomerSpecificReranker,
+    GenerationParameters,
+    KeyedSearchCorpus,
+    SearchCorporaParameters,
+    Vectara,
+)
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.queries.query(
+    query="What is a hallucination?",
+    search=SearchCorporaParameters(
+        corpora=[
+            KeyedSearchCorpus(
+                corpus_key="corpus_key",
+                metadata_filter="",
+                lexical_interpolation=0.005,
+            )
+        ],
+        context_configuration=ContextConfiguration(
+            sentences_before=2,
+            sentences_after=2,
+        ),
+        reranker=CustomerSpecificReranker(
+            reranker_id="rnk_272725719",
+        ),
+    ),
+    generation=GenerationParameters(
+        response_language="eng",
+        enable_factual_consistency_score=True,
+    ),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**query:** `str` — The search query string, which is the question the user is asking.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**search:** `SearchCorporaParameters` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**generation:** `typing.Optional[GenerationParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the query to query history.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**intelligent_query_rewriting:** `typing.Optional[bool]` 
+
+Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+extract metadata filter and rewrite the query to improve search results.
     
 </dd>
 </dl>
@@ -1981,7 +1639,7 @@ extract metadata filter and rewrite the query to improve search results.
 Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing.
 The request expects a `multipart/form-data` format containing the following parts:
 * `metadata` - (Optional) Specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
-* `chunking_strategy` - (Optional) Specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. For example, `'chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":200};type=application/json'`
+* `chunking_strategy` - (Optional) Specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. You can explicitly set sentence chunking with `'chunking_strategy={"type":"sentence_chunking_strategy"};type=application/json'` or use max chars chunking with `'chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":200};type=application/json'`
 * `table_extraction_config` - (Optional) Specifies whether to extract table data from the uploaded file. If you do not set this option, the platform does not extract tables from PDF files. Example config, `'table_extraction_config={"extract_tables":true};type=application/json'`
 * `file` - Specifies the file that you want to upload.
 * `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
@@ -2068,7 +1726,7 @@ core.File` — See core.File for more documentation
 <dl>
 <dd>
 
-**chunking_strategy:** `typing.Optional[ComponentsSchemasMaxCharsChunkingStrategy]` 
+**chunking_strategy:** `typing.Optional[ChunkingStrategy]` 
     
 </dd>
 </dl>
@@ -2351,7 +2009,7 @@ client.documents.create(
 </dl>
 </details>
 
-<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">get_corpus_document</a>(...)</code></summary>
+<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">get</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -2386,7 +2044,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.documents.get_corpus_document(
+client.documents.get(
     corpus_key="my-corpus",
     document_id="document_id",
 )
@@ -2553,6 +2211,231 @@ This `document_id` must be percent encoded.
 </dl>
 </details>
 
+<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">update</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Updates document identified by its unique `document_id` from a specific 
+corpus. The request body metadata is merged with the existing metadata, 
+adding or modifying only the specified fields.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.documents.update(
+    corpus_key="my-corpus",
+    document_id="document_id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**corpus_key:** `CorpusKey` — The unique key identifying the corpus with the document to update.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**document_id:** `str` 
+
+The document ID of the document to update.
+This `document_id` must be percent encoded.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` 
+
+The metadata for a document as an arbitrary object. Properties of this object
+can be used by document level filter attributes.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.documents.<a href="src/vectara/documents/client.py">update_metadata</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Replaces metadata of a document identified by its unique `document_id` 
+from a specific corpus.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.documents.update_metadata(
+    corpus_key="my-corpus",
+    document_id="document_id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**corpus_key:** `CorpusKey` — The unique key identifying the corpus with the document to update.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**document_id:** `str` 
+
+The document ID of the document to update.
+This `document_id` must be percent encoded.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` 
+
+The metadata for a document as an arbitrary object. Properties of this object
+can be used by document level filter attributes.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.documents.<a href="src/vectara/documents/client.py">summarize</a>(...)</code></summary>
 <dl>
 <dd>
@@ -2658,7 +2541,6 @@ LLM out of the box by default. However, users can override the
 `prompt_template` via this variable. The `prompt_template` is in the form of an
 Apache Velocity template. For more details on how to configure the
 `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
-
     
 </dd>
 </dl>
@@ -2675,232 +2557,6 @@ Apache Velocity template. For more details on how to configure the
 <dd>
 
 **stream_response:** `typing.Optional[bool]` — Indicates whether the response should be streamed or not.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-## Index
-<details><summary><code>client.index.<a href="src/vectara/index/client.py">update_corpus_document</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Updates document identified by its unique `document_id` from a specific 
-corpus. The request body metadata is merged with the existing metadata, 
-adding or modifying only the specified fields.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.index.update_corpus_document(
-    corpus_key="my-corpus",
-    document_id="document_id",
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**corpus_key:** `CorpusKey` — The unique key identifying the corpus with the document to update.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**document_id:** `str` 
-
-The document ID of the document to update.
-This `document_id` must be percent encoded.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` 
-
-The metadata for a document as an arbitrary object. Properties of this object
-can be used by document level filter attributes.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.index.<a href="src/vectara/index/client.py">replace_corpus_document_metadata</a>(...)</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Replaces metadata of a document identified by its unique `document_id` 
-from a specific corpus.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```python
-from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.index.replace_corpus_document_metadata(
-    corpus_key="my-corpus",
-    document_id="document_id",
-)
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**corpus_key:** `CorpusKey` — The unique key identifying the corpus with the document to update.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**document_id:** `str` 
-
-The document ID of the document to update.
-This `document_id` must be percent encoded.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` 
-
-The metadata for a document as an arbitrary object. Properties of this object
-can be used by document level filter attributes.
     
 </dd>
 </dl>
@@ -3001,6 +2657,340 @@ for page in response.iter_pages():
 <dd>
 
 **request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.chats.<a href="src/vectara/chats/client.py">chat_stream</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a chat while specifying the default retrieval parameters used by the prompt.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import (
+    ChatParameters,
+    CitationParameters,
+    ContextConfiguration,
+    CustomerSpecificReranker,
+    GenerationParameters,
+    KeyedSearchCorpus,
+    SearchCorporaParameters,
+    Vectara,
+)
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+response = client.chats.chat_stream(
+    query="What is a hallucination?",
+    search=SearchCorporaParameters(
+        corpora=[
+            KeyedSearchCorpus(
+                corpus_key="corpus_key",
+                metadata_filter="",
+                lexical_interpolation=0.005,
+            )
+        ],
+        context_configuration=ContextConfiguration(
+            sentences_before=2,
+            sentences_after=2,
+        ),
+        reranker=CustomerSpecificReranker(
+            reranker_id="rnk_272725719",
+        ),
+    ),
+    generation=GenerationParameters(
+        response_language="eng",
+        citations=CitationParameters(
+            style="none",
+        ),
+        enable_factual_consistency_score=True,
+    ),
+    chat=ChatParameters(
+        store=True,
+    ),
+)
+for chunk in response:
+    yield chunk
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**query:** `str` — The chat message or question.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**search:** `SearchCorporaParameters` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**generation:** `typing.Optional[GenerationParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**chat:** `typing.Optional[ChatParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**intelligent_query_rewriting:** `typing.Optional[bool]` 
+
+Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+extract metadata filter and rewrite the query to improve search results.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.chats.<a href="src/vectara/chats/client.py">chat</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a chat while specifying the default retrieval parameters used by the prompt.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import (
+    ChatParameters,
+    CitationParameters,
+    ContextConfiguration,
+    CustomerSpecificReranker,
+    GenerationParameters,
+    KeyedSearchCorpus,
+    SearchCorporaParameters,
+    Vectara,
+)
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.chats.chat(
+    query="What is a hallucination?",
+    search=SearchCorporaParameters(
+        corpora=[
+            KeyedSearchCorpus(
+                corpus_key="corpus_key",
+                metadata_filter="",
+                lexical_interpolation=0.005,
+            )
+        ],
+        context_configuration=ContextConfiguration(
+            sentences_before=2,
+            sentences_after=2,
+        ),
+        reranker=CustomerSpecificReranker(
+            reranker_id="rnk_272725719",
+        ),
+    ),
+    generation=GenerationParameters(
+        response_language="eng",
+        enable_factual_consistency_score=True,
+        citations=CitationParameters(
+            style="none",
+        ),
+    ),
+    chat=ChatParameters(
+        store=True,
+    ),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**query:** `str` — The chat message or question.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**search:** `SearchCorporaParameters` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**generation:** `typing.Optional[GenerationParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**chat:** `typing.Optional[ChatParameters]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**save_history:** `typing.Optional[bool]` — Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**intelligent_query_rewriting:** `typing.Optional[bool]` 
+
+Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
+extract metadata filter and rewrite the query to improve search results.
     
 </dd>
 </dl>
@@ -3408,7 +3398,6 @@ for chunk in response:
 
 Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
 extract metadata filter and rewrite the query to improve search results.
-
     
 </dd>
 </dl>
@@ -3550,7 +3539,6 @@ client.chats.create_turns(
 
 Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
 extract metadata filter and rewrite the query to improve search results.
-
     
 </dd>
 </dl>
@@ -3853,7 +3841,6 @@ client.chats.update_turn(
 
 Indicates whether to disable a turn. It will disable this turn and all subsequent turns.
 Enabling a turn is not implemented.
-
     
 </dd>
 </dl>
@@ -4120,8 +4107,184 @@ then it will override that LLM for all usages.
 </dl>
 </details>
 
-## GenerationPresets
-<details><summary><code>client.generation_presets.<a href="src/vectara/generation_presets/client.py">list_generation_presets</a>(...)</code></summary>
+<details><summary><code>client.llms.<a href="src/vectara/llms/client.py">get</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get details about a specific LLM.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.llms.get(
+    llm_id="llm_id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**llm_id:** `str` — The name of the LLM to retrieve.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.llms.<a href="src/vectara/llms/client.py">delete</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Delete a custom LLM connection. Built-in LLMs cannot be deleted.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.llms.delete(
+    llm_id="llm_id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**llm_id:** `str` — The name of the LLM to delete.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Generation Presets
+<details><summary><code>client.generation_presets.<a href="src/vectara/generation_presets/client.py">list</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -4158,7 +4321,12 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.generation_presets.list_generation_presets()
+response = client.generation_presets.list()
+for item in response:
+    yield item
+# alternatively, you can paginate page-by-page
+for page in response.iter_pages():
+    yield page
 
 ```
 </dd>
@@ -4339,6 +4507,140 @@ for page in response.iter_pages():
 </dl>
 </details>
 
+<details><summary><code>client.encoders.<a href="src/vectara/encoders/client.py">create</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a new encoder.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.encoders.create(
+    name="openai-text-encoder",
+    description="description",
+    uri="https://api.openai.com/v1/embeddings",
+    model="text-embedding-ada-002",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**name:** `str` — A unique name for the encoder
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `str` — A description of what this encoder does
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**uri:** `str` — The URI endpoint for the embedding API (can be OpenAI or any compatible embedding API endpoint)
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**model:** `str` — The model name to use for embeddings
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**output_dimensions:** `typing.Optional[int]` 
+
+The number of dimensions in the output embedding vector. If provided and the model supports truncation,
+the response will be truncated to this number of dimensions.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**auth:** `typing.Optional[RemoteAuth]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Rerankers
 <details><summary><code>client.rerankers.<a href="src/vectara/rerankers/client.py">list</a>(...)</code></summary>
 <dl>
@@ -4417,6 +4719,85 @@ for page in response.iter_pages():
     
 </dd>
 </dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Table Extractors
+<details><summary><code>client.table_extractors.<a href="src/vectara/table_extractors/client.py">list</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Table extractors are used to extract tabular data from documents during indexing.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.table_extractors.list()
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
 
 <dl>
 <dd>
@@ -4696,7 +5077,9 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.users.list()
+response = client.users.list(
+    corpus_key="my-corpus",
+)
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
@@ -4726,6 +5109,14 @@ for page in response.iter_pages():
 <dd>
 
 **page_key:** `typing.Optional[str]` — Used to retrieve the next page of users after the limit has been reached.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**corpus_key:** `typing.Optional[CorpusKey]` — Filter users by access to this corpus.
     
 </dd>
 </dl>
@@ -5258,6 +5649,20 @@ Note that the username must be percent encoded and URI safe.
 <dl>
 <dd>
 
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve a list of API keys for the customer account with optional filtering.
+</dd>
+</dl>
+</dd>
+</dl>
+
 #### 🔌 Usage
 
 <dl>
@@ -5447,7 +5852,6 @@ client.api_keys.create(
 Corpora this API key has roles on if it is not a Personal API key.
 This property should be null or missing if this `api_key_role` is
 `personal`.
-
     
 </dd>
 </dl>
@@ -5470,6 +5874,20 @@ This property should be null or missing if this `api_key_role` is
 <details><summary><code>client.api_keys.<a href="src/vectara/api_keys/client.py">get</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve details of a specific API key by its ID.
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -5730,6 +6148,20 @@ client.api_keys.update(
 <dl>
 <dd>
 
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve a list of application clients configured for the customer account.
+</dd>
+</dl>
+</dd>
+</dl>
+
 #### 🔌 Usage
 
 <dl>
@@ -5927,6 +6359,20 @@ client.app_clients.create(
 <dl>
 <dd>
 
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve details of a specific application client by its ID.
+</dd>
+</dl>
+</dd>
+</dl>
+
 #### 🔌 Usage
 
 <dl>
@@ -6001,6 +6447,20 @@ client.app_clients.get(
 <dl>
 <dd>
 
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Remove an application client configuration from the customer account.
+</dd>
+</dl>
+</dd>
+</dl>
+
 #### 🔌 Usage
 
 <dl>
@@ -6074,6 +6534,20 @@ client.app_clients.delete(
 <details><summary><code>client.app_clients.<a href="src/vectara/app_clients/client.py">update</a>(...)</code></summary>
 <dl>
 <dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update the configuration or settings of an existing application client.
+</dd>
+</dl>
+</dd>
+</dl>
 
 #### 🔌 Usage
 
@@ -6161,8 +6635,8 @@ client.app_clients.update(
 </dl>
 </details>
 
-## QueryHistory
-<details><summary><code>client.query_history.<a href="src/vectara/query_history/client.py">get_query_history</a>(...)</code></summary>
+## Query History
+<details><summary><code>client.query_history.<a href="src/vectara/query_history/client.py">get</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -6196,7 +6670,7 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.query_history.get_query_history(
+client.query_history.get(
     query_id="query_id",
 )
 
@@ -6250,7 +6724,7 @@ client.query_history.get_query_history(
 </dl>
 </details>
 
-<details><summary><code>client.query_history.<a href="src/vectara/query_history/client.py">get_query_histories</a>(...)</code></summary>
+<details><summary><code>client.query_history.<a href="src/vectara/query_history/client.py">list</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -6284,7 +6758,12 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-client.query_history.get_query_histories()
+response = client.query_history.list()
+for item in response:
+    yield item
+# alternatively, you can paginate page-by-page
+for page in response.iter_pages():
+    yield page
 
 ```
 </dd>

@@ -7,6 +7,10 @@ import typing
 
 
 class ReplaceFilterAttributesResponse(UniversalBaseModel):
+    """
+    Response containing the job ID for the filter attributes replacement operation.
+    """
+
     job_id: str = pydantic.Field()
     """
     Job that was created in order to replace filter attributes.

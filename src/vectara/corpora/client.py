@@ -201,7 +201,6 @@ class CorporaClient:
         encoder_id : typing.Optional[str]
             *Deprecated*: Use `encoder_name` instead.
 
-
         encoder_name : typing.Optional[str]
             The encoder used by the corpus, `boomerang-2023-q3`.
 
@@ -209,13 +208,11 @@ class CorporaClient:
             The new filter attributes of the corpus.
             If unset then the corpus will not have filter attributes.
 
-
         custom_dimensions : typing.Optional[typing.Sequence[CorpusCustomDimension]]
             A custom dimension is an additional numerical field attached to a document part. You
             can then multiply this numerical field with a query time custom dimension of the same
             name. This allows boosting (or burying) document parts for arbitrary reasons.
             This feature is only enabled for Pro and Enterprise customers.
-
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -252,13 +249,18 @@ class CorporaClient:
                 "encoder_id": encoder_id,
                 "encoder_name": encoder_name,
                 "filter_attributes": convert_and_respect_annotation_metadata(
-                    object_=filter_attributes, annotation=typing.Sequence[FilterAttribute], direction="write"
+                    object_=filter_attributes,
+                    annotation=typing.Sequence[FilterAttribute],
+                    direction="write",
                 ),
                 "custom_dimensions": convert_and_respect_annotation_metadata(
-                    object_=custom_dimensions, annotation=typing.Sequence[CorpusCustomDimension], direction="write"
+                    object_=custom_dimensions,
+                    annotation=typing.Sequence[CorpusCustomDimension],
+                    direction="write",
                 ),
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -556,6 +558,7 @@ class CorporaClient:
                 "save_history": save_history,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -744,10 +747,13 @@ class CorporaClient:
             method="POST",
             json={
                 "filter_attributes": convert_and_respect_annotation_metadata(
-                    object_=filter_attributes, annotation=typing.Sequence[FilterAttribute], direction="write"
+                    object_=filter_attributes,
+                    annotation=typing.Sequence[FilterAttribute],
+                    direction="write",
                 ),
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -788,7 +794,7 @@ class CorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def compute_corpus_size(
+    def compute_size(
         self,
         corpus_key: CorpusKey,
         *,
@@ -829,7 +835,7 @@ class CorporaClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.corpora.compute_corpus_size(
+        client.corpora.compute_size(
             corpus_key="my-corpus",
         )
         """
@@ -1062,7 +1068,6 @@ class CorporaClient:
             Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
             extract metadata filter and rewrite the query to improve search results.
 
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1097,13 +1102,16 @@ class CorporaClient:
                     object_=search, annotation=SearchCorpusParameters, direction="write"
                 ),
                 "generation": convert_and_respect_annotation_metadata(
-                    object_=generation, annotation=GenerationParameters, direction="write"
+                    object_=generation,
+                    annotation=GenerationParameters,
+                    direction="write",
                 ),
                 "save_history": save_history,
                 "intelligent_query_rewriting": intelligent_query_rewriting,
                 "stream_response": True,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -1213,7 +1221,6 @@ class CorporaClient:
             Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
             extract metadata filter and rewrite the query to improve search results.
 
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1246,13 +1253,16 @@ class CorporaClient:
                     object_=search, annotation=SearchCorpusParameters, direction="write"
                 ),
                 "generation": convert_and_respect_annotation_metadata(
-                    object_=generation, annotation=GenerationParameters, direction="write"
+                    object_=generation,
+                    annotation=GenerationParameters,
+                    direction="write",
                 ),
                 "save_history": save_history,
                 "intelligent_query_rewriting": intelligent_query_rewriting,
                 "stream_response": False,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -1477,7 +1487,6 @@ class AsyncCorporaClient:
         encoder_id : typing.Optional[str]
             *Deprecated*: Use `encoder_name` instead.
 
-
         encoder_name : typing.Optional[str]
             The encoder used by the corpus, `boomerang-2023-q3`.
 
@@ -1485,13 +1494,11 @@ class AsyncCorporaClient:
             The new filter attributes of the corpus.
             If unset then the corpus will not have filter attributes.
 
-
         custom_dimensions : typing.Optional[typing.Sequence[CorpusCustomDimension]]
             A custom dimension is an additional numerical field attached to a document part. You
             can then multiply this numerical field with a query time custom dimension of the same
             name. This allows boosting (or burying) document parts for arbitrary reasons.
             This feature is only enabled for Pro and Enterprise customers.
-
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1536,13 +1543,18 @@ class AsyncCorporaClient:
                 "encoder_id": encoder_id,
                 "encoder_name": encoder_name,
                 "filter_attributes": convert_and_respect_annotation_metadata(
-                    object_=filter_attributes, annotation=typing.Sequence[FilterAttribute], direction="write"
+                    object_=filter_attributes,
+                    annotation=typing.Sequence[FilterAttribute],
+                    direction="write",
                 ),
                 "custom_dimensions": convert_and_respect_annotation_metadata(
-                    object_=custom_dimensions, annotation=typing.Sequence[CorpusCustomDimension], direction="write"
+                    object_=custom_dimensions,
+                    annotation=typing.Sequence[CorpusCustomDimension],
+                    direction="write",
                 ),
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -1864,6 +1876,7 @@ class AsyncCorporaClient:
                 "save_history": save_history,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -2068,10 +2081,13 @@ class AsyncCorporaClient:
             method="POST",
             json={
                 "filter_attributes": convert_and_respect_annotation_metadata(
-                    object_=filter_attributes, annotation=typing.Sequence[FilterAttribute], direction="write"
+                    object_=filter_attributes,
+                    annotation=typing.Sequence[FilterAttribute],
+                    direction="write",
                 ),
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -2112,7 +2128,7 @@ class AsyncCorporaClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def compute_corpus_size(
+    async def compute_size(
         self,
         corpus_key: CorpusKey,
         *,
@@ -2158,7 +2174,7 @@ class AsyncCorporaClient:
 
 
         async def main() -> None:
-            await client.corpora.compute_corpus_size(
+            await client.corpora.compute_size(
                 corpus_key="my-corpus",
             )
 
@@ -2402,7 +2418,6 @@ class AsyncCorporaClient:
             Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
             extract metadata filter and rewrite the query to improve search results.
 
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -2445,13 +2460,16 @@ class AsyncCorporaClient:
                     object_=search, annotation=SearchCorpusParameters, direction="write"
                 ),
                 "generation": convert_and_respect_annotation_metadata(
-                    object_=generation, annotation=GenerationParameters, direction="write"
+                    object_=generation,
+                    annotation=GenerationParameters,
+                    direction="write",
                 ),
                 "save_history": save_history,
                 "intelligent_query_rewriting": intelligent_query_rewriting,
                 "stream_response": True,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -2561,7 +2579,6 @@ class AsyncCorporaClient:
             Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
             extract metadata filter and rewrite the query to improve search results.
 
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -2602,13 +2619,16 @@ class AsyncCorporaClient:
                     object_=search, annotation=SearchCorpusParameters, direction="write"
                 ),
                 "generation": convert_and_respect_annotation_metadata(
-                    object_=generation, annotation=GenerationParameters, direction="write"
+                    object_=generation,
+                    annotation=GenerationParameters,
+                    direction="write",
                 ),
                 "save_history": save_history,
                 "intelligent_query_rewriting": intelligent_query_rewriting,
                 "stream_response": False,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },

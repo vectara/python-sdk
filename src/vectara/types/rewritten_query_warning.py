@@ -3,6 +3,11 @@
 import typing
 
 RewrittenQueryWarning = typing.Union[
-    typing.Literal["no_filter_attrs", "extracted_empty_filter", "failed_to_parse_extracted_filter", "failure"],
+    typing.Literal[
+        "no_filter_attrs",
+        "extracted_empty_filter",
+        "failed_to_parse_extracted_filter",
+        "failure",
+    ],
     typing.Any,
 ]

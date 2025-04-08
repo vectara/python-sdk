@@ -9,6 +9,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class QueryHistory(UniversalBaseModel):
+    """
+    A complete record of a previously executed query, including the request parameters and response.
+    """
+
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The ID of the query history.

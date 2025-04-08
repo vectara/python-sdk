@@ -8,5 +8,9 @@ from .stream_error import StreamError
 from .stream_response_end import StreamResponseEnd
 
 SummarizeDocumentStreamedResponse = typing.Union[
-    StreamGenerationChunk, GenerationInfo, StreamGenerationEnd, StreamError, StreamResponseEnd
+    StreamGenerationChunk,
+    GenerationInfo,
+    StreamGenerationEnd,
+    StreamError,
+    StreamResponseEnd,
 ]

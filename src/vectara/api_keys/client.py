@@ -39,6 +39,8 @@ class ApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[ApiKey]:
         """
+        Retrieve a list of API keys for the customer account with optional filtering.
+
         Parameters
         ----------
         limit : typing.Optional[int]
@@ -182,7 +184,6 @@ class ApiKeysClient:
             This property should be null or missing if this `api_key_role` is
             `personal`.
 
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -215,6 +216,7 @@ class ApiKeysClient:
                 "corpus_keys": corpus_keys,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -264,6 +266,8 @@ class ApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ApiKey:
         """
+        Retrieve details of a specific API key by its ID.
+
         Parameters
         ----------
         api_key_id : str
@@ -455,6 +459,7 @@ class ApiKeysClient:
                 "enabled": enabled,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -502,6 +507,8 @@ class AsyncApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[ApiKey]:
         """
+        Retrieve a list of API keys for the customer account with optional filtering.
+
         Parameters
         ----------
         limit : typing.Optional[int]
@@ -653,7 +660,6 @@ class AsyncApiKeysClient:
             This property should be null or missing if this `api_key_role` is
             `personal`.
 
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -694,6 +700,7 @@ class AsyncApiKeysClient:
                 "corpus_keys": corpus_keys,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -743,6 +750,8 @@ class AsyncApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ApiKey:
         """
+        Retrieve details of a specific API key by its ID.
+
         Parameters
         ----------
         api_key_id : str
@@ -958,6 +967,7 @@ class AsyncApiKeysClient:
                 "enabled": enabled,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },

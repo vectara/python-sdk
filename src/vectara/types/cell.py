@@ -33,12 +33,12 @@ class Cell(UniversalBaseModel):
 
     colspan: typing.Optional[int] = pydantic.Field(default=None)
     """
-    (Optional) The number of columns the cell spans. Default is 1. Must be greater than 0.
+    The number of columns the cell spans. This field is optional; if not specified, default is 1. Must be greater than 0.
     """
 
     rowspan: typing.Optional[int] = pydantic.Field(default=None)
     """
-    (Optional) The number of rows the cell spans. Default is 1. Must be greater than 0.
+    The number of rows the cell spans. This field is optional; if not specified, default is 1. Must be greater than 0.
     """
 
     if IS_PYDANTIC_V2:

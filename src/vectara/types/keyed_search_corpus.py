@@ -8,6 +8,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class KeyedSearchCorpus(SearchCorpus):
+    """
+    A corpus with its identifying key for use in search operations within a customer account.
+    """
+
     corpus_key: typing.Optional[CorpusKey] = None
     query: typing.Optional[str] = pydantic.Field(default=None)
     """

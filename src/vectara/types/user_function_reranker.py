@@ -7,6 +7,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class UserFunctionReranker(UniversalBaseModel):
+    """
+    A reranker that uses user-defined functions to reorder search results.
+    """
+
     type: typing.Literal["userfn"] = "userfn"
     user_function: typing.Optional[str] = pydantic.Field(default=None)
     """

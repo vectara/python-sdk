@@ -8,6 +8,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class QueryHistorySummary(UniversalBaseModel):
+    """
+    A summary of a previously executed query, including metadata but not full results.
+    """
+
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The ID of the query history.

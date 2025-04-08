@@ -9,6 +9,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class FilterAttribute(UniversalBaseModel):
+    """
+    Defines a filter attribute that can be used to filter search results based on document metadata for precise retrieval.
+    """
+
     name: str = pydantic.Field()
     """
     The JSON path of the filter attribute in a document or document part metadata.

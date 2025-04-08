@@ -3,5 +3,6 @@
 import typing
 
 ApiRole = typing.Union[
-    typing.Literal["owner", "administrator", "billing_administrator", "corpus_administrator"], typing.Any
+    typing.Literal["owner", "administrator", "billing_administrator", "corpus_administrator"],
+    typing.Any,
 ]

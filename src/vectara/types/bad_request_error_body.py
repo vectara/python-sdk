@@ -7,6 +7,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class BadRequestErrorBody(UniversalBaseModel):
+    """
+    Error returned when a request contains invalid parameters or violates schema validation.
+    """
+
     field_errors: typing.Optional[typing.Dict[str, str]] = pydantic.Field(default=None)
     """
     The errors that relate to specific fields in the request.

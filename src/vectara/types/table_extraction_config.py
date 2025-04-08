@@ -2,13 +2,14 @@
 
 from ..core.pydantic_utilities import UniversalBaseModel
 import pydantic
-from ..core.pydantic_utilities import IS_PYDANTIC_V2
 import typing
+from .table_extractor_spec import TableExtractorSpec
+from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class TableExtractionConfig(UniversalBaseModel):
     """
-    (Optional) Configuration for table extraction from the document.
+    Configuration for table extraction from the document. This is optional and if not provided, default table extraction behavior will be used.
     """
 
     extract_tables: bool = pydantic.Field()
@@ -16,6 +17,8 @@ class TableExtractionConfig(UniversalBaseModel):
     If set to true, the platform will attempt to extract tables from the document.
     The tables will be indexed as separate document parts.
     """
+
+    extractor: typing.Optional[TableExtractorSpec] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

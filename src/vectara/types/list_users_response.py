@@ -9,6 +9,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class ListUsersResponse(UniversalBaseModel):
+    """
+    Response containing a list of user accounts.
+    """
+
     users: typing.Optional[typing.List[User]] = pydantic.Field(default=None)
     """
     List of users.

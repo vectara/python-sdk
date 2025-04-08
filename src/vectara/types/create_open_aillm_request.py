@@ -8,6 +8,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class CreateOpenAillmRequest(UniversalBaseModel):
+    """
+    Request to create an OpenAI-compatible Large Language Model connection.
+    """
+
     type: typing.Literal["openai-compatible"] = "openai-compatible"
     name: str = pydantic.Field()
     """

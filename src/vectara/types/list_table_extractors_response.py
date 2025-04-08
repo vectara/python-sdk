@@ -2,23 +2,20 @@
 
 from ..core.pydantic_utilities import UniversalBaseModel
 import typing
-from .chat import Chat
+from .table_extractor import TableExtractor
 import pydantic
-from .list_metadata import ListMetadata
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
-class ListChatsResponse(UniversalBaseModel):
+class ListTableExtractorsResponse(UniversalBaseModel):
     """
-    Response containing a list of chat conversations.
-    """
-
-    chats: typing.Optional[typing.List[Chat]] = pydantic.Field(default=None)
-    """
-    List of chats.
+    Response containing a list of available table extractors for document processing
     """
 
-    metadata: typing.Optional[ListMetadata] = None
+    table_extractors: typing.Optional[typing.List[TableExtractor]] = pydantic.Field(default=None)
+    """
+    An array of table extractors.
+    """
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

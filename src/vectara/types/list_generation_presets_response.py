@@ -9,6 +9,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class ListGenerationPresetsResponse(UniversalBaseModel):
+    """
+    Response containing a list of generation presets for configuring RAG behavior.
+    """
+
     generation_presets: typing.Optional[typing.List[GenerationPreset]] = pydantic.Field(default=None)
     """
     List of generation presets.

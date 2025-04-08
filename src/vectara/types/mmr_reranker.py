@@ -7,6 +7,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class MmrReranker(UniversalBaseModel):
+    """
+    A reranker that uses Maximal Marginal Relevance to balance relevance and diversity in search results.
+    """
+
     type: typing.Literal["mmr"] = "mmr"
     diversity_bias: typing.Optional[float] = pydantic.Field(default=None)
     """

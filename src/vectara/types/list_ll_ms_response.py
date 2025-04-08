@@ -9,6 +9,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class ListLlMsResponse(UniversalBaseModel):
+    """
+    Response containing a list of Large Language Models available for generative AI capabilities.
+    """
+
     llms: typing.Optional[typing.List[Llm]] = pydantic.Field(default=None)
     """
     List of LLMs.

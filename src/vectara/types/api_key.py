@@ -9,6 +9,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class ApiKey(UniversalBaseModel):
+    """
+    An API key used to authenticate and authorize requests to the Vectara platform.
+    """
+
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The ID of the API key.

@@ -1,6 +1,9 @@
+[project]
+name = "vectara"
+
 [tool.poetry]
 name = "vectara"
-version = "0.2.44"
+version = "0.3.0"
 description = ""
 readme = "README.md"
 authors = []

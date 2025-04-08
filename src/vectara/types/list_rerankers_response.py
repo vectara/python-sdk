@@ -9,6 +9,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class ListRerankersResponse(UniversalBaseModel):
+    """
+    Response containing a list of available rerankers for improving search result ordering.
+    """
+
     rerankers: typing.Optional[typing.List[Reranker]] = pydantic.Field(default=None)
     """
     An array of rerankers.

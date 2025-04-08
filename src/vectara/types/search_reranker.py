@@ -11,5 +11,9 @@ import typing
 if typing.TYPE_CHECKING:
     from .chain_reranker import ChainReranker
 SearchReranker = typing.Union[
-    CustomerSpecificReranker, UserFunctionReranker, MmrReranker, "ChainReranker", NoneReranker
+    CustomerSpecificReranker,
+    UserFunctionReranker,
+    MmrReranker,
+    "ChainReranker",
+    NoneReranker,
 ]

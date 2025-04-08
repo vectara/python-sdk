@@ -3,5 +3,14 @@
 import typing
 
 JobState = typing.Union[
-    typing.Literal["unknown", "queued", "started", "completed", "failed", "failed_will_retry", "aborted"], typing.Any
+    typing.Literal[
+        "unknown",
+        "queued",
+        "started",
+        "completed",
+        "failed",
+        "failed_will_retry",
+        "aborted",
+    ],
+    typing.Any,
 ]

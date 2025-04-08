@@ -37,6 +37,8 @@ class AppClientsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[AppClient]:
         """
+        Retrieve a list of application clients configured for the customer account.
+
         Parameters
         ----------
         limit : typing.Optional[int]
@@ -253,6 +255,8 @@ class AppClientsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AppClient:
         """
+        Retrieve details of a specific application client by its ID.
+
         Parameters
         ----------
         app_client_id : str
@@ -328,6 +332,8 @@ class AppClientsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
+        Remove an application client configuration from the customer account.
+
         Parameters
         ----------
         app_client_id : str
@@ -398,6 +404,8 @@ class AppClientsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AppClient:
         """
+        Update the configuration or settings of an existing application client.
+
         Parameters
         ----------
         app_client_id : str
@@ -445,6 +453,7 @@ class AppClientsClient:
                 "api_roles": api_roles,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -491,6 +500,8 @@ class AsyncAppClientsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[AppClient]:
         """
+        Retrieve a list of application clients configured for the customer account.
+
         Parameters
         ----------
         limit : typing.Optional[int]
@@ -723,6 +734,8 @@ class AsyncAppClientsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AppClient:
         """
+        Retrieve details of a specific application client by its ID.
+
         Parameters
         ----------
         app_client_id : str
@@ -806,6 +819,8 @@ class AsyncAppClientsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
+        Remove an application client configuration from the customer account.
+
         Parameters
         ----------
         app_client_id : str
@@ -884,6 +899,8 @@ class AsyncAppClientsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AppClient:
         """
+        Update the configuration or settings of an existing application client.
+
         Parameters
         ----------
         app_client_id : str
@@ -939,6 +956,7 @@ class AsyncAppClientsClient:
                 "api_roles": api_roles,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },

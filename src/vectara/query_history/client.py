@@ -13,18 +13,21 @@ from ..types.not_found_error_body import NotFoundErrorBody
 from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 import datetime as dt
-from ..types.list_query_histories_response import ListQueryHistoriesResponse
+from ..core.pagination import SyncPager
+from ..types.query_history_summary import QueryHistorySummary
 from ..core.datetime_utils import serialize_datetime
+from ..types.list_query_histories_response import ListQueryHistoriesResponse
 from ..errors.bad_request_error import BadRequestError
 from ..types.bad_request_error_body import BadRequestErrorBody
 from ..core.client_wrapper import AsyncClientWrapper
+from ..core.pagination import AsyncPager
 
 
 class QueryHistoryClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    def get_query_history(
+    def get(
         self,
         query_id: str,
         *,
@@ -63,7 +66,7 @@ class QueryHistoryClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.query_history.get_query_history(
+        client.query_history.get(
             query_id="query_id",
         )
         """
@@ -111,7 +114,7 @@ class QueryHistoryClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    def get_query_histories(
+    def list(
         self,
         *,
         corpus_key: typing.Optional[str] = None,
@@ -123,7 +126,7 @@ class QueryHistoryClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListQueryHistoriesResponse:
+    ) -> SyncPager[QueryHistorySummary]:
         """
         Retrieve query histories.
 
@@ -158,7 +161,7 @@ class QueryHistoryClient:
 
         Returns
         -------
-        ListQueryHistoriesResponse
+        SyncPager[QueryHistorySummary]
             An array of Query Histories.
 
         Examples
@@ -170,7 +173,12 @@ class QueryHistoryClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        client.query_history.get_query_histories()
+        response = client.query_history.list()
+        for item in response:
+            yield item
+        # alternatively, you can paginate page-by-page
+        for page in response.iter_pages():
+            yield page
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/queries",
@@ -192,13 +200,31 @@ class QueryHistoryClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListQueryHistoriesResponse,
                     parse_obj_as(
                         type_=ListQueryHistoriesResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        corpus_key=corpus_key,
+                        started_after=started_after,
+                        started_before=started_before,
+                        chat_id=chat_id,
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_timeout=request_timeout,
+                        request_timeout_millis=request_timeout_millis,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.queries
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(
@@ -229,7 +255,7 @@ class AsyncQueryHistoryClient:
     def __init__(self, *, client_wrapper: AsyncClientWrapper):
         self._client_wrapper = client_wrapper
 
-    async def get_query_history(
+    async def get(
         self,
         query_id: str,
         *,
@@ -273,7 +299,7 @@ class AsyncQueryHistoryClient:
 
 
         async def main() -> None:
-            await client.query_history.get_query_history(
+            await client.query_history.get(
                 query_id="query_id",
             )
 
@@ -324,7 +350,7 @@ class AsyncQueryHistoryClient:
             raise ApiError(status_code=_response.status_code, body=_response.text)
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
-    async def get_query_histories(
+    async def list(
         self,
         *,
         corpus_key: typing.Optional[str] = None,
@@ -336,7 +362,7 @@ class AsyncQueryHistoryClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListQueryHistoriesResponse:
+    ) -> AsyncPager[QueryHistorySummary]:
         """
         Retrieve query histories.
 
@@ -371,7 +397,7 @@ class AsyncQueryHistoryClient:
 
         Returns
         -------
-        ListQueryHistoriesResponse
+        AsyncPager[QueryHistorySummary]
             An array of Query Histories.
 
         Examples
@@ -388,7 +414,12 @@ class AsyncQueryHistoryClient:
 
 
         async def main() -> None:
-            await client.query_history.get_query_histories()
+            response = await client.query_history.list()
+            async for item in response:
+                yield item
+            # alternatively, you can paginate page-by-page
+            async for page in response.iter_pages():
+                yield page
 
 
         asyncio.run(main())
@@ -413,13 +444,31 @@ class AsyncQueryHistoryClient:
         )
         try:
             if 200 <= _response.status_code < 300:
-                return typing.cast(
+                _parsed_response = typing.cast(
                     ListQueryHistoriesResponse,
                     parse_obj_as(
                         type_=ListQueryHistoriesResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
+                _has_next = False
+                _get_next = None
+                if _parsed_response.metadata is not None:
+                    _parsed_next = _parsed_response.metadata.page_key
+                    _has_next = _parsed_next is not None and _parsed_next != ""
+                    _get_next = lambda: self.list(
+                        corpus_key=corpus_key,
+                        started_after=started_after,
+                        started_before=started_before,
+                        chat_id=chat_id,
+                        limit=limit,
+                        page_key=_parsed_next,
+                        request_timeout=request_timeout,
+                        request_timeout_millis=request_timeout_millis,
+                        request_options=request_options,
+                    )
+                _items = _parsed_response.queries
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
             if _response.status_code == 400:
                 raise BadRequestError(
                     typing.cast(

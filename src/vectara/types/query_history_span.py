@@ -9,5 +9,10 @@ from .factual_consistency_score_span import FactualConsistencyScoreSpan
 from .rewritten_query_span import RewrittenQuerySpan
 
 QueryHistorySpan = typing.Union[
-    RephraseSpan, SearchSpan, RerankSpan, GenerationSpan, FactualConsistencyScoreSpan, RewrittenQuerySpan
+    RephraseSpan,
+    SearchSpan,
+    RerankSpan,
+    GenerationSpan,
+    FactualConsistencyScoreSpan,
+    RewrittenQuerySpan,
 ]

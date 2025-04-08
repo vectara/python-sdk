@@ -7,6 +7,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class Encoder(UniversalBaseModel):
+    """
+    A model that converts text into vector embeddings for semantic search.
+    """
+
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The Encoder ID.
@@ -15,6 +19,11 @@ class Encoder(UniversalBaseModel):
     name: typing.Optional[str] = pydantic.Field(default=None)
     """
     The encoder name, `boomerang-2023-q3`.
+    """
+
+    type: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The encoder type
     """
 
     output_dimensions: typing.Optional[int] = pydantic.Field(default=None)

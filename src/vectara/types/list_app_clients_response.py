@@ -9,6 +9,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class ListAppClientsResponse(UniversalBaseModel):
+    """
+    Response containing a list of OAuth application clients.
+    """
+
     app_clients: typing.Optional[typing.List[AppClient]] = pydantic.Field(default=None)
     """
     List of App Clients.

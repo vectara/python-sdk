@@ -8,6 +8,10 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2
 
 
 class Chat(UniversalBaseModel):
+    """
+    A chat conversation with associated metadata and settings.
+    """
+
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
     ID of the chat.
