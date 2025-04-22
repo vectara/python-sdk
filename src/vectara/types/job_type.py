@@ -2,7 +2,4 @@
 
 import typing
 
-JobType = typing.Union[
-    typing.Literal["rebuild_vector_index", "replace_filter_attributes", "unknown"],
-    typing.Any,
-]
+JobType = typing.Union[typing.Literal["rebuild_vector_index", "replace_filter_attributes", "unknown"], typing.Any]

@@ -29,12 +29,7 @@ detail compared to those retrieved the direct corpus retrieval operation.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
 response = client.corpora.list()
 for item in response:
     yield item
@@ -140,15 +135,8 @@ reference it in queries. For more information, see
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.corpora.create(
-    key="my-corpus",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.corpora.create(key='my-corpus', )
 
 ```
 </dd>
@@ -312,15 +300,8 @@ see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-a
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.corpora.get(
-    corpus_key="my-corpus",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.corpora.get(corpus_key='my-corpus', )
 
 ```
 </dd>
@@ -401,15 +382,8 @@ the corpus. For more information, see [Corpus Key Definition](https://docs.vecta
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.corpora.delete(
-    corpus_key="my-corpus",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.corpora.delete(corpus_key='my-corpus', )
 
 ```
 </dd>
@@ -494,15 +468,8 @@ aligned with changing business needs.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.corpora.update(
-    corpus_key="my-corpus",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.corpora.update(corpus_key='my-corpus', )
 
 ```
 </dd>
@@ -616,15 +583,8 @@ For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.corpora.reset(
-    corpus_key="my-corpus",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.corpora.reset(corpus_key='my-corpus', )
 
 ```
 </dd>
@@ -709,23 +669,10 @@ You can monitor the status of the filter change using the returned job ID. The
 <dd>
 
 ```python
-from vectara import FilterAttribute, Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.corpora.replace_filter_attributes(
-    corpus_key="my-corpus",
-    filter_attributes=[
-        FilterAttribute(
-            name="Title",
-            level="document",
-            type="integer",
-        )
-    ],
-)
+from vectara import Vectara
+from vectara import FilterAttribute
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.corpora.replace_filter_attributes(corpus_key='my-corpus', filter_attributes=[FilterAttribute(name='Title', level="document", type="integer", )], )
 
 ```
 </dd>
@@ -815,15 +762,8 @@ The `corpus_key` uniquely identifies the corpus. For more information, see
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.corpora.compute_size(
-    corpus_key="my-corpus",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.corpora.compute_size(corpus_key='my-corpus', )
 
 ```
 </dd>
@@ -910,16 +850,8 @@ For more detailed information, see this [Query API guide](https://docs.vectara.c
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.corpora.search(
-    corpus_key="my-corpus",
-    query="query",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.corpora.search(corpus_key='my-corpus', query='query', )
 
 ```
 </dd>
@@ -1052,17 +984,9 @@ For more detailed information, see [Query API guide](https://docs.vectara.com/do
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-response = client.corpora.query_stream(
-    corpus_key="my-corpus",
-    query="query",
-)
-for chunk in response:
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+response = client.corpora.query_stream(corpus_key='my-corpus', query='query', )
+for chunk in response.data:
     yield chunk
 
 ```
@@ -1196,16 +1120,8 @@ For more detailed information, see [Query API guide](https://docs.vectara.com/do
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.corpora.query(
-    corpus_key="my-corpus",
-    query="query",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.corpora.query(corpus_key='my-corpus', query='query', )
 
 ```
 </dd>
@@ -1338,44 +1254,15 @@ For more detailed information, see this [Query API guide](https://docs.vectara.c
 <dd>
 
 ```python
-from vectara import (
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    SearchCorporaParameters,
-    Vectara,
-)
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-response = client.queries.query_stream(
-    query="What is a hallucination?",
-    search=SearchCorporaParameters(
-        corpora=[
-            KeyedSearchCorpus(
-                corpus_key="corpus_key",
-                metadata_filter="",
-                lexical_interpolation=0.005,
-            )
-        ],
-        context_configuration=ContextConfiguration(
-            sentences_before=2,
-            sentences_after=2,
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="rnk_272725719",
-        ),
-    ),
-    generation=GenerationParameters(
-        response_language="eng",
-        enable_factual_consistency_score=True,
-    ),
-)
-for chunk in response:
+from vectara import Vectara
+from vectara import SearchCorporaParameters
+from vectara import KeyedSearchCorpus
+from vectara import ContextConfiguration
+from vectara import CustomerSpecificReranker
+from vectara import GenerationParameters
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+response = client.queries.query_stream(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, ), )
+for chunk in response.data:
     yield chunk
 
 ```
@@ -1500,43 +1387,14 @@ For more detailed information, see this [Query API guide](https://docs.vectara.c
 <dd>
 
 ```python
-from vectara import (
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    SearchCorporaParameters,
-    Vectara,
-)
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.queries.query(
-    query="What is a hallucination?",
-    search=SearchCorporaParameters(
-        corpora=[
-            KeyedSearchCorpus(
-                corpus_key="corpus_key",
-                metadata_filter="",
-                lexical_interpolation=0.005,
-            )
-        ],
-        context_configuration=ContextConfiguration(
-            sentences_before=2,
-            sentences_after=2,
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="rnk_272725719",
-        ),
-    ),
-    generation=GenerationParameters(
-        response_language="eng",
-        enable_factual_consistency_score=True,
-    ),
-)
+from vectara import Vectara
+from vectara import SearchCorporaParameters
+from vectara import KeyedSearchCorpus
+from vectara import ContextConfiguration
+from vectara import CustomerSpecificReranker
+from vectara import GenerationParameters
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.queries.query(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, ), )
 
 ```
 </dd>
@@ -1660,15 +1518,8 @@ For more detailed information, see this [File Upload API guide.](https://docs.ve
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.upload.file(
-    corpus_key="my-corpus",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.upload.file(corpus_key='my-corpus', )
 
 ```
 </dd>
@@ -1693,7 +1544,6 @@ client.upload.file(
 <dd>
 
 **file:** `from __future__ import annotations
-
 core.File` — See core.File for more documentation
     
 </dd>
@@ -1793,15 +1643,8 @@ each document.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-response = client.documents.list(
-    corpus_key="my-corpus",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+response = client.documents.list(corpus_key='my-corpus', )
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
@@ -1922,34 +1765,14 @@ For more details, see [Indexing](https://docs.vectara.com/docs/learn/select-idea
 <dd>
 
 ```python
-from vectara import StructuredDocument, StructuredDocumentSection, Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.documents.create(
-    corpus_key="my-corpus-key",
-    request=StructuredDocument(
-        id="my-doc-id",
-        sections=[
-            StructuredDocumentSection(
-                id=1,
-                title="A nice title.",
-                text="I'm a nice document section.",
-                metadata={"section": "1.1"},
-            ),
-            StructuredDocumentSection(
-                id=2,
-                title="Another nice title.",
-                text="I'm another document section on something else.",
-                metadata={"section": "1.2"},
-            ),
-        ],
-        metadata={"url": "https://example.com"},
-    ),
-)
+from vectara import Vectara
+from vectara import StructuredDocument
+from vectara import StructuredDocumentSection
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.documents.create(corpus_key='my-corpus-key', request=StructuredDocument(id='my-doc-id', sections=[StructuredDocumentSection(id=1, title='A nice title.', text="I'm a nice document section.", metadata={'section': '1.1'
+}, ), StructuredDocumentSection(id=2, title='Another nice title.', text="I'm another document section on something else.", metadata={'section': '1.2'
+}, )], metadata={'url': 'https://example.com'
+}, ), )
 
 ```
 </dd>
@@ -2038,16 +1861,8 @@ unique `document_id` from a specific corpus.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.documents.get(
-    corpus_key="my-corpus",
-    document_id="document_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.documents.get(corpus_key='my-corpus', document_id='document_id', )
 
 ```
 </dd>
@@ -2139,16 +1954,8 @@ corpus. This operation cannot be undone, so use it with caution.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.documents.delete(
-    corpus_key="my-corpus",
-    document_id="document_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.documents.delete(corpus_key='my-corpus', document_id='document_id', )
 
 ```
 </dd>
@@ -2241,16 +2048,8 @@ adding or modifying only the specified fields.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.documents.update(
-    corpus_key="my-corpus",
-    document_id="document_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.documents.update(corpus_key='my-corpus', document_id='document_id', )
 
 ```
 </dd>
@@ -2353,16 +2152,8 @@ from a specific corpus.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.documents.update_metadata(
-    corpus_key="my-corpus",
-    document_id="document_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.documents.update_metadata(corpus_key='my-corpus', document_id='document_id', )
 
 ```
 </dd>
@@ -2464,17 +2255,8 @@ Summarize a document identified by its unique `document_id` from a specific corp
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.documents.summarize(
-    corpus_key="my-corpus",
-    document_id="document_id",
-    llm_name="llm_name",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.documents.summarize(corpus_key='my-corpus', document_id='document_id', llm_name='llm_name', )
 
 ```
 </dd>
@@ -2605,12 +2387,7 @@ Retrieve a list of previous chats in the Vectara account.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
 response = client.chats.list()
 for item in response:
     yield item
@@ -2703,52 +2480,17 @@ Create a chat while specifying the default retrieval parameters used by the prom
 <dd>
 
 ```python
-from vectara import (
-    ChatParameters,
-    CitationParameters,
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    SearchCorporaParameters,
-    Vectara,
-)
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-response = client.chats.chat_stream(
-    query="What is a hallucination?",
-    search=SearchCorporaParameters(
-        corpora=[
-            KeyedSearchCorpus(
-                corpus_key="corpus_key",
-                metadata_filter="",
-                lexical_interpolation=0.005,
-            )
-        ],
-        context_configuration=ContextConfiguration(
-            sentences_before=2,
-            sentences_after=2,
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="rnk_272725719",
-        ),
-    ),
-    generation=GenerationParameters(
-        response_language="eng",
-        citations=CitationParameters(
-            style="none",
-        ),
-        enable_factual_consistency_score=True,
-    ),
-    chat=ChatParameters(
-        store=True,
-    ),
-)
-for chunk in response:
+from vectara import Vectara
+from vectara import SearchCorporaParameters
+from vectara import KeyedSearchCorpus
+from vectara import ContextConfiguration
+from vectara import CustomerSpecificReranker
+from vectara import GenerationParameters
+from vectara import CitationParameters
+from vectara import ChatParameters
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+response = client.chats.chat_stream(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", citations=CitationParameters(style="none", ), enable_factual_consistency_score=True, ), chat=ChatParameters(store=True, ), )
+for chunk in response.data:
     yield chunk
 
 ```
@@ -2871,51 +2613,16 @@ Create a chat while specifying the default retrieval parameters used by the prom
 <dd>
 
 ```python
-from vectara import (
-    ChatParameters,
-    CitationParameters,
-    ContextConfiguration,
-    CustomerSpecificReranker,
-    GenerationParameters,
-    KeyedSearchCorpus,
-    SearchCorporaParameters,
-    Vectara,
-)
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.chats.chat(
-    query="What is a hallucination?",
-    search=SearchCorporaParameters(
-        corpora=[
-            KeyedSearchCorpus(
-                corpus_key="corpus_key",
-                metadata_filter="",
-                lexical_interpolation=0.005,
-            )
-        ],
-        context_configuration=ContextConfiguration(
-            sentences_before=2,
-            sentences_after=2,
-        ),
-        reranker=CustomerSpecificReranker(
-            reranker_id="rnk_272725719",
-        ),
-    ),
-    generation=GenerationParameters(
-        response_language="eng",
-        enable_factual_consistency_score=True,
-        citations=CitationParameters(
-            style="none",
-        ),
-    ),
-    chat=ChatParameters(
-        store=True,
-    ),
-)
+from vectara import Vectara
+from vectara import SearchCorporaParameters
+from vectara import KeyedSearchCorpus
+from vectara import ContextConfiguration
+from vectara import CustomerSpecificReranker
+from vectara import GenerationParameters
+from vectara import CitationParameters
+from vectara import ChatParameters
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.chats.chat(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, citations=CitationParameters(style="none", ), ), chat=ChatParameters(store=True, ), )
 
 ```
 </dd>
@@ -3038,15 +2745,8 @@ Get a chat summary to view what started the chat, but not subsequent turns.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.chats.get(
-    chat_id="chat_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.chats.get(chat_id='chat_id', )
 
 ```
 </dd>
@@ -3126,15 +2826,8 @@ Delete a chat and any turns it contains permanently.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.chats.delete(
-    chat_id="chat_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.chats.delete(chat_id='chat_id', )
 
 ```
 </dd>
@@ -3214,15 +2907,8 @@ List all turns in a chat to see all message and response pairs that make up the 
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.chats.list_turns(
-    chat_id="chat_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.chats.list_turns(chat_id='chat_id', )
 
 ```
 </dd>
@@ -3301,19 +2987,11 @@ Create a new turn in the chat. Each conversation has a series of `turn` objects,
 <dd>
 
 ```python
-from vectara import SearchCorporaParameters, Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-response = client.chats.create_turns_stream(
-    chat_id="chat_id",
-    query="How can I use the Vectara platform?",
-    search=SearchCorporaParameters(),
-)
-for chunk in response:
+from vectara import Vectara
+from vectara import SearchCorporaParameters
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+response = client.chats.create_turns_stream(chat_id='chat_id', query='How can I use the Vectara platform?', search=SearchCorporaParameters(), )
+for chunk in response.data:
     yield chunk
 
 ```
@@ -3444,18 +3122,10 @@ Create a new turn in the chat. Each conversation has a series of `turn` objects,
 <dd>
 
 ```python
-from vectara import SearchCorporaParameters, Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.chats.create_turns(
-    chat_id="chat_id",
-    query="How can I use the Vectara platform?",
-    search=SearchCorporaParameters(),
-)
+from vectara import Vectara
+from vectara import SearchCorporaParameters
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.chats.create_turns(chat_id='chat_id', query='How can I use the Vectara platform?', search=SearchCorporaParameters(), )
 
 ```
 </dd>
@@ -3586,16 +3256,8 @@ Get a specific turn from a chat, which is a message and response pair from the c
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.chats.get_turn(
-    chat_id="chat_id",
-    turn_id="turn_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.chats.get_turn(chat_id='chat_id', turn_id='turn_id', )
 
 ```
 </dd>
@@ -3683,16 +3345,8 @@ Delete a turn from a chat. This will delete all subsequent turns in the chat.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.chats.delete_turn(
-    chat_id="chat_id",
-    turn_id="turn_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.chats.delete_turn(chat_id='chat_id', turn_id='turn_id', )
 
 ```
 </dd>
@@ -3780,16 +3434,8 @@ Update a turn; used to disable or enable a chat.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.chats.update_turn(
-    chat_id="chat_id",
-    turn_id="turn_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.chats.update_turn(chat_id='chat_id', turn_id='turn_id', )
 
 ```
 </dd>
@@ -3891,12 +3537,7 @@ can be found as the `name` property on the Generations Presets retrieved from `/
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
 response = client.llms.list()
 for item in response:
     yield item
@@ -4001,17 +3642,8 @@ Create a new LLM for use with query and chat endpoints
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.llms.create(
-    name="name",
-    model="model",
-    uri="uri",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.llms.create(name='name', model='model', uri='uri', )
 
 ```
 </dd>
@@ -4135,15 +3767,8 @@ Get details about a specific LLM.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.llms.get(
-    llm_id="llm_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.llms.get(llm_id='llm_id', )
 
 ```
 </dd>
@@ -4223,15 +3848,8 @@ Delete a custom LLM connection. Built-in LLMs cannot be deleted.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.llms.delete(
-    llm_id="llm_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.llms.delete(llm_id='llm_id', )
 
 ```
 </dd>
@@ -4315,12 +3933,7 @@ the template that renders the prompt, and various generation settings like
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
 response = client.generation_presets.list()
 for item in response:
     yield item
@@ -4426,15 +4039,8 @@ Encoders are used to store and retrieve from a corpus.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-response = client.encoders.list(
-    filter="vectara.*",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+response = client.encoders.list(filter='vectara.*', )
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
@@ -4535,18 +4141,8 @@ Create a new encoder.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.encoders.create(
-    name="openai-text-encoder",
-    description="description",
-    uri="https://api.openai.com/v1/embeddings",
-    model="text-embedding-ada-002",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.encoders.create(name='openai-text-encoder', description='description', uri='https://api.openai.com/v1/embeddings', model='text-embedding-ada-002', )
 
 ```
 </dd>
@@ -4670,15 +4266,8 @@ Rerankers are used to improve the ranking (ordering) of search results.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-response = client.rerankers.list(
-    filter="vectara.*",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+response = client.rerankers.list(filter='vectara.*', )
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
@@ -4780,12 +4369,7 @@ Table extractors are used to extract tabular data from documents during indexing
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
 client.table_extractors.list()
 
 ```
@@ -4859,12 +4443,7 @@ List jobs for the account. Jobs are background processes like replacing the filt
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
 response = client.jobs.list()
 for item in response:
     yield item
@@ -4982,15 +4561,8 @@ Get a job by a specific ID. Jobs are background processes like replacing the fil
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.jobs.get(
-    job_id="job_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.jobs.get(job_id='job_id', )
 
 ```
 </dd>
@@ -5071,15 +4643,8 @@ Lists all users in the account.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-response = client.users.list(
-    corpus_key="my-corpus",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+response = client.users.list(corpus_key='my-corpus', )
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
@@ -5180,15 +4745,8 @@ Create a user for the current customer account.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.users.create(
-    email="email",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.users.create(email='email', )
 
 ```
 </dd>
@@ -5292,15 +4850,8 @@ Get a user and view details like the email, username, and associated roles.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.users.get(
-    username="username",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.users.get(username='username', )
 
 ```
 </dd>
@@ -5383,15 +4934,8 @@ Delete a user from the account.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.users.delete(
-    username="username",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.users.delete(username='username', )
 
 ```
 </dd>
@@ -5474,15 +5018,8 @@ Update details about a user such as role names.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.users.update(
-    username="username",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.users.update(username='username', )
 
 ```
 </dd>
@@ -5581,15 +5118,8 @@ Reset the password for a user.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.users.reset_password(
-    username="username",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.users.reset_password(username='username', )
 
 ```
 </dd>
@@ -5673,15 +5203,8 @@ Retrieve a list of API keys for the customer account with optional filtering.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-response = client.api_keys.list(
-    corpus_key="my-corpus",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+response = client.api_keys.list(corpus_key='my-corpus', )
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
@@ -5790,16 +5313,8 @@ An API key is to authenticate when calling Vectara APIs.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.api_keys.create(
-    name="name",
-    api_key_role="serving",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.api_keys.create(name='name', api_key_role="serving", )
 
 ```
 </dd>
@@ -5899,15 +5414,8 @@ Retrieve details of a specific API key by its ID.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.api_keys.get(
-    api_key_id="api_key_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.api_keys.get(api_key_id='api_key_id', )
 
 ```
 </dd>
@@ -5987,15 +5495,8 @@ Delete API keys to help you manage the security and lifecycle of API keys in you
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.api_keys.delete(
-    api_key_id="api_key_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.api_keys.delete(api_key_id='api_key_id', )
 
 ```
 </dd>
@@ -6075,15 +5576,8 @@ Update an API key such as the roles attached to the key.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.api_keys.update(
-    api_key_id="api_key_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.api_keys.update(api_key_id='api_key_id', )
 
 ```
 </dd>
@@ -6172,12 +5666,7 @@ Retrieve a list of application clients configured for the customer account.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
 response = client.app_clients.list()
 for item in response:
     yield item
@@ -6279,15 +5768,8 @@ An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.app_clients.create(
-    name="name",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.app_clients.create(name='name', )
 
 ```
 </dd>
@@ -6383,15 +5865,8 @@ Retrieve details of a specific application client by its ID.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.app_clients.get(
-    app_client_id="app_client_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.app_clients.get(app_client_id='app_client_id', )
 
 ```
 </dd>
@@ -6471,15 +5946,8 @@ Remove an application client configuration from the customer account.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.app_clients.delete(
-    app_client_id="app_client_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.app_clients.delete(app_client_id='app_client_id', )
 
 ```
 </dd>
@@ -6559,15 +6027,8 @@ Update the configuration or settings of an existing application client.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.app_clients.update(
-    app_client_id="app_client_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.app_clients.update(app_client_id='app_client_id', )
 
 ```
 </dd>
@@ -6664,15 +6125,8 @@ Retrieve a detailed history of previously executed query.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.query_history.get(
-    query_id="query_id",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.query_history.get(query_id='query_id', )
 
 ```
 </dd>
@@ -6752,12 +6206,7 @@ Retrieve query histories.
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
 response = client.query_history.list()
 for item in response:
     yield item
@@ -6884,16 +6333,8 @@ Obtain an OAuth2 access token using client credentials
 
 ```python
 from vectara import Vectara
-
-client = Vectara(
-    api_key="YOUR_API_KEY",
-    client_id="YOUR_CLIENT_ID",
-    client_secret="YOUR_CLIENT_SECRET",
-)
-client.auth.get_token(
-    client_id="client_id",
-    client_secret="client_secret",
-)
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.auth.get_token(client_id='client_id', client_secret='client_secret', )
 
 ```
 </dd>

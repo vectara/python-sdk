@@ -3,14 +3,6 @@
 import typing
 
 FilterAttributeType = typing.Union[
-    typing.Literal[
-        "integer",
-        "real_number",
-        "text",
-        "boolean",
-        "list[integer]",
-        "list[real_number]",
-        "list[text]",
-    ],
+    typing.Literal["integer", "real_number", "text", "boolean", "list[integer]", "list[real_number]", "list[text]"],
     typing.Any,
 ]
