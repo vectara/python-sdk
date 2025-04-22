@@ -136,7 +136,7 @@ class RawChatsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
     @contextlib.contextmanager
-    def chat_stream(
+    def create_stream(
         self,
         *,
         query: str,
@@ -266,7 +266,7 @@ class RawChatsClient:
 
             yield stream()
 
-    def chat(
+    def create(
         self,
         *,
         query: str,
@@ -1205,7 +1205,7 @@ class AsyncRawChatsClient:
         raise ApiError(status_code=_response.status_code, body=_response_json)
 
     @contextlib.asynccontextmanager
-    async def chat_stream(
+    async def create_stream(
         self,
         *,
         query: str,
@@ -1335,7 +1335,7 @@ class AsyncRawChatsClient:
 
             yield await stream()
 
-    async def chat(
+    async def create(
         self,
         *,
         query: str,

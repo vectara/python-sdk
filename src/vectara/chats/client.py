@@ -88,7 +88,7 @@ class ChatsClient:
         )
         return response.data
 
-    def chat_stream(
+    def create_stream(
         self,
         *,
         query: str,
@@ -147,11 +147,11 @@ class ChatsClient:
         from vectara import CitationParameters
         from vectara import ChatParameters
         client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        response = client.chats.chat_stream(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", citations=CitationParameters(style="none", ), enable_factual_consistency_score=True, ), chat=ChatParameters(store=True, ), )
+        response = client.chats.create_stream(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", citations=CitationParameters(style="none", ), enable_factual_consistency_score=True, ), chat=ChatParameters(store=True, ), )
         for chunk in response:
             yield chunk
         """
-        with self._raw_client.chat_stream(
+        with self._raw_client.create_stream(
             query=query,
             search=search,
             request_timeout=request_timeout,
@@ -164,7 +164,7 @@ class ChatsClient:
         ) as r:
             yield from r.data
 
-    def chat(
+    def create(
         self,
         *,
         query: str,
@@ -223,9 +223,9 @@ class ChatsClient:
         from vectara import CitationParameters
         from vectara import ChatParameters
         client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.chats.chat(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, citations=CitationParameters(style="none", ), ), chat=ChatParameters(store=True, ), )
+        client.chats.create(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, citations=CitationParameters(style="none", ), ), chat=ChatParameters(store=True, ), )
         """
-        response = self._raw_client.chat(
+        response = self._raw_client.create(
             query=query,
             search=search,
             request_timeout=request_timeout,
@@ -743,7 +743,7 @@ class AsyncChatsClient:
         )
         return response.data
 
-    async def chat_stream(
+    async def create_stream(
         self,
         *,
         query: str,
@@ -804,12 +804,12 @@ class AsyncChatsClient:
         import asyncio
         client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
         async def main() -> None:
-            response = await client.chats.chat_stream(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", citations=CitationParameters(style="none", ), enable_factual_consistency_score=True, ), chat=ChatParameters(store=True, ), )
+            response = await client.chats.create_stream(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", citations=CitationParameters(style="none", ), enable_factual_consistency_score=True, ), chat=ChatParameters(store=True, ), )
             async for chunk in response:
                 yield chunk
         asyncio.run(main())
         """
-        async with self._raw_client.chat_stream(
+        async with self._raw_client.create_stream(
             query=query,
             search=search,
             request_timeout=request_timeout,
@@ -823,7 +823,7 @@ class AsyncChatsClient:
             async for data in r.data:
                 yield data
 
-    async def chat(
+    async def create(
         self,
         *,
         query: str,
@@ -884,10 +884,10 @@ class AsyncChatsClient:
         import asyncio
         client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
         async def main() -> None:
-            await client.chats.chat(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, citations=CitationParameters(style="none", ), ), chat=ChatParameters(store=True, ), )
+            await client.chats.create(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, citations=CitationParameters(style="none", ), ), chat=ChatParameters(store=True, ), )
         asyncio.run(main())
         """
-        response = await self._raw_client.chat(
+        response = await self._raw_client.create(
             query=query,
             search=search,
             request_timeout=request_timeout,

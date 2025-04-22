@@ -2453,7 +2453,7 @@ for page in response.iter_pages():
 </dl>
 </details>
 
-<details><summary><code>client.chats.<a href="src/vectara/chats/client.py">chat_stream</a>(...)</code></summary>
+<details><summary><code>client.chats.<a href="src/vectara/chats/client.py">create_stream</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -2489,7 +2489,7 @@ from vectara import GenerationParameters
 from vectara import CitationParameters
 from vectara import ChatParameters
 client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-response = client.chats.chat_stream(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", citations=CitationParameters(style="none", ), enable_factual_consistency_score=True, ), chat=ChatParameters(store=True, ), )
+response = client.chats.create_stream(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", citations=CitationParameters(style="none", ), enable_factual_consistency_score=True, ), chat=ChatParameters(store=True, ), )
 for chunk in response.data:
     yield chunk
 
@@ -2586,7 +2586,7 @@ extract metadata filter and rewrite the query to improve search results.
 </dl>
 </details>
 
-<details><summary><code>client.chats.<a href="src/vectara/chats/client.py">chat</a>(...)</code></summary>
+<details><summary><code>client.chats.<a href="src/vectara/chats/client.py">create</a>(...)</code></summary>
 <dl>
 <dd>
 
@@ -2622,7 +2622,7 @@ from vectara import GenerationParameters
 from vectara import CitationParameters
 from vectara import ChatParameters
 client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-client.chats.chat(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, citations=CitationParameters(style="none", ), ), chat=ChatParameters(store=True, ), )
+client.chats.create(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, citations=CitationParameters(style="none", ), ), chat=ChatParameters(store=True, ), )
 
 ```
 </dd>
