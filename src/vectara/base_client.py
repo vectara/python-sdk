@@ -10,7 +10,6 @@ from .core.client_wrapper import SyncClientWrapper
 from .corpora.client import CorporaClient
 from .upload.client import UploadClient
 from .documents.client import DocumentsClient
-from .index.client import IndexClient
 from .chats.client import ChatsClient
 from .llms.client import LlmsClient
 from .generation_presets.client import GenerationPresetsClient
@@ -45,7 +44,6 @@ from .core.client_wrapper import AsyncClientWrapper
 from .corpora.client import AsyncCorporaClient
 from .upload.client import AsyncUploadClient
 from .documents.client import AsyncDocumentsClient
-from .index.client import AsyncIndexClient
 from .chats.client import AsyncChatsClient
 from .llms.client import AsyncLlmsClient
 from .generation_presets.client import AsyncGenerationPresetsClient
@@ -156,7 +154,6 @@ class BaseVectara:
         self.corpora = CorporaClient(client_wrapper=self._client_wrapper)
         self.upload = UploadClient(client_wrapper=self._client_wrapper)
         self.documents = DocumentsClient(client_wrapper=self._client_wrapper)
-        self.index = IndexClient(client_wrapper=self._client_wrapper)
         self.chats = ChatsClient(client_wrapper=self._client_wrapper)
         self.llms = LlmsClient(client_wrapper=self._client_wrapper)
         self.generation_presets = GenerationPresetsClient(client_wrapper=self._client_wrapper)
@@ -822,7 +819,6 @@ class AsyncBaseVectara:
         self.corpora = AsyncCorporaClient(client_wrapper=self._client_wrapper)
         self.upload = AsyncUploadClient(client_wrapper=self._client_wrapper)
         self.documents = AsyncDocumentsClient(client_wrapper=self._client_wrapper)
-        self.index = AsyncIndexClient(client_wrapper=self._client_wrapper)
         self.chats = AsyncChatsClient(client_wrapper=self._client_wrapper)
         self.llms = AsyncLlmsClient(client_wrapper=self._client_wrapper)
         self.generation_presets = AsyncGenerationPresetsClient(client_wrapper=self._client_wrapper)
