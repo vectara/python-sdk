@@ -4,22 +4,22 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .chat_completion_response_choice import ChatCompletionResponseChoice
 
 
-class NotFoundErrorBody(UniversalBaseModel):
+class CreateChatCompletionResponse(UniversalBaseModel):
     """
-    Error returned when a requested resource does not exist.
-    """
-
-    id: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    The ID cannot be found.
+    Response object containing the generated chat completion.
     """
 
-    messages: typing.Optional[typing.List[str]] = None
-    request_id: typing.Optional[str] = pydantic.Field(default=None)
+    object: typing.Literal["chat.completion"] = pydantic.Field(default="chat.completion")
     """
-    The ID of the request that can be used to help Vectara support debug what went wrong.
+    The object type, which is always 'chat.completion'.
+    """
+
+    choices: typing.List[ChatCompletionResponseChoice] = pydantic.Field()
+    """
+    A list of chat completion choices. Can be more than one if `n` is greater than `1`.
     """
 
     if IS_PYDANTIC_V2:

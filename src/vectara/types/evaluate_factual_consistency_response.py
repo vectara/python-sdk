@@ -3,19 +3,17 @@
 import typing
 
 import pydantic
-from ..core.pydantic_utilities import IS_PYDANTIC_V2
-from .keyed_search_corpus import KeyedSearchCorpus
-from .search_parameters import SearchParameters
+from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 
-class SearchCorporaParameters(SearchParameters):
+class EvaluateFactualConsistencyResponse(UniversalBaseModel):
     """
-    The parameters to search one or more corpora.
+    Results of the factual consistency evaluation.
     """
 
-    corpora: typing.Optional[typing.List[KeyedSearchCorpus]] = pydantic.Field(default=None)
+    score: float = pydantic.Field()
     """
-    The corpora that you want to search.
+    A prediction score (0.0-1.0) from HHEM, monotonically indicates the likelihood of hallucinations.
     """
 
     if IS_PYDANTIC_V2:

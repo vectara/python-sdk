@@ -13,6 +13,11 @@ from .bearer_auth import BearerAuth
 from .cell import Cell
 from .chain_reranker import ChainReranker
 from .chat import Chat
+from .chat_completion_request_message import ChatCompletionRequestMessage
+from .chat_completion_response_choice import ChatCompletionResponseChoice
+from .chat_completion_response_message import ChatCompletionResponseMessage
+from .chat_completion_stream_response_choice import ChatCompletionStreamResponseChoice
+from .chat_completion_stream_response_delta import ChatCompletionStreamResponseDelta
 from .chat_full_response import ChatFullResponse
 from .chat_info_response import ChatInfoResponse
 from .chat_parameters import ChatParameters
@@ -31,6 +36,8 @@ from .corpus import Corpus
 from .corpus_custom_dimension import CorpusCustomDimension
 from .corpus_key import CorpusKey
 from .corpus_limits import CorpusLimits
+from .create_chat_completion_response import CreateChatCompletionResponse
+from .create_chat_completion_stream_response import CreateChatCompletionStreamResponse
 from .create_client_credentials_request import CreateClientCredentialsRequest
 from .create_document_request import CreateDocumentRequest
 from .create_open_ai_encoder_request import CreateOpenAiEncoderRequest
@@ -43,6 +50,7 @@ from .document_part import DocumentPart
 from .document_storage_usage import DocumentStorageUsage
 from .encoder import Encoder
 from .error import Error
+from .evaluate_factual_consistency_response import EvaluateFactualConsistencyResponse
 from .extraction_usage import ExtractionUsage
 from .factual_consistency_score import FactualConsistencyScore
 from .factual_consistency_score_span import FactualConsistencyScoreSpan
@@ -121,6 +129,7 @@ from .table import Table
 from .table_extraction_config import TableExtractionConfig
 from .table_extractor import TableExtractor
 from .table_extractor_spec import TableExtractorSpec
+from .table_generation_spec import TableGenerationSpec
 from .turn import Turn
 from .update_document_request import UpdateDocumentRequest
 from .user import User
@@ -138,6 +147,11 @@ __all__ = [
     "Cell",
     "ChainReranker",
     "Chat",
+    "ChatCompletionRequestMessage",
+    "ChatCompletionResponseChoice",
+    "ChatCompletionResponseMessage",
+    "ChatCompletionStreamResponseChoice",
+    "ChatCompletionStreamResponseDelta",
     "ChatFullResponse",
     "ChatInfoResponse",
     "ChatParameters",
@@ -156,6 +170,8 @@ __all__ = [
     "CorpusCustomDimension",
     "CorpusKey",
     "CorpusLimits",
+    "CreateChatCompletionResponse",
+    "CreateChatCompletionStreamResponse",
     "CreateClientCredentialsRequest",
     "CreateDocumentRequest",
     "CreateOpenAiEncoderRequest",
@@ -168,6 +184,7 @@ __all__ = [
     "DocumentStorageUsage",
     "Encoder",
     "Error",
+    "EvaluateFactualConsistencyResponse",
     "ExtractionUsage",
     "FactualConsistencyScore",
     "FactualConsistencyScoreSpan",
@@ -246,6 +263,7 @@ __all__ = [
     "TableExtractionConfig",
     "TableExtractor",
     "TableExtractorSpec",
+    "TableGenerationSpec",
     "Turn",
     "UpdateDocumentRequest",
     "User",

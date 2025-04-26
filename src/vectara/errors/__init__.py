@@ -7,6 +7,7 @@ from .conflict_error import ConflictError
 from .forbidden_error import ForbiddenError
 from .not_found_error import NotFoundError
 from .too_many_requests_error import TooManyRequestsError
+from .unprocessable_entity_error import UnprocessableEntityError
 from .unsupported_media_type_error import UnsupportedMediaTypeError
 
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
     "ForbiddenError",
     "NotFoundError",
     "TooManyRequestsError",
+    "UnprocessableEntityError",
     "UnsupportedMediaTypeError",
 ]

@@ -3,19 +3,17 @@
 import typing
 
 import pydantic
-from ..core.pydantic_utilities import IS_PYDANTIC_V2
-from .keyed_search_corpus import KeyedSearchCorpus
-from .search_parameters import SearchParameters
+from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 
-class SearchCorporaParameters(SearchParameters):
+class ChatCompletionResponseMessage(UniversalBaseModel):
     """
-    The parameters to search one or more corpora.
+    A message in the chat completion response from the assistant.
     """
 
-    corpora: typing.Optional[typing.List[KeyedSearchCorpus]] = pydantic.Field(default=None)
+    role: str = pydantic.Field()
     """
-    The corpora that you want to search.
+    The role of the author of this message, typically 'assistant' for responses.
     """
 
     if IS_PYDANTIC_V2:

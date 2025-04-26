@@ -1496,9 +1496,9 @@ extract metadata filter and rewrite the query to improve search results.
 
 Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing.
 The request expects a `multipart/form-data` format containing the following parts:
-* `metadata` - (Optional) Specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
-* `chunking_strategy` - (Optional) Specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. You can explicitly set sentence chunking with `'chunking_strategy={"type":"sentence_chunking_strategy"};type=application/json'` or use max chars chunking with `'chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":200};type=application/json'`
-* `table_extraction_config` - (Optional) Specifies whether to extract table data from the uploaded file. If you do not set this option, the platform does not extract tables from PDF files. Example config, `'table_extraction_config={"extract_tables":true};type=application/json'`
+* `metadata` - Optionally specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
+* `chunking_strategy` - If provided, specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. You can explicitly set sentence chunking with `'chunking_strategy={"type":"sentence_chunking_strategy"};type=application/json'` or use max chars chunking with `'chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":200};type=application/json'`
+* `table_extraction_config` - You can optionally specify whether to extract table data from the uploaded file. If you do not set this option, the platform does not extract tables from PDF files. Example config, `'table_extraction_config={"extract_tables":true};type=application/json'`
 * `file` - Specifies the file that you want to upload.
 * `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
 
@@ -3719,6 +3719,14 @@ then it will override that LLM for all usages.
 <dl>
 <dd>
 
+**headers:** `typing.Optional[typing.Dict[str, str]]` — Additional HTTP headers to include with requests to the LLM API.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **test_model_parameters:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Any additional parameters that are required for the LLM during the test call.
     
 </dd>
@@ -3991,6 +3999,106 @@ This parameter is not needed for the first page of results.
 <dd>
 
 **request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## FactualConsistency
+<details><summary><code>client.factual_consistency.<a href="src/vectara/factual_consistency/client.py">evaluate</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Evaluate the factual consistency of a generated text (like a summary) against source documents.
+This determines how accurately the generated text reflects the information in the source documents,
+helping identify potential hallucinations or misrepresentations.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.factual_consistency.evaluate(generated_text='generated_text', source_texts=['source_texts'], )
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**generated_text:** `str` — The generated text (e.g., summary or answer) to evaluate for factual consistency.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**source_texts:** `typing.Sequence[str]` — The source documents or text snippets against which to evaluate factual consistency.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**model_parameters:** `typing.Optional[EvaluateFactualConsistencyRequestModelParameters]` — The model parameters for the evaluation.
     
 </dd>
 </dl>
@@ -6359,6 +6467,107 @@ client.auth.get_token(client_id='client_id', client_secret='client_secret', )
 <dd>
 
 **client_secret:** `str` — The client secret of the application
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Llm
+<details><summary><code>client.llm.<a href="src/vectara/llm/client.py">chat_completion</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+OpenAI-compatible endpoint for chat completions. Creates a response for the given chat conversation. 
+The chat completion API allows you to chat with Vectara's language models in a way that's compatible with OpenAI's specification. 
+This makes it easy to integrate with applications already designed for OpenAI's API.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara import ChatCompletionRequestMessage
+client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+client.llm.chat_completion(model='model', messages=[ChatCompletionRequestMessage(role='role', content='content', )], )
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**model:** `str` — The ID of the model to use. This field is required.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**messages:** `typing.Sequence[ChatCompletionRequestMessage]` — An ordered array of messages that represent the full context of the conversation to date. Each message includes a `role` and `content`.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**stream:** `typing.Optional[bool]` — Optional. When set to `true`, the API streams partial message deltas as they become available, similar to ChatGPT's streaming mode.
     
 </dd>
 </dl>

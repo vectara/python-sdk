@@ -136,6 +136,7 @@ class RawLlmsClient:
         request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
+        headers: typing.Optional[typing.Dict[str, str]] = OMIT,
         test_model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Llm]:
@@ -166,6 +167,9 @@ class RawLlmsClient:
 
         auth : typing.Optional[RemoteAuth]
 
+        headers : typing.Optional[typing.Dict[str, str]]
+            Additional HTTP headers to include with requests to the LLM API.
+
         test_model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Any additional parameters that are required for the LLM during the test call.
 
@@ -187,6 +191,7 @@ class RawLlmsClient:
                 "model": model,
                 "uri": uri,
                 "auth": convert_and_respect_annotation_metadata(object_=auth, annotation=RemoteAuth, direction="write"),
+                "headers": headers,
                 "test_model_parameters": test_model_parameters,
                 "type": "openai-compatible",
             },
@@ -486,6 +491,7 @@ class AsyncRawLlmsClient:
         request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
+        headers: typing.Optional[typing.Dict[str, str]] = OMIT,
         test_model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Llm]:
@@ -516,6 +522,9 @@ class AsyncRawLlmsClient:
 
         auth : typing.Optional[RemoteAuth]
 
+        headers : typing.Optional[typing.Dict[str, str]]
+            Additional HTTP headers to include with requests to the LLM API.
+
         test_model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Any additional parameters that are required for the LLM during the test call.
 
@@ -537,6 +546,7 @@ class AsyncRawLlmsClient:
                 "model": model,
                 "uri": uri,
                 "auth": convert_and_respect_annotation_metadata(object_=auth, annotation=RemoteAuth, direction="write"),
+                "headers": headers,
                 "test_model_parameters": test_model_parameters,
                 "type": "openai-compatible",
             },

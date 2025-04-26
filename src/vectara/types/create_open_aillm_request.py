@@ -36,6 +36,11 @@ class CreateOpenAillmRequest(UniversalBaseModel):
     """
 
     auth: typing.Optional[RemoteAuth] = None
+    headers: typing.Optional[typing.Dict[str, str]] = pydantic.Field(default=None)
+    """
+    Additional HTTP headers to include with requests to the LLM API.
+    """
+
     test_model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
     """
     Any additional parameters that are required for the LLM during the test call.

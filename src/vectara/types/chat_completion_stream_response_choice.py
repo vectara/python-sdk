@@ -3,20 +3,21 @@
 import typing
 
 import pydantic
-from ..core.pydantic_utilities import IS_PYDANTIC_V2
-from .keyed_search_corpus import KeyedSearchCorpus
-from .search_parameters import SearchParameters
+from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .chat_completion_stream_response_delta import ChatCompletionStreamResponseDelta
 
 
-class SearchCorporaParameters(SearchParameters):
+class ChatCompletionStreamResponseChoice(UniversalBaseModel):
     """
-    The parameters to search one or more corpora.
+    A single chat completion chunk choice in a streaming response.
     """
 
-    corpora: typing.Optional[typing.List[KeyedSearchCorpus]] = pydantic.Field(default=None)
+    index: int = pydantic.Field()
     """
-    The corpora that you want to search.
+    The index of the choice in the array of choices.
     """
+
+    delta: ChatCompletionStreamResponseDelta
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

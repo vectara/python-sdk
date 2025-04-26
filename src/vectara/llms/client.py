@@ -100,6 +100,7 @@ class LlmsClient:
         request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
+        headers: typing.Optional[typing.Dict[str, str]] = OMIT,
         test_model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Llm:
@@ -130,6 +131,9 @@ class LlmsClient:
 
         auth : typing.Optional[RemoteAuth]
 
+        headers : typing.Optional[typing.Dict[str, str]]
+            Additional HTTP headers to include with requests to the LLM API.
+
         test_model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Any additional parameters that are required for the LLM during the test call.
 
@@ -155,6 +159,7 @@ class LlmsClient:
             request_timeout_millis=request_timeout_millis,
             description=description,
             auth=auth,
+            headers=headers,
             test_model_parameters=test_model_parameters,
             request_options=request_options,
         )
@@ -339,6 +344,7 @@ class AsyncLlmsClient:
         request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
+        headers: typing.Optional[typing.Dict[str, str]] = OMIT,
         test_model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Llm:
@@ -369,6 +375,9 @@ class AsyncLlmsClient:
 
         auth : typing.Optional[RemoteAuth]
 
+        headers : typing.Optional[typing.Dict[str, str]]
+            Additional HTTP headers to include with requests to the LLM API.
+
         test_model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Any additional parameters that are required for the LLM during the test call.
 
@@ -397,6 +406,7 @@ class AsyncLlmsClient:
             request_timeout_millis=request_timeout_millis,
             description=description,
             auth=auth,
+            headers=headers,
             test_model_parameters=test_model_parameters,
             request_options=request_options,
         )
