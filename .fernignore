@@ -32,3 +32,5 @@ ADVANCED.md
 CONTRIBUTING.md
 CONFIGURATION.md
 resources/
+
+src/types/search_corpora_parameters.py # do not remove
