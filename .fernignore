@@ -33,4 +33,4 @@ CONTRIBUTING.md
 CONFIGURATION.md
 resources/
 
-src/types/search_corpora_parameters.py # do not remove
+src/vectara/types/search_corpora_parameters.py # do not remove
