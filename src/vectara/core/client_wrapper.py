@@ -23,10 +23,10 @@ class BaseClientWrapper:
 
     def get_headers(self) -> typing.Dict[str, str]:
         headers: typing.Dict[str, str] = {
-            "User-Agent": "vectara/0.3.4",
+            "User-Agent": "vectara/0.3.5",
             "X-Fern-Language": "Python",
             "X-Fern-SDK-Name": "vectara",
-            "X-Fern-SDK-Version": "0.3.4",
+            "X-Fern-SDK-Version": "0.3.5",
         }
         if self._api_key is not None:
             headers["x-api-key"] = self._api_key
