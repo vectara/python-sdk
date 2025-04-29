@@ -1,16 +1,29 @@
 import unittest
+import os
 
-from vectara.factory import Factory
+from vectara import Vectara
 
 
 class TestAuthManager(unittest.TestCase):
+    client = None
+    client_id = None
+    client_secret = None
+    created_clients = None
 
-    def setUp(self):
-        self.addCleanup(self.cleanup)
-        self.client = Factory().build()
-        response = self.client.app_clients.create(name="test-client", api_roles=["owner"])
-        self.client_id = response.client_id
-        self.client_secret = response.client_secret
+    @classmethod
+    def setUpClass(cls):
+        api_key = os.getenv("VECTARA_API_KEY")
+        if not api_key:
+            raise ValueError("VECTARA_API_KEY not found in environment variables or .env file")
+        
+        cls.client = Vectara(api_key=api_key)
+        cls.created_clients = set()
+
+        # Create test client
+        response = cls.client.app_clients.create(name="test-client", api_roles=["owner"])
+        cls.client_id = response.client_id
+        cls.client_secret = response.client_secret
+        cls.created_clients.add(response.id)
 
     def test_get_access_token(self):
         response = self.client.auth.get_token(
@@ -23,10 +36,11 @@ class TestAuthManager(unittest.TestCase):
         self.assertIsNotNone(response.token_type)
         self.assertIsNotNone(response.expires_in)
 
-    def cleanup(self):
-        for client in self.client.app_clients.list():
-            self.client.app_clients.delete(client.id)
-
-    def tearDown(self):
-        for client in self.client.app_clients.list():
-            self.client.app_clients.delete(client.id)
+    @classmethod
+    def tearDownClass(cls):
+        """Clean up all test resources."""
+        for client_id in cls.created_clients:
+            try:
+                cls.client.app_clients.delete(client_id)
+            except Exception:
+                pass
