@@ -89,9 +89,9 @@ class LabHelper:
         :return:
         """
 
-        corpus_clone = corpus.copy()
+        corpus_clone = corpus.model_copy()
 
-        name, key = self._build_lab_name_and_key(corpus.name, corpus.key)
+        name, key = self._build_lab_name_and_key(corpus.name, corpus.key, user_prefix=user_prefix, username=username)
         corpus_clone.name = name
         corpus_clone.key = key
 

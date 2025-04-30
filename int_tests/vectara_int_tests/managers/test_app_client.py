@@ -59,12 +59,10 @@ class TestAppClient(unittest.TestCase):
             create_response = self._create_app_client(name=f"test-client-{index}")
             created_clients.append(create_response)
 
-        # Get all clients and verify our created clients are in the list
-        all_clients = list(self.client.app_clients.list())
         created_client_ids = {client.id for client in created_clients}
         
         # Verify our created clients are in the list
-        for client in all_clients:
+        for client in self.client.app_clients.list().items:
             if client.id in created_client_ids:
                 self.assertIn(client.name, [c.name for c in created_clients])
 

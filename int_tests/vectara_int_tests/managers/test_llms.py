@@ -1,6 +1,5 @@
 import unittest
 import os
-import time
 
 from vectara import Vectara, RemoteAuth
 
@@ -37,18 +36,15 @@ class TestLlmsManager(unittest.TestCase):
 
     # def test_create_and_delete_llm(self):
     #     # Create a test LLM
-    #     llm_name = f"test-llm-{int(time.time())}"
+    #     llm_name = f"test-custom-llm"
     #     llm = self.client.llms.create(
     #         name=llm_name,
+    #         description="Test LLM for integration tests",
     #         model="gpt-3.5-turbo",
     #         uri="https://api.openai.com/v1/chat/completions",
-    #         description="Test LLM for integration tests",
     #         auth={
     #             "type": "bearer",
-    #             "token": "test-token"
-    #         },
-    #         headers={
-    #             "Content-Type": "application/json"
+    #             "token": os.getenv("OPENAI_API_KEY")
     #         }
     #     )
     #     self.created_llms.add(llm_name)
@@ -70,12 +66,3 @@ class TestLlmsManager(unittest.TestCase):
     #     # Verify the LLM was deleted
     #     with self.assertRaises(Exception):
     #         self.client.llms.get(llm_id=llm_name)
-
-    @classmethod
-    def tearDownClass(cls):
-        """Clean up any remaining test LLMs."""
-        for llm_name in cls.created_llms:
-            try:
-                cls.client.llms.delete(llm_id=llm_name)
-            except Exception:
-                pass

@@ -108,7 +108,7 @@ class TestChat(unittest.TestCase):
 
     def test_chat_stream(self):
         session = self.client.create_chat_session(
-            search=self.search_params,
+            search=self.search_params,  
             generation=self.generation_params,
             chat_config=self.chat_params,
             request_options=self.request_options

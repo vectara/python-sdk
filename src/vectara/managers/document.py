@@ -106,9 +106,9 @@ class DocumentManager:
             if doc.metadata:
                 metadata_copy = dict(doc.metadata)
                 metadata_copy[HASH_FIELD] = sha256_hash
-                result = doc.copy(update={"metadata": metadata_copy})
+                result = doc.model_copy(update={"metadata": metadata_copy})
             else:
-                result = doc.copy(update={"metadata": {HASH_FIELD: sha256_hash}})
+                result = doc.model_copy(update={"metadata": {HASH_FIELD: sha256_hash}})
 
             return result
 

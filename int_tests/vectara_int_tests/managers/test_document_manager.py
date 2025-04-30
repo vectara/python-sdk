@@ -1,35 +1,31 @@
-from vectara.corpora.client import CorporaClient
+import unittest
+import logging
+import os
+
+from vectara.factory import Factory
 from vectara.managers.corpus import CreateCorpusRequest
 from vectara.managers.document import DocOpEnum
 from vectara.types import StructuredDocument
 from vectara.client import Vectara
-from unittest.mock import MagicMock
-from vectara.factory import Factory
-#from vectara.utils.httpx_logging import dump_all_requests
-from pathlib import Path
-import time
-import unittest
-import logging
-import json
-import urllib
+
 
 class DocumentManagerTest(unittest.TestCase):
+    corpus_key = None
+    client = None
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    @classmethod
+    def setUpClass(cls):
+        """Set up test resources."""
         logging.basicConfig(format='%(asctime)s:%(name)-35s %(levelname)s:%(message)s', level=logging.DEBUG, datefmt='%H:%M:%S %z')
-        self.logger = logging.getLogger(self.__class__.__name__)
+        cls.logger = logging.getLogger(cls.__name__)
+        cls.client = Factory().build()
+
+        request = CreateCorpusRequest(name="int-test-document-manager", key="int-test-document-manager")
+        create_response = cls.client.lab_helper.create_lab_corpus(request, user_prefix=False)
+        cls.corpus_key = create_response.key
 
     def test_upsert(self):
         self.logger.info("Testing Doc Upload with Upsert")
-        client = Factory().build()
-
-        request = CreateCorpusRequest(name="int-test-doc-upsert1", key="int-test-doc-upsert1")
-        create_response = client.lab_helper.create_lab_corpus(request)
-        key = create_response.key
-
-        # Sleep for 30 seconds, let caches expire otherwise Documents service can give 404 error (Corpus not found).
-        #time.sleep(30)
 
         doc = StructuredDocument.model_validate({
             "id": "abc",
@@ -38,10 +34,10 @@ class DocumentManagerTest(unittest.TestCase):
             ]
         })
 
-        response = client.document_manager.index_doc(key, doc)
+        response = self.client.document_manager.index_doc(self.corpus_key, doc)
         self.assertEqual(DocOpEnum.CREATED, response)
 
-        response = client.document_manager.index_doc(key, doc)
+        response = self.client.document_manager.index_doc(self.corpus_key, doc)
         self.assertEqual(DocOpEnum.IGNORED, response)
 
         doc = StructuredDocument.model_validate({
@@ -51,7 +47,16 @@ class DocumentManagerTest(unittest.TestCase):
             ]
         })
 
-        response = client.document_manager.index_doc(key, doc)
+        response = self.client.document_manager.index_doc(self.corpus_key, doc)
         self.assertEqual(DocOpEnum.UPDATED, response)
+
+    @classmethod
+    def tearDownClass(cls):
+        """Clean up test resources."""
+        if cls.corpus_key:
+            try:
+                cls.client.corpora.delete(cls.corpus_key)
+            except Exception as e:
+                cls.logger.error(f"Failed to delete corpus {cls.corpus_key}: {e}")
 
 

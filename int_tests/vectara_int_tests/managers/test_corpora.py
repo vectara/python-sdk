@@ -1,5 +1,6 @@
 import unittest
 import os
+import time
 from typing import Optional
 
 from vectara import Vectara, FilterAttribute, CorpusCustomDimension, CoreDocument, CoreDocumentPart, SearchCorporaParameters, \
@@ -149,7 +150,7 @@ class TestCorporaManager(unittest.TestCase):
             ],
         )
         self.client.documents.create(corpus_key, request=document)
-        
+        time.sleep(30)
         # Verify document was added
         documents = list(self.client.documents.list(corpus_key))
         self.assertEqual(len(documents), 1)

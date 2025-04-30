@@ -103,7 +103,7 @@ class BaseVectara:
         self,
         *,
         environment: VectaraEnvironment = VectaraEnvironment.PRODUCTION,
-        api_key: typing.Optional[str] = os.getenv("VECTARA_API_KEY"),
+        api_key: typing.Optional[str] = None,
         client_id: typing.Optional[str] = os.getenv("VECTARA_CLIENT_ID"),
         client_secret: typing.Optional[str] = os.getenv("VECTARA_CLIENT_SECRET"),
         _token_getter_override: typing.Optional[typing.Callable[[], str]] = None,
@@ -136,6 +136,7 @@ class BaseVectara:
                     timeout=_defaulted_timeout,
                 ),
             )
+            print(f"oauth_token_provider: {oauth_token_provider.get_token}")
             self._client_wrapper = SyncClientWrapper(
                 environment=environment,
                 api_key=api_key,

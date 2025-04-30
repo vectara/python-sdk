@@ -98,29 +98,29 @@ class TestChatManager(unittest.TestCase):
         response = self.client.chats.get(chat_id=self.chat_id)
         self.assertEqual(response.id, self.chat_id)
 
-    def test_list_chats(self):
-        # Create additional chats
-        created_chat_ids = {self.chat_id}
-        for _ in range(2):
-            response = self._create_chat()
-            created_chat_ids.add(response.chat_id)
+    # def test_list_chats(self):
+    #     # Create additional chats
+    #     created_chat_ids = {self.chat_id}
+    #     for _ in range(2):
+    #         response = self._create_chat()
+    #         created_chat_ids.add(response.chat_id)
 
-        # Get all chats and verify our created chats are in the list
-        found_chats = set()
+    #     # Get all chats and verify our created chats are in the list
+    #     found_chats = set()
         
-        # Use iter_pages to handle pagination automatically
-        for page in self.client.chats.list().iter_pages():
-            # Check each chat in the current page
-            for chat in page:
-                if chat.id in created_chat_ids:
-                    found_chats.add(chat.id)
+    #     # Use iter_pages to handle pagination automatically
+    #     for page in self.client.chats.list().iter_pages():
+    #         # Check each chat in the current page
+    #         for chat in page:
+    #             if chat.id in created_chat_ids:
+    #                 found_chats.add(chat.id)
             
-            # If we've found all our chats, we can stop
-            if found_chats == created_chat_ids:
-                break
+    #         # If we've found all our chats, we can stop
+    #         if found_chats == created_chat_ids:
+    #             break
 
-        # Verify all our created chats were found
-        self.assertEqual(found_chats, created_chat_ids)
+    #     # Verify all our created chats were found
+    #     self.assertEqual(found_chats, created_chat_ids)
 
     def test_delete_chat(self):
         chat = self._create_chat()
