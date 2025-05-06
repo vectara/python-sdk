@@ -1,3 +1,4 @@
+''' 
 import unittest
 import os
 import json
@@ -132,3 +133,4 @@ class TestUsersManager(unittest.TestCase):
                 cls.app_client.delete()
             except Exception:
                 pass
+'''

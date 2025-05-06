@@ -47,7 +47,7 @@ class TestChat(unittest.TestCase):
                 KeyedSearchCorpus(
                     corpus_key=cls.corpus_name,
                     metadata_filter="",
-                    lexical_interpolation=1,
+                    lexical_interpolation=0.05,
                 )
             ],
             context_configuration=ContextConfiguration(
@@ -67,13 +67,18 @@ class TestChat(unittest.TestCase):
             request_options=self.request_options
         )
 
-        response = session.chat(query="Robot Utility Models")
-        self.assertIsNotNone(response.chat_id)
-        self.assertIsNotNone(response.answer)
+        first_response = session.chat(query="What are Robot Utility Models?")
+        self.assertIsNotNone(first_response.chat_id)
+        self.assertIsNotNone(first_response.answer)
+        first_chat_id = first_response.chat_id
 
-        response = session.chat(query="Utility Models")
-        self.assertIsNotNone(response.chat_id)
-        self.assertIsNotNone(response.answer)
+        second_response = session.chat(query="How do they handle novel environments?")
+        self.assertIsNotNone(second_response.chat_id)
+        self.assertIsNotNone(second_response.answer)
+        
+        # Verify chat continuity
+        self.assertEqual(first_chat_id, second_response.chat_id, "Chat ID should remain the same across turns")
+        
 
     def test_chat_with_default_params(self):
         session = self.client.create_chat_session(

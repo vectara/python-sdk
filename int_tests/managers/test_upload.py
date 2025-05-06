@@ -5,6 +5,7 @@ from pathlib import Path
 from vectara import Vectara
 from vectara.core import File
 from vectara.types import MaxCharsChunkingStrategy, TableExtractionConfig
+from vectara.core.api_error import ApiError
 
 
 class UploadManagerTest(unittest.TestCase):
@@ -64,6 +65,28 @@ class UploadManagerTest(unittest.TestCase):
             chunking_strategy=chunking_strategy,
             filename="test_document_with_chunking.pdf",
             request_timeout=600  # 10 minutes timeout
+        )
+        
+        # Verify upload
+        self.assertIsNotNone(document)
+        self.assertGreater(document.storage_usage.bytes_used, 0)
+
+    def test_upload_with_larger_chunking(self):
+        """Test file upload with larger chunk size."""
+        test_file = self._get_test_file()
+        file = (test_file.name, open(test_file, "rb"), "application/pdf")
+        
+        chunking_strategy = MaxCharsChunkingStrategy(
+            type="max_chars_chunking_strategy",
+            max_chars_per_chunk=1024
+        )
+        
+        document = self.client.upload.file(
+            corpus_key=self.corpus.key,
+            file=file,
+            chunking_strategy=chunking_strategy,
+            filename="test_document_with_larger_chunks.pdf",
+            request_timeout=600
         )
         
         # Verify upload
