@@ -47,7 +47,7 @@ def retry_on_exception(max_retries=3, retry_delay=10):
                     if attempt > 0 and doc_id and hasattr(self, 'client') and hasattr(self, 'corpus'):
                         try:
                             self.client.documents.delete(
-                                corpus_id=self.corpus.key,
+                                corpus_key=self.corpus.key,
                                 document_id=doc_id
                             )
                         except Exception:

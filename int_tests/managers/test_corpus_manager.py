@@ -1,7 +1,4 @@
-from vectara.corpora.client import CorporaClient
 from vectara.managers.corpus import CreateCorpusRequest
-from vectara.client import Vectara
-from unittest.mock import MagicMock
 from vectara.factory import Factory
 
 import unittest

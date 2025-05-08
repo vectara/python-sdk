@@ -1,13 +1,12 @@
 import unittest
 import os
 import time
-from typing import Optional
+from typing import Optional, List
 
-from vectara import Vectara, FilterAttribute, CorpusCustomDimension, CoreDocument, CoreDocumentPart, SearchCorporaParameters, \
-    ContextConfiguration, CustomerSpecificReranker, GenerationParameters, ModelParameters, \
+from vectara import Vectara, FilterAttribute, CorpusCustomDimension, CoreDocument, CoreDocumentPart, \
+    ContextConfiguration, CustomerSpecificReranker, GenerationParameters, \
     CitationParameters, SearchCorpusParameters
 from vectara.core import RequestOptions
-from vectara.factory import Factory
 
 
 class TestCorporaManager(unittest.TestCase):
@@ -24,7 +23,7 @@ class TestCorporaManager(unittest.TestCase):
         cls.created_corpora = set()
 
     def _create_corpus(self, key: str, name: Optional[str] = None, description: Optional[str] = None, 
-                      filter_attributes: Optional[list[FilterAttribute]] = None) -> str:
+                      filter_attributes: Optional[List[FilterAttribute]] = None) -> str:
         """Helper method to create a corpus with given parameters."""
         if name is None:
             name = key
