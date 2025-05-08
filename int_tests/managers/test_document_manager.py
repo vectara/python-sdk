@@ -1,6 +1,7 @@
 import unittest
 import logging
 import os
+import time
 
 from vectara.factory import Factory
 from vectara.managers.corpus import CreateCorpusRequest
@@ -36,9 +37,13 @@ class DocumentManagerTest(unittest.TestCase):
 
         response = self.client.document_manager.index_doc(self.corpus_key, doc)
         self.assertEqual(DocOpEnum.CREATED, response)
+        # Wait for indexing to complete
+        time.sleep(10)
 
         response = self.client.document_manager.index_doc(self.corpus_key, doc)
         self.assertEqual(DocOpEnum.IGNORED, response)
+        # Wait for indexing to complete
+        time.sleep(5)
 
         doc = StructuredDocument.model_validate({
             "id": "abc",
@@ -49,6 +54,8 @@ class DocumentManagerTest(unittest.TestCase):
 
         response = self.client.document_manager.index_doc(self.corpus_key, doc)
         self.assertEqual(DocOpEnum.UPDATED, response)
+        # Wait for indexing to complete
+        time.sleep(10)
 
     @classmethod
     def tearDownClass(cls):
