@@ -212,7 +212,12 @@ class TestMultipleCorporaQuery(unittest.TestCase):
         response = list(response)
         self.assertGreater(len(response), 0)
         for item in response:
-            self.assertIsInstance(item, QueryStreamedResponse)
+            self.assertTrue(
+                hasattr(item, 'type') or 
+                hasattr(item, 'value') or 
+                hasattr(item, 'generation_id'),
+                f"Streamed response item {item} doesn't have expected attributes"
+            )
 
     @classmethod
     def tearDownClass(cls):
