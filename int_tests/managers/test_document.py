@@ -1,5 +1,6 @@
 import unittest
 import os
+import time
 
 from vectara import Vectara, CoreDocument, CoreDocumentPart
 
@@ -60,6 +61,9 @@ class TestDocument(unittest.TestCase):
         for index in range(2):
             doc_id = self._create_document(f"my-doc-id-{index}")
             doc_ids.append(doc_id)
+
+        # Wait for documents to be indexed
+        time.sleep(10) 
 
         # Get all documents and verify our created documents are in the list
         found_ids = set()
