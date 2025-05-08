@@ -36,20 +36,6 @@ class TestCorporaManager(unittest.TestCase):
         self.created_corpora.add(key)
         return key
 
-    def _wait_for_corpus(self, corpus_key: str, timeout: int = 60):
-        """Helper method to wait for corpus operations to complete."""
-        import time
-        start_time = time.time()
-        while time.time() - start_time < timeout:
-            try:
-                corpus = self.client.corpora.get(corpus_key)
-                if corpus:
-                    return
-            except Exception:
-                pass
-            time.sleep(5)
-        raise TimeoutError(f"Corpus {corpus_key} not ready after {timeout} seconds")
-
     def test_create_corpora(self):
         filter_attributes = FilterAttribute(
             name="Title",
@@ -190,7 +176,7 @@ class TestCorporaManager(unittest.TestCase):
             ],
         )
         self.client.documents.create(corpus_key, request=document)
-        
+        time.sleep(10)
         response = self.client.corpora.search(corpus_key=corpus_key, query="Robot Utility Models")
         self.assertIsNone(response.summary)
         self.assertGreater(len(response.search_results), 0)
@@ -208,7 +194,7 @@ class TestCorporaManager(unittest.TestCase):
             ],
         )
         self.client.documents.create(corpus_key, request=document)
-        
+        time.sleep(10)
         search_params = SearchCorpusParameters(
             context_configuration=ContextConfiguration(
                 sentences_before=2,
