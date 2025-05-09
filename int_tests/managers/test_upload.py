@@ -6,7 +6,7 @@ from pathlib import Path
 
 from vectara import Vectara
 from vectara.core import File
-from vectara.types import MaxCharsChunkingStrategy, TableExtractionConfig
+from vectara.types import MaxCharsChunkingStrategy, TableExtractionConfig, TableExtractorSpec
 import httpx
 
 
@@ -171,7 +171,7 @@ class UploadManagerTest(unittest.TestCase):
         with open(test_file, "rb") as file_content:
             file = (test_file.name, file_content, "application/pdf")
             
-            table_config = TableExtractionConfig(extract_tables=True)
+            table_config = TableExtractionConfig(extract_tables=True, extractor=TableExtractorSpec(name="gmft"))
             
             document = self.client.upload.file(
                 corpus_key=self.corpus.key,
@@ -198,14 +198,13 @@ class UploadManagerTest(unittest.TestCase):
                 max_chars_per_chunk=200
             )
             
-            table_config = TableExtractionConfig(extract_tables=True)
+            
             
             document = self.client.upload.file(
                 corpus_key=self.corpus.key,
                 file=file,
                 metadata={"key": "value", "test": True},
                 chunking_strategy=chunking_strategy,
-                table_extraction_config=table_config,
                 filename="test_document_with_all_options.pdf",
                 request_timeout=600  # 10 minutes timeout
             )
