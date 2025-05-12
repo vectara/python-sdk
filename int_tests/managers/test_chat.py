@@ -1,5 +1,6 @@
 import unittest
 import os
+import time
 
 from vectara import Vectara
 from vectara import SearchCorporaParameters, KeyedSearchCorpus, ContextConfiguration, GenerationParameters, \
@@ -70,7 +71,7 @@ class TestChatManager(unittest.TestCase):
             ],
         )
         cls.client.documents.create(cls.key, request=document)
-
+        time.sleep(10)
         # Create initial chat
         response = cls.client.chat(
             query="Robot Utility Models",
@@ -138,7 +139,7 @@ class TestChatManager(unittest.TestCase):
             generation=self.generation_params,
             chat=self.chat_params
         )
-
+        time.sleep(10)
         self.assertEqual(response.chat_id, self.chat_id)
         self.assertIsNotNone(response.turn_id)
 
@@ -150,7 +151,7 @@ class TestChatManager(unittest.TestCase):
             generation=self.generation_params,
             chat=self.chat_params
         )
-
+        time.sleep(10)
         get_response = self.client.chats.get_turn(chat_id=self.chat_id, turn_id=response.turn_id)
 
         self.assertEqual(get_response.chat_id, self.chat_id)
@@ -164,7 +165,7 @@ class TestChatManager(unittest.TestCase):
             generation=self.generation_params,
             chat=self.chat_params
         )
-
+        time.sleep(10)
         del_response = self.client.chats.delete_turn(chat_id=self.chat_id, turn_id=response.turn_id)
         self.assertIsNone(del_response)
 
@@ -176,8 +177,9 @@ class TestChatManager(unittest.TestCase):
             generation=self.generation_params,
             chat=self.chat_params
         )
+        time.sleep(10)
         turn = self.client.chats.update_turn(chat_id=self.chat_id, turn_id=response.turn_id, enabled=False)
-
+        
         self.assertEqual(turn.enabled, False)
 
     def test_list_turns(self):
@@ -192,7 +194,7 @@ class TestChatManager(unittest.TestCase):
                 chat=self.chat_params
             )
             created_turn_ids.add(response.turn_id)
-
+        time.sleep(10)
         # Get all turns and verify our created turns are in the list
         response = self.client.chats.list_turns(chat_id=self.chat_id)
         for turn in response.turns:

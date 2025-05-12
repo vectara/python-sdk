@@ -1,6 +1,5 @@
 import unittest
 import logging
-import os
 import time
 
 from vectara.factory import Factory
