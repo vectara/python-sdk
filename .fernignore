@@ -34,3 +34,4 @@ CONFIGURATION.md
 resources/
 
 src/vectara/types/search_corpora_parameters.py # do not remove
+src/vectara/corpora/types/search_corpus_parameters.py # do not remove

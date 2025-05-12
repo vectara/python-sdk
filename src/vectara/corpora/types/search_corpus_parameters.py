@@ -3,7 +3,7 @@
 import typing
 
 import pydantic
-from ...core.pydantic_utilities import IS_PYDANTIC_V2
+from ...core.pydantic_utilities import IS_PYDANTIC_V2, update_forward_refs
 from ...types.search_corpus import SearchCorpus
 from ...types.search_parameters import SearchParameters
 
@@ -21,3 +21,10 @@ class SearchCorpusParameters(SearchCorpus, SearchParameters):
             frozen = True
             smart_union = True
             extra = pydantic.Extra.allow
+
+from ...types.chain_reranker import ChainReranker  # noqa: E402
+
+update_forward_refs(ChainReranker)            
+
+if IS_PYDANTIC_V2:
+    SearchCorpusParameters.model_rebuild()
