@@ -29,4 +29,6 @@ class ChainReranker(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
+from .search_reranker import SearchReranker  # noqa: E402, F401, I001
+
 update_forward_refs(ChainReranker)
