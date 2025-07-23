@@ -114,10 +114,10 @@ from .rewritten_query import RewrittenQuery
 from .rewritten_query_span import RewrittenQuerySpan
 from .rewritten_query_warning import RewrittenQueryWarning
 from .row import Row
+from .search_reranker import SearchReranker
 from .search_corpora_parameters import SearchCorporaParameters
 from .search_corpus import SearchCorpus
 from .search_parameters import SearchParameters
-from .search_reranker import SearchReranker
 from .search_semantics import SearchSemantics
 from .search_span import SearchSpan
 from .sentence_chunking_strategy import SentenceChunkingStrategy
