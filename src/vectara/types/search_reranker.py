@@ -9,14 +9,8 @@ from .mmr_reranker import MmrReranker
 from .none_reranker import NoneReranker
 from .user_function_reranker import UserFunctionReranker
 
-# Define SearchReranker without ChainReranker to avoid circular dependency
-SearchReranker = typing.Union[
-    CustomerSpecificReranker, UserFunctionReranker, MmrReranker, NoneReranker
-]
-
-# Add ChainReranker to the union after it's defined
 if typing.TYPE_CHECKING:
     from .chain_reranker import ChainReranker
-    SearchReranker = typing.Union[
-        CustomerSpecificReranker, UserFunctionReranker, MmrReranker, ChainReranker, NoneReranker
-    ]
+SearchReranker = typing.Union[
+    CustomerSpecificReranker, UserFunctionReranker, MmrReranker, "ChainReranker", NoneReranker
+]

@@ -27,5 +27,9 @@ class SearchCorporaParameters(SearchParameters):
             smart_union = True
             extra = pydantic.Extra.allow
 
+from .chain_reranker import ChainReranker  # noqa: E402
+
+update_forward_refs(ChainReranker)            
+
 if IS_PYDANTIC_V2:
     SearchCorporaParameters.model_rebuild()
