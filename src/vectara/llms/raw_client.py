@@ -7,7 +7,7 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, SyncPager
+from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..core.serialization import convert_and_respect_annotation_metadata
@@ -38,11 +38,9 @@ class RawLlmsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[SyncPager[Llm]]:
+    ) -> SyncPager[Llm]:
         """
-        List LLMs that can be used with query and chat endpoints. The LLM is not directly specified in a query,
-        but instead a `generation_preset_name` is used. The `generation_preset_name` property in generation parameters
-        can be found as the `name` property on the Generations Presets retrieved from `/v2/generation_presets`.
+        List LLMs that can be used with query and chat endpoints. The LLM is not directly specified in a query, but instead a `generation_preset_name` is used. The `generation_preset_name` property in generation parameters can be found as the `name` property on the Generations Presets retrieved from `/v2/generation_presets`.
 
         Parameters
         ----------
@@ -53,8 +51,7 @@ class RawLlmsClient:
             The maximum number of results to return in the list.
 
         page_key : typing.Optional[str]
-            Used to retrieve the next page of LLMs after the limit has been reached.
-            This parameter is not needed for the first page of results.
+            Used to retrieve the next page of LLMs after the limit has been reached. This parameter is not needed for the first page of results.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -67,7 +64,7 @@ class RawLlmsClient:
 
         Returns
         -------
-        HttpResponse[SyncPager[Llm]]
+        SyncPager[Llm]
             List of LLMs.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -94,6 +91,7 @@ class RawLlmsClient:
                         object_=_response.json(),
                     ),
                 )
+                _items = _parsed_response.llms
                 _has_next = False
                 _get_next = None
                 if _parsed_response.metadata is not None:
@@ -107,24 +105,24 @@ class RawLlmsClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                _items = _parsed_response.llms
-                return HttpResponse(
-                    response=_response, data=SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+                return SyncPager(
+                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
         self,
@@ -146,9 +144,7 @@ class RawLlmsClient:
         Parameters
         ----------
         name : str
-            Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM.
-            If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform),
-            then it will override that LLM for all usages.
+            Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM. If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform), then it will override that LLM for all usages.
 
         model : str
             The model name to use with the API (e.g. gpt-4, claude-2, etc). This is used in the API request to the remote LLM provider.
@@ -196,6 +192,7 @@ class RawLlmsClient:
                 "type": "openai-compatible",
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -214,28 +211,30 @@ class RawLlmsClient:
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         BadRequestErrorBody,
                         parse_obj_as(
                             type_=BadRequestErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
         self,
@@ -289,28 +288,30 @@ class RawLlmsClient:
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
         self,
@@ -356,28 +357,30 @@ class RawLlmsClient:
                 return HttpResponse(response=_response, data=None)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
 class AsyncRawLlmsClient:
@@ -393,11 +396,9 @@ class AsyncRawLlmsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[AsyncPager[Llm]]:
+    ) -> AsyncPager[Llm]:
         """
-        List LLMs that can be used with query and chat endpoints. The LLM is not directly specified in a query,
-        but instead a `generation_preset_name` is used. The `generation_preset_name` property in generation parameters
-        can be found as the `name` property on the Generations Presets retrieved from `/v2/generation_presets`.
+        List LLMs that can be used with query and chat endpoints. The LLM is not directly specified in a query, but instead a `generation_preset_name` is used. The `generation_preset_name` property in generation parameters can be found as the `name` property on the Generations Presets retrieved from `/v2/generation_presets`.
 
         Parameters
         ----------
@@ -408,8 +409,7 @@ class AsyncRawLlmsClient:
             The maximum number of results to return in the list.
 
         page_key : typing.Optional[str]
-            Used to retrieve the next page of LLMs after the limit has been reached.
-            This parameter is not needed for the first page of results.
+            Used to retrieve the next page of LLMs after the limit has been reached. This parameter is not needed for the first page of results.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -422,7 +422,7 @@ class AsyncRawLlmsClient:
 
         Returns
         -------
-        AsyncHttpResponse[AsyncPager[Llm]]
+        AsyncPager[Llm]
             List of LLMs.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -449,37 +449,41 @@ class AsyncRawLlmsClient:
                         object_=_response.json(),
                     ),
                 )
+                _items = _parsed_response.llms
                 _has_next = False
                 _get_next = None
                 if _parsed_response.metadata is not None:
                     _parsed_next = _parsed_response.metadata.page_key
                     _has_next = _parsed_next is not None and _parsed_next != ""
-                    _get_next = lambda: self.list(
-                        filter=filter,
-                        limit=limit,
-                        page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
-                        request_options=request_options,
-                    )
-                _items = _parsed_response.llms
-                return AsyncHttpResponse(
-                    response=_response, data=AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+
+                    async def _get_next():
+                        return await self.list(
+                            filter=filter,
+                            limit=limit,
+                            page_key=_parsed_next,
+                            request_timeout=request_timeout,
+                            request_timeout_millis=request_timeout_millis,
+                            request_options=request_options,
+                        )
+
+                return AsyncPager(
+                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
         self,
@@ -501,9 +505,7 @@ class AsyncRawLlmsClient:
         Parameters
         ----------
         name : str
-            Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM.
-            If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform),
-            then it will override that LLM for all usages.
+            Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM. If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform), then it will override that LLM for all usages.
 
         model : str
             The model name to use with the API (e.g. gpt-4, claude-2, etc). This is used in the API request to the remote LLM provider.
@@ -551,6 +553,7 @@ class AsyncRawLlmsClient:
                 "type": "openai-compatible",
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -569,28 +572,30 @@ class AsyncRawLlmsClient:
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         BadRequestErrorBody,
                         parse_obj_as(
                             type_=BadRequestErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
         self,
@@ -644,28 +649,30 @@ class AsyncRawLlmsClient:
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
         self,
@@ -711,25 +718,27 @@ class AsyncRawLlmsClient:
                 return AsyncHttpResponse(response=_response, data=None)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

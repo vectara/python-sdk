@@ -8,8 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class StreamGenerationEnd(UniversalBaseModel):
     """
-    The end of generation. There may still be more information such as the
-    factual consistency score, but generation has stopped.
+    The end of generation. There may still be more information such as the factual consistency score, but generation has stopped.
     """
 
     type: typing.Literal["generation_end"] = "generation_end"

@@ -7,7 +7,7 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, SyncPager
+from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..core.serialization import convert_and_respect_annotation_metadata
@@ -43,11 +43,9 @@ class RawDocumentsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[SyncPager[Document]]:
+    ) -> SyncPager[Document]:
         """
-        Retrieve a list of documents stored in a specific corpus. This endpoint
-        provides an overview of document metadata without returning the full content of
-        each document.
+        Retrieve a list of documents stored in a specific corpus. This endpoint provides an overview of document metadata without returning the full content of each document.
 
         Parameters
         ----------
@@ -58,8 +56,7 @@ class RawDocumentsClient:
             The maximum number of documents to return at one time.
 
         metadata_filter : typing.Optional[str]
-            Filter documents by metadata. Uses the same expression as a query metadata filter, but only
-            allows filtering on document metadata.
+            Filter documents by metadata. Uses the same expression as a query metadata filter, but only allows filtering on document metadata.
 
         page_key : typing.Optional[str]
             Used to retrieve the next page of documents after the limit has been reached.
@@ -75,7 +72,7 @@ class RawDocumentsClient:
 
         Returns
         -------
-        HttpResponse[SyncPager[Document]]
+        SyncPager[Document]
             List of documents.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -102,6 +99,7 @@ class RawDocumentsClient:
                         object_=_response.json(),
                     ),
                 )
+                _items = _parsed_response.documents
                 _has_next = False
                 _get_next = None
                 if _parsed_response.metadata is not None:
@@ -116,34 +114,35 @@ class RawDocumentsClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                _items = _parsed_response.documents
-                return HttpResponse(
-                    response=_response, data=SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+                return SyncPager(
+                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
         self,
@@ -155,15 +154,10 @@ class RawDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Document]:
         """
-        Add a document to a corpus. This endpoint supports two document formats, structured and core.
+        Add a document to a corpus. This endpoint supports two document formats: structured and core.
 
-        * **Structured** documents have a more conventional structure that provide document sections
-        and parts in a format created by Vectara's proprietary strategy automatically. You provide
-        a logical document structure, and Vectara handles the partitioning.
-        * **Core** documents differ in that they follow an advanced, granular structure that
-        explicitly defines each document part in an array. Each part becomes a distinct,
-        searchable item in query results. You have precise control over the document structure
-        and content.
+        * **Structured** documents have a conventional structure that provides document sections and parts in a format created by our proprietary strategy automatically. You provide a logical document structure, and Vectara handles the partitioning.
+        * **Core** documents differ in that they follow an advanced, granular structure that explicitly defines each document part in an array. Each part becomes a distinct, searchable item in query results. You have precise control over the document structure and content.
 
         For more details, see [Indexing](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
 
@@ -196,6 +190,7 @@ class RawDocumentsClient:
                 object_=request, annotation=CreateDocumentRequest, direction="write"
             ),
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -214,48 +209,52 @@ class RawDocumentsClient:
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         BadRequestErrorBody,
                         parse_obj_as(
                             type_=BadRequestErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 409:
                 raise ConflictError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
         self,
@@ -267,8 +266,7 @@ class RawDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Document]:
         """
-        Retrieve the content and metadata of a specific document, identified by its
-        unique `document_id` from a specific corpus.
+        Retrieve the content and metadata of a specific document, identified by its unique `document_id` from a specific corpus.
 
         Parameters
         ----------
@@ -276,8 +274,7 @@ class RawDocumentsClient:
             The unique key identifying the corpus containing the document to retrieve.
 
         document_id : str
-            The document ID of the document to retrieve.
-            This `document_id` must be percent encoded.
+            The document ID of the document to retrieve. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -315,28 +312,30 @@ class RawDocumentsClient:
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
         self,
@@ -348,8 +347,7 @@ class RawDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[None]:
         """
-        Permanently delete a document identified by its unique `document_id` from a specific
-        corpus. This operation cannot be undone, so use it with caution.
+        Permanently delete a document identified by its unique `document_id` from a specific corpus. This operation cannot be undone, so use it with caution.
 
         Parameters
         ----------
@@ -357,8 +355,7 @@ class RawDocumentsClient:
             The unique key identifying the corpus with the document to delete.
 
         document_id : str
-            The document ID of the document to delete.
-            This `document_id` must be percent encoded.
+            The document ID of the document to delete. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -388,28 +385,30 @@ class RawDocumentsClient:
                 return HttpResponse(response=_response, data=None)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def update(
         self,
@@ -422,9 +421,7 @@ class RawDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Document]:
         """
-        Updates document identified by its unique `document_id` from a specific
-        corpus. The request body metadata is merged with the existing metadata,
-        adding or modifying only the specified fields.
+        Updates document identified by its unique `document_id` from a specific corpus. The request body metadata is merged with the existing metadata, adding or modifying only the specified fields.
 
         Parameters
         ----------
@@ -432,8 +429,7 @@ class RawDocumentsClient:
             The unique key identifying the corpus with the document to update.
 
         document_id : str
-            The document ID of the document to update.
-            This `document_id` must be percent encoded.
+            The document ID of the document to update. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -442,8 +438,7 @@ class RawDocumentsClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            The metadata for a document as an arbitrary object. Properties of this object
-            can be used by document level filter attributes.
+            The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -461,6 +456,7 @@ class RawDocumentsClient:
                 "metadata": metadata,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -479,38 +475,41 @@ class RawDocumentsClient:
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 429:
                 raise TooManyRequestsError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def update_metadata(
         self,
@@ -523,8 +522,7 @@ class RawDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Document]:
         """
-        Replaces metadata of a document identified by its unique `document_id`
-        from a specific corpus.
+        Replaces metadata of a document identified by its unique `document_id` from a specific corpus.
 
         Parameters
         ----------
@@ -532,8 +530,7 @@ class RawDocumentsClient:
             The unique key identifying the corpus with the document to update.
 
         document_id : str
-            The document ID of the document to update.
-            This `document_id` must be percent encoded.
+            The document ID of the document to update. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -542,8 +539,7 @@ class RawDocumentsClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            The metadata for a document as an arbitrary object. Properties of this object
-            can be used by document level filter attributes.
+            The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -561,6 +557,7 @@ class RawDocumentsClient:
                 "metadata": metadata,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -579,38 +576,41 @@ class RawDocumentsClient:
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 429:
                 raise TooManyRequestsError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def summarize(
         self,
@@ -634,8 +634,7 @@ class RawDocumentsClient:
             The unique key identifying the corpus containing the document to retrieve.
 
         document_id : str
-            The document ID of the document to retrieve.
-            This `document_id` must be percent encoded.
+            The document ID of the document to retrieve. This `document_id` must be percent encoded.
 
         llm_name : str
             The name of the LLM.
@@ -647,12 +646,7 @@ class RawDocumentsClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         prompt_template : typing.Optional[str]
-            The prompt template to use when generating the summary.
-            Vectara manages both system and user roles and prompts for the generative
-            LLM out of the box by default. However, users can override the
-            `prompt_template` via this variable. The `prompt_template` is in the form of an
-            Apache Velocity template. For more details on how to configure the
-            `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
+            The prompt template to use when generating the summary. Vectara manages both system and user roles and prompts for the generative LLM out of the box by default. However, users can override the `prompt_template` via this variable. The `prompt_template` is in the form of an Apache Velocity template. For more details on how to configure the `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
 
         model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Optional parameters for the specified model used when generating the summary.
@@ -698,28 +692,30 @@ class RawDocumentsClient:
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
 class AsyncRawDocumentsClient:
@@ -736,11 +732,9 @@ class AsyncRawDocumentsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[AsyncPager[Document]]:
+    ) -> AsyncPager[Document]:
         """
-        Retrieve a list of documents stored in a specific corpus. This endpoint
-        provides an overview of document metadata without returning the full content of
-        each document.
+        Retrieve a list of documents stored in a specific corpus. This endpoint provides an overview of document metadata without returning the full content of each document.
 
         Parameters
         ----------
@@ -751,8 +745,7 @@ class AsyncRawDocumentsClient:
             The maximum number of documents to return at one time.
 
         metadata_filter : typing.Optional[str]
-            Filter documents by metadata. Uses the same expression as a query metadata filter, but only
-            allows filtering on document metadata.
+            Filter documents by metadata. Uses the same expression as a query metadata filter, but only allows filtering on document metadata.
 
         page_key : typing.Optional[str]
             Used to retrieve the next page of documents after the limit has been reached.
@@ -768,7 +761,7 @@ class AsyncRawDocumentsClient:
 
         Returns
         -------
-        AsyncHttpResponse[AsyncPager[Document]]
+        AsyncPager[Document]
             List of documents.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -795,48 +788,53 @@ class AsyncRawDocumentsClient:
                         object_=_response.json(),
                     ),
                 )
+                _items = _parsed_response.documents
                 _has_next = False
                 _get_next = None
                 if _parsed_response.metadata is not None:
                     _parsed_next = _parsed_response.metadata.page_key
                     _has_next = _parsed_next is not None and _parsed_next != ""
-                    _get_next = lambda: self.list(
-                        corpus_key,
-                        limit=limit,
-                        metadata_filter=metadata_filter,
-                        page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
-                        request_options=request_options,
-                    )
-                _items = _parsed_response.documents
-                return AsyncHttpResponse(
-                    response=_response, data=AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+
+                    async def _get_next():
+                        return await self.list(
+                            corpus_key,
+                            limit=limit,
+                            metadata_filter=metadata_filter,
+                            page_key=_parsed_next,
+                            request_timeout=request_timeout,
+                            request_timeout_millis=request_timeout_millis,
+                            request_options=request_options,
+                        )
+
+                return AsyncPager(
+                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
         self,
@@ -848,15 +846,10 @@ class AsyncRawDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Document]:
         """
-        Add a document to a corpus. This endpoint supports two document formats, structured and core.
+        Add a document to a corpus. This endpoint supports two document formats: structured and core.
 
-        * **Structured** documents have a more conventional structure that provide document sections
-        and parts in a format created by Vectara's proprietary strategy automatically. You provide
-        a logical document structure, and Vectara handles the partitioning.
-        * **Core** documents differ in that they follow an advanced, granular structure that
-        explicitly defines each document part in an array. Each part becomes a distinct,
-        searchable item in query results. You have precise control over the document structure
-        and content.
+        * **Structured** documents have a conventional structure that provides document sections and parts in a format created by our proprietary strategy automatically. You provide a logical document structure, and Vectara handles the partitioning.
+        * **Core** documents differ in that they follow an advanced, granular structure that explicitly defines each document part in an array. Each part becomes a distinct, searchable item in query results. You have precise control over the document structure and content.
 
         For more details, see [Indexing](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
 
@@ -889,6 +882,7 @@ class AsyncRawDocumentsClient:
                 object_=request, annotation=CreateDocumentRequest, direction="write"
             ),
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -907,48 +901,52 @@ class AsyncRawDocumentsClient:
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         BadRequestErrorBody,
                         parse_obj_as(
                             type_=BadRequestErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 409:
                 raise ConflictError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
         self,
@@ -960,8 +958,7 @@ class AsyncRawDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Document]:
         """
-        Retrieve the content and metadata of a specific document, identified by its
-        unique `document_id` from a specific corpus.
+        Retrieve the content and metadata of a specific document, identified by its unique `document_id` from a specific corpus.
 
         Parameters
         ----------
@@ -969,8 +966,7 @@ class AsyncRawDocumentsClient:
             The unique key identifying the corpus containing the document to retrieve.
 
         document_id : str
-            The document ID of the document to retrieve.
-            This `document_id` must be percent encoded.
+            The document ID of the document to retrieve. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -1008,28 +1004,30 @@ class AsyncRawDocumentsClient:
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
         self,
@@ -1041,8 +1039,7 @@ class AsyncRawDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[None]:
         """
-        Permanently delete a document identified by its unique `document_id` from a specific
-        corpus. This operation cannot be undone, so use it with caution.
+        Permanently delete a document identified by its unique `document_id` from a specific corpus. This operation cannot be undone, so use it with caution.
 
         Parameters
         ----------
@@ -1050,8 +1047,7 @@ class AsyncRawDocumentsClient:
             The unique key identifying the corpus with the document to delete.
 
         document_id : str
-            The document ID of the document to delete.
-            This `document_id` must be percent encoded.
+            The document ID of the document to delete. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -1081,28 +1077,30 @@ class AsyncRawDocumentsClient:
                 return AsyncHttpResponse(response=_response, data=None)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def update(
         self,
@@ -1115,9 +1113,7 @@ class AsyncRawDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Document]:
         """
-        Updates document identified by its unique `document_id` from a specific
-        corpus. The request body metadata is merged with the existing metadata,
-        adding or modifying only the specified fields.
+        Updates document identified by its unique `document_id` from a specific corpus. The request body metadata is merged with the existing metadata, adding or modifying only the specified fields.
 
         Parameters
         ----------
@@ -1125,8 +1121,7 @@ class AsyncRawDocumentsClient:
             The unique key identifying the corpus with the document to update.
 
         document_id : str
-            The document ID of the document to update.
-            This `document_id` must be percent encoded.
+            The document ID of the document to update. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -1135,8 +1130,7 @@ class AsyncRawDocumentsClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            The metadata for a document as an arbitrary object. Properties of this object
-            can be used by document level filter attributes.
+            The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1154,6 +1148,7 @@ class AsyncRawDocumentsClient:
                 "metadata": metadata,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -1172,38 +1167,41 @@ class AsyncRawDocumentsClient:
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 429:
                 raise TooManyRequestsError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def update_metadata(
         self,
@@ -1216,8 +1214,7 @@ class AsyncRawDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Document]:
         """
-        Replaces metadata of a document identified by its unique `document_id`
-        from a specific corpus.
+        Replaces metadata of a document identified by its unique `document_id` from a specific corpus.
 
         Parameters
         ----------
@@ -1225,8 +1222,7 @@ class AsyncRawDocumentsClient:
             The unique key identifying the corpus with the document to update.
 
         document_id : str
-            The document ID of the document to update.
-            This `document_id` must be percent encoded.
+            The document ID of the document to update. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -1235,8 +1231,7 @@ class AsyncRawDocumentsClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            The metadata for a document as an arbitrary object. Properties of this object
-            can be used by document level filter attributes.
+            The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1254,6 +1249,7 @@ class AsyncRawDocumentsClient:
                 "metadata": metadata,
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -1272,38 +1268,41 @@ class AsyncRawDocumentsClient:
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 429:
                 raise TooManyRequestsError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def summarize(
         self,
@@ -1327,8 +1326,7 @@ class AsyncRawDocumentsClient:
             The unique key identifying the corpus containing the document to retrieve.
 
         document_id : str
-            The document ID of the document to retrieve.
-            This `document_id` must be percent encoded.
+            The document ID of the document to retrieve. This `document_id` must be percent encoded.
 
         llm_name : str
             The name of the LLM.
@@ -1340,12 +1338,7 @@ class AsyncRawDocumentsClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         prompt_template : typing.Optional[str]
-            The prompt template to use when generating the summary.
-            Vectara manages both system and user roles and prompts for the generative
-            LLM out of the box by default. However, users can override the
-            `prompt_template` via this variable. The `prompt_template` is in the form of an
-            Apache Velocity template. For more details on how to configure the
-            `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
+            The prompt template to use when generating the summary. Vectara manages both system and user roles and prompts for the generative LLM out of the box by default. However, users can override the `prompt_template` via this variable. The `prompt_template` is in the form of an Apache Velocity template. For more details on how to configure the `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
 
         model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Optional parameters for the specified model used when generating the summary.
@@ -1391,25 +1384,27 @@ class AsyncRawDocumentsClient:
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

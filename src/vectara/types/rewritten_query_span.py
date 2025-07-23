@@ -10,8 +10,7 @@ from .filter_extraction import FilterExtraction
 
 class RewrittenQuerySpan(UniversalBaseModel):
     """
-    Provides detailed information about a rewritten query generated for a specific corpus
-    when intelligent query rewriting is enabled.
+    Provides detailed information about a rewritten query generated for a specific corpus when intelligent query rewriting is enabled.
     """
 
     type: typing.Literal["rewritten_query"] = "rewritten_query"
@@ -27,7 +26,7 @@ class RewrittenQuerySpan(UniversalBaseModel):
 
     started_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)
     """
-    When the span started.
+    ISO date time that indicates when the span started.
     """
 
     warnings: typing.Optional[typing.Optional[typing.Any]] = None

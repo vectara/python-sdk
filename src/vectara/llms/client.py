@@ -39,9 +39,7 @@ class LlmsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Llm]:
         """
-        List LLMs that can be used with query and chat endpoints. The LLM is not directly specified in a query,
-        but instead a `generation_preset_name` is used. The `generation_preset_name` property in generation parameters
-        can be found as the `name` property on the Generations Presets retrieved from `/v2/generation_presets`.
+        List LLMs that can be used with query and chat endpoints. The LLM is not directly specified in a query, but instead a `generation_preset_name` is used. The `generation_preset_name` property in generation parameters can be found as the `name` property on the Generations Presets retrieved from `/v2/generation_presets`.
 
         Parameters
         ----------
@@ -52,8 +50,7 @@ class LlmsClient:
             The maximum number of results to return in the list.
 
         page_key : typing.Optional[str]
-            Used to retrieve the next page of LLMs after the limit has been reached.
-            This parameter is not needed for the first page of results.
+            Used to retrieve the next page of LLMs after the limit has been reached. This parameter is not needed for the first page of results.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -72,7 +69,12 @@ class LlmsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.llms.list()
         for item in response:
             yield item
@@ -80,7 +82,7 @@ class LlmsClient:
         for page in response.iter_pages():
             yield page
         """
-        response = self._raw_client.list(
+        return self._raw_client.list(
             filter=filter,
             limit=limit,
             page_key=page_key,
@@ -88,7 +90,6 @@ class LlmsClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     def create(
         self,
@@ -110,9 +111,7 @@ class LlmsClient:
         Parameters
         ----------
         name : str
-            Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM.
-            If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform),
-            then it will override that LLM for all usages.
+            Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM. If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform), then it will override that LLM for all usages.
 
         model : str
             The model name to use with the API (e.g. gpt-4, claude-2, etc). This is used in the API request to the remote LLM provider.
@@ -148,10 +147,19 @@ class LlmsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.llms.create(name='name', model='model', uri='uri', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.llms.create(
+            name="name",
+            model="model",
+            uri="uri",
+        )
         """
-        response = self._raw_client.create(
+        _response = self._raw_client.create(
             name=name,
             model=model,
             uri=uri,
@@ -163,7 +171,7 @@ class LlmsClient:
             test_model_parameters=test_model_parameters,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def get(
         self,
@@ -198,16 +206,23 @@ class LlmsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.llms.get(llm_id='llm_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.llms.get(
+            llm_id="llm_id",
+        )
         """
-        response = self._raw_client.get(
+        _response = self._raw_client.get(
             llm_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def delete(
         self,
@@ -241,16 +256,23 @@ class LlmsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.llms.delete(llm_id='llm_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.llms.delete(
+            llm_id="llm_id",
+        )
         """
-        response = self._raw_client.delete(
+        _response = self._raw_client.delete(
             llm_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
 
 class AsyncLlmsClient:
@@ -279,9 +301,7 @@ class AsyncLlmsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Llm]:
         """
-        List LLMs that can be used with query and chat endpoints. The LLM is not directly specified in a query,
-        but instead a `generation_preset_name` is used. The `generation_preset_name` property in generation parameters
-        can be found as the `name` property on the Generations Presets retrieved from `/v2/generation_presets`.
+        List LLMs that can be used with query and chat endpoints. The LLM is not directly specified in a query, but instead a `generation_preset_name` is used. The `generation_preset_name` property in generation parameters can be found as the `name` property on the Generations Presets retrieved from `/v2/generation_presets`.
 
         Parameters
         ----------
@@ -292,8 +312,7 @@ class AsyncLlmsClient:
             The maximum number of results to return in the list.
 
         page_key : typing.Optional[str]
-            Used to retrieve the next page of LLMs after the limit has been reached.
-            This parameter is not needed for the first page of results.
+            Used to retrieve the next page of LLMs after the limit has been reached. This parameter is not needed for the first page of results.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -311,9 +330,17 @@ class AsyncLlmsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
             response = await client.llms.list()
             async for item in response:
@@ -322,9 +349,11 @@ class AsyncLlmsClient:
             # alternatively, you can paginate page-by-page
             async for page in response.iter_pages():
                 yield page
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.list(
+        return await self._raw_client.list(
             filter=filter,
             limit=limit,
             page_key=page_key,
@@ -332,7 +361,6 @@ class AsyncLlmsClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     async def create(
         self,
@@ -354,9 +382,7 @@ class AsyncLlmsClient:
         Parameters
         ----------
         name : str
-            Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM.
-            If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform),
-            then it will override that LLM for all usages.
+            Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM. If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform), then it will override that LLM for all usages.
 
         model : str
             The model name to use with the API (e.g. gpt-4, claude-2, etc). This is used in the API request to the remote LLM provider.
@@ -391,14 +417,28 @@ class AsyncLlmsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.llms.create(name='name', model='model', uri='uri', )
+            await client.llms.create(
+                name="name",
+                model="model",
+                uri="uri",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.create(
+        _response = await self._raw_client.create(
             name=name,
             model=model,
             uri=uri,
@@ -410,7 +450,7 @@ class AsyncLlmsClient:
             test_model_parameters=test_model_parameters,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def get(
         self,
@@ -444,20 +484,32 @@ class AsyncLlmsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.llms.get(llm_id='llm_id', )
+            await client.llms.get(
+                llm_id="llm_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.get(
+        _response = await self._raw_client.get(
             llm_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def delete(
         self,
@@ -490,17 +542,29 @@ class AsyncLlmsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.llms.delete(llm_id='llm_id', )
+            await client.llms.delete(
+                llm_id="llm_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.delete(
+        _response = await self._raw_client.delete(
             llm_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data

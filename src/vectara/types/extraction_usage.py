@@ -8,8 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class ExtractionUsage(UniversalBaseModel):
     """
-    How much extraction quota the document used. This information is currently not returned when
-    retrieving the document, and only returned when indexing a document.
+    How much extraction quota the document used. This information is currently not returned when retrieving the document, and only returned when indexing a document.
     """
 
     table_extraction_used: typing.Optional[int] = pydantic.Field(default=None)

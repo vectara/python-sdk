@@ -37,6 +37,7 @@ from .types import (
     CorpusCustomDimension,
     CorpusKey,
     CorpusLimits,
+    CorrectionItem,
     CreateChatCompletionResponse,
     CreateChatCompletionStreamResponse,
     CreateClientCredentialsRequest,
@@ -63,6 +64,9 @@ from .types import (
     GenerationParameters,
     GenerationPreset,
     GenerationSpan,
+    HallucinationCorrectionResponse,
+    HallucinationCorrector,
+    HcmSourceDocument,
     Header,
     HeaderAuth,
     IndividualSearchResult,
@@ -79,6 +83,7 @@ from .types import (
     ListDocumentsResponse,
     ListEncodersResponse,
     ListGenerationPresetsResponse,
+    ListHallucinationCorrectorsResponse,
     ListJobsResponse,
     ListLlMsResponse,
     ListMetadata,
@@ -155,6 +160,7 @@ from . import (
     encoders,
     factual_consistency,
     generation_presets,
+    hallucination_correctors,
     jobs,
     llm,
     llms,
@@ -166,10 +172,17 @@ from . import (
     users,
 )
 from .auth import GetTokenResponse
+from .chats import (
+    ChatsCreateResponse,
+    ChatsCreateStreamResponse,
+    ChatsCreateTurnsResponse,
+    ChatsCreateTurnsStreamResponse,
+)
 from .client import AsyncVectara, Vectara
-from .corpora import SearchCorpusParameters
+from .corpora import CorporaQueryResponse, CorporaQueryStreamResponse, SearchCorpusParameters
 from .environment import VectaraEnvironment
 from .factual_consistency import EvaluateFactualConsistencyRequestModelParameters
+from .queries import QueriesQueryResponse, QueriesQueryStreamResponse
 from .users import UsersCreateResponse, UsersResetPasswordResponse
 from .version import __version__
 
@@ -196,6 +209,10 @@ __all__ = [
     "ChatInfoResponse",
     "ChatParameters",
     "ChatStreamedResponse",
+    "ChatsCreateResponse",
+    "ChatsCreateStreamResponse",
+    "ChatsCreateTurnsResponse",
+    "ChatsCreateTurnsStreamResponse",
     "ChunkingStrategy",
     "CitationParameters",
     "CitationParametersStyle",
@@ -207,10 +224,13 @@ __all__ = [
     "ContextConfiguration",
     "CoreDocument",
     "CoreDocumentPart",
+    "CorporaQueryResponse",
+    "CorporaQueryStreamResponse",
     "Corpus",
     "CorpusCustomDimension",
     "CorpusKey",
     "CorpusLimits",
+    "CorrectionItem",
     "CreateChatCompletionResponse",
     "CreateChatCompletionStreamResponse",
     "CreateClientCredentialsRequest",
@@ -240,6 +260,9 @@ __all__ = [
     "GenerationPreset",
     "GenerationSpan",
     "GetTokenResponse",
+    "HallucinationCorrectionResponse",
+    "HallucinationCorrector",
+    "HcmSourceDocument",
     "Header",
     "HeaderAuth",
     "IndividualSearchResult",
@@ -256,6 +279,7 @@ __all__ = [
     "ListDocumentsResponse",
     "ListEncodersResponse",
     "ListGenerationPresetsResponse",
+    "ListHallucinationCorrectorsResponse",
     "ListJobsResponse",
     "ListLlMsResponse",
     "ListMetadata",
@@ -272,6 +296,8 @@ __all__ = [
     "NotFoundError",
     "NotFoundErrorBody",
     "Prompt",
+    "QueriesQueryResponse",
+    "QueriesQueryStreamResponse",
     "QueryFullResponse",
     "QueryHistory",
     "QueryHistorySpan",
@@ -331,6 +357,7 @@ __all__ = [
     "encoders",
     "factual_consistency",
     "generation_presets",
+    "hallucination_correctors",
     "jobs",
     "llm",
     "llms",

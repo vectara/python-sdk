@@ -19,21 +19,17 @@ class CorpusLimits(UniversalBaseModel):
 
     used_bytes: typing.Optional[int] = pydantic.Field(default=None)
     """
-    NOTE: This field is currently not populated by the system.
-    The number of bytes contained in the corpus. This includes the document metadata,
-    document part metadata, and document contents.
+    NOTE: This field is currently not populated by the system. The number of bytes contained in the corpus. This includes the document metadata, document part metadata, and document contents.
     """
 
     used_characters: typing.Optional[int] = pydantic.Field(default=None)
     """
-    The number of characters contained in the corpus. This includes the document metadata,
-    document part metadata, and document contents.
+    The number of characters contained in the corpus. This includes the document metadata, document part metadata, and document contents.
     """
 
     max_bytes: typing.Optional[int] = pydantic.Field(default=None)
     """
-    NOTE: This field is currently not populated by the system.
-    The maximum number of bytes the corpus can be.
+    NOTE: This field is currently not populated by the system. The maximum number of bytes the corpus can be.
     """
 
     max_metadata_bytes: typing.Optional[int] = pydantic.Field(default=None)
@@ -43,8 +39,7 @@ class CorpusLimits(UniversalBaseModel):
 
     index_rate: typing.Optional[int] = pydantic.Field(default=None)
     """
-    NOTE: This field is currently not populated by the system.
-    The maximum per-second addition of new documents to corpus.
+    NOTE: This field is currently not populated by the system. The maximum per-second addition of new documents to corpus.
     """
 
     if IS_PYDANTIC_V2:

@@ -10,14 +10,12 @@ from ...types.user import User
 class UsersCreateResponse(User):
     one_time_code: typing.Optional[str] = pydantic.Field(default=None)
     """
-    A one time code for the newly created user to create a password.
-    This is optional, and is only populated for some Vectara deployments.
+    A one time code for the newly created user to create a password. This is optional, and is only populated for some Vectara deployments.
     """
 
     one_time_code_link: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The link where to enter the `one_time_code`.
-    This is optional, and is only populated for some Vectara deployments.
+    The link where to enter the `one_time_code`. This is optional, and is only populated for some Vectara deployments.
     """
 
     if IS_PYDANTIC_V2:

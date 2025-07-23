@@ -74,15 +74,22 @@ class ApiKeysClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        response = client.api_keys.list(corpus_key='my-corpus', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        response = client.api_keys.list(
+            corpus_key="my-corpus",
+        )
         for item in response:
             yield item
         # alternatively, you can paginate page-by-page
         for page in response.iter_pages():
             yield page
         """
-        response = self._raw_client.list(
+        return self._raw_client.list(
             limit=limit,
             page_key=page_key,
             corpus_key=corpus_key,
@@ -91,7 +98,6 @@ class ApiKeysClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     def create(
         self,
@@ -120,9 +126,7 @@ class ApiKeysClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         corpus_keys : typing.Optional[typing.Sequence[CorpusKey]]
-            Corpora this API key has roles on if it is not a Personal API key.
-            This property should be null or missing if this `api_key_role` is
-            `personal`.
+            Corpora this API key has roles on if it is not a Personal API key. This property should be null or missing if this `api_key_role` is `personal`.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -135,10 +139,18 @@ class ApiKeysClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.api_keys.create(name='name', api_key_role="serving", )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.api_keys.create(
+            name="name",
+            api_key_role="serving",
+        )
         """
-        response = self._raw_client.create(
+        _response = self._raw_client.create(
             name=name,
             api_key_role=api_key_role,
             request_timeout=request_timeout,
@@ -146,7 +158,7 @@ class ApiKeysClient:
             corpus_keys=corpus_keys,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def get(
         self,
@@ -181,16 +193,23 @@ class ApiKeysClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.api_keys.get(api_key_id='api_key_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.api_keys.get(
+            api_key_id="api_key_id",
+        )
         """
-        response = self._raw_client.get(
+        _response = self._raw_client.get(
             api_key_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def delete(
         self,
@@ -224,16 +243,23 @@ class ApiKeysClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.api_keys.delete(api_key_id='api_key_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.api_keys.delete(
+            api_key_id="api_key_id",
+        )
         """
-        response = self._raw_client.delete(
+        _response = self._raw_client.delete(
             api_key_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def update(
         self,
@@ -272,17 +298,24 @@ class ApiKeysClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.api_keys.update(api_key_id='api_key_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.api_keys.update(
+            api_key_id="api_key_id",
+        )
         """
-        response = self._raw_client.update(
+        _response = self._raw_client.update(
             api_key_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             enabled=enabled,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
 
 class AsyncApiKeysClient:
@@ -344,20 +377,32 @@ class AsyncApiKeysClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            response = await client.api_keys.list(corpus_key='my-corpus', )
+            response = await client.api_keys.list(
+                corpus_key="my-corpus",
+            )
             async for item in response:
                 yield item
 
             # alternatively, you can paginate page-by-page
             async for page in response.iter_pages():
                 yield page
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.list(
+        return await self._raw_client.list(
             limit=limit,
             page_key=page_key,
             corpus_key=corpus_key,
@@ -366,7 +411,6 @@ class AsyncApiKeysClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     async def create(
         self,
@@ -395,9 +439,7 @@ class AsyncApiKeysClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         corpus_keys : typing.Optional[typing.Sequence[CorpusKey]]
-            Corpora this API key has roles on if it is not a Personal API key.
-            This property should be null or missing if this `api_key_role` is
-            `personal`.
+            Corpora this API key has roles on if it is not a Personal API key. This property should be null or missing if this `api_key_role` is `personal`.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -409,14 +451,27 @@ class AsyncApiKeysClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.api_keys.create(name='name', api_key_role="serving", )
+            await client.api_keys.create(
+                name="name",
+                api_key_role="serving",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.create(
+        _response = await self._raw_client.create(
             name=name,
             api_key_role=api_key_role,
             request_timeout=request_timeout,
@@ -424,7 +479,7 @@ class AsyncApiKeysClient:
             corpus_keys=corpus_keys,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def get(
         self,
@@ -458,20 +513,32 @@ class AsyncApiKeysClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.api_keys.get(api_key_id='api_key_id', )
+            await client.api_keys.get(
+                api_key_id="api_key_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.get(
+        _response = await self._raw_client.get(
             api_key_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def delete(
         self,
@@ -504,20 +571,32 @@ class AsyncApiKeysClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.api_keys.delete(api_key_id='api_key_id', )
+            await client.api_keys.delete(
+                api_key_id="api_key_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.delete(
+        _response = await self._raw_client.delete(
             api_key_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def update(
         self,
@@ -555,18 +634,30 @@ class AsyncApiKeysClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.api_keys.update(api_key_id='api_key_id', )
+            await client.api_keys.update(
+                api_key_id="api_key_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.update(
+        _response = await self._raw_client.update(
             api_key_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             enabled=enabled,
             request_options=request_options,
         )
-        return response.data
+        return _response.data

@@ -12,9 +12,10 @@ from ..types.corpus_key import CorpusKey
 from ..types.filter_attribute import FilterAttribute
 from ..types.generation_parameters import GenerationParameters
 from ..types.query_full_response import QueryFullResponse
-from ..types.query_streamed_response import QueryStreamedResponse
 from ..types.replace_filter_attributes_response import ReplaceFilterAttributesResponse
 from .raw_client import AsyncRawCorporaClient, RawCorporaClient
+from .types.corpora_query_response import CorporaQueryResponse
+from .types.corpora_query_stream_response import CorporaQueryStreamResponse
 from .types.search_corpus_parameters import SearchCorpusParameters
 
 # this is used as the default value for optional parameters
@@ -41,14 +42,14 @@ class CorporaClient:
         *,
         limit: typing.Optional[int] = None,
         filter: typing.Optional[str] = None,
+        corpus_id: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Corpus]:
         """
-        List corpora in the account. The returned corpus objects contain less
-        detail compared to those retrieved the direct corpus retrieval operation.
+        List corpora in the account. The returned corpus objects contain less detail compared to those retrieved the direct corpus retrieval operation.
 
         Parameters
         ----------
@@ -57,6 +58,9 @@ class CorporaClient:
 
         filter : typing.Optional[str]
             A regular expression to filter the corpora by their name or summary.
+
+        corpus_id : typing.Optional[typing.Union[str, typing.Sequence[str]]]
+            Filter corpora to only include corpora with these IDs.
 
         page_key : typing.Optional[str]
             Used to retrieve the next page of corpora after the limit has been reached.
@@ -78,7 +82,12 @@ class CorporaClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.corpora.list()
         for item in response:
             yield item
@@ -86,15 +95,15 @@ class CorporaClient:
         for page in response.iter_pages():
             yield page
         """
-        response = self._raw_client.list(
+        return self._raw_client.list(
             limit=limit,
             filter=filter,
+            corpus_id=corpus_id,
             page_key=page_key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     def create(
         self,
@@ -114,11 +123,7 @@ class CorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Corpus:
         """
-        Create a corpus, which is a container to store documents and associated metadata. Here, you
-        define the unique `corpus_key` that identifies the corpus. The `corpus_key` can be custom-defined
-        following your preferred naming convention, allowing you to easily manage the corpus's data and
-        reference it in queries. For more information, see
-        [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        Create a corpus, which is a container to store documents and associated metadata. Here, you define the unique `corpus_key` that identifies the corpus. The `corpus_key` can be custom-defined following your preferred naming convention, allowing you to easily manage the corpus's data and reference it in queries. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 
         Parameters
         ----------
@@ -152,14 +157,10 @@ class CorporaClient:
             The encoder used by the corpus, `boomerang-2023-q3`.
 
         filter_attributes : typing.Optional[typing.Sequence[FilterAttribute]]
-            The new filter attributes of the corpus.
-            If unset then the corpus will not have filter attributes.
+            The new filter attributes of the corpus. If unset then the corpus will not have filter attributes.
 
         custom_dimensions : typing.Optional[typing.Sequence[CorpusCustomDimension]]
-            A custom dimension is an additional numerical field attached to a document part. You
-            can then multiply this numerical field with a query time custom dimension of the same
-            name. This allows boosting (or burying) document parts for arbitrary reasons.
-            This feature is only enabled for Pro and Enterprise customers.
+            A custom dimension is an additional numerical field attached to a document part. You can then multiply this numerical field with a query time custom dimension of the same name. This allows boosting (or burying) document parts for arbitrary reasons. This feature is only enabled for Pro and Enterprise customers.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -171,11 +172,52 @@ class CorporaClient:
 
         Examples
         --------
-        from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.corpora.create(key='my-corpus', )
+        from vectara import FilterAttribute, Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.corpora.create(
+            key="fin_esg_docs",
+            name="EU Bank ESG Compliance",
+            description="A corpus for storing and querying financial documents, such as annual reports and ESG compliance filings, for European banks in 2023.",
+            save_history=True,
+            encoder_name="boomerang-2023-q3",
+            filter_attributes=[
+                FilterAttribute(
+                    name="industry",
+                    level="part",
+                    description="The industry sector of the document (banking).",
+                    indexed=True,
+                    type="text",
+                ),
+                FilterAttribute(
+                    name="region",
+                    level="part",
+                    description="The geographical region of the document (EU).",
+                    indexed=True,
+                    type="text",
+                ),
+                FilterAttribute(
+                    name="year",
+                    level="part",
+                    description="The publication year of the document (2023).",
+                    indexed=True,
+                    type="integer",
+                ),
+                FilterAttribute(
+                    name="doc_type",
+                    level="part",
+                    description="The type of document (annual_report).",
+                    indexed=True,
+                    type="text",
+                ),
+            ],
+        )
         """
-        response = self._raw_client.create(
+        _response = self._raw_client.create(
             key=key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
@@ -190,7 +232,7 @@ class CorporaClient:
             custom_dimensions=custom_dimensions,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def get(
         self,
@@ -201,11 +243,7 @@ class CorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Corpus:
         """
-        Get metadata about a corpus. This operation does not search the corpus contents.
-        Specify the `corpus_key` to identify the corpus whose metadata you want to
-        retrieve. The `corpus_key` is created when the corpus is set up, either through
-        the Vectara Console UI or the Create Corpus API. For more information,
-        see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        Get metadata about a corpus. This operation does not search the corpus contents. Specify the `corpus_key` to identify the corpus whose metadata you want to retrieve. The `corpus_key` is created when the corpus is set up, either through the Vectara Console UI or the Create Corpus API. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 
         Parameters
         ----------
@@ -229,16 +267,23 @@ class CorporaClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.corpora.get(corpus_key='my-corpus', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.corpora.get(
+            corpus_key="my-corpus",
+        )
         """
-        response = self._raw_client.get(
+        _response = self._raw_client.get(
             corpus_key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def delete(
         self,
@@ -249,8 +294,7 @@ class CorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Permanently delete a corpus and all its associated data. The `corpus_key` uniquely identifies
-        the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        Permanently delete a corpus and all its associated data. The `corpus_key` uniquely identifies the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 
         Parameters
         ----------
@@ -273,16 +317,23 @@ class CorporaClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.corpora.delete(corpus_key='my-corpus', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.corpora.delete(
+            corpus_key="my-corpus",
+        )
         """
-        response = self._raw_client.delete(
+        _response = self._raw_client.delete(
             corpus_key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def update(
         self,
@@ -297,12 +348,7 @@ class CorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Corpus:
         """
-        Enable, disable, or update the name and description of a corpus. This lets you
-        manage data availability without deleting the corpus, which is useful for
-        maintenance and security purposes. The `corpus_key` uniquely identifies the corpus.
-        For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
-        Consider updating the name and description of a corpus dynamically to help keep your data
-        aligned with changing business needs.
+        Enable, disable, or update the name and description of a corpus. This lets you manage data availability without deleting the corpus, which is useful for maintenance and security purposes. The `corpus_key` uniquely identifies the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition). Consider updating the name and description of a corpus dynamically to help keep your data aligned with changing business needs.
 
         Parameters
         ----------
@@ -338,10 +384,17 @@ class CorporaClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.corpora.update(corpus_key='my-corpus', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.corpora.update(
+            corpus_key="my-corpus",
+        )
         """
-        response = self._raw_client.update(
+        _response = self._raw_client.update(
             corpus_key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
@@ -351,7 +404,7 @@ class CorporaClient:
             save_history=save_history,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def reset(
         self,
@@ -362,9 +415,7 @@ class CorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Resets a corpus, which removes all documents and data from the specified corpus,
-        while keeping the corpus itself. The `corpus_key` uniquely identifies the corpus.
-        For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        Resets a corpus, which removes all documents and data from the specified corpus, while keeping the corpus itself. The `corpus_key` uniquely identifies the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 
         Parameters
         ----------
@@ -387,16 +438,23 @@ class CorporaClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.corpora.reset(corpus_key='my-corpus', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.corpora.reset(
+            corpus_key="my-corpus",
+        )
         """
-        response = self._raw_client.reset(
+        _response = self._raw_client.reset(
             corpus_key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def replace_filter_attributes(
         self,
@@ -408,13 +466,8 @@ class CorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ReplaceFilterAttributesResponse:
         """
-        Replace the filter attributes of a corpus. This does not happen immediately, as
-        this operation creates a job that completes asynchronously. These new filter
-        attributes will not work until the job completes.
-
-        You can monitor the status of the filter change using the returned job ID. The
-        `corpus_key` uniquely identifies the corpus. For more information, see
-        [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        Replace the filter attributes of a corpus. This does not happen immediately, as this operation creates a job that completes asynchronously. These new filter attributes will not work until the job completes.
+        You can monitor the status of the filter change using the returned job ID. The `corpus_key` uniquely identifies the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 
         Parameters
         ----------
@@ -440,19 +493,32 @@ class CorporaClient:
 
         Examples
         --------
-        from vectara import Vectara
-        from vectara import FilterAttribute
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.corpora.replace_filter_attributes(corpus_key='my-corpus', filter_attributes=[FilterAttribute(name='Title', level="document", type="integer", )], )
+        from vectara import FilterAttribute, Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.corpora.replace_filter_attributes(
+            corpus_key="my-corpus",
+            filter_attributes=[
+                FilterAttribute(
+                    name="Title",
+                    level="document",
+                    type="integer",
+                )
+            ],
+        )
         """
-        response = self._raw_client.replace_filter_attributes(
+        _response = self._raw_client.replace_filter_attributes(
             corpus_key,
             filter_attributes=filter_attributes,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def compute_size(
         self,
@@ -463,9 +529,7 @@ class CorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ComputeCorpusSizeResponse:
         """
-        Compute the current size of a corpus, including number of documents, parts, and characters.
-        The `corpus_key` uniquely identifies the corpus. For more information, see
-        [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        Compute the current size of a corpus, including number of documents, parts, and characters. The `corpus_key` uniquely identifies the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 
         Parameters
         ----------
@@ -489,16 +553,23 @@ class CorporaClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.corpora.compute_size(corpus_key='my-corpus', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.corpora.compute_size(
+            corpus_key="my-corpus",
+        )
         """
-        response = self._raw_client.compute_size(
+        _response = self._raw_client.compute_size(
             corpus_key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def search(
         self,
@@ -515,11 +586,10 @@ class CorporaClient:
     ) -> QueryFullResponse:
         """
         Search a single corpus with a straightforward query request, specifying the corpus key and query parameters.
-        * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is
-        [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+
+        * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
         * Enter the search `query` string for the corpus, which is the question you want to ask.
         * Set the maximum number of results (`limit`) to return. **Default**: 10, **minimum**: 1
-        * Define the `offset` position from which to start in the result set.
 
         For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
 
@@ -532,7 +602,7 @@ class CorporaClient:
             The search query string for the corpus, which is the question the user is asking.
 
         limit : typing.Optional[int]
-            The maximum number of results to return.
+            The maximum number of top retrieval results to rerank and return.
 
         offset : typing.Optional[int]
             The position from which to start in the result set.
@@ -541,8 +611,7 @@ class CorporaClient:
             Indicates whether to save the query in the query history.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -561,10 +630,18 @@ class CorporaClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.corpora.search(corpus_key='my-corpus', query='query', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.corpora.search(
+            corpus_key="my-corpus",
+            query="query",
+        )
         """
-        response = self._raw_client.search(
+        _response = self._raw_client.search(
             corpus_key,
             query=query,
             limit=limit,
@@ -575,7 +652,7 @@ class CorporaClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def query_stream(
         self,
@@ -589,15 +666,14 @@ class CorporaClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.Iterator[QueryStreamedResponse]:
+    ) -> typing.Iterator[CorporaQueryStreamResponse]:
         """
-        Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
+        Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation.
 
         * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
         * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
-        * Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
-        will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
-        * Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.025`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
+        * Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
+        * Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.005`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
         * Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
         * Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-options)
 
@@ -626,22 +702,63 @@ class CorporaClient:
             Indicates whether to save the query to query history.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.Iterator[QueryStreamedResponse]
+        typing.Iterator[CorporaQueryStreamResponse]
 
 
         Examples
         --------
-        from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        response = client.corpora.query_stream(corpus_key='my-corpus', query='query', )
+        from vectara import (
+            CitationParameters,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            Vectara,
+        )
+        from vectara.corpora import SearchCorpusParameters
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        response = client.corpora.query_stream(
+            corpus_key="my-corpus",
+            query="How to configure OAuth2 for microservices in Kubernetes?",
+            search=SearchCorpusParameters(
+                limit=50,
+                context_configuration=ContextConfiguration(
+                    sentences_before=2,
+                    sentences_after=2,
+                    start_tag="<em>",
+                    end_tag="</em>",
+                ),
+                reranker=CustomerSpecificReranker(
+                    reranker_name="Rerank_Multilingual_v1",
+                    limit=50,
+                    include_context=True,
+                ),
+                metadata_filter="doc.topic = 'authentication' and doc.platform = 'kubernetes'",
+                lexical_interpolation=0.005,
+            ),
+            generation=GenerationParameters(
+                generation_preset_name="vectara-summary-ext-24-05-med-omni",
+                max_used_search_results=10,
+                citations=CitationParameters(
+                    style="markdown",
+                    url_pattern="https://vectara.com/documents/{doc.id}",
+                    text_pattern="{doc.title}",
+                ),
+            ),
+            save_history=True,
+            intelligent_query_rewriting=True,
+        )
         for chunk in response:
             yield chunk
         """
@@ -670,15 +787,14 @@ class CorporaClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> QueryFullResponse:
+    ) -> CorporaQueryResponse:
         """
-        Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
+        Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation.
 
         * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
         * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
-        * Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
-        will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
-        * Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.025`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
+        * Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
+        * Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.005`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
         * Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
         * Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-options)
 
@@ -707,24 +823,65 @@ class CorporaClient:
             Indicates whether to save the query to query history.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        QueryFullResponse
+        CorporaQueryResponse
 
 
         Examples
         --------
-        from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.corpora.query(corpus_key='my-corpus', query='query', )
+        from vectara import (
+            CitationParameters,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            Vectara,
+        )
+        from vectara.corpora import SearchCorpusParameters
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.corpora.query(
+            corpus_key="my-corpus",
+            query="How to configure OAuth2 for microservices in Kubernetes?",
+            search=SearchCorpusParameters(
+                limit=50,
+                context_configuration=ContextConfiguration(
+                    sentences_before=2,
+                    sentences_after=2,
+                    start_tag="<em>",
+                    end_tag="</em>",
+                ),
+                reranker=CustomerSpecificReranker(
+                    reranker_name="Rerank_Multilingual_v1",
+                    limit=50,
+                    include_context=True,
+                ),
+                metadata_filter="doc.topic = 'authentication' and doc.platform = 'kubernetes'",
+                lexical_interpolation=0.005,
+            ),
+            generation=GenerationParameters(
+                generation_preset_name="vectara-summary-ext-24-05-med-omni",
+                max_used_search_results=10,
+                citations=CitationParameters(
+                    style="markdown",
+                    url_pattern="https://vectara.com/documents/{doc.id}",
+                    text_pattern="{doc.title}",
+                ),
+            ),
+            save_history=True,
+            intelligent_query_rewriting=True,
+        )
         """
-        response = self._raw_client.query(
+        _response = self._raw_client.query(
             corpus_key,
             query=query,
             request_timeout=request_timeout,
@@ -735,7 +892,7 @@ class CorporaClient:
             intelligent_query_rewriting=intelligent_query_rewriting,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
 
 class AsyncCorporaClient:
@@ -758,14 +915,14 @@ class AsyncCorporaClient:
         *,
         limit: typing.Optional[int] = None,
         filter: typing.Optional[str] = None,
+        corpus_id: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Corpus]:
         """
-        List corpora in the account. The returned corpus objects contain less
-        detail compared to those retrieved the direct corpus retrieval operation.
+        List corpora in the account. The returned corpus objects contain less detail compared to those retrieved the direct corpus retrieval operation.
 
         Parameters
         ----------
@@ -774,6 +931,9 @@ class AsyncCorporaClient:
 
         filter : typing.Optional[str]
             A regular expression to filter the corpora by their name or summary.
+
+        corpus_id : typing.Optional[typing.Union[str, typing.Sequence[str]]]
+            Filter corpora to only include corpora with these IDs.
 
         page_key : typing.Optional[str]
             Used to retrieve the next page of corpora after the limit has been reached.
@@ -794,9 +954,17 @@ class AsyncCorporaClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
             response = await client.corpora.list()
             async for item in response:
@@ -805,17 +973,19 @@ class AsyncCorporaClient:
             # alternatively, you can paginate page-by-page
             async for page in response.iter_pages():
                 yield page
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.list(
+        return await self._raw_client.list(
             limit=limit,
             filter=filter,
+            corpus_id=corpus_id,
             page_key=page_key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     async def create(
         self,
@@ -835,11 +1005,7 @@ class AsyncCorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Corpus:
         """
-        Create a corpus, which is a container to store documents and associated metadata. Here, you
-        define the unique `corpus_key` that identifies the corpus. The `corpus_key` can be custom-defined
-        following your preferred naming convention, allowing you to easily manage the corpus's data and
-        reference it in queries. For more information, see
-        [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        Create a corpus, which is a container to store documents and associated metadata. Here, you define the unique `corpus_key` that identifies the corpus. The `corpus_key` can be custom-defined following your preferred naming convention, allowing you to easily manage the corpus's data and reference it in queries. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 
         Parameters
         ----------
@@ -873,14 +1039,10 @@ class AsyncCorporaClient:
             The encoder used by the corpus, `boomerang-2023-q3`.
 
         filter_attributes : typing.Optional[typing.Sequence[FilterAttribute]]
-            The new filter attributes of the corpus.
-            If unset then the corpus will not have filter attributes.
+            The new filter attributes of the corpus. If unset then the corpus will not have filter attributes.
 
         custom_dimensions : typing.Optional[typing.Sequence[CorpusCustomDimension]]
-            A custom dimension is an additional numerical field attached to a document part. You
-            can then multiply this numerical field with a query time custom dimension of the same
-            name. This allows boosting (or burying) document parts for arbitrary reasons.
-            This feature is only enabled for Pro and Enterprise customers.
+            A custom dimension is an additional numerical field attached to a document part. You can then multiply this numerical field with a query time custom dimension of the same name. This allows boosting (or burying) document parts for arbitrary reasons. This feature is only enabled for Pro and Enterprise customers.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -892,14 +1054,60 @@ class AsyncCorporaClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara, FilterAttribute
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.corpora.create(key='my-corpus', )
+            await client.corpora.create(
+                key="fin_esg_docs",
+                name="EU Bank ESG Compliance",
+                description="A corpus for storing and querying financial documents, such as annual reports and ESG compliance filings, for European banks in 2023.",
+                save_history=True,
+                encoder_name="boomerang-2023-q3",
+                filter_attributes=[
+                    FilterAttribute(
+                        name="industry",
+                        level="part",
+                        description="The industry sector of the document (banking).",
+                        indexed=True,
+                        type="text",
+                    ),
+                    FilterAttribute(
+                        name="region",
+                        level="part",
+                        description="The geographical region of the document (EU).",
+                        indexed=True,
+                        type="text",
+                    ),
+                    FilterAttribute(
+                        name="year",
+                        level="part",
+                        description="The publication year of the document (2023).",
+                        indexed=True,
+                        type="integer",
+                    ),
+                    FilterAttribute(
+                        name="doc_type",
+                        level="part",
+                        description="The type of document (annual_report).",
+                        indexed=True,
+                        type="text",
+                    ),
+                ],
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.create(
+        _response = await self._raw_client.create(
             key=key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
@@ -914,7 +1122,7 @@ class AsyncCorporaClient:
             custom_dimensions=custom_dimensions,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def get(
         self,
@@ -925,11 +1133,7 @@ class AsyncCorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Corpus:
         """
-        Get metadata about a corpus. This operation does not search the corpus contents.
-        Specify the `corpus_key` to identify the corpus whose metadata you want to
-        retrieve. The `corpus_key` is created when the corpus is set up, either through
-        the Vectara Console UI or the Create Corpus API. For more information,
-        see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        Get metadata about a corpus. This operation does not search the corpus contents. Specify the `corpus_key` to identify the corpus whose metadata you want to retrieve. The `corpus_key` is created when the corpus is set up, either through the Vectara Console UI or the Create Corpus API. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 
         Parameters
         ----------
@@ -952,20 +1156,32 @@ class AsyncCorporaClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.corpora.get(corpus_key='my-corpus', )
+            await client.corpora.get(
+                corpus_key="my-corpus",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.get(
+        _response = await self._raw_client.get(
             corpus_key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def delete(
         self,
@@ -976,8 +1192,7 @@ class AsyncCorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Permanently delete a corpus and all its associated data. The `corpus_key` uniquely identifies
-        the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        Permanently delete a corpus and all its associated data. The `corpus_key` uniquely identifies the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 
         Parameters
         ----------
@@ -999,20 +1214,32 @@ class AsyncCorporaClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.corpora.delete(corpus_key='my-corpus', )
+            await client.corpora.delete(
+                corpus_key="my-corpus",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.delete(
+        _response = await self._raw_client.delete(
             corpus_key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def update(
         self,
@@ -1027,12 +1254,7 @@ class AsyncCorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Corpus:
         """
-        Enable, disable, or update the name and description of a corpus. This lets you
-        manage data availability without deleting the corpus, which is useful for
-        maintenance and security purposes. The `corpus_key` uniquely identifies the corpus.
-        For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
-        Consider updating the name and description of a corpus dynamically to help keep your data
-        aligned with changing business needs.
+        Enable, disable, or update the name and description of a corpus. This lets you manage data availability without deleting the corpus, which is useful for maintenance and security purposes. The `corpus_key` uniquely identifies the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition). Consider updating the name and description of a corpus dynamically to help keep your data aligned with changing business needs.
 
         Parameters
         ----------
@@ -1067,14 +1289,26 @@ class AsyncCorporaClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.corpora.update(corpus_key='my-corpus', )
+            await client.corpora.update(
+                corpus_key="my-corpus",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.update(
+        _response = await self._raw_client.update(
             corpus_key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
@@ -1084,7 +1318,7 @@ class AsyncCorporaClient:
             save_history=save_history,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def reset(
         self,
@@ -1095,9 +1329,7 @@ class AsyncCorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Resets a corpus, which removes all documents and data from the specified corpus,
-        while keeping the corpus itself. The `corpus_key` uniquely identifies the corpus.
-        For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        Resets a corpus, which removes all documents and data from the specified corpus, while keeping the corpus itself. The `corpus_key` uniquely identifies the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 
         Parameters
         ----------
@@ -1119,20 +1351,32 @@ class AsyncCorporaClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.corpora.reset(corpus_key='my-corpus', )
+            await client.corpora.reset(
+                corpus_key="my-corpus",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.reset(
+        _response = await self._raw_client.reset(
             corpus_key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def replace_filter_attributes(
         self,
@@ -1144,13 +1388,8 @@ class AsyncCorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ReplaceFilterAttributesResponse:
         """
-        Replace the filter attributes of a corpus. This does not happen immediately, as
-        this operation creates a job that completes asynchronously. These new filter
-        attributes will not work until the job completes.
-
-        You can monitor the status of the filter change using the returned job ID. The
-        `corpus_key` uniquely identifies the corpus. For more information, see
-        [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        Replace the filter attributes of a corpus. This does not happen immediately, as this operation creates a job that completes asynchronously. These new filter attributes will not work until the job completes.
+        You can monitor the status of the filter change using the returned job ID. The `corpus_key` uniquely identifies the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 
         Parameters
         ----------
@@ -1176,22 +1415,40 @@ class AsyncCorporaClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
-        from vectara import FilterAttribute
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara, FilterAttribute
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.corpora.replace_filter_attributes(corpus_key='my-corpus', filter_attributes=[FilterAttribute(name='Title', level="document", type="integer", )], )
+            await client.corpora.replace_filter_attributes(
+                corpus_key="my-corpus",
+                filter_attributes=[
+                    FilterAttribute(
+                        name="Title",
+                        level="document",
+                        type="integer",
+                    )
+                ],
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.replace_filter_attributes(
+        _response = await self._raw_client.replace_filter_attributes(
             corpus_key,
             filter_attributes=filter_attributes,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def compute_size(
         self,
@@ -1202,9 +1459,7 @@ class AsyncCorporaClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ComputeCorpusSizeResponse:
         """
-        Compute the current size of a corpus, including number of documents, parts, and characters.
-        The `corpus_key` uniquely identifies the corpus. For more information, see
-        [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+        Compute the current size of a corpus, including number of documents, parts, and characters. The `corpus_key` uniquely identifies the corpus. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 
         Parameters
         ----------
@@ -1227,20 +1482,32 @@ class AsyncCorporaClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.corpora.compute_size(corpus_key='my-corpus', )
+            await client.corpora.compute_size(
+                corpus_key="my-corpus",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.compute_size(
+        _response = await self._raw_client.compute_size(
             corpus_key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def search(
         self,
@@ -1257,11 +1524,10 @@ class AsyncCorporaClient:
     ) -> QueryFullResponse:
         """
         Search a single corpus with a straightforward query request, specifying the corpus key and query parameters.
-        * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is
-        [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+
+        * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
         * Enter the search `query` string for the corpus, which is the question you want to ask.
         * Set the maximum number of results (`limit`) to return. **Default**: 10, **minimum**: 1
-        * Define the `offset` position from which to start in the result set.
 
         For more detailed information, see this [Query API guide](https://docs.vectara.com/docs/api-reference/search-apis/search).
 
@@ -1274,7 +1540,7 @@ class AsyncCorporaClient:
             The search query string for the corpus, which is the question the user is asking.
 
         limit : typing.Optional[int]
-            The maximum number of results to return.
+            The maximum number of top retrieval results to rerank and return.
 
         offset : typing.Optional[int]
             The position from which to start in the result set.
@@ -1283,8 +1549,7 @@ class AsyncCorporaClient:
             Indicates whether to save the query in the query history.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -1302,14 +1567,27 @@ class AsyncCorporaClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.corpora.search(corpus_key='my-corpus', query='query', )
+            await client.corpora.search(
+                corpus_key="my-corpus",
+                query="query",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.search(
+        _response = await self._raw_client.search(
             corpus_key,
             query=query,
             limit=limit,
@@ -1320,7 +1598,7 @@ class AsyncCorporaClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def query_stream(
         self,
@@ -1334,15 +1612,14 @@ class AsyncCorporaClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.AsyncIterator[QueryStreamedResponse]:
+    ) -> typing.AsyncIterator[CorporaQueryStreamResponse]:
         """
-        Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
+        Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation.
 
         * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
         * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
-        * Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
-        will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
-        * Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.025`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
+        * Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
+        * Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.005`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
         * Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
         * Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-options)
 
@@ -1371,26 +1648,72 @@ class AsyncCorporaClient:
             Indicates whether to save the query to query history.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.AsyncIterator[QueryStreamedResponse]
+        typing.AsyncIterator[CorporaQueryStreamResponse]
 
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import (
+            AsyncVectara,
+            CitationParameters,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+        )
+        from vectara.corpora import SearchCorpusParameters
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            response = await client.corpora.query_stream(corpus_key='my-corpus', query='query', )
+            response = await client.corpora.query_stream(
+                corpus_key="my-corpus",
+                query="How to configure OAuth2 for microservices in Kubernetes?",
+                search=SearchCorpusParameters(
+                    limit=50,
+                    context_configuration=ContextConfiguration(
+                        sentences_before=2,
+                        sentences_after=2,
+                        start_tag="<em>",
+                        end_tag="</em>",
+                    ),
+                    reranker=CustomerSpecificReranker(
+                        reranker_name="Rerank_Multilingual_v1",
+                        limit=50,
+                        include_context=True,
+                    ),
+                    metadata_filter="doc.topic = 'authentication' and doc.platform = 'kubernetes'",
+                    lexical_interpolation=0.005,
+                ),
+                generation=GenerationParameters(
+                    generation_preset_name="vectara-summary-ext-24-05-med-omni",
+                    max_used_search_results=10,
+                    citations=CitationParameters(
+                        style="markdown",
+                        url_pattern="https://vectara.com/documents/{doc.id}",
+                        text_pattern="{doc.title}",
+                    ),
+                ),
+                save_history=True,
+                intelligent_query_rewriting=True,
+            )
             async for chunk in response:
                 yield chunk
+
+
         asyncio.run(main())
         """
         async with self._raw_client.query_stream(
@@ -1404,8 +1727,8 @@ class AsyncCorporaClient:
             intelligent_query_rewriting=intelligent_query_rewriting,
             request_options=request_options,
         ) as r:
-            async for data in r.data:
-                yield data
+            async for _chunk in r.data:
+                yield _chunk
 
     async def query(
         self,
@@ -1419,15 +1742,14 @@ class AsyncCorporaClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> QueryFullResponse:
+    ) -> CorporaQueryResponse:
         """
-        Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation:
+        Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation.
 
         * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
         * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
-        * Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
-        will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
-        * Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.025`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
+        * Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
+        * Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.005`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
         * Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
         * Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-options)
 
@@ -1456,27 +1778,73 @@ class AsyncCorporaClient:
             Indicates whether to save the query to query history.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        QueryFullResponse
+        CorporaQueryResponse
 
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import (
+            AsyncVectara,
+            CitationParameters,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+        )
+        from vectara.corpora import SearchCorpusParameters
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.corpora.query(corpus_key='my-corpus', query='query', )
+            await client.corpora.query(
+                corpus_key="my-corpus",
+                query="How to configure OAuth2 for microservices in Kubernetes?",
+                search=SearchCorpusParameters(
+                    limit=50,
+                    context_configuration=ContextConfiguration(
+                        sentences_before=2,
+                        sentences_after=2,
+                        start_tag="<em>",
+                        end_tag="</em>",
+                    ),
+                    reranker=CustomerSpecificReranker(
+                        reranker_name="Rerank_Multilingual_v1",
+                        limit=50,
+                        include_context=True,
+                    ),
+                    metadata_filter="doc.topic = 'authentication' and doc.platform = 'kubernetes'",
+                    lexical_interpolation=0.005,
+                ),
+                generation=GenerationParameters(
+                    generation_preset_name="vectara-summary-ext-24-05-med-omni",
+                    max_used_search_results=10,
+                    citations=CitationParameters(
+                        style="markdown",
+                        url_pattern="https://vectara.com/documents/{doc.id}",
+                        text_pattern="{doc.title}",
+                    ),
+                ),
+                save_history=True,
+                intelligent_query_rewriting=True,
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.query(
+        _response = await self._raw_client.query(
             corpus_key,
             query=query,
             request_timeout=request_timeout,
@@ -1487,4 +1855,4 @@ class AsyncCorporaClient:
             intelligent_query_rewriting=intelligent_query_rewriting,
             request_options=request_options,
         )
-        return response.data
+        return _response.data

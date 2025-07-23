@@ -35,9 +35,7 @@ class RawLlmClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[CreateChatCompletionResponse]:
         """
-        OpenAI-compatible endpoint for chat completions. Creates a response for the given chat conversation.
-        The chat completion API allows you to chat with Vectara's language models in a way that's compatible with OpenAI's specification.
-        This makes it easy to integrate with applications already designed for OpenAI's API.
+        OpenAI-compatible endpoint for chat completions. Creates a response for the given chat conversation. The chat completion API allows you to chat with Vectara's language models in a way that's compatible with OpenAI's specification. This makes it easy to integrate with applications already designed for OpenAI's API.
 
         Parameters
         ----------
@@ -95,28 +93,30 @@ class RawLlmClient:
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         BadRequestErrorBody,
                         parse_obj_as(
                             type_=BadRequestErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
 class AsyncRawLlmClient:
@@ -134,9 +134,7 @@ class AsyncRawLlmClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[CreateChatCompletionResponse]:
         """
-        OpenAI-compatible endpoint for chat completions. Creates a response for the given chat conversation.
-        The chat completion API allows you to chat with Vectara's language models in a way that's compatible with OpenAI's specification.
-        This makes it easy to integrate with applications already designed for OpenAI's API.
+        OpenAI-compatible endpoint for chat completions. Creates a response for the given chat conversation. The chat completion API allows you to chat with Vectara's language models in a way that's compatible with OpenAI's specification. This makes it easy to integrate with applications already designed for OpenAI's API.
 
         Parameters
         ----------
@@ -194,25 +192,27 @@ class AsyncRawLlmClient:
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         BadRequestErrorBody,
                         parse_obj_as(
                             type_=BadRequestErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

@@ -8,8 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class GenerationPreset(UniversalBaseModel):
     """
-    Bundle of default values used when calling generation. All values except
-    model name can be overridden at generation time.
+    Bundle of default values used when calling generation. All values except model name can be overridden at generation time.
     """
 
     name: typing.Optional[str] = pydantic.Field(default=None)
@@ -24,8 +23,7 @@ class GenerationPreset(UniversalBaseModel):
 
     llm_name: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Name of the model that these presets are used with. The list of available names can be
-    fetched by the `GET /v2/llms` endpoint.
+    Name of the model that these presets are used with. The list of available names can be fetched by the `GET /v2/llms` endpoint.
     """
 
     prompt_template: typing.Optional[str] = pydantic.Field(default=None)
@@ -45,20 +43,17 @@ class GenerationPreset(UniversalBaseModel):
 
     temperature: typing.Optional[float] = pydantic.Field(default=None)
     """
-    The sampling temperature to use. Higher values make the output more random, while lower
-    values make it more focused and deterministic.
+    The sampling temperature to use. Higher values make the output more random, while lower values make it more focused and deterministic.
     """
 
     frequency_penalty: typing.Optional[float] = pydantic.Field(default=None)
     """
-    Higher values penalize new tokens based on their existing frequency in the generation so far,
-    decreasing the model's likelihood to repeat the same line verbatim.
+    Higher values penalize new tokens based on their existing frequency in the generation so far, decreasing the model's likelihood to repeat the same line verbatim.
     """
 
     presence_penalty: typing.Optional[float] = pydantic.Field(default=None)
     """
-    Higher values penalize new tokens based on whether they appear in the generation so far,
-    increasing the model's likelihood to talk about new topics.
+    Higher values penalize new tokens based on whether they appear in the generation so far, increasing the model's likelihood to talk about new topics.
     """
 
     enabled: typing.Optional[bool] = pydantic.Field(default=None)

@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.pagination import AsyncPager, SyncPager
+from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..core.serialization import convert_and_respect_annotation_metadata
@@ -35,7 +35,7 @@ class RawEncodersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[SyncPager[Encoder]]:
+    ) -> SyncPager[Encoder]:
         """
         Encoders are used to store and retrieve from a corpus.
 
@@ -61,7 +61,7 @@ class RawEncodersClient:
 
         Returns
         -------
-        HttpResponse[SyncPager[Encoder]]
+        SyncPager[Encoder]
             List of encoders.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -88,6 +88,7 @@ class RawEncodersClient:
                         object_=_response.json(),
                     ),
                 )
+                _items = _parsed_response.encoders
                 _has_next = False
                 _get_next = None
                 if _parsed_response.metadata is not None:
@@ -101,24 +102,24 @@ class RawEncodersClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                _items = _parsed_response.encoders
-                return HttpResponse(
-                    response=_response, data=SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+                return SyncPager(
+                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
         self,
@@ -157,8 +158,7 @@ class RawEncodersClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         output_dimensions : typing.Optional[int]
-            The number of dimensions in the output embedding vector. If provided and the model supports truncation,
-            the response will be truncated to this number of dimensions.
+            The number of dimensions in the output embedding vector. If provided and the model supports truncation, the response will be truncated to this number of dimensions.
 
         auth : typing.Optional[RemoteAuth]
 
@@ -184,6 +184,7 @@ class RawEncodersClient:
                 "type": "openai-compatible",
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -202,28 +203,30 @@ class RawEncodersClient:
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         BadRequestErrorBody,
                         parse_obj_as(
                             type_=BadRequestErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
 class AsyncRawEncodersClient:
@@ -239,7 +242,7 @@ class AsyncRawEncodersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[AsyncPager[Encoder]]:
+    ) -> AsyncPager[Encoder]:
         """
         Encoders are used to store and retrieve from a corpus.
 
@@ -265,7 +268,7 @@ class AsyncRawEncodersClient:
 
         Returns
         -------
-        AsyncHttpResponse[AsyncPager[Encoder]]
+        AsyncPager[Encoder]
             List of encoders.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -292,37 +295,41 @@ class AsyncRawEncodersClient:
                         object_=_response.json(),
                     ),
                 )
+                _items = _parsed_response.encoders
                 _has_next = False
                 _get_next = None
                 if _parsed_response.metadata is not None:
                     _parsed_next = _parsed_response.metadata.page_key
                     _has_next = _parsed_next is not None and _parsed_next != ""
-                    _get_next = lambda: self.list(
-                        filter=filter,
-                        limit=limit,
-                        page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
-                        request_options=request_options,
-                    )
-                _items = _parsed_response.encoders
-                return AsyncHttpResponse(
-                    response=_response, data=AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+
+                    async def _get_next():
+                        return await self.list(
+                            filter=filter,
+                            limit=limit,
+                            page_key=_parsed_next,
+                            request_timeout=request_timeout,
+                            request_timeout_millis=request_timeout_millis,
+                            request_options=request_options,
+                        )
+
+                return AsyncPager(
+                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
         self,
@@ -361,8 +368,7 @@ class AsyncRawEncodersClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         output_dimensions : typing.Optional[int]
-            The number of dimensions in the output embedding vector. If provided and the model supports truncation,
-            the response will be truncated to this number of dimensions.
+            The number of dimensions in the output embedding vector. If provided and the model supports truncation, the response will be truncated to this number of dimensions.
 
         auth : typing.Optional[RemoteAuth]
 
@@ -388,6 +394,7 @@ class AsyncRawEncodersClient:
                 "type": "openai-compatible",
             },
             headers={
+                "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
                 "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
@@ -406,25 +413,27 @@ class AsyncRawEncodersClient:
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         BadRequestErrorBody,
                         parse_obj_as(
                             type_=BadRequestErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

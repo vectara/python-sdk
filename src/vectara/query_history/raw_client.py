@@ -9,7 +9,7 @@ from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.datetime_utils import serialize_datetime
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, SyncPager
+from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.bad_request_error import BadRequestError
@@ -79,28 +79,30 @@ class RawQueryHistoryClient:
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def list(
         self,
@@ -114,7 +116,7 @@ class RawQueryHistoryClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[SyncPager[QueryHistorySummary]]:
+    ) -> SyncPager[QueryHistorySummary]:
         """
         Retrieve query histories.
 
@@ -124,10 +126,10 @@ class RawQueryHistoryClient:
             Specifies the `corpus_key` used in the query.
 
         started_after : typing.Optional[dt.datetime]
-            Queries that started after a particular date-time.
+            Queries that started after a particular ISO date-time.
 
         started_before : typing.Optional[dt.datetime]
-            Queries that started before a particular date-time.
+            Queries that started before a particular ISO date-time.
 
         chat_id : typing.Optional[str]
             Specifies the chat_id of the query, this will return all queries in the specified chat.
@@ -149,7 +151,7 @@ class RawQueryHistoryClient:
 
         Returns
         -------
-        HttpResponse[SyncPager[QueryHistorySummary]]
+        SyncPager[QueryHistorySummary]
             An array of Query Histories.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -179,6 +181,7 @@ class RawQueryHistoryClient:
                         object_=_response.json(),
                     ),
                 )
+                _items = _parsed_response.queries
                 _has_next = False
                 _get_next = None
                 if _parsed_response.metadata is not None:
@@ -195,34 +198,35 @@ class RawQueryHistoryClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                _items = _parsed_response.queries
-                return HttpResponse(
-                    response=_response, data=SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+                return SyncPager(
+                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
                 )
             if _response.status_code == 400:
                 raise BadRequestError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         BadRequestErrorBody,
                         parse_obj_as(
                             type_=BadRequestErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
 class AsyncRawQueryHistoryClient:
@@ -281,28 +285,30 @@ class AsyncRawQueryHistoryClient:
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def list(
         self,
@@ -316,7 +322,7 @@ class AsyncRawQueryHistoryClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[AsyncPager[QueryHistorySummary]]:
+    ) -> AsyncPager[QueryHistorySummary]:
         """
         Retrieve query histories.
 
@@ -326,10 +332,10 @@ class AsyncRawQueryHistoryClient:
             Specifies the `corpus_key` used in the query.
 
         started_after : typing.Optional[dt.datetime]
-            Queries that started after a particular date-time.
+            Queries that started after a particular ISO date-time.
 
         started_before : typing.Optional[dt.datetime]
-            Queries that started before a particular date-time.
+            Queries that started before a particular ISO date-time.
 
         chat_id : typing.Optional[str]
             Specifies the chat_id of the query, this will return all queries in the specified chat.
@@ -351,7 +357,7 @@ class AsyncRawQueryHistoryClient:
 
         Returns
         -------
-        AsyncHttpResponse[AsyncPager[QueryHistorySummary]]
+        AsyncPager[QueryHistorySummary]
             An array of Query Histories.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -381,47 +387,52 @@ class AsyncRawQueryHistoryClient:
                         object_=_response.json(),
                     ),
                 )
+                _items = _parsed_response.queries
                 _has_next = False
                 _get_next = None
                 if _parsed_response.metadata is not None:
                     _parsed_next = _parsed_response.metadata.page_key
                     _has_next = _parsed_next is not None and _parsed_next != ""
-                    _get_next = lambda: self.list(
-                        corpus_key=corpus_key,
-                        started_after=started_after,
-                        started_before=started_before,
-                        chat_id=chat_id,
-                        limit=limit,
-                        page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
-                        request_options=request_options,
-                    )
-                _items = _parsed_response.queries
-                return AsyncHttpResponse(
-                    response=_response, data=AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+
+                    async def _get_next():
+                        return await self.list(
+                            corpus_key=corpus_key,
+                            started_after=started_after,
+                            started_before=started_before,
+                            chat_id=chat_id,
+                            limit=limit,
+                            page_key=_parsed_next,
+                            request_timeout=request_timeout,
+                            request_timeout_millis=request_timeout_millis,
+                            request_options=request_options,
+                        )
+
+                return AsyncPager(
+                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
                 )
             if _response.status_code == 400:
                 raise BadRequestError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         BadRequestErrorBody,
                         parse_obj_as(
                             type_=BadRequestErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

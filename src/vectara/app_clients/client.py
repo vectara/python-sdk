@@ -69,7 +69,12 @@ class AppClientsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.app_clients.list()
         for item in response:
             yield item
@@ -77,7 +82,7 @@ class AppClientsClient:
         for page in response.iter_pages():
             yield page
         """
-        response = self._raw_client.list(
+        return self._raw_client.list(
             limit=limit,
             filter=filter,
             page_key=page_key,
@@ -85,7 +90,6 @@ class AppClientsClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     def create(
         self,
@@ -128,10 +132,17 @@ class AppClientsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.app_clients.create(name='name', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.app_clients.create(
+            name="name",
+        )
         """
-        response = self._raw_client.create(
+        _response = self._raw_client.create(
             name=name,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
@@ -139,7 +150,7 @@ class AppClientsClient:
             api_roles=api_roles,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def get(
         self,
@@ -174,16 +185,23 @@ class AppClientsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.app_clients.get(app_client_id='app_client_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.app_clients.get(
+            app_client_id="app_client_id",
+        )
         """
-        response = self._raw_client.get(
+        _response = self._raw_client.get(
             app_client_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def delete(
         self,
@@ -217,16 +235,23 @@ class AppClientsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.app_clients.delete(app_client_id='app_client_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.app_clients.delete(
+            app_client_id="app_client_id",
+        )
         """
-        response = self._raw_client.delete(
+        _response = self._raw_client.delete(
             app_client_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def update(
         self,
@@ -269,10 +294,17 @@ class AppClientsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.app_clients.update(app_client_id='app_client_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.app_clients.update(
+            app_client_id="app_client_id",
+        )
         """
-        response = self._raw_client.update(
+        _response = self._raw_client.update(
             app_client_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
@@ -280,7 +312,7 @@ class AppClientsClient:
             api_roles=api_roles,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
 
 class AsyncAppClientsClient:
@@ -338,9 +370,17 @@ class AsyncAppClientsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
             response = await client.app_clients.list()
             async for item in response:
@@ -349,9 +389,11 @@ class AsyncAppClientsClient:
             # alternatively, you can paginate page-by-page
             async for page in response.iter_pages():
                 yield page
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.list(
+        return await self._raw_client.list(
             limit=limit,
             filter=filter,
             page_key=page_key,
@@ -359,7 +401,6 @@ class AsyncAppClientsClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     async def create(
         self,
@@ -401,14 +442,26 @@ class AsyncAppClientsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.app_clients.create(name='name', )
+            await client.app_clients.create(
+                name="name",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.create(
+        _response = await self._raw_client.create(
             name=name,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
@@ -416,7 +469,7 @@ class AsyncAppClientsClient:
             api_roles=api_roles,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def get(
         self,
@@ -450,20 +503,32 @@ class AsyncAppClientsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.app_clients.get(app_client_id='app_client_id', )
+            await client.app_clients.get(
+                app_client_id="app_client_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.get(
+        _response = await self._raw_client.get(
             app_client_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def delete(
         self,
@@ -496,20 +561,32 @@ class AsyncAppClientsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.app_clients.delete(app_client_id='app_client_id', )
+            await client.app_clients.delete(
+                app_client_id="app_client_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.delete(
+        _response = await self._raw_client.delete(
             app_client_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def update(
         self,
@@ -551,14 +628,26 @@ class AsyncAppClientsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.app_clients.update(app_client_id='app_client_id', )
+            await client.app_clients.update(
+                app_client_id="app_client_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.update(
+        _response = await self._raw_client.update(
             app_client_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
@@ -566,4 +655,4 @@ class AsyncAppClientsClient:
             api_roles=api_roles,
             request_options=request_options,
         )
-        return response.data
+        return _response.data

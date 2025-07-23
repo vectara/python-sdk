@@ -44,20 +44,17 @@ class Corpus(UniversalBaseModel):
 
     queries_are_answers: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    Queries made to this corpus are considered answers, and not questions.
-    This swaps the semantics of the encoder used at query time.
+    Queries made to this corpus are considered answers, and not questions. This swaps the semantics of the encoder used at query time.
     """
 
     documents_are_questions: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    Documents inside this corpus are considered questions, and not answers.
-    This swaps the semantics of the encoder used at indexing.
+    Documents inside this corpus are considered questions, and not answers. This swaps the semantics of the encoder used at indexing.
     """
 
     encoder_id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The encoder used by the corpus.
-    *Deprecated*: Use `encoder_name` instead
+    The encoder used by the corpus. *Deprecated*: Use `encoder_name` instead
     """
 
     encoder_name: typing.Optional[str] = pydantic.Field(default=None)

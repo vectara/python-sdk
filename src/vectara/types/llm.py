@@ -8,8 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class Llm(UniversalBaseModel):
     """
-    A LLM can be used to enhance query results with a response, and be used as
-    the responder during a chat.
+    A LLM can be used to enhance query results with a response, and be used as the responder during a chat.
     """
 
     id: typing.Optional[str] = pydantic.Field(default=None)
@@ -34,8 +33,7 @@ class Llm(UniversalBaseModel):
 
     default: typing.Optional[bool] = pydantic.Field(default=None)
     """
-    If this is the default LLM, it is used in queries when the generator
-    is not specified.
+    If this is the default LLM, it is used in queries when the generator is not specified.
     """
 
     prompts: typing.Optional[typing.Optional[typing.Any]] = None

@@ -35,10 +35,7 @@ class GenerationPresetsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[GenerationPreset]:
         """
-        List generation presets used for query or chat requests. Generation presets are
-        the build of properties used to configure generation for a request. This includes
-        the template that renders the prompt, and various generation settings like
-        `temperature`.
+        List generation presets used for query or chat requests. Generation presets are the build of properties used to configure generation for a request. This includes the template that renders the prompt, and various generation settings like `temperature`.
 
         Parameters
         ----------
@@ -49,8 +46,7 @@ class GenerationPresetsClient:
             The maximum number of results to return in the list.
 
         page_key : typing.Optional[str]
-            Used to retrieve the next page of generation presets after the limit has been reached.
-            This parameter is not needed for the first page of results.
+            Used to retrieve the next page of generation presets after the limit has been reached. This parameter is not needed for the first page of results.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -69,7 +65,12 @@ class GenerationPresetsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.generation_presets.list()
         for item in response:
             yield item
@@ -77,7 +78,7 @@ class GenerationPresetsClient:
         for page in response.iter_pages():
             yield page
         """
-        response = self._raw_client.list(
+        return self._raw_client.list(
             llm_name=llm_name,
             limit=limit,
             page_key=page_key,
@@ -85,7 +86,6 @@ class GenerationPresetsClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
 
 class AsyncGenerationPresetsClient:
@@ -114,10 +114,7 @@ class AsyncGenerationPresetsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[GenerationPreset]:
         """
-        List generation presets used for query or chat requests. Generation presets are
-        the build of properties used to configure generation for a request. This includes
-        the template that renders the prompt, and various generation settings like
-        `temperature`.
+        List generation presets used for query or chat requests. Generation presets are the build of properties used to configure generation for a request. This includes the template that renders the prompt, and various generation settings like `temperature`.
 
         Parameters
         ----------
@@ -128,8 +125,7 @@ class AsyncGenerationPresetsClient:
             The maximum number of results to return in the list.
 
         page_key : typing.Optional[str]
-            Used to retrieve the next page of generation presets after the limit has been reached.
-            This parameter is not needed for the first page of results.
+            Used to retrieve the next page of generation presets after the limit has been reached. This parameter is not needed for the first page of results.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -147,9 +143,17 @@ class AsyncGenerationPresetsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
             response = await client.generation_presets.list()
             async for item in response:
@@ -158,9 +162,11 @@ class AsyncGenerationPresetsClient:
             # alternatively, you can paginate page-by-page
             async for page in response.iter_pages():
                 yield page
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.list(
+        return await self._raw_client.list(
             llm_name=llm_name,
             limit=limit,
             page_key=page_key,
@@ -168,4 +174,3 @@ class AsyncGenerationPresetsClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data

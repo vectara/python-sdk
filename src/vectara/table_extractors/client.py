@@ -52,15 +52,20 @@ class TableExtractorsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.table_extractors.list()
         """
-        response = self._raw_client.list(
+        _response = self._raw_client.list(
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
 
 class AsyncTableExtractorsClient:
@@ -106,16 +111,26 @@ class AsyncTableExtractorsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
             await client.table_extractors.list()
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.list(
+        _response = await self._raw_client.list(
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data

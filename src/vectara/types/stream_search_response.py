@@ -21,8 +21,7 @@ class StreamSearchResponse(UniversalBaseModel):
 
     rewritten_queries: typing.Optional[typing.List[RewrittenQuery]] = pydantic.Field(default=None)
     """
-    The rewritten queries for the corpora that were searched. Only populated when 
-    intelligent_query_rewriting is enabled.
+    The rewritten queries for the corpora that were searched. Only populated when `intelligent_query_rewriting` is enabled.
     """
 
     if IS_PYDANTIC_V2:

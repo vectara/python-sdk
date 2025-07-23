@@ -38,9 +38,7 @@ class LlmClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> CreateChatCompletionResponse:
         """
-        OpenAI-compatible endpoint for chat completions. Creates a response for the given chat conversation.
-        The chat completion API allows you to chat with Vectara's language models in a way that's compatible with OpenAI's specification.
-        This makes it easy to integrate with applications already designed for OpenAI's API.
+        OpenAI-compatible endpoint for chat completions. Creates a response for the given chat conversation. The chat completion API allows you to chat with Vectara's language models in a way that's compatible with OpenAI's specification. This makes it easy to integrate with applications already designed for OpenAI's API.
 
         Parameters
         ----------
@@ -69,12 +67,24 @@ class LlmClient:
 
         Examples
         --------
-        from vectara import Vectara
-        from vectara import ChatCompletionRequestMessage
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.llm.chat_completion(model='model', messages=[ChatCompletionRequestMessage(role='role', content='content', )], )
+        from vectara import ChatCompletionRequestMessage, Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.llm.chat_completion(
+            model="model",
+            messages=[
+                ChatCompletionRequestMessage(
+                    role="role",
+                    content="content",
+                )
+            ],
+        )
         """
-        response = self._raw_client.chat_completion(
+        _response = self._raw_client.chat_completion(
             model=model,
             messages=messages,
             request_timeout=request_timeout,
@@ -82,7 +92,7 @@ class LlmClient:
             stream=stream,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
 
 class AsyncLlmClient:
@@ -111,9 +121,7 @@ class AsyncLlmClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> CreateChatCompletionResponse:
         """
-        OpenAI-compatible endpoint for chat completions. Creates a response for the given chat conversation.
-        The chat completion API allows you to chat with Vectara's language models in a way that's compatible with OpenAI's specification.
-        This makes it easy to integrate with applications already designed for OpenAI's API.
+        OpenAI-compatible endpoint for chat completions. Creates a response for the given chat conversation. The chat completion API allows you to chat with Vectara's language models in a way that's compatible with OpenAI's specification. This makes it easy to integrate with applications already designed for OpenAI's API.
 
         Parameters
         ----------
@@ -142,15 +150,32 @@ class AsyncLlmClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
-        from vectara import ChatCompletionRequestMessage
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara, ChatCompletionRequestMessage
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.llm.chat_completion(model='model', messages=[ChatCompletionRequestMessage(role='role', content='content', )], )
+            await client.llm.chat_completion(
+                model="model",
+                messages=[
+                    ChatCompletionRequestMessage(
+                        role="role",
+                        content="content",
+                    )
+                ],
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.chat_completion(
+        _response = await self._raw_client.chat_completion(
             model=model,
             messages=messages,
             request_timeout=request_timeout,
@@ -158,4 +183,4 @@ class AsyncLlmClient:
             stream=stream,
             request_options=request_options,
         )
-        return response.data
+        return _response.data

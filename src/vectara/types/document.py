@@ -32,9 +32,7 @@ class Document(UniversalBaseModel):
 
     parts: typing.Optional[typing.List[DocumentPart]] = pydantic.Field(default=None)
     """
-    Parts of the document that make up the document. However, parts are not available when
-    retrieving a list of documents or when creating a document. This property is only available
-    when retrieving a document by ID.
+    Parts of the document that make up the document. However, parts are not available when retrieving a list of documents or when creating a document. This property is only available when retrieving a document by ID.
     """
 
     storage_usage: typing.Optional[DocumentStorageUsage] = None

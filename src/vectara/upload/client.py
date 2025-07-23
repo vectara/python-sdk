@@ -45,14 +45,11 @@ class UploadClient:
     ) -> Document:
         """
         Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing.
-        The request expects a `multipart/form-data` format containing the following parts:
-        * `metadata` - Optionally specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
-        * `chunking_strategy` - If provided, specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. You can explicitly set sentence chunking with `'chunking_strategy={"type":"sentence_chunking_strategy"};type=application/json'` or use max chars chunking with `'chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":200};type=application/json'`
-        * `table_extraction_config` - You can optionally specify whether to extract table data from the uploaded file. If you do not set this option, the platform does not extract tables from PDF files. Example config, `'table_extraction_config={"extract_tables":true};type=application/json'`
-        * `file` - Specifies the file that you want to upload.
-        * `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
 
-        For more detailed information, see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)
+        The request expects a `multipart/form-data` format containing the following parts:
+        * `metadata` - Optionally specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `''metadata={\"key\": \"value\"};type=application/json''`
+        * `chunking_strategy` - If provided, specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. You can explicitly set sentence chunking with `''chunking_strategy={\"type\":\"sentence_chunking_strategy\"};type=application/json''` or use max chars chunking with `''chunking_strategy={\"type\":\"max_chars_chunking_strategy\",\"max_chars_per_chunk\":200};type=application/json''`
+        * `table_extraction_config` - You can optionally specify whether to extract table data from the uploaded file. If you do not set this option, the platform does not extract tables from PDF files. Example config, `''table_extraction_config={\"extract_tables\":true};type=application/json''` \n* `file` - Specifies the file that you want to upload. * `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `''file=@/path/to/file/file.pdf;filename=desired_filename.pdf''`\n\nFor more detailed information, see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)"
 
         Parameters
         ----------
@@ -89,10 +86,17 @@ class UploadClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.upload.file(corpus_key='my-corpus', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.upload.file(
+            corpus_key="my-corpus",
+        )
         """
-        response = self._raw_client.file(
+        _response = self._raw_client.file(
             corpus_key,
             file=file,
             request_timeout=request_timeout,
@@ -103,7 +107,7 @@ class UploadClient:
             filename=filename,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
 
 class AsyncUploadClient:
@@ -136,14 +140,11 @@ class AsyncUploadClient:
     ) -> Document:
         """
         Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing.
-        The request expects a `multipart/form-data` format containing the following parts:
-        * `metadata` - Optionally specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `'metadata={"key": "value"};type=application/json'`
-        * `chunking_strategy` - If provided, specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. You can explicitly set sentence chunking with `'chunking_strategy={"type":"sentence_chunking_strategy"};type=application/json'` or use max chars chunking with `'chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":200};type=application/json'`
-        * `table_extraction_config` - You can optionally specify whether to extract table data from the uploaded file. If you do not set this option, the platform does not extract tables from PDF files. Example config, `'table_extraction_config={"extract_tables":true};type=application/json'`
-        * `file` - Specifies the file that you want to upload.
-        * `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'`
 
-        For more detailed information, see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)
+        The request expects a `multipart/form-data` format containing the following parts:
+        * `metadata` - Optionally specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `''metadata={\"key\": \"value\"};type=application/json''`
+        * `chunking_strategy` - If provided, specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. You can explicitly set sentence chunking with `''chunking_strategy={\"type\":\"sentence_chunking_strategy\"};type=application/json''` or use max chars chunking with `''chunking_strategy={\"type\":\"max_chars_chunking_strategy\",\"max_chars_per_chunk\":200};type=application/json''`
+        * `table_extraction_config` - You can optionally specify whether to extract table data from the uploaded file. If you do not set this option, the platform does not extract tables from PDF files. Example config, `''table_extraction_config={\"extract_tables\":true};type=application/json''` \n* `file` - Specifies the file that you want to upload. * `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `''file=@/path/to/file/file.pdf;filename=desired_filename.pdf''`\n\nFor more detailed information, see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)"
 
         Parameters
         ----------
@@ -179,14 +180,26 @@ class AsyncUploadClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.upload.file(corpus_key='my-corpus', )
+            await client.upload.file(
+                corpus_key="my-corpus",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.file(
+        _response = await self._raw_client.file(
             corpus_key,
             file=file,
             request_timeout=request_timeout,
@@ -197,4 +210,4 @@ class AsyncUploadClient:
             filename=filename,
             request_options=request_options,
         )
-        return response.data
+        return _response.data

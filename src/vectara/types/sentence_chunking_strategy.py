@@ -8,8 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class SentenceChunkingStrategy(UniversalBaseModel):
     """
-    Sets a chunking strategy that creates one chunk per sentence.
-    This is the default strategy used when no chunking strategy is specified.
+    Sets a chunking strategy that creates one chunk per sentence. This is the default strategy used when no chunking strategy is specified.
     """
 
     type: typing.Literal["sentence_chunking_strategy"] = "sentence_chunking_strategy"

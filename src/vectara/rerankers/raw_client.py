@@ -5,8 +5,7 @@ from json.decoder import JSONDecodeError
 
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
-from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.pagination import AsyncPager, SyncPager
+from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.forbidden_error import ForbiddenError
@@ -28,7 +27,7 @@ class RawRerankersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[SyncPager[Reranker]]:
+    ) -> SyncPager[Reranker]:
         """
         Rerankers are used to improve the ranking (ordering) of search results.
 
@@ -54,7 +53,7 @@ class RawRerankersClient:
 
         Returns
         -------
-        HttpResponse[SyncPager[Reranker]]
+        SyncPager[Reranker]
             List of rerankers.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -81,6 +80,7 @@ class RawRerankersClient:
                         object_=_response.json(),
                     ),
                 )
+                _items = _parsed_response.rerankers
                 _has_next = False
                 _get_next = None
                 if _parsed_response.metadata is not None:
@@ -94,24 +94,24 @@ class RawRerankersClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                _items = _parsed_response.rerankers
-                return HttpResponse(
-                    response=_response, data=SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+                return SyncPager(
+                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
 class AsyncRawRerankersClient:
@@ -127,7 +127,7 @@ class AsyncRawRerankersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[AsyncPager[Reranker]]:
+    ) -> AsyncPager[Reranker]:
         """
         Rerankers are used to improve the ranking (ordering) of search results.
 
@@ -153,7 +153,7 @@ class AsyncRawRerankersClient:
 
         Returns
         -------
-        AsyncHttpResponse[AsyncPager[Reranker]]
+        AsyncPager[Reranker]
             List of rerankers.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -180,34 +180,38 @@ class AsyncRawRerankersClient:
                         object_=_response.json(),
                     ),
                 )
+                _items = _parsed_response.rerankers
                 _has_next = False
                 _get_next = None
                 if _parsed_response.metadata is not None:
                     _parsed_next = _parsed_response.metadata.page_key
                     _has_next = _parsed_next is not None and _parsed_next != ""
-                    _get_next = lambda: self.list(
-                        filter=filter,
-                        limit=limit,
-                        page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
-                        request_options=request_options,
-                    )
-                _items = _parsed_response.rerankers
-                return AsyncHttpResponse(
-                    response=_response, data=AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+
+                    async def _get_next():
+                        return await self.list(
+                            filter=filter,
+                            limit=limit,
+                            page_key=_parsed_next,
+                            request_timeout=request_timeout,
+                            request_timeout_millis=request_timeout_millis,
+                            request_options=request_options,
+                        )
+
+                return AsyncPager(
+                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

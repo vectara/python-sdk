@@ -42,9 +42,7 @@ class DocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Document]:
         """
-        Retrieve a list of documents stored in a specific corpus. This endpoint
-        provides an overview of document metadata without returning the full content of
-        each document.
+        Retrieve a list of documents stored in a specific corpus. This endpoint provides an overview of document metadata without returning the full content of each document.
 
         Parameters
         ----------
@@ -55,8 +53,7 @@ class DocumentsClient:
             The maximum number of documents to return at one time.
 
         metadata_filter : typing.Optional[str]
-            Filter documents by metadata. Uses the same expression as a query metadata filter, but only
-            allows filtering on document metadata.
+            Filter documents by metadata. Uses the same expression as a query metadata filter, but only allows filtering on document metadata.
 
         page_key : typing.Optional[str]
             Used to retrieve the next page of documents after the limit has been reached.
@@ -78,15 +75,22 @@ class DocumentsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        response = client.documents.list(corpus_key='my-corpus', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        response = client.documents.list(
+            corpus_key="my-corpus",
+        )
         for item in response:
             yield item
         # alternatively, you can paginate page-by-page
         for page in response.iter_pages():
             yield page
         """
-        response = self._raw_client.list(
+        return self._raw_client.list(
             corpus_key,
             limit=limit,
             metadata_filter=metadata_filter,
@@ -95,7 +99,6 @@ class DocumentsClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     def create(
         self,
@@ -107,15 +110,10 @@ class DocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
-        Add a document to a corpus. This endpoint supports two document formats, structured and core.
+        Add a document to a corpus. This endpoint supports two document formats: structured and core.
 
-        * **Structured** documents have a more conventional structure that provide document sections
-        and parts in a format created by Vectara's proprietary strategy automatically. You provide
-        a logical document structure, and Vectara handles the partitioning.
-        * **Core** documents differ in that they follow an advanced, granular structure that
-        explicitly defines each document part in an array. Each part becomes a distinct,
-        searchable item in query results. You have precise control over the document structure
-        and content.
+        * **Structured** documents have a conventional structure that provides document sections and parts in a format created by our proprietary strategy automatically. You provide a logical document structure, and Vectara handles the partitioning.
+        * **Core** documents differ in that they follow an advanced, granular structure that explicitly defines each document part in an array. Each part becomes a distinct, searchable item in query results. You have precise control over the document structure and content.
 
         For more details, see [Indexing](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
 
@@ -142,23 +140,43 @@ class DocumentsClient:
 
         Examples
         --------
-        from vectara import Vectara
-        from vectara import StructuredDocument
-        from vectara import StructuredDocumentSection
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.documents.create(corpus_key='my-corpus-key', request=StructuredDocument(id='my-doc-id', sections=[StructuredDocumentSection(id=1, title='A nice title.', text="I'm a nice document section.", metadata={'section': '1.1'
-        }, ), StructuredDocumentSection(id=2, title='Another nice title.', text="I'm another document section on something else.", metadata={'section': '1.2'
-        }, )], metadata={'url': 'https://example.com'
-        }, ), )
+        from vectara import StructuredDocument, StructuredDocumentSection, Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.documents.create(
+            corpus_key="my-corpus-key",
+            request=StructuredDocument(
+                id="my-doc-id",
+                sections=[
+                    StructuredDocumentSection(
+                        id=1,
+                        title="A nice title.",
+                        text="I'm a nice document section.",
+                        metadata={"section": "1.1"},
+                    ),
+                    StructuredDocumentSection(
+                        id=2,
+                        title="Another nice title.",
+                        text="I'm another document section on something else.",
+                        metadata={"section": "1.2"},
+                    ),
+                ],
+                metadata={"url": "https://example.com"},
+            ),
+        )
         """
-        response = self._raw_client.create(
+        _response = self._raw_client.create(
             corpus_key,
             request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def get(
         self,
@@ -170,8 +188,7 @@ class DocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
-        Retrieve the content and metadata of a specific document, identified by its
-        unique `document_id` from a specific corpus.
+        Retrieve the content and metadata of a specific document, identified by its unique `document_id` from a specific corpus.
 
         Parameters
         ----------
@@ -179,8 +196,7 @@ class DocumentsClient:
             The unique key identifying the corpus containing the document to retrieve.
 
         document_id : str
-            The document ID of the document to retrieve.
-            This `document_id` must be percent encoded.
+            The document ID of the document to retrieve. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -199,17 +215,25 @@ class DocumentsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.documents.get(corpus_key='my-corpus', document_id='document_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.documents.get(
+            corpus_key="my-corpus",
+            document_id="document_id",
+        )
         """
-        response = self._raw_client.get(
+        _response = self._raw_client.get(
             corpus_key,
             document_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def delete(
         self,
@@ -221,8 +245,7 @@ class DocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Permanently delete a document identified by its unique `document_id` from a specific
-        corpus. This operation cannot be undone, so use it with caution.
+        Permanently delete a document identified by its unique `document_id` from a specific corpus. This operation cannot be undone, so use it with caution.
 
         Parameters
         ----------
@@ -230,8 +253,7 @@ class DocumentsClient:
             The unique key identifying the corpus with the document to delete.
 
         document_id : str
-            The document ID of the document to delete.
-            This `document_id` must be percent encoded.
+            The document ID of the document to delete. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -249,17 +271,25 @@ class DocumentsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.documents.delete(corpus_key='my-corpus', document_id='document_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.documents.delete(
+            corpus_key="my-corpus",
+            document_id="document_id",
+        )
         """
-        response = self._raw_client.delete(
+        _response = self._raw_client.delete(
             corpus_key,
             document_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def update(
         self,
@@ -272,9 +302,7 @@ class DocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
-        Updates document identified by its unique `document_id` from a specific
-        corpus. The request body metadata is merged with the existing metadata,
-        adding or modifying only the specified fields.
+        Updates document identified by its unique `document_id` from a specific corpus. The request body metadata is merged with the existing metadata, adding or modifying only the specified fields.
 
         Parameters
         ----------
@@ -282,8 +310,7 @@ class DocumentsClient:
             The unique key identifying the corpus with the document to update.
 
         document_id : str
-            The document ID of the document to update.
-            This `document_id` must be percent encoded.
+            The document ID of the document to update. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -292,8 +319,7 @@ class DocumentsClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            The metadata for a document as an arbitrary object. Properties of this object
-            can be used by document level filter attributes.
+            The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -306,10 +332,18 @@ class DocumentsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.documents.update(corpus_key='my-corpus', document_id='document_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.documents.update(
+            corpus_key="my-corpus",
+            document_id="document_id",
+        )
         """
-        response = self._raw_client.update(
+        _response = self._raw_client.update(
             corpus_key,
             document_id,
             request_timeout=request_timeout,
@@ -317,7 +351,7 @@ class DocumentsClient:
             metadata=metadata,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def update_metadata(
         self,
@@ -330,8 +364,7 @@ class DocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
-        Replaces metadata of a document identified by its unique `document_id`
-        from a specific corpus.
+        Replaces metadata of a document identified by its unique `document_id` from a specific corpus.
 
         Parameters
         ----------
@@ -339,8 +372,7 @@ class DocumentsClient:
             The unique key identifying the corpus with the document to update.
 
         document_id : str
-            The document ID of the document to update.
-            This `document_id` must be percent encoded.
+            The document ID of the document to update. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -349,8 +381,7 @@ class DocumentsClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            The metadata for a document as an arbitrary object. Properties of this object
-            can be used by document level filter attributes.
+            The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -363,10 +394,18 @@ class DocumentsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.documents.update_metadata(corpus_key='my-corpus', document_id='document_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.documents.update_metadata(
+            corpus_key="my-corpus",
+            document_id="document_id",
+        )
         """
-        response = self._raw_client.update_metadata(
+        _response = self._raw_client.update_metadata(
             corpus_key,
             document_id,
             request_timeout=request_timeout,
@@ -374,7 +413,7 @@ class DocumentsClient:
             metadata=metadata,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def summarize(
         self,
@@ -398,8 +437,7 @@ class DocumentsClient:
             The unique key identifying the corpus containing the document to retrieve.
 
         document_id : str
-            The document ID of the document to retrieve.
-            This `document_id` must be percent encoded.
+            The document ID of the document to retrieve. This `document_id` must be percent encoded.
 
         llm_name : str
             The name of the LLM.
@@ -411,12 +449,7 @@ class DocumentsClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         prompt_template : typing.Optional[str]
-            The prompt template to use when generating the summary.
-            Vectara manages both system and user roles and prompts for the generative
-            LLM out of the box by default. However, users can override the
-            `prompt_template` via this variable. The `prompt_template` is in the form of an
-            Apache Velocity template. For more details on how to configure the
-            `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
+            The prompt template to use when generating the summary. Vectara manages both system and user roles and prompts for the generative LLM out of the box by default. However, users can override the `prompt_template` via this variable. The `prompt_template` is in the form of an Apache Velocity template. For more details on how to configure the `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
 
         model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Optional parameters for the specified model used when generating the summary.
@@ -435,10 +468,19 @@ class DocumentsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.documents.summarize(corpus_key='my-corpus', document_id='document_id', llm_name='llm_name', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.documents.summarize(
+            corpus_key="my-corpus",
+            document_id="document_id",
+            llm_name="llm_name",
+        )
         """
-        response = self._raw_client.summarize(
+        _response = self._raw_client.summarize(
             corpus_key,
             document_id,
             llm_name=llm_name,
@@ -449,7 +491,7 @@ class DocumentsClient:
             stream_response=stream_response,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
 
 class AsyncDocumentsClient:
@@ -479,9 +521,7 @@ class AsyncDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Document]:
         """
-        Retrieve a list of documents stored in a specific corpus. This endpoint
-        provides an overview of document metadata without returning the full content of
-        each document.
+        Retrieve a list of documents stored in a specific corpus. This endpoint provides an overview of document metadata without returning the full content of each document.
 
         Parameters
         ----------
@@ -492,8 +532,7 @@ class AsyncDocumentsClient:
             The maximum number of documents to return at one time.
 
         metadata_filter : typing.Optional[str]
-            Filter documents by metadata. Uses the same expression as a query metadata filter, but only
-            allows filtering on document metadata.
+            Filter documents by metadata. Uses the same expression as a query metadata filter, but only allows filtering on document metadata.
 
         page_key : typing.Optional[str]
             Used to retrieve the next page of documents after the limit has been reached.
@@ -514,20 +553,32 @@ class AsyncDocumentsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            response = await client.documents.list(corpus_key='my-corpus', )
+            response = await client.documents.list(
+                corpus_key="my-corpus",
+            )
             async for item in response:
                 yield item
 
             # alternatively, you can paginate page-by-page
             async for page in response.iter_pages():
                 yield page
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.list(
+        return await self._raw_client.list(
             corpus_key,
             limit=limit,
             metadata_filter=metadata_filter,
@@ -536,7 +587,6 @@ class AsyncDocumentsClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     async def create(
         self,
@@ -548,15 +598,10 @@ class AsyncDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
-        Add a document to a corpus. This endpoint supports two document formats, structured and core.
+        Add a document to a corpus. This endpoint supports two document formats: structured and core.
 
-        * **Structured** documents have a more conventional structure that provide document sections
-        and parts in a format created by Vectara's proprietary strategy automatically. You provide
-        a logical document structure, and Vectara handles the partitioning.
-        * **Core** documents differ in that they follow an advanced, granular structure that
-        explicitly defines each document part in an array. Each part becomes a distinct,
-        searchable item in query results. You have precise control over the document structure
-        and content.
+        * **Structured** documents have a conventional structure that provides document sections and parts in a format created by our proprietary strategy automatically. You provide a logical document structure, and Vectara handles the partitioning.
+        * **Core** documents differ in that they follow an advanced, granular structure that explicitly defines each document part in an array. Each part becomes a distinct, searchable item in query results. You have precise control over the document structure and content.
 
         For more details, see [Indexing](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
 
@@ -583,26 +628,51 @@ class AsyncDocumentsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
-        from vectara import StructuredDocument
-        from vectara import StructuredDocumentSection
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara, StructuredDocument, StructuredDocumentSection
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.documents.create(corpus_key='my-corpus-key', request=StructuredDocument(id='my-doc-id', sections=[StructuredDocumentSection(id=1, title='A nice title.', text="I'm a nice document section.", metadata={'section': '1.1'
-            }, ), StructuredDocumentSection(id=2, title='Another nice title.', text="I'm another document section on something else.", metadata={'section': '1.2'
-            }, )], metadata={'url': 'https://example.com'
-            }, ), )
+            await client.documents.create(
+                corpus_key="my-corpus-key",
+                request=StructuredDocument(
+                    id="my-doc-id",
+                    sections=[
+                        StructuredDocumentSection(
+                            id=1,
+                            title="A nice title.",
+                            text="I'm a nice document section.",
+                            metadata={"section": "1.1"},
+                        ),
+                        StructuredDocumentSection(
+                            id=2,
+                            title="Another nice title.",
+                            text="I'm another document section on something else.",
+                            metadata={"section": "1.2"},
+                        ),
+                    ],
+                    metadata={"url": "https://example.com"},
+                ),
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.create(
+        _response = await self._raw_client.create(
             corpus_key,
             request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def get(
         self,
@@ -614,8 +684,7 @@ class AsyncDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
-        Retrieve the content and metadata of a specific document, identified by its
-        unique `document_id` from a specific corpus.
+        Retrieve the content and metadata of a specific document, identified by its unique `document_id` from a specific corpus.
 
         Parameters
         ----------
@@ -623,8 +692,7 @@ class AsyncDocumentsClient:
             The unique key identifying the corpus containing the document to retrieve.
 
         document_id : str
-            The document ID of the document to retrieve.
-            This `document_id` must be percent encoded.
+            The document ID of the document to retrieve. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -642,21 +710,34 @@ class AsyncDocumentsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.documents.get(corpus_key='my-corpus', document_id='document_id', )
+            await client.documents.get(
+                corpus_key="my-corpus",
+                document_id="document_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.get(
+        _response = await self._raw_client.get(
             corpus_key,
             document_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def delete(
         self,
@@ -668,8 +749,7 @@ class AsyncDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Permanently delete a document identified by its unique `document_id` from a specific
-        corpus. This operation cannot be undone, so use it with caution.
+        Permanently delete a document identified by its unique `document_id` from a specific corpus. This operation cannot be undone, so use it with caution.
 
         Parameters
         ----------
@@ -677,8 +757,7 @@ class AsyncDocumentsClient:
             The unique key identifying the corpus with the document to delete.
 
         document_id : str
-            The document ID of the document to delete.
-            This `document_id` must be percent encoded.
+            The document ID of the document to delete. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -695,21 +774,34 @@ class AsyncDocumentsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.documents.delete(corpus_key='my-corpus', document_id='document_id', )
+            await client.documents.delete(
+                corpus_key="my-corpus",
+                document_id="document_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.delete(
+        _response = await self._raw_client.delete(
             corpus_key,
             document_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def update(
         self,
@@ -722,9 +814,7 @@ class AsyncDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
-        Updates document identified by its unique `document_id` from a specific
-        corpus. The request body metadata is merged with the existing metadata,
-        adding or modifying only the specified fields.
+        Updates document identified by its unique `document_id` from a specific corpus. The request body metadata is merged with the existing metadata, adding or modifying only the specified fields.
 
         Parameters
         ----------
@@ -732,8 +822,7 @@ class AsyncDocumentsClient:
             The unique key identifying the corpus with the document to update.
 
         document_id : str
-            The document ID of the document to update.
-            This `document_id` must be percent encoded.
+            The document ID of the document to update. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -742,8 +831,7 @@ class AsyncDocumentsClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            The metadata for a document as an arbitrary object. Properties of this object
-            can be used by document level filter attributes.
+            The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -755,14 +843,27 @@ class AsyncDocumentsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.documents.update(corpus_key='my-corpus', document_id='document_id', )
+            await client.documents.update(
+                corpus_key="my-corpus",
+                document_id="document_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.update(
+        _response = await self._raw_client.update(
             corpus_key,
             document_id,
             request_timeout=request_timeout,
@@ -770,7 +871,7 @@ class AsyncDocumentsClient:
             metadata=metadata,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def update_metadata(
         self,
@@ -783,8 +884,7 @@ class AsyncDocumentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
-        Replaces metadata of a document identified by its unique `document_id`
-        from a specific corpus.
+        Replaces metadata of a document identified by its unique `document_id` from a specific corpus.
 
         Parameters
         ----------
@@ -792,8 +892,7 @@ class AsyncDocumentsClient:
             The unique key identifying the corpus with the document to update.
 
         document_id : str
-            The document ID of the document to update.
-            This `document_id` must be percent encoded.
+            The document ID of the document to update. This `document_id` must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -802,8 +901,7 @@ class AsyncDocumentsClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            The metadata for a document as an arbitrary object. Properties of this object
-            can be used by document level filter attributes.
+            The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -815,14 +913,27 @@ class AsyncDocumentsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.documents.update_metadata(corpus_key='my-corpus', document_id='document_id', )
+            await client.documents.update_metadata(
+                corpus_key="my-corpus",
+                document_id="document_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.update_metadata(
+        _response = await self._raw_client.update_metadata(
             corpus_key,
             document_id,
             request_timeout=request_timeout,
@@ -830,7 +941,7 @@ class AsyncDocumentsClient:
             metadata=metadata,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def summarize(
         self,
@@ -854,8 +965,7 @@ class AsyncDocumentsClient:
             The unique key identifying the corpus containing the document to retrieve.
 
         document_id : str
-            The document ID of the document to retrieve.
-            This `document_id` must be percent encoded.
+            The document ID of the document to retrieve. This `document_id` must be percent encoded.
 
         llm_name : str
             The name of the LLM.
@@ -867,12 +977,7 @@ class AsyncDocumentsClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         prompt_template : typing.Optional[str]
-            The prompt template to use when generating the summary.
-            Vectara manages both system and user roles and prompts for the generative
-            LLM out of the box by default. However, users can override the
-            `prompt_template` via this variable. The `prompt_template` is in the form of an
-            Apache Velocity template. For more details on how to configure the
-            `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
+            The prompt template to use when generating the summary. Vectara manages both system and user roles and prompts for the generative LLM out of the box by default. However, users can override the `prompt_template` via this variable. The `prompt_template` is in the form of an Apache Velocity template. For more details on how to configure the `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
 
         model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
             Optional parameters for the specified model used when generating the summary.
@@ -890,14 +995,28 @@ class AsyncDocumentsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.documents.summarize(corpus_key='my-corpus', document_id='document_id', llm_name='llm_name', )
+            await client.documents.summarize(
+                corpus_key="my-corpus",
+                document_id="document_id",
+                llm_name="llm_name",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.summarize(
+        _response = await self._raw_client.summarize(
             corpus_key,
             document_id,
             llm_name=llm_name,
@@ -908,4 +1027,4 @@ class AsyncDocumentsClient:
             stream_response=stream_response,
             request_options=request_options,
         )
-        return response.data
+        return _response.data

@@ -5,10 +5,10 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.request_options import RequestOptions
 from ..types.generation_parameters import GenerationParameters
-from ..types.query_full_response import QueryFullResponse
-from ..types.query_streamed_response import QueryStreamedResponse
 from ..types.search_corpora_parameters import SearchCorporaParameters
 from .raw_client import AsyncRawQueriesClient, RawQueriesClient
+from .types.queries_query_response import QueriesQueryResponse
+from .types.queries_query_stream_response import QueriesQueryStreamResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -40,14 +40,13 @@ class QueriesClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.Iterator[QueryStreamedResponse]:
+    ) -> typing.Iterator[QueriesQueryStreamResponse]:
         """
-        Perform a multipurpose query across to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
+        Perform a multipurpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
 
         * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
         * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
-        * Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
-        will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
+        * Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt-in by setting the `generation` property. By excluding the property or by setting it to null, the response will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
         * Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
         * Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
         * Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
@@ -73,27 +72,55 @@ class QueriesClient:
             Indicates whether to save the query to query history.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.Iterator[QueryStreamedResponse]
+        typing.Iterator[QueriesQueryStreamResponse]
 
 
         Examples
         --------
-        from vectara import Vectara
-        from vectara import SearchCorporaParameters
-        from vectara import KeyedSearchCorpus
-        from vectara import ContextConfiguration
-        from vectara import CustomerSpecificReranker
-        from vectara import GenerationParameters
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        response = client.queries.query_stream(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, ), )
+        from vectara import (
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            SearchCorporaParameters,
+            Vectara,
+        )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        response = client.queries.query_stream(
+            query="What is a hallucination?",
+            search=SearchCorporaParameters(
+                corpora=[
+                    KeyedSearchCorpus(
+                        corpus_key="corpus_key",
+                        metadata_filter="",
+                        lexical_interpolation=0.005,
+                    )
+                ],
+                context_configuration=ContextConfiguration(
+                    sentences_before=2,
+                    sentences_after=2,
+                ),
+                reranker=CustomerSpecificReranker(
+                    reranker_id="rnk_272725719",
+                ),
+            ),
+            generation=GenerationParameters(
+                response_language="eng",
+                enable_factual_consistency_score=True,
+            ),
+        )
         for chunk in response:
             yield chunk
         """
@@ -120,14 +147,13 @@ class QueriesClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> QueryFullResponse:
+    ) -> QueriesQueryResponse:
         """
-        Perform a multipurpose query across to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
+        Perform a multipurpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
 
         * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
         * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
-        * Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
-        will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
+        * Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt-in by setting the `generation` property. By excluding the property or by setting it to null, the response will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
         * Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
         * Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
         * Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
@@ -153,29 +179,57 @@ class QueriesClient:
             Indicates whether to save the query to query history.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        QueryFullResponse
+        QueriesQueryResponse
 
 
         Examples
         --------
-        from vectara import Vectara
-        from vectara import SearchCorporaParameters
-        from vectara import KeyedSearchCorpus
-        from vectara import ContextConfiguration
-        from vectara import CustomerSpecificReranker
-        from vectara import GenerationParameters
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.queries.query(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, ), )
+        from vectara import (
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            SearchCorporaParameters,
+            Vectara,
+        )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.queries.query(
+            query="What is a hallucination?",
+            search=SearchCorporaParameters(
+                corpora=[
+                    KeyedSearchCorpus(
+                        corpus_key="corpus_key",
+                        metadata_filter="",
+                        lexical_interpolation=0.005,
+                    )
+                ],
+                context_configuration=ContextConfiguration(
+                    sentences_before=2,
+                    sentences_after=2,
+                ),
+                reranker=CustomerSpecificReranker(
+                    reranker_id="rnk_272725719",
+                ),
+            ),
+            generation=GenerationParameters(
+                response_language="eng",
+                enable_factual_consistency_score=True,
+            ),
+        )
         """
-        response = self._raw_client.query(
+        _response = self._raw_client.query(
             query=query,
             search=search,
             request_timeout=request_timeout,
@@ -185,7 +239,7 @@ class QueriesClient:
             intelligent_query_rewriting=intelligent_query_rewriting,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
 
 class AsyncQueriesClient:
@@ -214,14 +268,13 @@ class AsyncQueriesClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.AsyncIterator[QueryStreamedResponse]:
+    ) -> typing.AsyncIterator[QueriesQueryStreamResponse]:
         """
-        Perform a multipurpose query across to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
+        Perform a multipurpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
 
         * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
         * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
-        * Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
-        will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
+        * Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt-in by setting the `generation` property. By excluding the property or by setting it to null, the response will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
         * Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
         * Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
         * Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
@@ -247,31 +300,64 @@ class AsyncQueriesClient:
             Indicates whether to save the query to query history.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.AsyncIterator[QueryStreamedResponse]
+        typing.AsyncIterator[QueriesQueryStreamResponse]
 
 
         Examples
         --------
-        from vectara import AsyncVectara
-        from vectara import SearchCorporaParameters
-        from vectara import KeyedSearchCorpus
-        from vectara import ContextConfiguration
-        from vectara import CustomerSpecificReranker
-        from vectara import GenerationParameters
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import (
+            AsyncVectara,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            SearchCorporaParameters,
+        )
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            response = await client.queries.query_stream(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, ), )
+            response = await client.queries.query_stream(
+                query="What is a hallucination?",
+                search=SearchCorporaParameters(
+                    corpora=[
+                        KeyedSearchCorpus(
+                            corpus_key="corpus_key",
+                            metadata_filter="",
+                            lexical_interpolation=0.005,
+                        )
+                    ],
+                    context_configuration=ContextConfiguration(
+                        sentences_before=2,
+                        sentences_after=2,
+                    ),
+                    reranker=CustomerSpecificReranker(
+                        reranker_id="rnk_272725719",
+                    ),
+                ),
+                generation=GenerationParameters(
+                    response_language="eng",
+                    enable_factual_consistency_score=True,
+                ),
+            )
             async for chunk in response:
                 yield chunk
+
+
         asyncio.run(main())
         """
         async with self._raw_client.query_stream(
@@ -284,8 +370,8 @@ class AsyncQueriesClient:
             intelligent_query_rewriting=intelligent_query_rewriting,
             request_options=request_options,
         ) as r:
-            async for data in r.data:
-                yield data
+            async for _chunk in r.data:
+                yield _chunk
 
     async def query(
         self,
@@ -298,14 +384,13 @@ class AsyncQueriesClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> QueryFullResponse:
+    ) -> QueriesQueryResponse:
         """
-        Perform a multipurpose query across to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
+        Perform a multipurpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
 
         * Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
         * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
-        * Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response
-        will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
+        * Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt-in by setting the `generation` property. By excluding the property or by setting it to null, the response will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
         * Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
         * Use advanced summarization options that utilize detailed summarization parameters such as `max_response_characters`, `temperature`, and `frequency_penalty` for generating precise and relevant summaries. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#advanced-summarization-customization-options)
         * Customize citation formats in summaries using the `citations` object to include numeric, HTML, or Markdown links. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#citation-format-in-summary)
@@ -331,32 +416,65 @@ class AsyncQueriesClient:
             Indicates whether to save the query to query history.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        QueryFullResponse
+        QueriesQueryResponse
 
 
         Examples
         --------
-        from vectara import AsyncVectara
-        from vectara import SearchCorporaParameters
-        from vectara import KeyedSearchCorpus
-        from vectara import ContextConfiguration
-        from vectara import CustomerSpecificReranker
-        from vectara import GenerationParameters
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import (
+            AsyncVectara,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            SearchCorporaParameters,
+        )
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.queries.query(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, ), )
+            await client.queries.query(
+                query="What is a hallucination?",
+                search=SearchCorporaParameters(
+                    corpora=[
+                        KeyedSearchCorpus(
+                            corpus_key="corpus_key",
+                            metadata_filter="",
+                            lexical_interpolation=0.005,
+                        )
+                    ],
+                    context_configuration=ContextConfiguration(
+                        sentences_before=2,
+                        sentences_after=2,
+                    ),
+                    reranker=CustomerSpecificReranker(
+                        reranker_id="rnk_272725719",
+                    ),
+                ),
+                generation=GenerationParameters(
+                    response_language="eng",
+                    enable_factual_consistency_score=True,
+                ),
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.query(
+        _response = await self._raw_client.query(
             query=query,
             search=search,
             request_timeout=request_timeout,
@@ -366,4 +484,4 @@ class AsyncQueriesClient:
             intelligent_query_rewriting=intelligent_query_rewriting,
             request_options=request_options,
         )
-        return response.data
+        return _response.data

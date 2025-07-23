@@ -69,15 +69,22 @@ class EncodersClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        response = client.encoders.list(filter='vectara.*', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        response = client.encoders.list(
+            filter="vectara.*",
+        )
         for item in response:
             yield item
         # alternatively, you can paginate page-by-page
         for page in response.iter_pages():
             yield page
         """
-        response = self._raw_client.list(
+        return self._raw_client.list(
             filter=filter,
             limit=limit,
             page_key=page_key,
@@ -85,7 +92,6 @@ class EncodersClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     def create(
         self,
@@ -124,8 +130,7 @@ class EncodersClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         output_dimensions : typing.Optional[int]
-            The number of dimensions in the output embedding vector. If provided and the model supports truncation,
-            the response will be truncated to this number of dimensions.
+            The number of dimensions in the output embedding vector. If provided and the model supports truncation, the response will be truncated to this number of dimensions.
 
         auth : typing.Optional[RemoteAuth]
 
@@ -140,10 +145,20 @@ class EncodersClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.encoders.create(name='openai-text-encoder', description='description', uri='https://api.openai.com/v1/embeddings', model='text-embedding-ada-002', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.encoders.create(
+            name="openai-text-encoder",
+            description="description",
+            uri="https://api.openai.com/v1/embeddings",
+            model="text-embedding-ada-002",
+        )
         """
-        response = self._raw_client.create(
+        _response = self._raw_client.create(
             name=name,
             description=description,
             uri=uri,
@@ -154,7 +169,7 @@ class EncodersClient:
             auth=auth,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
 
 class AsyncEncodersClient:
@@ -212,20 +227,32 @@ class AsyncEncodersClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            response = await client.encoders.list(filter='vectara.*', )
+            response = await client.encoders.list(
+                filter="vectara.*",
+            )
             async for item in response:
                 yield item
 
             # alternatively, you can paginate page-by-page
             async for page in response.iter_pages():
                 yield page
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.list(
+        return await self._raw_client.list(
             filter=filter,
             limit=limit,
             page_key=page_key,
@@ -233,7 +260,6 @@ class AsyncEncodersClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     async def create(
         self,
@@ -272,8 +298,7 @@ class AsyncEncodersClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         output_dimensions : typing.Optional[int]
-            The number of dimensions in the output embedding vector. If provided and the model supports truncation,
-            the response will be truncated to this number of dimensions.
+            The number of dimensions in the output embedding vector. If provided and the model supports truncation, the response will be truncated to this number of dimensions.
 
         auth : typing.Optional[RemoteAuth]
 
@@ -287,14 +312,29 @@ class AsyncEncodersClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.encoders.create(name='openai-text-encoder', description='description', uri='https://api.openai.com/v1/embeddings', model='text-embedding-ada-002', )
+            await client.encoders.create(
+                name="openai-text-encoder",
+                description="description",
+                uri="https://api.openai.com/v1/embeddings",
+                model="text-embedding-ada-002",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.create(
+        _response = await self._raw_client.create(
             name=name,
             description=description,
             uri=uri,
@@ -305,4 +345,4 @@ class AsyncEncodersClient:
             auth=auth,
             request_options=request_options,
         )
-        return response.data
+        return _response.data

@@ -8,16 +8,12 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class ModelParameters(UniversalBaseModel):
     """
-    The parameters for the model.
-    WARNING: This is an experimental feature, and breakable at any point with virtually no
-    notice. It is meant for experimentation to converge on optimal parameters that can then
-    be set in the prompt definitions.
+    The parameters for the model. WARNING: This is an experimental feature, and breakable at any point with virtually no notice. It is meant for experimentation to converge on optimal parameters that can then be set in the prompt definitions.
     """
 
     llm_name: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The model (e.g., `gpt-4`) to use for summarization. If specified, it will override the model behind
-    `generation_preset_name`.
+    The model (e.g., `gpt-4`) to use for summarization. If specified, it will override the model behind `generation_preset_name`.
     """
 
     max_tokens: typing.Optional[int] = pydantic.Field(default=None)
@@ -27,20 +23,17 @@ class ModelParameters(UniversalBaseModel):
 
     temperature: typing.Optional[float] = pydantic.Field(default=None)
     """
-    The sampling temperature to use. Higher values make the output more random, while lower
-    values make it more focused and deterministic.
+    The sampling temperature to use. Higher values make the output more random, while lower values make it more focused and deterministic.
     """
 
     frequency_penalty: typing.Optional[float] = pydantic.Field(default=None)
     """
-    Higher values penalize new tokens based on their existing frequency in the text so far,
-    decreasing the model's likelihood to repeat the same line verbatim.
+    Higher values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
     """
 
     presence_penalty: typing.Optional[float] = pydantic.Field(default=None)
     """
-    Higher values penalize new tokens based on whether they appear in the text so far,
-    increasing the model's likelihood to talk about new topics.
+    Higher values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
     """
 
     if IS_PYDANTIC_V2:

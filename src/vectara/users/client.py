@@ -72,15 +72,22 @@ class UsersClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        response = client.users.list(corpus_key='my-corpus', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        response = client.users.list(
+            corpus_key="my-corpus",
+        )
         for item in response:
             yield item
         # alternatively, you can paginate page-by-page
         for page in response.iter_pages():
             yield page
         """
-        response = self._raw_client.list(
+        return self._raw_client.list(
             limit=limit,
             page_key=page_key,
             corpus_key=corpus_key,
@@ -88,7 +95,6 @@ class UsersClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     def create(
         self,
@@ -135,10 +141,17 @@ class UsersClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.users.create(email='email', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.users.create(
+            email="email",
+        )
         """
-        response = self._raw_client.create(
+        _response = self._raw_client.create(
             email=email,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
@@ -147,7 +160,7 @@ class UsersClient:
             api_roles=api_roles,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def get(
         self,
@@ -163,8 +176,7 @@ class UsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID that to retrieve.
-            Note that the username must be percent encoded.
+            Specifies the user ID that to retrieve. Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -183,16 +195,23 @@ class UsersClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.users.get(username='username', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.users.get(
+            username="username",
+        )
         """
-        response = self._raw_client.get(
+        _response = self._raw_client.get(
             username,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def delete(
         self,
@@ -208,8 +227,7 @@ class UsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID to delete.
-            Note that the username must be percent encoded.
+            Specifies the user ID to delete. Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -227,16 +245,23 @@ class UsersClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.users.delete(username='username', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.users.delete(
+            username="username",
+        )
         """
-        response = self._raw_client.delete(
+        _response = self._raw_client.delete(
             username,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def update(
         self,
@@ -246,6 +271,7 @@ class UsersClient:
         request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        description: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> User:
         """
@@ -254,8 +280,7 @@ class UsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID to update.
-            Note that the username must be percent encoded.
+            Specifies the user ID to update. Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -269,6 +294,9 @@ class UsersClient:
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
             The new role names of the user.
 
+        description : typing.Optional[str]
+            The description of the user.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -280,18 +308,26 @@ class UsersClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.users.update(username='username', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.users.update(
+            username="username",
+        )
         """
-        response = self._raw_client.update(
+        _response = self._raw_client.update(
             username,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             enabled=enabled,
             api_roles=api_roles,
+            description=description,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def reset_password(
         self,
@@ -307,8 +343,7 @@ class UsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID to update.
-            Note that the username must be percent encoded and URI safe.
+            Specifies the user ID to update. Note that the username must be percent encoded and URI safe.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -327,16 +362,23 @@ class UsersClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.users.reset_password(username='username', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.users.reset_password(
+            username="username",
+        )
         """
-        response = self._raw_client.reset_password(
+        _response = self._raw_client.reset_password(
             username,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
 
 class AsyncUsersClient:
@@ -394,20 +436,32 @@ class AsyncUsersClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            response = await client.users.list(corpus_key='my-corpus', )
+            response = await client.users.list(
+                corpus_key="my-corpus",
+            )
             async for item in response:
                 yield item
 
             # alternatively, you can paginate page-by-page
             async for page in response.iter_pages():
                 yield page
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.list(
+        return await self._raw_client.list(
             limit=limit,
             page_key=page_key,
             corpus_key=corpus_key,
@@ -415,7 +469,6 @@ class AsyncUsersClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     async def create(
         self,
@@ -461,14 +514,26 @@ class AsyncUsersClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.users.create(email='email', )
+            await client.users.create(
+                email="email",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.create(
+        _response = await self._raw_client.create(
             email=email,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
@@ -477,7 +542,7 @@ class AsyncUsersClient:
             api_roles=api_roles,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def get(
         self,
@@ -493,8 +558,7 @@ class AsyncUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID that to retrieve.
-            Note that the username must be percent encoded.
+            Specifies the user ID that to retrieve. Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -512,20 +576,32 @@ class AsyncUsersClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.users.get(username='username', )
+            await client.users.get(
+                username="username",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.get(
+        _response = await self._raw_client.get(
             username,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def delete(
         self,
@@ -541,8 +617,7 @@ class AsyncUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID to delete.
-            Note that the username must be percent encoded.
+            Specifies the user ID to delete. Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -559,20 +634,32 @@ class AsyncUsersClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.users.delete(username='username', )
+            await client.users.delete(
+                username="username",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.delete(
+        _response = await self._raw_client.delete(
             username,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def update(
         self,
@@ -582,6 +669,7 @@ class AsyncUsersClient:
         request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        description: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> User:
         """
@@ -590,8 +678,7 @@ class AsyncUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID to update.
-            Note that the username must be percent encoded.
+            Specifies the user ID to update. Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -605,6 +692,9 @@ class AsyncUsersClient:
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
             The new role names of the user.
 
+        description : typing.Optional[str]
+            The description of the user.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -615,22 +705,35 @@ class AsyncUsersClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.users.update(username='username', )
+            await client.users.update(
+                username="username",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.update(
+        _response = await self._raw_client.update(
             username,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             enabled=enabled,
             api_roles=api_roles,
+            description=description,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def reset_password(
         self,
@@ -646,8 +749,7 @@ class AsyncUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID to update.
-            Note that the username must be percent encoded and URI safe.
+            Specifies the user ID to update. Note that the username must be percent encoded and URI safe.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -665,17 +767,29 @@ class AsyncUsersClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.users.reset_password(username='username', )
+            await client.users.reset_password(
+                username="username",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.reset_password(
+        _response = await self._raw_client.reset_password(
             username,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data

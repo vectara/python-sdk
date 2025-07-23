@@ -59,16 +59,23 @@ class QueryHistoryClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.query_history.get(query_id='query_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.query_history.get(
+            query_id="query_id",
+        )
         """
-        response = self._raw_client.get(
+        _response = self._raw_client.get(
             query_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def list(
         self,
@@ -92,10 +99,10 @@ class QueryHistoryClient:
             Specifies the `corpus_key` used in the query.
 
         started_after : typing.Optional[dt.datetime]
-            Queries that started after a particular date-time.
+            Queries that started after a particular ISO date-time.
 
         started_before : typing.Optional[dt.datetime]
-            Queries that started before a particular date-time.
+            Queries that started before a particular ISO date-time.
 
         chat_id : typing.Optional[str]
             Specifies the chat_id of the query, this will return all queries in the specified chat.
@@ -123,7 +130,12 @@ class QueryHistoryClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.query_history.list()
         for item in response:
             yield item
@@ -131,7 +143,7 @@ class QueryHistoryClient:
         for page in response.iter_pages():
             yield page
         """
-        response = self._raw_client.list(
+        return self._raw_client.list(
             corpus_key=corpus_key,
             started_after=started_after,
             started_before=started_before,
@@ -142,7 +154,6 @@ class QueryHistoryClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
 
 class AsyncQueryHistoryClient:
@@ -192,20 +203,32 @@ class AsyncQueryHistoryClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.query_history.get(query_id='query_id', )
+            await client.query_history.get(
+                query_id="query_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.get(
+        _response = await self._raw_client.get(
             query_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def list(
         self,
@@ -229,10 +252,10 @@ class AsyncQueryHistoryClient:
             Specifies the `corpus_key` used in the query.
 
         started_after : typing.Optional[dt.datetime]
-            Queries that started after a particular date-time.
+            Queries that started after a particular ISO date-time.
 
         started_before : typing.Optional[dt.datetime]
-            Queries that started before a particular date-time.
+            Queries that started before a particular ISO date-time.
 
         chat_id : typing.Optional[str]
             Specifies the chat_id of the query, this will return all queries in the specified chat.
@@ -259,9 +282,17 @@ class AsyncQueryHistoryClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
             response = await client.query_history.list()
             async for item in response:
@@ -270,9 +301,11 @@ class AsyncQueryHistoryClient:
             # alternatively, you can paginate page-by-page
             async for page in response.iter_pages():
                 yield page
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.list(
+        return await self._raw_client.list(
             corpus_key=corpus_key,
             started_after=started_after,
             started_before=started_before,
@@ -283,4 +316,3 @@ class AsyncQueryHistoryClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data

@@ -15,8 +15,7 @@ class TableExtractionConfig(UniversalBaseModel):
 
     extract_tables: bool = pydantic.Field()
     """
-    If set to true, the platform will attempt to extract tables from the document.
-    The tables will be indexed as separate document parts.
+    If set to true, the platform will attempt to extract tables from the document. The tables will be indexed as separate document parts.
     """
 
     extractor: typing.Optional[TableExtractorSpec] = None

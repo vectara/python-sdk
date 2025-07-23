@@ -15,9 +15,7 @@ class CreateOpenAillmRequest(UniversalBaseModel):
     type: typing.Literal["openai-compatible"] = "openai-compatible"
     name: str = pydantic.Field()
     """
-    Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM.
-    If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform),
-    then it will override that LLM for all usages.
+    Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM. If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform), then it will override that LLM for all usages.
     """
 
     description: typing.Optional[str] = pydantic.Field(default=None)

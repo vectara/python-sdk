@@ -14,8 +14,7 @@ class UsersResetPasswordResponse(UniversalBaseModel):
 
     one_time_code_link: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The link where to enter the `one_time_code`.
-    This is optional, and is only populated for some Vectara deployments.
+    The link where to enter the `one_time_code`. This is optional, and is only populated for some Vectara deployments.
     """
 
     if IS_PYDANTIC_V2:

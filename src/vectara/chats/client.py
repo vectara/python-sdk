@@ -6,14 +6,16 @@ from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
 from ..types.chat import Chat
-from ..types.chat_full_response import ChatFullResponse
 from ..types.chat_parameters import ChatParameters
-from ..types.chat_streamed_response import ChatStreamedResponse
 from ..types.generation_parameters import GenerationParameters
 from ..types.list_chat_turns_response import ListChatTurnsResponse
 from ..types.search_corpora_parameters import SearchCorporaParameters
 from ..types.turn import Turn
 from .raw_client import AsyncRawChatsClient, RawChatsClient
+from .types.chats_create_response import ChatsCreateResponse
+from .types.chats_create_stream_response import ChatsCreateStreamResponse
+from .types.chats_create_turns_response import ChatsCreateTurnsResponse
+from .types.chats_create_turns_stream_response import ChatsCreateTurnsStreamResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -71,7 +73,12 @@ class ChatsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.chats.list()
         for item in response:
             yield item
@@ -79,14 +86,13 @@ class ChatsClient:
         for page in response.iter_pages():
             yield page
         """
-        response = self._raw_client.list(
+        return self._raw_client.list(
             limit=limit,
             page_key=page_key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     def create_stream(
         self,
@@ -100,7 +106,7 @@ class ChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.Iterator[ChatStreamedResponse]:
+    ) -> typing.Iterator[ChatsCreateStreamResponse]:
         """
         Create a chat while specifying the default retrieval parameters used by the prompt.
 
@@ -125,29 +131,63 @@ class ChatsClient:
             Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.Iterator[ChatStreamedResponse]
+        typing.Iterator[ChatsCreateStreamResponse]
 
 
         Examples
         --------
-        from vectara import Vectara
-        from vectara import SearchCorporaParameters
-        from vectara import KeyedSearchCorpus
-        from vectara import ContextConfiguration
-        from vectara import CustomerSpecificReranker
-        from vectara import GenerationParameters
-        from vectara import CitationParameters
-        from vectara import ChatParameters
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        response = client.chats.create_stream(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", citations=CitationParameters(style="none", ), enable_factual_consistency_score=True, ), chat=ChatParameters(store=True, ), )
+        from vectara import (
+            ChatParameters,
+            CitationParameters,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            SearchCorporaParameters,
+            Vectara,
+        )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        response = client.chats.create_stream(
+            query="What is a hallucination?",
+            search=SearchCorporaParameters(
+                corpora=[
+                    KeyedSearchCorpus(
+                        corpus_key="corpus_key",
+                        metadata_filter="",
+                        lexical_interpolation=0.005,
+                    )
+                ],
+                context_configuration=ContextConfiguration(
+                    sentences_before=2,
+                    sentences_after=2,
+                ),
+                reranker=CustomerSpecificReranker(
+                    reranker_id="rnk_272725719",
+                ),
+            ),
+            generation=GenerationParameters(
+                response_language="eng",
+                citations=CitationParameters(
+                    style="none",
+                ),
+                enable_factual_consistency_score=True,
+            ),
+            chat=ChatParameters(
+                store=True,
+            ),
+        )
         for chunk in response:
             yield chunk
         """
@@ -176,7 +216,7 @@ class ChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ChatFullResponse:
+    ) -> ChatsCreateResponse:
         """
         Create a chat while specifying the default retrieval parameters used by the prompt.
 
@@ -201,31 +241,65 @@ class ChatsClient:
             Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ChatFullResponse
+        ChatsCreateResponse
 
 
         Examples
         --------
-        from vectara import Vectara
-        from vectara import SearchCorporaParameters
-        from vectara import KeyedSearchCorpus
-        from vectara import ContextConfiguration
-        from vectara import CustomerSpecificReranker
-        from vectara import GenerationParameters
-        from vectara import CitationParameters
-        from vectara import ChatParameters
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.chats.create(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, citations=CitationParameters(style="none", ), ), chat=ChatParameters(store=True, ), )
+        from vectara import (
+            ChatParameters,
+            CitationParameters,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            SearchCorporaParameters,
+            Vectara,
+        )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.chats.create(
+            query="What is a hallucination?",
+            search=SearchCorporaParameters(
+                corpora=[
+                    KeyedSearchCorpus(
+                        corpus_key="corpus_key",
+                        metadata_filter="",
+                        lexical_interpolation=0.005,
+                    )
+                ],
+                context_configuration=ContextConfiguration(
+                    sentences_before=2,
+                    sentences_after=2,
+                ),
+                reranker=CustomerSpecificReranker(
+                    reranker_id="rnk_272725719",
+                ),
+            ),
+            generation=GenerationParameters(
+                response_language="eng",
+                enable_factual_consistency_score=True,
+                citations=CitationParameters(
+                    style="none",
+                ),
+            ),
+            chat=ChatParameters(
+                store=True,
+            ),
+        )
         """
-        response = self._raw_client.create(
+        _response = self._raw_client.create(
             query=query,
             search=search,
             request_timeout=request_timeout,
@@ -236,7 +310,7 @@ class ChatsClient:
             intelligent_query_rewriting=intelligent_query_rewriting,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def get(
         self,
@@ -271,16 +345,23 @@ class ChatsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.chats.get(chat_id='chat_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.chats.get(
+            chat_id="chat_id",
+        )
         """
-        response = self._raw_client.get(
+        _response = self._raw_client.get(
             chat_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def delete(
         self,
@@ -314,16 +395,23 @@ class ChatsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.chats.delete(chat_id='chat_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.chats.delete(
+            chat_id="chat_id",
+        )
         """
-        response = self._raw_client.delete(
+        _response = self._raw_client.delete(
             chat_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def list_turns(
         self,
@@ -358,16 +446,23 @@ class ChatsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.chats.list_turns(chat_id='chat_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.chats.list_turns(
+            chat_id="cht_1234567890",
+        )
         """
-        response = self._raw_client.list_turns(
+        _response = self._raw_client.list_turns(
             chat_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def create_turns_stream(
         self,
@@ -382,7 +477,7 @@ class ChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.Iterator[ChatStreamedResponse]:
+    ) -> typing.Iterator[ChatsCreateTurnsStreamResponse]:
         """
         Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs that make up the dialog.
 
@@ -410,23 +505,30 @@ class ChatsClient:
             Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.Iterator[ChatStreamedResponse]
+        typing.Iterator[ChatsCreateTurnsStreamResponse]
 
 
         Examples
         --------
-        from vectara import Vectara
-        from vectara import SearchCorporaParameters
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        response = client.chats.create_turns_stream(chat_id='chat_id', query='How can I use the Vectara platform?', search=SearchCorporaParameters(), )
+        from vectara import SearchCorporaParameters, Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        response = client.chats.create_turns_stream(
+            chat_id="chat_id",
+            query="What are the carbon reduction efforts by EU banks in 2023?",
+            search=SearchCorporaParameters(),
+        )
         for chunk in response:
             yield chunk
         """
@@ -457,7 +559,7 @@ class ChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ChatFullResponse:
+    ) -> ChatsCreateTurnsResponse:
         """
         Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs that make up the dialog.
 
@@ -485,25 +587,32 @@ class ChatsClient:
             Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ChatFullResponse
+        ChatsCreateTurnsResponse
 
 
         Examples
         --------
-        from vectara import Vectara
-        from vectara import SearchCorporaParameters
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.chats.create_turns(chat_id='chat_id', query='How can I use the Vectara platform?', search=SearchCorporaParameters(), )
+        from vectara import SearchCorporaParameters, Vectara
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.chats.create_turns(
+            chat_id="chat_id",
+            query="What are the carbon reduction efforts by EU banks in 2023?",
+            search=SearchCorporaParameters(),
+        )
         """
-        response = self._raw_client.create_turns(
+        _response = self._raw_client.create_turns(
             chat_id,
             query=query,
             search=search,
@@ -515,7 +624,7 @@ class ChatsClient:
             intelligent_query_rewriting=intelligent_query_rewriting,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def get_turn(
         self,
@@ -554,17 +663,25 @@ class ChatsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.chats.get_turn(chat_id='chat_id', turn_id='turn_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.chats.get_turn(
+            chat_id="chat_id",
+            turn_id="turn_id",
+        )
         """
-        response = self._raw_client.get_turn(
+        _response = self._raw_client.get_turn(
             chat_id,
             turn_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def delete_turn(
         self,
@@ -602,17 +719,25 @@ class ChatsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.chats.delete_turn(chat_id='chat_id', turn_id='turn_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.chats.delete_turn(
+            chat_id="chat_id",
+            turn_id="turn_id",
+        )
         """
-        response = self._raw_client.delete_turn(
+        _response = self._raw_client.delete_turn(
             chat_id,
             turn_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     def update_turn(
         self,
@@ -642,8 +767,7 @@ class ChatsClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
-            Indicates whether to disable a turn. It will disable this turn and all subsequent turns.
-            Enabling a turn is not implemented.
+            Indicates whether to disable a turn. It will disable this turn and all subsequent turns. Enabling a turn is not implemented.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -656,10 +780,18 @@ class ChatsClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.chats.update_turn(chat_id='chat_id', turn_id='turn_id', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.chats.update_turn(
+            chat_id="cht_1234567890",
+            turn_id="trn_987654321",
+        )
         """
-        response = self._raw_client.update_turn(
+        _response = self._raw_client.update_turn(
             chat_id,
             turn_id,
             request_timeout=request_timeout,
@@ -667,7 +799,7 @@ class ChatsClient:
             enabled=enabled,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
 
 class AsyncChatsClient:
@@ -721,9 +853,17 @@ class AsyncChatsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
             response = await client.chats.list()
             async for item in response:
@@ -732,16 +872,17 @@ class AsyncChatsClient:
             # alternatively, you can paginate page-by-page
             async for page in response.iter_pages():
                 yield page
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.list(
+        return await self._raw_client.list(
             limit=limit,
             page_key=page_key,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
     async def create_stream(
         self,
@@ -755,7 +896,7 @@ class AsyncChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.AsyncIterator[ChatStreamedResponse]:
+    ) -> typing.AsyncIterator[ChatsCreateStreamResponse]:
         """
         Create a chat while specifying the default retrieval parameters used by the prompt.
 
@@ -780,33 +921,72 @@ class AsyncChatsClient:
             Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.AsyncIterator[ChatStreamedResponse]
+        typing.AsyncIterator[ChatsCreateStreamResponse]
 
 
         Examples
         --------
-        from vectara import AsyncVectara
-        from vectara import SearchCorporaParameters
-        from vectara import KeyedSearchCorpus
-        from vectara import ContextConfiguration
-        from vectara import CustomerSpecificReranker
-        from vectara import GenerationParameters
-        from vectara import CitationParameters
-        from vectara import ChatParameters
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import (
+            AsyncVectara,
+            ChatParameters,
+            CitationParameters,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            SearchCorporaParameters,
+        )
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            response = await client.chats.create_stream(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", citations=CitationParameters(style="none", ), enable_factual_consistency_score=True, ), chat=ChatParameters(store=True, ), )
+            response = await client.chats.create_stream(
+                query="What is a hallucination?",
+                search=SearchCorporaParameters(
+                    corpora=[
+                        KeyedSearchCorpus(
+                            corpus_key="corpus_key",
+                            metadata_filter="",
+                            lexical_interpolation=0.005,
+                        )
+                    ],
+                    context_configuration=ContextConfiguration(
+                        sentences_before=2,
+                        sentences_after=2,
+                    ),
+                    reranker=CustomerSpecificReranker(
+                        reranker_id="rnk_272725719",
+                    ),
+                ),
+                generation=GenerationParameters(
+                    response_language="eng",
+                    citations=CitationParameters(
+                        style="none",
+                    ),
+                    enable_factual_consistency_score=True,
+                ),
+                chat=ChatParameters(
+                    store=True,
+                ),
+            )
             async for chunk in response:
                 yield chunk
+
+
         asyncio.run(main())
         """
         async with self._raw_client.create_stream(
@@ -820,8 +1000,8 @@ class AsyncChatsClient:
             intelligent_query_rewriting=intelligent_query_rewriting,
             request_options=request_options,
         ) as r:
-            async for data in r.data:
-                yield data
+            async for _chunk in r.data:
+                yield _chunk
 
     async def create(
         self,
@@ -835,7 +1015,7 @@ class AsyncChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ChatFullResponse:
+    ) -> ChatsCreateResponse:
         """
         Create a chat while specifying the default retrieval parameters used by the prompt.
 
@@ -860,34 +1040,73 @@ class AsyncChatsClient:
             Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ChatFullResponse
+        ChatsCreateResponse
 
 
         Examples
         --------
-        from vectara import AsyncVectara
-        from vectara import SearchCorporaParameters
-        from vectara import KeyedSearchCorpus
-        from vectara import ContextConfiguration
-        from vectara import CustomerSpecificReranker
-        from vectara import GenerationParameters
-        from vectara import CitationParameters
-        from vectara import ChatParameters
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import (
+            AsyncVectara,
+            ChatParameters,
+            CitationParameters,
+            ContextConfiguration,
+            CustomerSpecificReranker,
+            GenerationParameters,
+            KeyedSearchCorpus,
+            SearchCorporaParameters,
+        )
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.chats.create(query='What is a hallucination?', search=SearchCorporaParameters(corpora=[KeyedSearchCorpus(corpus_key='corpus_key', metadata_filter='', lexical_interpolation=0.005, )], context_configuration=ContextConfiguration(sentences_before=2, sentences_after=2, ), reranker=CustomerSpecificReranker(reranker_id='rnk_272725719', ), ), generation=GenerationParameters(response_language="eng", enable_factual_consistency_score=True, citations=CitationParameters(style="none", ), ), chat=ChatParameters(store=True, ), )
+            await client.chats.create(
+                query="What is a hallucination?",
+                search=SearchCorporaParameters(
+                    corpora=[
+                        KeyedSearchCorpus(
+                            corpus_key="corpus_key",
+                            metadata_filter="",
+                            lexical_interpolation=0.005,
+                        )
+                    ],
+                    context_configuration=ContextConfiguration(
+                        sentences_before=2,
+                        sentences_after=2,
+                    ),
+                    reranker=CustomerSpecificReranker(
+                        reranker_id="rnk_272725719",
+                    ),
+                ),
+                generation=GenerationParameters(
+                    response_language="eng",
+                    enable_factual_consistency_score=True,
+                    citations=CitationParameters(
+                        style="none",
+                    ),
+                ),
+                chat=ChatParameters(
+                    store=True,
+                ),
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.create(
+        _response = await self._raw_client.create(
             query=query,
             search=search,
             request_timeout=request_timeout,
@@ -898,7 +1117,7 @@ class AsyncChatsClient:
             intelligent_query_rewriting=intelligent_query_rewriting,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def get(
         self,
@@ -932,20 +1151,32 @@ class AsyncChatsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.chats.get(chat_id='chat_id', )
+            await client.chats.get(
+                chat_id="chat_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.get(
+        _response = await self._raw_client.get(
             chat_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def delete(
         self,
@@ -978,20 +1209,32 @@ class AsyncChatsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.chats.delete(chat_id='chat_id', )
+            await client.chats.delete(
+                chat_id="chat_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.delete(
+        _response = await self._raw_client.delete(
             chat_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def list_turns(
         self,
@@ -1025,20 +1268,32 @@ class AsyncChatsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.chats.list_turns(chat_id='chat_id', )
+            await client.chats.list_turns(
+                chat_id="cht_1234567890",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.list_turns(
+        _response = await self._raw_client.list_turns(
             chat_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def create_turns_stream(
         self,
@@ -1053,7 +1308,7 @@ class AsyncChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.AsyncIterator[ChatStreamedResponse]:
+    ) -> typing.AsyncIterator[ChatsCreateTurnsStreamResponse]:
         """
         Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs that make up the dialog.
 
@@ -1081,27 +1336,39 @@ class AsyncChatsClient:
             Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Yields
         ------
-        typing.AsyncIterator[ChatStreamedResponse]
+        typing.AsyncIterator[ChatsCreateTurnsStreamResponse]
 
 
         Examples
         --------
-        from vectara import AsyncVectara
-        from vectara import SearchCorporaParameters
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara, SearchCorporaParameters
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            response = await client.chats.create_turns_stream(chat_id='chat_id', query='How can I use the Vectara platform?', search=SearchCorporaParameters(), )
+            response = await client.chats.create_turns_stream(
+                chat_id="chat_id",
+                query="What are the carbon reduction efforts by EU banks in 2023?",
+                search=SearchCorporaParameters(),
+            )
             async for chunk in response:
                 yield chunk
+
+
         asyncio.run(main())
         """
         async with self._raw_client.create_turns_stream(
@@ -1116,8 +1383,8 @@ class AsyncChatsClient:
             intelligent_query_rewriting=intelligent_query_rewriting,
             request_options=request_options,
         ) as r:
-            async for data in r.data:
-                yield data
+            async for _chunk in r.data:
+                yield _chunk
 
     async def create_turns(
         self,
@@ -1132,7 +1399,7 @@ class AsyncChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ChatFullResponse:
+    ) -> ChatsCreateTurnsResponse:
         """
         Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs that make up the dialog.
 
@@ -1160,28 +1427,40 @@ class AsyncChatsClient:
             Indicates whether to save the chat in both the chat and query history. This overrides `chat.store`.
 
         intelligent_query_rewriting : typing.Optional[bool]
-            Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to
-            extract metadata filter and rewrite the query to improve search results.
+            [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ChatFullResponse
+        ChatsCreateTurnsResponse
 
 
         Examples
         --------
-        from vectara import AsyncVectara
-        from vectara import SearchCorporaParameters
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara, SearchCorporaParameters
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.chats.create_turns(chat_id='chat_id', query='How can I use the Vectara platform?', search=SearchCorporaParameters(), )
+            await client.chats.create_turns(
+                chat_id="chat_id",
+                query="What are the carbon reduction efforts by EU banks in 2023?",
+                search=SearchCorporaParameters(),
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.create_turns(
+        _response = await self._raw_client.create_turns(
             chat_id,
             query=query,
             search=search,
@@ -1193,7 +1472,7 @@ class AsyncChatsClient:
             intelligent_query_rewriting=intelligent_query_rewriting,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def get_turn(
         self,
@@ -1231,21 +1510,34 @@ class AsyncChatsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.chats.get_turn(chat_id='chat_id', turn_id='turn_id', )
+            await client.chats.get_turn(
+                chat_id="chat_id",
+                turn_id="turn_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.get_turn(
+        _response = await self._raw_client.get_turn(
             chat_id,
             turn_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def delete_turn(
         self,
@@ -1282,21 +1574,34 @@ class AsyncChatsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.chats.delete_turn(chat_id='chat_id', turn_id='turn_id', )
+            await client.chats.delete_turn(
+                chat_id="chat_id",
+                turn_id="turn_id",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.delete_turn(
+        _response = await self._raw_client.delete_turn(
             chat_id,
             turn_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
     async def update_turn(
         self,
@@ -1326,8 +1631,7 @@ class AsyncChatsClient:
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
-            Indicates whether to disable a turn. It will disable this turn and all subsequent turns.
-            Enabling a turn is not implemented.
+            Indicates whether to disable a turn. It will disable this turn and all subsequent turns. Enabling a turn is not implemented.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1339,14 +1643,27 @@ class AsyncChatsClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.chats.update_turn(chat_id='chat_id', turn_id='turn_id', )
+            await client.chats.update_turn(
+                chat_id="cht_1234567890",
+                turn_id="trn_987654321",
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.update_turn(
+        _response = await self._raw_client.update_turn(
             chat_id,
             turn_id,
             request_timeout=request_timeout,
@@ -1354,4 +1671,4 @@ class AsyncChatsClient:
             enabled=enabled,
             request_options=request_options,
         )
-        return response.data
+        return _response.data

@@ -25,8 +25,7 @@ class CreateOpenAiEncoderRequest(UniversalBaseModel):
 
     output_dimensions: typing.Optional[int] = pydantic.Field(default=None)
     """
-    The number of dimensions in the output embedding vector. If provided and the model supports truncation,
-    the response will be truncated to this number of dimensions.
+    The number of dimensions in the output embedding vector. If provided and the model supports truncation, the response will be truncated to this number of dimensions.
     """
 
     uri: str = pydantic.Field()

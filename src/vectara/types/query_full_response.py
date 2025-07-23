@@ -28,9 +28,7 @@ class QueryFullResponse(UniversalBaseModel):
 
     factual_consistency_score: typing.Optional[float] = pydantic.Field(default=None)
     """
-    Indicates the probability that the summary is factually consistent with the results.
-    The system excludes this property if it encounters excessively large outputs or search
-    results.
+    Indicates the probability that the summary is factually consistent with the results. The system excludes this property if it encounters excessively large outputs or search results.
     """
 
     rendered_prompt: typing.Optional[str] = pydantic.Field(default=None)
@@ -45,8 +43,7 @@ class QueryFullResponse(UniversalBaseModel):
 
     rewritten_queries: typing.Optional[typing.List[RewrittenQuery]] = pydantic.Field(default=None)
     """
-    The rewritten queries for the corpora that were searched. Only populated when 
-    intelligent_query_rewriting is enabled.
+    The rewritten queries for the corpora that were searched. Only populated when `intelligent_query_rewriting` is enabled.
     """
 
     if IS_PYDANTIC_V2:

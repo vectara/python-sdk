@@ -18,12 +18,7 @@ class TableGenerationSpec(UniversalBaseModel):
 
     prompt_template: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The prompt template to use when generating the table summary. 
-    Vectara manages both system and user roles and prompts for the generative
-    LLM out of the box by default. However, users can override the
-    `prompt_template` via this variable. The `prompt_template` is in the form of an
-    Apache Velocity template. For more details on how to configure the
-    `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
+    The prompt template to use when generating the table summary. Vectara manages both system and user roles and prompts for the generative LLM out of the box by default. However, users can override the `prompt_template` via this variable. The `prompt_template` is in the form of an Apache Velocity template. For more details on how to configure the `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
     """
 
     model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)

@@ -2,6 +2,6 @@
 
 # isort: skip_file
 
-from .types import SearchCorpusParameters
+from .types import CorporaQueryResponse, CorporaQueryStreamResponse, SearchCorpusParameters
 
-__all__ = ["SearchCorpusParameters"]
+__all__ = ["CorporaQueryResponse", "CorporaQueryStreamResponse", "SearchCorpusParameters"]

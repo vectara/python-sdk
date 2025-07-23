@@ -19,9 +19,7 @@ class ApiPolicy(UniversalBaseModel):
 
     allowed_operations: typing.Dict[str, ApiOperationPolicy] = pydantic.Field()
     """
-    Operations that are allowed by the API role. Each operation may only allow
-    certain resources that are described by a resource path to resource value
-    map. If the value is null, then the operation is allowed on any resource.
+    Operations that are allowed by the API role. Each operation may only allow certain resources that are described by a resource path to resource value map. If the value is null, then the operation is allowed on any resource.
     """
 
     if IS_PYDANTIC_V2:

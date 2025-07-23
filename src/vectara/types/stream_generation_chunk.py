@@ -14,8 +14,7 @@ class StreamGenerationChunk(UniversalBaseModel):
     type: typing.Literal["generation_chunk"] = "generation_chunk"
     generation_chunk: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Part of the message from the generator. All summary chunks must be appended together in order
-    to get the full summary.
+    Part of the message from the generator. All summary chunks must be appended together in order to get the full summary.
     """
 
     if IS_PYDANTIC_V2:

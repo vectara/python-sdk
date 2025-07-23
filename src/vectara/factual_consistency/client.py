@@ -40,9 +40,7 @@ class FactualConsistencyClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> EvaluateFactualConsistencyResponse:
         """
-        Evaluate the factual consistency of a generated text (like a summary) against source documents.
-        This determines how accurately the generated text reflects the information in the source documents,
-        helping identify potential hallucinations or misrepresentations.
+        Evaluate the factual consistency of a generated text (like a summary) against source documents. This determines how accurately the generated text reflects the information in the source documents, helping identify potential hallucinations or misrepresentations.
 
         Parameters
         ----------
@@ -72,10 +70,18 @@ class FactualConsistencyClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        client.factual_consistency.evaluate(generated_text='generated_text', source_texts=['source_texts'], )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        client.factual_consistency.evaluate(
+            generated_text="generated_text",
+            source_texts=["source_texts"],
+        )
         """
-        response = self._raw_client.evaluate(
+        _response = self._raw_client.evaluate(
             generated_text=generated_text,
             source_texts=source_texts,
             request_timeout=request_timeout,
@@ -83,7 +89,7 @@ class FactualConsistencyClient:
             model_parameters=model_parameters,
             request_options=request_options,
         )
-        return response.data
+        return _response.data
 
 
 class AsyncFactualConsistencyClient:
@@ -112,9 +118,7 @@ class AsyncFactualConsistencyClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> EvaluateFactualConsistencyResponse:
         """
-        Evaluate the factual consistency of a generated text (like a summary) against source documents.
-        This determines how accurately the generated text reflects the information in the source documents,
-        helping identify potential hallucinations or misrepresentations.
+        Evaluate the factual consistency of a generated text (like a summary) against source documents. This determines how accurately the generated text reflects the information in the source documents, helping identify potential hallucinations or misrepresentations.
 
         Parameters
         ----------
@@ -143,14 +147,27 @@ class AsyncFactualConsistencyClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            await client.factual_consistency.evaluate(generated_text='generated_text', source_texts=['source_texts'], )
+            await client.factual_consistency.evaluate(
+                generated_text="generated_text",
+                source_texts=["source_texts"],
+            )
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.evaluate(
+        _response = await self._raw_client.evaluate(
             generated_text=generated_text,
             source_texts=source_texts,
             request_timeout=request_timeout,
@@ -158,4 +175,4 @@ class AsyncFactualConsistencyClient:
             model_parameters=model_parameters,
             request_options=request_options,
         )
-        return response.data
+        return _response.data

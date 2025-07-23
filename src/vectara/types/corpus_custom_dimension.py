@@ -8,8 +8,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class CorpusCustomDimension(UniversalBaseModel):
     """
-    Custom dimensions attached to all document parts in a corpus. Allows arbitrary
-    modification of the score for many purposes.
+    Custom dimensions attached to all document parts in a corpus. Allows arbitrary modification of the score for many purposes.
     """
 
     name: str = pydantic.Field()
@@ -24,18 +23,12 @@ class CorpusCustomDimension(UniversalBaseModel):
 
     indexing_default: typing.Optional[float] = pydantic.Field(default=None)
     """
-    Default value of a custom dimension on a document part if the custom
-    dimension value is not specified when the document part is indexed.
-    
-    A value of 0 means that custom dimension is not considered.
+    Default value of a custom dimension on a document part if the custom dimension value is not specified when the document part is indexed. A value of 0 means that custom dimension is not considered.
     """
 
     querying_default: typing.Optional[float] = pydantic.Field(default=None)
     """
-    Default value of a custom dimension for a query if the value
-    of the custom dimension is not specified when querying the corpus.
-    
-    A value of 0 means that custom dimension is not considered.
+    Default value of a custom dimension for a query if the value of the custom dimension is not specified when querying the corpus. A value of 0 means that custom dimension is not considered.
     """
 
     if IS_PYDANTIC_V2:

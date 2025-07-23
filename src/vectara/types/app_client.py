@@ -15,8 +15,7 @@ class AppClient(UniversalBaseModel):
 
     id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The Vectara App Client ID. This ID is not used during an OAuth
-    flow.  However, the ID used within the Vectara API.
+    The Vectara App Client ID. This ID is not used during an OAuth flow.  However, the ID used within the Vectara API.
     """
 
     name: typing.Optional[str] = pydantic.Field(default=None)

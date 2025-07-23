@@ -7,7 +7,7 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, SyncPager
+from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.bad_request_error import BadRequestError
@@ -40,7 +40,7 @@ class RawUsersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[SyncPager[User]]:
+    ) -> SyncPager[User]:
         """
         Lists all users in the account.
 
@@ -66,7 +66,7 @@ class RawUsersClient:
 
         Returns
         -------
-        HttpResponse[SyncPager[User]]
+        SyncPager[User]
             List of users.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -93,6 +93,7 @@ class RawUsersClient:
                         object_=_response.json(),
                     ),
                 )
+                _items = _parsed_response.users
                 _has_next = False
                 _get_next = None
                 if _parsed_response.metadata is not None:
@@ -106,24 +107,24 @@ class RawUsersClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                _items = _parsed_response.users
-                return HttpResponse(
-                    response=_response, data=SyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+                return SyncPager(
+                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
         self,
@@ -197,28 +198,30 @@ class RawUsersClient:
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         BadRequestErrorBody,
                         parse_obj_as(
                             type_=BadRequestErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
         self,
@@ -234,8 +237,7 @@ class RawUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID that to retrieve.
-            Note that the username must be percent encoded.
+            Specifies the user ID that to retrieve. Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -273,28 +275,30 @@ class RawUsersClient:
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
         self,
@@ -310,8 +314,7 @@ class RawUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID to delete.
-            Note that the username must be percent encoded.
+            Specifies the user ID to delete. Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -341,28 +344,30 @@ class RawUsersClient:
                 return HttpResponse(response=_response, data=None)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def update(
         self,
@@ -372,6 +377,7 @@ class RawUsersClient:
         request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        description: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[User]:
         """
@@ -380,8 +386,7 @@ class RawUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID to update.
-            Note that the username must be percent encoded.
+            Specifies the user ID to update. Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -394,6 +399,9 @@ class RawUsersClient:
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
             The new role names of the user.
+
+        description : typing.Optional[str]
+            The description of the user.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -410,6 +418,7 @@ class RawUsersClient:
             json={
                 "enabled": enabled,
                 "api_roles": api_roles,
+                "description": description,
             },
             headers={
                 "content-type": "application/json",
@@ -431,28 +440,30 @@ class RawUsersClient:
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def reset_password(
         self,
@@ -468,8 +479,7 @@ class RawUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID to update.
-            Note that the username must be percent encoded and URI safe.
+            Specifies the user ID to update. Note that the username must be percent encoded and URI safe.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -507,28 +517,30 @@ class RawUsersClient:
                 return HttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
 class AsyncRawUsersClient:
@@ -544,7 +556,7 @@ class AsyncRawUsersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[AsyncPager[User]]:
+    ) -> AsyncPager[User]:
         """
         Lists all users in the account.
 
@@ -570,7 +582,7 @@ class AsyncRawUsersClient:
 
         Returns
         -------
-        AsyncHttpResponse[AsyncPager[User]]
+        AsyncPager[User]
             List of users.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -597,37 +609,41 @@ class AsyncRawUsersClient:
                         object_=_response.json(),
                     ),
                 )
+                _items = _parsed_response.users
                 _has_next = False
                 _get_next = None
                 if _parsed_response.metadata is not None:
                     _parsed_next = _parsed_response.metadata.page_key
                     _has_next = _parsed_next is not None and _parsed_next != ""
-                    _get_next = lambda: self.list(
-                        limit=limit,
-                        page_key=_parsed_next,
-                        corpus_key=corpus_key,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
-                        request_options=request_options,
-                    )
-                _items = _parsed_response.users
-                return AsyncHttpResponse(
-                    response=_response, data=AsyncPager(has_next=_has_next, items=_items, get_next=_get_next)
+
+                    async def _get_next():
+                        return await self.list(
+                            limit=limit,
+                            page_key=_parsed_next,
+                            corpus_key=corpus_key,
+                            request_timeout=request_timeout,
+                            request_timeout_millis=request_timeout_millis,
+                            request_options=request_options,
+                        )
+
+                return AsyncPager(
+                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
         self,
@@ -701,28 +717,30 @@ class AsyncRawUsersClient:
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 400:
                 raise BadRequestError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         BadRequestErrorBody,
                         parse_obj_as(
                             type_=BadRequestErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
         self,
@@ -738,8 +756,7 @@ class AsyncRawUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID that to retrieve.
-            Note that the username must be percent encoded.
+            Specifies the user ID that to retrieve. Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -777,28 +794,30 @@ class AsyncRawUsersClient:
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
         self,
@@ -814,8 +833,7 @@ class AsyncRawUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID to delete.
-            Note that the username must be percent encoded.
+            Specifies the user ID to delete. Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -845,28 +863,30 @@ class AsyncRawUsersClient:
                 return AsyncHttpResponse(response=_response, data=None)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def update(
         self,
@@ -876,6 +896,7 @@ class AsyncRawUsersClient:
         request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        description: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[User]:
         """
@@ -884,8 +905,7 @@ class AsyncRawUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID to update.
-            Note that the username must be percent encoded.
+            Specifies the user ID to update. Note that the username must be percent encoded.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -898,6 +918,9 @@ class AsyncRawUsersClient:
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
             The new role names of the user.
+
+        description : typing.Optional[str]
+            The description of the user.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -914,6 +937,7 @@ class AsyncRawUsersClient:
             json={
                 "enabled": enabled,
                 "api_roles": api_roles,
+                "description": description,
             },
             headers={
                 "content-type": "application/json",
@@ -935,28 +959,30 @@ class AsyncRawUsersClient:
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def reset_password(
         self,
@@ -972,8 +998,7 @@ class AsyncRawUsersClient:
         Parameters
         ----------
         username : str
-            Specifies the user ID to update.
-            Note that the username must be percent encoded and URI safe.
+            Specifies the user ID to update. Note that the username must be percent encoded and URI safe.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -1011,25 +1036,27 @@ class AsyncRawUsersClient:
                 return AsyncHttpResponse(response=_response, data=_data)
             if _response.status_code == 403:
                 raise ForbiddenError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             if _response.status_code == 404:
                 raise NotFoundError(
-                    typing.cast(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
                         NotFoundErrorBody,
                         parse_obj_as(
                             type_=NotFoundErrorBody,  # type: ignore
                             object_=_response.json(),
                         ),
-                    )
+                    ),
                 )
             _response_json = _response.json()
         except JSONDecodeError:
-            raise ApiError(status_code=_response.status_code, body=_response.text)
-        raise ApiError(status_code=_response.status_code, body=_response_json)
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

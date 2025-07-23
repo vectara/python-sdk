@@ -8,14 +8,12 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class DocumentStorageUsage(UniversalBaseModel):
     """
-    How much storage the document used. This information is currently not returned when
-    retrieving the document, and only returned when indexing a document.
+    How much storage the document used. This information is currently not returned when retrieving the document, and only returned when indexing a document.
     """
 
     bytes_used: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Number of bytes used by document counting towards maximum corpus size, and
-    towards any billing plans.
+    Number of bytes used by document counting towards maximum corpus size, and towards any billing plans.
     """
 
     metadata_bytes_used: typing.Optional[int] = pydantic.Field(default=None)

@@ -19,8 +19,7 @@ class GenerationInfo(UniversalBaseModel):
 
     rephrased_query: typing.Optional[str] = pydantic.Field(default=None)
     """
-    View the actual query made to backend that was rephrased 
-    by the LLM from the input query.
+    View the actual query made to backend that was rephrased by the LLM from the input query.
     """
 
     if IS_PYDANTIC_V2:

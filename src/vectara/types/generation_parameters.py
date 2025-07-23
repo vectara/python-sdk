@@ -17,18 +17,9 @@ class GenerationParameters(UniversalBaseModel):
     generation_preset_name: typing.Optional[str] = pydantic.Field(default=None)
     """
     The preset values to use to feed the query results and other context to the model.
-    
-    A `generation_preset` is an object with a bundle of properties that specifies:
-      * The `prompt_template` that is rendered and then sent to the LLM.
-      * The LLM used.
-      * `model_parameter`s such as temperature.
-     
-    All of these properties except the model can be overridden by setting them in this
-    object. Even when a `prompt_template` is set, the `generation_preset_name` is used to set 
-    the model used. See `model_parameters.model` if you want to set the model explicitly.
-    
-    If `generation_preset_name` is not set, the Vectara platform will use the default model and
-    prompt.
+    A `generation_preset` is an object with a bundle of properties that specifies: * The `prompt_template` that is rendered and then sent to the LLM. * The LLM used. * `model_parameter`s such as temperature.
+    All of these properties except the model can be overridden by setting them in this object. Even when a `prompt_template` is set, the `generation_preset_name` is used to set the model used. See `model_parameters.model` if you want to set the model explicitly.
+    If `generation_preset_name` is not set, the Vectara platform will use the default model and prompt.
     """
 
     prompt_name: typing.Optional[str] = pydantic.Field(default=None)
@@ -43,35 +34,23 @@ class GenerationParameters(UniversalBaseModel):
 
     prompt_template: typing.Optional[str] = pydantic.Field(default=None)
     """
-    Vectara manages both system and user roles and prompts for the generative
-    LLM out of the box by default. However, users can override the
-    `prompt_template` via this variable. The `prompt_template` is in the form of an
-    Apache Velocity template. For more details on how to configure the
-    `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
+    Vectara manages both system and user roles and prompts for the generative LLM out of the box by default. However, users can override the `prompt_template` via this variable. The `prompt_template` is in the form of an Apache Velocity template. For more details on how to configure the `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
     """
 
     prompt_text: typing.Optional[str] = pydantic.Field(default=None)
     """
-    This property is deprecated in favor of clearer naming. Use `prompt_template`. This property will be
-    ignored if `prompt_template` is set.
+    This property is deprecated in favor of clearer naming. Use `prompt_template`. This property will be ignored if `prompt_template` is set.
     """
 
     max_response_characters: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Controls the length of the generated output.
-    This is a rough estimate and not a hard limit: the end output can be longer or shorter
-    than this value. This is generally implemented by including the `max_response_characters` in the
-    prompt, and the LLM's instruction following capability dictates how closely the generated output
-    is limited.
+    Controls the length of the generated output. This is a rough estimate and not a hard limit: the end output can be longer or shorter than this value. This is generally implemented by including the `max_response_characters` in the prompt, and the LLM's instruction following capability dictates how closely the generated output is limited.
     """
 
     response_language: typing.Optional[Language] = None
     model_parameters: typing.Optional[ModelParameters] = pydantic.Field(default=None)
     """
-    The parameters for the model.
-    WARNING: This is an experimental feature, and breakable at any point with virtually no
-    notice. It is meant for experimentation to converge on optimal parameters that can then
-    be set in the prompt definitions.
+    The parameters for the model. WARNING: This is an experimental feature, and breakable at any point with virtually no notice. It is meant for experimentation to converge on optimal parameters that can then be set in the prompt definitions.
     """
 
     citations: typing.Optional[CitationParameters] = None

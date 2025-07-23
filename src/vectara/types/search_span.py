@@ -21,7 +21,7 @@ class SearchSpan(UniversalBaseModel):
 
     started_at: typing.Optional[dt.datetime] = pydantic.Field(default=None)
     """
-    Indicates when the span started.
+    ISO date time that indicates when the span started.
     """
 
     search_results: typing.Optional[typing.List[IndividualSearchResult]] = pydantic.Field(default=None)

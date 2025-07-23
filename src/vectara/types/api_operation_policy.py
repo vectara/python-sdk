@@ -18,10 +18,7 @@ class ApiOperationPolicy(UniversalBaseModel):
 
     allowed_resources: typing.Optional[typing.Dict[str, typing.List[str]]] = pydantic.Field(default=None)
     """
-    Object with keys of resource paths to a list of allowed resources.
-    A resource path starts with either body, path, or implicit.
-    A body or path resource is within the operation body, and an implicit
-    resource is a resource implied by the request.
+    Object with keys of resource paths to a list of allowed resources. A resource path starts with either body, path, or implicit. A body or path resource is within the operation body, and an implicit resource is a resource implied by the request.
     """
 
     if IS_PYDANTIC_V2:

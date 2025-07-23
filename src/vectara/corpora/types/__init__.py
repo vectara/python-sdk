@@ -2,6 +2,8 @@
 
 # isort: skip_file
 
+from .corpora_query_response import CorporaQueryResponse
+from .corpora_query_stream_response import CorporaQueryStreamResponse
 from .search_corpus_parameters import SearchCorpusParameters
 
-__all__ = ["SearchCorpusParameters"]
+__all__ = ["CorporaQueryResponse", "CorporaQueryStreamResponse", "SearchCorpusParameters"]

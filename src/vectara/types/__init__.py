@@ -36,6 +36,7 @@ from .corpus import Corpus
 from .corpus_custom_dimension import CorpusCustomDimension
 from .corpus_key import CorpusKey
 from .corpus_limits import CorpusLimits
+from .correction_item import CorrectionItem
 from .create_chat_completion_response import CreateChatCompletionResponse
 from .create_chat_completion_stream_response import CreateChatCompletionStreamResponse
 from .create_client_credentials_request import CreateClientCredentialsRequest
@@ -62,6 +63,9 @@ from .generation_info import GenerationInfo
 from .generation_parameters import GenerationParameters
 from .generation_preset import GenerationPreset
 from .generation_span import GenerationSpan
+from .hallucination_correction_response import HallucinationCorrectionResponse
+from .hallucination_corrector import HallucinationCorrector
+from .hcm_source_document import HcmSourceDocument
 from .header import Header
 from .header_auth import HeaderAuth
 from .individual_search_result import IndividualSearchResult
@@ -78,6 +82,7 @@ from .list_corpora_response import ListCorporaResponse
 from .list_documents_response import ListDocumentsResponse
 from .list_encoders_response import ListEncodersResponse
 from .list_generation_presets_response import ListGenerationPresetsResponse
+from .list_hallucination_correctors_response import ListHallucinationCorrectorsResponse
 from .list_jobs_response import ListJobsResponse
 from .list_ll_ms_response import ListLlMsResponse
 from .list_metadata import ListMetadata
@@ -170,6 +175,7 @@ __all__ = [
     "CorpusCustomDimension",
     "CorpusKey",
     "CorpusLimits",
+    "CorrectionItem",
     "CreateChatCompletionResponse",
     "CreateChatCompletionStreamResponse",
     "CreateClientCredentialsRequest",
@@ -196,6 +202,9 @@ __all__ = [
     "GenerationParameters",
     "GenerationPreset",
     "GenerationSpan",
+    "HallucinationCorrectionResponse",
+    "HallucinationCorrector",
+    "HcmSourceDocument",
     "Header",
     "HeaderAuth",
     "IndividualSearchResult",
@@ -212,6 +221,7 @@ __all__ = [
     "ListDocumentsResponse",
     "ListEncodersResponse",
     "ListGenerationPresetsResponse",
+    "ListHallucinationCorrectorsResponse",
     "ListJobsResponse",
     "ListLlMsResponse",
     "ListMetadata",

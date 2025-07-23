@@ -65,15 +65,22 @@ class RerankersClient:
         Examples
         --------
         from vectara import Vectara
-        client = Vectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
-        response = client.rerankers.list(filter='vectara.*', )
+
+        client = Vectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        response = client.rerankers.list(
+            filter="vectara.*",
+        )
         for item in response:
             yield item
         # alternatively, you can paginate page-by-page
         for page in response.iter_pages():
             yield page
         """
-        response = self._raw_client.list(
+        return self._raw_client.list(
             filter=filter,
             limit=limit,
             page_key=page_key,
@@ -81,7 +88,6 @@ class RerankersClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data
 
 
 class AsyncRerankersClient:
@@ -139,20 +145,32 @@ class AsyncRerankersClient:
 
         Examples
         --------
-        from vectara import AsyncVectara
         import asyncio
-        client = AsyncVectara(api_key="YOUR_API_KEY", client_id="YOUR_CLIENT_ID", client_secret="YOUR_CLIENT_SECRET", )
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara(
+            api_key="YOUR_API_KEY",
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+
+
         async def main() -> None:
-            response = await client.rerankers.list(filter='vectara.*', )
+            response = await client.rerankers.list(
+                filter="vectara.*",
+            )
             async for item in response:
                 yield item
 
             # alternatively, you can paginate page-by-page
             async for page in response.iter_pages():
                 yield page
+
+
         asyncio.run(main())
         """
-        response = await self._raw_client.list(
+        return await self._raw_client.list(
             filter=filter,
             limit=limit,
             page_key=page_key,
@@ -160,4 +178,3 @@ class AsyncRerankersClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
-        return response.data

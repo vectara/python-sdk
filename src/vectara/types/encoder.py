@@ -28,9 +28,7 @@ class Encoder(UniversalBaseModel):
 
     output_dimensions: typing.Optional[int] = pydantic.Field(default=None)
     """
-    When this encoder is used to create an embedding, it shows the count of dimensions for the output embedding.
-    A high dimensionality will consume more storage space, but it allows for an increase in the quality of
-    the embedding.
+    When this encoder is used to create an embedding, it shows the count of dimensions for the output embedding. A high dimensionality will consume more storage space, but it allows for an increase in the quality of the embedding.
     """
 
     description: typing.Optional[str] = pydantic.Field(default=None)
