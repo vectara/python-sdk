@@ -15,11 +15,11 @@ from ..errors.bad_request_error import BadRequestError
 from ..errors.forbidden_error import ForbiddenError
 from ..errors.not_found_error import NotFoundError
 from ..types.bad_request_error_body import BadRequestErrorBody
+from ..types.create_llm_request import CreateLlmRequest
 from ..types.error import Error
 from ..types.list_ll_ms_response import ListLlMsResponse
 from ..types.llm import Llm
 from ..types.not_found_error_body import NotFoundErrorBody
-from ..types.remote_auth import RemoteAuth
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -127,15 +127,9 @@ class RawLlmsClient:
     def create(
         self,
         *,
-        name: str,
-        model: str,
-        uri: str,
+        request: CreateLlmRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        description: typing.Optional[str] = OMIT,
-        auth: typing.Optional[RemoteAuth] = OMIT,
-        headers: typing.Optional[typing.Dict[str, str]] = OMIT,
-        test_model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Llm]:
         """
@@ -143,31 +137,13 @@ class RawLlmsClient:
 
         Parameters
         ----------
-        name : str
-            Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM. If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform), then it will override that LLM for all usages.
-
-        model : str
-            The model name to use with the API (e.g. gpt-4, claude-2, etc). This is used in the API request to the remote LLM provider.
-
-        uri : str
-            The URI endpoint for the API (can be OpenAI or any compatible API endpoint)
+        request : CreateLlmRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        description : typing.Optional[str]
-            Description of the LLM.
-
-        auth : typing.Optional[RemoteAuth]
-
-        headers : typing.Optional[typing.Dict[str, str]]
-            Additional HTTP headers to include with requests to the LLM API.
-
-        test_model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Any additional parameters that are required for the LLM during the test call.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -181,16 +157,9 @@ class RawLlmsClient:
             "v2/llms",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            json={
-                "name": name,
-                "description": description,
-                "model": model,
-                "uri": uri,
-                "auth": convert_and_respect_annotation_metadata(object_=auth, annotation=RemoteAuth, direction="write"),
-                "headers": headers,
-                "test_model_parameters": test_model_parameters,
-                "type": "openai-compatible",
-            },
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=CreateLlmRequest, direction="write"
+            ),
             headers={
                 "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -488,15 +457,9 @@ class AsyncRawLlmsClient:
     async def create(
         self,
         *,
-        name: str,
-        model: str,
-        uri: str,
+        request: CreateLlmRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        description: typing.Optional[str] = OMIT,
-        auth: typing.Optional[RemoteAuth] = OMIT,
-        headers: typing.Optional[typing.Dict[str, str]] = OMIT,
-        test_model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Llm]:
         """
@@ -504,31 +467,13 @@ class AsyncRawLlmsClient:
 
         Parameters
         ----------
-        name : str
-            Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM. If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform), then it will override that LLM for all usages.
-
-        model : str
-            The model name to use with the API (e.g. gpt-4, claude-2, etc). This is used in the API request to the remote LLM provider.
-
-        uri : str
-            The URI endpoint for the API (can be OpenAI or any compatible API endpoint)
+        request : CreateLlmRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        description : typing.Optional[str]
-            Description of the LLM.
-
-        auth : typing.Optional[RemoteAuth]
-
-        headers : typing.Optional[typing.Dict[str, str]]
-            Additional HTTP headers to include with requests to the LLM API.
-
-        test_model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Any additional parameters that are required for the LLM during the test call.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -542,16 +487,9 @@ class AsyncRawLlmsClient:
             "v2/llms",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            json={
-                "name": name,
-                "description": description,
-                "model": model,
-                "uri": uri,
-                "auth": convert_and_respect_annotation_metadata(object_=auth, annotation=RemoteAuth, direction="write"),
-                "headers": headers,
-                "test_model_parameters": test_model_parameters,
-                "type": "openai-compatible",
-            },
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=CreateLlmRequest, direction="write"
+            ),
             headers={
                 "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,

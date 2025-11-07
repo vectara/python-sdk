@@ -2,12 +2,29 @@
 
 # isort: skip_file
 
+from .agent import Agent
+from .agent_event import AgentEvent
+from .agent_key import AgentKey
+from .agent_model import AgentModel
+from .agent_name import AgentName
+from .agent_output_event import AgentOutputEvent
+from .agent_response import AgentResponse
+from .agent_role import AgentRole
+from .agent_role_role import AgentRoleRole
+from .agent_session import AgentSession
+from .agent_session_key import AgentSessionKey
+from .agent_step_instruction import AgentStepInstruction
+from .agent_streamed_response import AgentStreamedResponse
+from .agent_text_input import AgentTextInput
+from .agent_tool_configuration import AgentToolConfiguration
 from .api_key import ApiKey
 from .api_key_role import ApiKeyRole
 from .api_operation_policy import ApiOperationPolicy
 from .api_policy import ApiPolicy
 from .api_role import ApiRole
 from .app_client import AppClient
+from .artifact_reference import ArtifactReference
+from .artifact_upload_event import ArtifactUploadEvent
 from .bad_request_error_body import BadRequestErrorBody
 from .bearer_auth import BearerAuth
 from .cell import Cell
@@ -25,40 +42,63 @@ from .chat_streamed_response import ChatStreamedResponse
 from .chunking_strategy import ChunkingStrategy
 from .citation_parameters import CitationParameters
 from .citation_parameters_style import CitationParametersStyle
+from .components_schemas_agent_text_input import ComponentsSchemasAgentTextInput
+from .components_schemas_conversational_agent_step import ComponentsSchemasConversationalAgentStep
 from .components_schemas_create_client_credentials_request import ComponentsSchemasCreateClientCredentialsRequest
+from .components_schemas_create_initial_instruction_request import ComponentsSchemasCreateInitialInstructionRequest
+from .components_schemas_create_lambda_tool_request import ComponentsSchemasCreateLambdaToolRequest
 from .components_schemas_create_open_ai_encoder_request import ComponentsSchemasCreateOpenAiEncoderRequest
-from .components_schemas_create_open_aillm_request import ComponentsSchemasCreateOpenAillmRequest
+from .components_schemas_default_output_parser import ComponentsSchemasDefaultOutputParser
+from .components_schemas_initial_instruction import ComponentsSchemasInitialInstruction
+from .components_schemas_update_initial_instruction_request import ComponentsSchemasUpdateInitialInstructionRequest
 from .compute_corpus_size_response import ComputeCorpusSizeResponse
 from .context_configuration import ContextConfiguration
+from .context_limit_exceeded_event import ContextLimitExceededEvent
+from .conversational_agent_step import ConversationalAgentStep
 from .core_document import CoreDocument
 from .core_document_part import CoreDocumentPart
+from .corpora_search_query_configuration import CorporaSearchQueryConfiguration
+from .corpora_search_tool import CorporaSearchTool
+from .corpora_search_tool_parameters import CorporaSearchToolParameters
 from .corpus import Corpus
 from .corpus_custom_dimension import CorpusCustomDimension
 from .corpus_key import CorpusKey
 from .corpus_limits import CorpusLimits
+from .corpus_role import CorpusRole
+from .corpus_role_role import CorpusRoleRole
 from .correction_item import CorrectionItem
 from .create_chat_completion_response import CreateChatCompletionResponse
 from .create_chat_completion_stream_response import CreateChatCompletionStreamResponse
 from .create_client_credentials_request import CreateClientCredentialsRequest
 from .create_document_request import CreateDocumentRequest
+from .create_initial_instruction_request import CreateInitialInstructionRequest
+from .create_lambda_tool_request import CreateLambdaToolRequest
+from .create_llm_request import CreateLlmRequest
 from .create_open_ai_encoder_request import CreateOpenAiEncoderRequest
+from .create_open_ai_responses_llm_request import CreateOpenAiResponsesLlmRequest
 from .create_open_aillm_request import CreateOpenAillmRequest
+from .create_vertex_aillm_request import CreateVertexAillmRequest
 from .custom_dimensions import CustomDimensions
 from .customer_specific_reranker import CustomerSpecificReranker
 from .data import Data
+from .default_output_parser import DefaultOutputParser
 from .document import Document
 from .document_part import DocumentPart
 from .document_storage_usage import DocumentStorageUsage
 from .encoder import Encoder
 from .error import Error
 from .evaluate_factual_consistency_response import EvaluateFactualConsistencyResponse
+from .execution_configuration import ExecutionConfiguration
 from .extraction_usage import ExtractionUsage
 from .factual_consistency_score import FactualConsistencyScore
 from .factual_consistency_score_span import FactualConsistencyScoreSpan
+from .field_query import FieldQuery
 from .filter_attribute import FilterAttribute
 from .filter_attribute_level import FilterAttributeLevel
 from .filter_attribute_type import FilterAttributeType
 from .filter_extraction import FilterExtraction
+from .function_definition import FunctionDefinition
+from .function_definition_validation_status import FunctionDefinitionValidationStatus
 from .generation_info import GenerationInfo
 from .generation_parameters import GenerationParameters
 from .generation_preset import GenerationPreset
@@ -68,12 +108,30 @@ from .hallucination_corrector import HallucinationCorrector
 from .hcm_source_document import HcmSourceDocument
 from .header import Header
 from .header_auth import HeaderAuth
+from .image import Image
+from .image_data import ImageData
+from .image_metadata import ImageMetadata
 from .individual_search_result import IndividualSearchResult
+from .initial_instruction import InitialInstruction
+from .inline_corpora_search_tool_configuration import InlineCorporaSearchToolConfiguration
+from .inline_instruction import InlineInstruction
+from .inline_lambda_tool_configuration import InlineLambdaToolConfiguration
+from .inline_mcp_tool_configuration import InlineMcpToolConfiguration
+from .inline_structured_indexing_tool_configuration import InlineStructuredIndexingToolConfiguration
+from .inline_web_search_tool_configuration import InlineWebSearchToolConfiguration
+from .input_message_event import InputMessageEvent
+from .instruction_id import InstructionId
+from .instruction_name import InstructionName
+from .instruction_reference import InstructionReference
 from .job import Job
 from .job_state import JobState
 from .job_type import JobType
 from .keyed_search_corpus import KeyedSearchCorpus
+from .lambda_tool import LambdaTool
 from .language import Language
+from .list_agent_events_response import ListAgentEventsResponse
+from .list_agent_sessions_response import ListAgentSessionsResponse
+from .list_agents_response import ListAgentsResponse
 from .list_api_keys_response import ListApiKeysResponse
 from .list_app_clients_response import ListAppClientsResponse
 from .list_chat_turns_response import ListChatTurnsResponse
@@ -83,6 +141,7 @@ from .list_documents_response import ListDocumentsResponse
 from .list_encoders_response import ListEncodersResponse
 from .list_generation_presets_response import ListGenerationPresetsResponse
 from .list_hallucination_correctors_response import ListHallucinationCorrectorsResponse
+from .list_instructions_response import ListInstructionsResponse
 from .list_jobs_response import ListJobsResponse
 from .list_ll_ms_response import ListLlMsResponse
 from .list_metadata import ListMetadata
@@ -90,13 +149,19 @@ from .list_query_histories_response import ListQueryHistoriesResponse
 from .list_query_histories_response_metadata import ListQueryHistoriesResponseMetadata
 from .list_rerankers_response import ListRerankersResponse
 from .list_table_extractors_response import ListTableExtractorsResponse
+from .list_tool_servers_response import ListToolServersResponse
+from .list_tools_response import ListToolsResponse
 from .list_users_response import ListUsersResponse
 from .llm import Llm
 from .max_chars_chunking_strategy import MaxCharsChunkingStrategy
+from .mcp_tool import McpTool
+from .mcp_tool_annotations import McpToolAnnotations
+from .metadata_query_response import MetadataQueryResponse
 from .mmr_reranker import MmrReranker
 from .model_parameters import ModelParameters
 from .none_reranker import NoneReranker
 from .not_found_error_body import NotFoundErrorBody
+from .open_aillm_request_base import OpenAillmRequestBase
 from .prompt import Prompt
 from .query_full_response import QueryFullResponse
 from .query_history import QueryHistory
@@ -104,16 +169,19 @@ from .query_history_span import QueryHistorySpan
 from .query_history_summary import QueryHistorySummary
 from .query_streamed_response import QueryStreamedResponse
 from .query_warning import QueryWarning
+from .reference_instruction import ReferenceInstruction
 from .remote_auth import RemoteAuth
 from .rephrase_span import RephraseSpan
 from .replace_filter_attributes_response import ReplaceFilterAttributesResponse
 from .rerank_span import RerankSpan
 from .reranked_search_result import RerankedSearchResult
 from .reranker import Reranker
+from .retry_configuration import RetryConfiguration
 from .rewritten_query import RewrittenQuery
 from .rewritten_query_span import RewrittenQuerySpan
 from .rewritten_query_warning import RewrittenQueryWarning
 from .row import Row
+from .scored_document import ScoredDocument
 from .search_corpora_parameters import SearchCorporaParameters
 from .search_corpus import SearchCorpus
 from .search_parameters import SearchParameters
@@ -126,8 +194,14 @@ from .stream_generation_chunk import StreamGenerationChunk
 from .stream_generation_end import StreamGenerationEnd
 from .stream_response_end import StreamResponseEnd
 from .stream_search_response import StreamSearchResponse
+from .streaming_agent_output import StreamingAgentOutput
+from .streaming_agent_output_end import StreamingAgentOutputEnd
+from .streaming_thinking import StreamingThinking
+from .streaming_thinking_end import StreamingThinkingEnd
 from .structured_document import StructuredDocument
 from .structured_document_section import StructuredDocumentSection
+from .structured_indexing_tool import StructuredIndexingTool
+from .structured_indexing_tool_parameters import StructuredIndexingToolParameters
 from .summarize_document_response import SummarizeDocumentResponse
 from .summarize_document_streamed_response import SummarizeDocumentStreamedResponse
 from .table import Table
@@ -135,18 +209,61 @@ from .table_extraction_config import TableExtractionConfig
 from .table_extractor import TableExtractor
 from .table_extractor_spec import TableExtractorSpec
 from .table_generation_spec import TableGenerationSpec
+from .template_type import TemplateType
+from .test_instruction_response import TestInstructionResponse
+from .test_tool_error_response import TestToolErrorResponse
+from .test_tool_error_response_error import TestToolErrorResponseError
+from .test_tool_response import TestToolResponse
+from .test_tool_success_response import TestToolSuccessResponse
+from .test_tool_success_response_validation_results import TestToolSuccessResponseValidationResults
+from .thinking_event import ThinkingEvent
+from .tool import Tool
+from .tool_id import ToolId
+from .tool_input_event import ToolInputEvent
+from .tool_output_event import ToolOutputEvent
+from .tool_server import ToolServer
+from .tool_server_id import ToolServerId
+from .tool_server_name import ToolServerName
+from .tool_server_transport import ToolServerTransport
+from .tool_server_type import ToolServerType
 from .turn import Turn
 from .update_document_request import UpdateDocumentRequest
+from .update_initial_instruction_request import UpdateInitialInstructionRequest
+from .update_lambda_tool_request import UpdateLambdaToolRequest
+from .update_mcp_tool_request import UpdateMcpToolRequest
+from .update_tool_request import UpdateToolRequest
 from .user import User
 from .user_function_reranker import UserFunctionReranker
+from .vertex_ai_api_key_auth import VertexAiApiKeyAuth
+from .vertex_ai_auth import VertexAiAuth
+from .vertex_ai_service_account_auth import VertexAiServiceAccountAuth
+from .web_search_tool import WebSearchTool
+from .web_search_tool_parameters import WebSearchToolParameters
 
 __all__ = [
+    "Agent",
+    "AgentEvent",
+    "AgentKey",
+    "AgentModel",
+    "AgentName",
+    "AgentOutputEvent",
+    "AgentResponse",
+    "AgentRole",
+    "AgentRoleRole",
+    "AgentSession",
+    "AgentSessionKey",
+    "AgentStepInstruction",
+    "AgentStreamedResponse",
+    "AgentTextInput",
+    "AgentToolConfiguration",
     "ApiKey",
     "ApiKeyRole",
     "ApiOperationPolicy",
     "ApiPolicy",
     "ApiRole",
     "AppClient",
+    "ArtifactReference",
+    "ArtifactUploadEvent",
     "BadRequestErrorBody",
     "BearerAuth",
     "Cell",
@@ -164,40 +281,63 @@ __all__ = [
     "ChunkingStrategy",
     "CitationParameters",
     "CitationParametersStyle",
+    "ComponentsSchemasAgentTextInput",
+    "ComponentsSchemasConversationalAgentStep",
     "ComponentsSchemasCreateClientCredentialsRequest",
+    "ComponentsSchemasCreateInitialInstructionRequest",
+    "ComponentsSchemasCreateLambdaToolRequest",
     "ComponentsSchemasCreateOpenAiEncoderRequest",
-    "ComponentsSchemasCreateOpenAillmRequest",
+    "ComponentsSchemasDefaultOutputParser",
+    "ComponentsSchemasInitialInstruction",
+    "ComponentsSchemasUpdateInitialInstructionRequest",
     "ComputeCorpusSizeResponse",
     "ContextConfiguration",
+    "ContextLimitExceededEvent",
+    "ConversationalAgentStep",
     "CoreDocument",
     "CoreDocumentPart",
+    "CorporaSearchQueryConfiguration",
+    "CorporaSearchTool",
+    "CorporaSearchToolParameters",
     "Corpus",
     "CorpusCustomDimension",
     "CorpusKey",
     "CorpusLimits",
+    "CorpusRole",
+    "CorpusRoleRole",
     "CorrectionItem",
     "CreateChatCompletionResponse",
     "CreateChatCompletionStreamResponse",
     "CreateClientCredentialsRequest",
     "CreateDocumentRequest",
+    "CreateInitialInstructionRequest",
+    "CreateLambdaToolRequest",
+    "CreateLlmRequest",
     "CreateOpenAiEncoderRequest",
+    "CreateOpenAiResponsesLlmRequest",
     "CreateOpenAillmRequest",
+    "CreateVertexAillmRequest",
     "CustomDimensions",
     "CustomerSpecificReranker",
     "Data",
+    "DefaultOutputParser",
     "Document",
     "DocumentPart",
     "DocumentStorageUsage",
     "Encoder",
     "Error",
     "EvaluateFactualConsistencyResponse",
+    "ExecutionConfiguration",
     "ExtractionUsage",
     "FactualConsistencyScore",
     "FactualConsistencyScoreSpan",
+    "FieldQuery",
     "FilterAttribute",
     "FilterAttributeLevel",
     "FilterAttributeType",
     "FilterExtraction",
+    "FunctionDefinition",
+    "FunctionDefinitionValidationStatus",
     "GenerationInfo",
     "GenerationParameters",
     "GenerationPreset",
@@ -207,12 +347,30 @@ __all__ = [
     "HcmSourceDocument",
     "Header",
     "HeaderAuth",
+    "Image",
+    "ImageData",
+    "ImageMetadata",
     "IndividualSearchResult",
+    "InitialInstruction",
+    "InlineCorporaSearchToolConfiguration",
+    "InlineInstruction",
+    "InlineLambdaToolConfiguration",
+    "InlineMcpToolConfiguration",
+    "InlineStructuredIndexingToolConfiguration",
+    "InlineWebSearchToolConfiguration",
+    "InputMessageEvent",
+    "InstructionId",
+    "InstructionName",
+    "InstructionReference",
     "Job",
     "JobState",
     "JobType",
     "KeyedSearchCorpus",
+    "LambdaTool",
     "Language",
+    "ListAgentEventsResponse",
+    "ListAgentSessionsResponse",
+    "ListAgentsResponse",
     "ListApiKeysResponse",
     "ListAppClientsResponse",
     "ListChatTurnsResponse",
@@ -222,6 +380,7 @@ __all__ = [
     "ListEncodersResponse",
     "ListGenerationPresetsResponse",
     "ListHallucinationCorrectorsResponse",
+    "ListInstructionsResponse",
     "ListJobsResponse",
     "ListLlMsResponse",
     "ListMetadata",
@@ -229,13 +388,19 @@ __all__ = [
     "ListQueryHistoriesResponseMetadata",
     "ListRerankersResponse",
     "ListTableExtractorsResponse",
+    "ListToolServersResponse",
+    "ListToolsResponse",
     "ListUsersResponse",
     "Llm",
     "MaxCharsChunkingStrategy",
+    "McpTool",
+    "McpToolAnnotations",
+    "MetadataQueryResponse",
     "MmrReranker",
     "ModelParameters",
     "NoneReranker",
     "NotFoundErrorBody",
+    "OpenAillmRequestBase",
     "Prompt",
     "QueryFullResponse",
     "QueryHistory",
@@ -243,16 +408,19 @@ __all__ = [
     "QueryHistorySummary",
     "QueryStreamedResponse",
     "QueryWarning",
+    "ReferenceInstruction",
     "RemoteAuth",
     "RephraseSpan",
     "ReplaceFilterAttributesResponse",
     "RerankSpan",
     "RerankedSearchResult",
     "Reranker",
+    "RetryConfiguration",
     "RewrittenQuery",
     "RewrittenQuerySpan",
     "RewrittenQueryWarning",
     "Row",
+    "ScoredDocument",
     "SearchCorporaParameters",
     "SearchCorpus",
     "SearchParameters",
@@ -265,8 +433,14 @@ __all__ = [
     "StreamGenerationEnd",
     "StreamResponseEnd",
     "StreamSearchResponse",
+    "StreamingAgentOutput",
+    "StreamingAgentOutputEnd",
+    "StreamingThinking",
+    "StreamingThinkingEnd",
     "StructuredDocument",
     "StructuredDocumentSection",
+    "StructuredIndexingTool",
+    "StructuredIndexingToolParameters",
     "SummarizeDocumentResponse",
     "SummarizeDocumentStreamedResponse",
     "Table",
@@ -274,8 +448,34 @@ __all__ = [
     "TableExtractor",
     "TableExtractorSpec",
     "TableGenerationSpec",
+    "TemplateType",
+    "TestInstructionResponse",
+    "TestToolErrorResponse",
+    "TestToolErrorResponseError",
+    "TestToolResponse",
+    "TestToolSuccessResponse",
+    "TestToolSuccessResponseValidationResults",
+    "ThinkingEvent",
+    "Tool",
+    "ToolId",
+    "ToolInputEvent",
+    "ToolOutputEvent",
+    "ToolServer",
+    "ToolServerId",
+    "ToolServerName",
+    "ToolServerTransport",
+    "ToolServerType",
     "Turn",
     "UpdateDocumentRequest",
+    "UpdateInitialInstructionRequest",
+    "UpdateLambdaToolRequest",
+    "UpdateMcpToolRequest",
+    "UpdateToolRequest",
     "User",
     "UserFunctionReranker",
+    "VertexAiApiKeyAuth",
+    "VertexAiAuth",
+    "VertexAiServiceAccountAuth",
+    "WebSearchTool",
+    "WebSearchToolParameters",
 ]

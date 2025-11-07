@@ -27,6 +27,11 @@ class CoreDocumentPart(UniversalBaseModel):
     The ID of the table that this document part belongs to.
     """
 
+    image_id: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The ID of the image that this document part belongs to.
+    """
+
     context: typing.Optional[str] = pydantic.Field(default=None)
     """
     The context text for the document part.

@@ -7,6 +7,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .document_part import DocumentPart
 from .document_storage_usage import DocumentStorageUsage
 from .extraction_usage import ExtractionUsage
+from .image_metadata import ImageMetadata
 from .table import Table
 
 
@@ -28,6 +29,11 @@ class Document(UniversalBaseModel):
     tables: typing.Optional[typing.List[Table]] = pydantic.Field(default=None)
     """
     The tables that this document contains. Tables are not available when table extraction is not enabled.
+    """
+
+    images: typing.Optional[typing.List[ImageMetadata]] = pydantic.Field(default=None)
+    """
+    The images that this document contains.
     """
 
     parts: typing.Optional[typing.List[DocumentPart]] = pydantic.Field(default=None)

@@ -45,12 +45,20 @@ class RawUploadClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Document]:
         """
-        Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing.
+        Upload a file, such as a PDF or Word document, to the specified corpus for automatic text extraction and metadata parsing.
 
-        The request expects a `multipart/form-data` format containing the following parts:
-        * `metadata` - Optionally specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `''metadata={\"key\": \"value\"};type=application/json''`
-        * `chunking_strategy` - If provided, specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. You can explicitly set sentence chunking with `''chunking_strategy={\"type\":\"sentence_chunking_strategy\"};type=application/json''` or use max chars chunking with `''chunking_strategy={\"type\":\"max_chars_chunking_strategy\",\"max_chars_per_chunk\":200};type=application/json''`
-        * `table_extraction_config` - You can optionally specify whether to extract table data from the uploaded file. If you do not set this option, the platform does not extract tables from PDF files. Example config, `''table_extraction_config={\"extract_tables\":true};type=application/json''` \n* `file` - Specifies the file that you want to upload. * `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `''file=@/path/to/file/file.pdf;filename=desired_filename.pdf''`\n\nFor more detailed information, see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)"
+        This endpoint expects a `multipart/form-data` request with the following fields:
+
+        - **metadata**: An optional JSON object containing additional metadata to associate with the document.
+          Example: `metadata={"key": "value"}`
+        - **chunking_strategy**: An optional JSON object that sets the chunking method for text extraction.
+          - By default, the platform uses sentence-based chunking (one chunk per sentence).
+          - Example for explicit sentence chunking: `chunking_strategy={"type":"sentence_chunking_strategy"}`
+          - Example for max chars chunking: `chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":512}`
+        - **table_extraction_config**: An optional JSON object to control table extraction from supported file types (e.g., PDF).
+          Example: `table_extraction_config={"extract_tables": true}`
+        - **file**: The file to upload. Attach your file as the value for this field.
+        - **filename**: The desired name for the uploaded file. Specify as part of the file field in your request.
 
         Parameters
         ----------
@@ -200,12 +208,20 @@ class AsyncRawUploadClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Document]:
         """
-        Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing.
+        Upload a file, such as a PDF or Word document, to the specified corpus for automatic text extraction and metadata parsing.
 
-        The request expects a `multipart/form-data` format containing the following parts:
-        * `metadata` - Optionally specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `''metadata={\"key\": \"value\"};type=application/json''`
-        * `chunking_strategy` - If provided, specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. You can explicitly set sentence chunking with `''chunking_strategy={\"type\":\"sentence_chunking_strategy\"};type=application/json''` or use max chars chunking with `''chunking_strategy={\"type\":\"max_chars_chunking_strategy\",\"max_chars_per_chunk\":200};type=application/json''`
-        * `table_extraction_config` - You can optionally specify whether to extract table data from the uploaded file. If you do not set this option, the platform does not extract tables from PDF files. Example config, `''table_extraction_config={\"extract_tables\":true};type=application/json''` \n* `file` - Specifies the file that you want to upload. * `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `''file=@/path/to/file/file.pdf;filename=desired_filename.pdf''`\n\nFor more detailed information, see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)"
+        This endpoint expects a `multipart/form-data` request with the following fields:
+
+        - **metadata**: An optional JSON object containing additional metadata to associate with the document.
+          Example: `metadata={"key": "value"}`
+        - **chunking_strategy**: An optional JSON object that sets the chunking method for text extraction.
+          - By default, the platform uses sentence-based chunking (one chunk per sentence).
+          - Example for explicit sentence chunking: `chunking_strategy={"type":"sentence_chunking_strategy"}`
+          - Example for max chars chunking: `chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":512}`
+        - **table_extraction_config**: An optional JSON object to control table extraction from supported file types (e.g., PDF).
+          Example: `table_extraction_config={"extract_tables": true}`
+        - **file**: The file to upload. Attach your file as the value for this field.
+        - **filename**: The desired name for the uploaded file. Specify as part of the file field in your request.
 
         Parameters
         ----------

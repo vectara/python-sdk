@@ -10,12 +10,15 @@ from ..core.jsonable_encoder import jsonable_encoder
 from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
+from ..core.serialization import convert_and_respect_annotation_metadata
 from ..errors.bad_request_error import BadRequestError
 from ..errors.forbidden_error import ForbiddenError
 from ..errors.not_found_error import NotFoundError
+from ..types.agent_role import AgentRole
 from ..types.api_role import ApiRole
 from ..types.bad_request_error_body import BadRequestErrorBody
 from ..types.corpus_key import CorpusKey
+from ..types.corpus_role import CorpusRole
 from ..types.error import Error
 from ..types.list_users_response import ListUsersResponse
 from ..types.not_found_error_body import NotFoundErrorBody
@@ -135,6 +138,8 @@ class RawUsersClient:
         username: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[UsersCreateResponse]:
         """
@@ -158,7 +163,13 @@ class RawUsersClient:
             The description of the user.
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
-            The role names assigned to the user.
+            The customer-level role names assigned to the user.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            Corpus-specific role assignments for the user.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            Agent-specific role assignments for the user.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -177,6 +188,12 @@ class RawUsersClient:
                 "username": username,
                 "description": description,
                 "api_roles": api_roles,
+                "corpus_roles": convert_and_respect_annotation_metadata(
+                    object_=corpus_roles, annotation=typing.Sequence[CorpusRole], direction="write"
+                ),
+                "agent_roles": convert_and_respect_annotation_metadata(
+                    object_=agent_roles, annotation=typing.Sequence[AgentRole], direction="write"
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -377,6 +394,8 @@ class RawUsersClient:
         request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         description: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[User]:
@@ -398,7 +417,13 @@ class RawUsersClient:
             Indicates whether to enable or disable the user.
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
-            The new role names of the user.
+            The new customer-level role names of the user.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            New corpus-specific role assignments for the user.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            New agent-specific role assignments for the user.
 
         description : typing.Optional[str]
             The description of the user.
@@ -418,6 +443,12 @@ class RawUsersClient:
             json={
                 "enabled": enabled,
                 "api_roles": api_roles,
+                "corpus_roles": convert_and_respect_annotation_metadata(
+                    object_=corpus_roles, annotation=typing.Sequence[CorpusRole], direction="write"
+                ),
+                "agent_roles": convert_and_respect_annotation_metadata(
+                    object_=agent_roles, annotation=typing.Sequence[AgentRole], direction="write"
+                ),
                 "description": description,
             },
             headers={
@@ -654,6 +685,8 @@ class AsyncRawUsersClient:
         username: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[UsersCreateResponse]:
         """
@@ -677,7 +710,13 @@ class AsyncRawUsersClient:
             The description of the user.
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
-            The role names assigned to the user.
+            The customer-level role names assigned to the user.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            Corpus-specific role assignments for the user.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            Agent-specific role assignments for the user.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -696,6 +735,12 @@ class AsyncRawUsersClient:
                 "username": username,
                 "description": description,
                 "api_roles": api_roles,
+                "corpus_roles": convert_and_respect_annotation_metadata(
+                    object_=corpus_roles, annotation=typing.Sequence[CorpusRole], direction="write"
+                ),
+                "agent_roles": convert_and_respect_annotation_metadata(
+                    object_=agent_roles, annotation=typing.Sequence[AgentRole], direction="write"
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -896,6 +941,8 @@ class AsyncRawUsersClient:
         request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         description: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[User]:
@@ -917,7 +964,13 @@ class AsyncRawUsersClient:
             Indicates whether to enable or disable the user.
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
-            The new role names of the user.
+            The new customer-level role names of the user.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            New corpus-specific role assignments for the user.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            New agent-specific role assignments for the user.
 
         description : typing.Optional[str]
             The description of the user.
@@ -937,6 +990,12 @@ class AsyncRawUsersClient:
             json={
                 "enabled": enabled,
                 "api_roles": api_roles,
+                "corpus_roles": convert_and_respect_annotation_metadata(
+                    object_=corpus_roles, annotation=typing.Sequence[CorpusRole], direction="write"
+                ),
+                "agent_roles": convert_and_respect_annotation_metadata(
+                    object_=agent_roles, annotation=typing.Sequence[AgentRole], direction="write"
+                ),
                 "description": description,
             },
             headers={

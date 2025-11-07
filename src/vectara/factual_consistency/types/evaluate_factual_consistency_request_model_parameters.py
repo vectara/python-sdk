@@ -13,7 +13,7 @@ class EvaluateFactualConsistencyRequestModelParameters(UniversalBaseModel):
 
     model_name: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The name of the model to use for evaluation.
+    The name of the model to use for evaluation. Only hhem_v2.3 is supported.
     """
 
     if IS_PYDANTIC_V2:

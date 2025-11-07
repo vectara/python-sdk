@@ -13,7 +13,7 @@ class EvaluateFactualConsistencyResponse(UniversalBaseModel):
 
     score: float = pydantic.Field()
     """
-    A prediction score (0.0-1.0) from HHEM, monotonically indicates the likelihood of hallucinations.
+    A prediction score that must be greater than 0 but less than 1 from HHEM, monotonically indicates the likelihood of hallucinations.
     """
 
     if IS_PYDANTIC_V2:

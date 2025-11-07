@@ -14,12 +14,22 @@ class GenerationParameters(UniversalBaseModel):
     The parameters to control generation.
     """
 
+    enabled: typing.Optional[bool] = pydantic.Field(default=None)
+    """
+    Whether generation is enabled for this query. This field is ignored if using chat.
+    """
+
     generation_preset_name: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The preset values to use to feed the query results and other context to the model.
-    A `generation_preset` is an object with a bundle of properties that specifies: * The `prompt_template` that is rendered and then sent to the LLM. * The LLM used. * `model_parameter`s such as temperature.
+    The preset values to use to feed the query results and other context to the model.  
+    
+    A `generation_preset` is an object with a bundle of properties that specifies: 
+    * The `prompt_template` that is rendered and then sent to the LLM. 
+    * The LLM used. * `model_parameter`s such as temperature.
+    
     All of these properties except the model can be overridden by setting them in this object. Even when a `prompt_template` is set, the `generation_preset_name` is used to set the model used. See `model_parameters.model` if you want to set the model explicitly.
-    If `generation_preset_name` is not set, the Vectara platform will use the default model and prompt.
+    
+    If `generation_preset_name` is not set, the Vectara platform will use the default model and prompt.'
     """
 
     prompt_name: typing.Optional[str] = pydantic.Field(default=None)

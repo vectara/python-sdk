@@ -4,6 +4,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .image_metadata import ImageMetadata
 from .table import Table
 
 
@@ -40,6 +41,11 @@ class IndividualSearchResult(UniversalBaseModel):
     table: typing.Optional[Table] = pydantic.Field(default=None)
     """
     The table that the document part is from.
+    """
+
+    image: typing.Optional[ImageMetadata] = pydantic.Field(default=None)
+    """
+    The image that the document part is from.
     """
 
     request_corpora_index: typing.Optional[int] = pydantic.Field(default=None)

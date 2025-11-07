@@ -34,7 +34,9 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.corpora.list()
+response = client.corpora.list(
+    filter="Vectara Content",
+)
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
@@ -732,10 +734,19 @@ client.corpora.replace_filter_attributes(
     corpus_key="my-corpus",
     filter_attributes=[
         FilterAttribute(
-            name="Title",
+            name="jurisdiction",
             level="document",
-            type="integer",
-        )
+            description="The legal jurisdiction of the contract (Delaware, California).",
+            indexed=True,
+            type="text",
+        ),
+        FilterAttribute(
+            name="type",
+            level="document",
+            description="The type of legal document (employment_contract, nda).",
+            indexed=True,
+            type="text",
+        ),
     ],
 )
 
@@ -899,7 +910,7 @@ client.corpora.compute_size(
 
 Search a single corpus with a straightforward query request, specifying the corpus key and query parameters.
 
-* Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+* Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus), and the corpus key is part of that process. When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 * Enter the search `query` string for the corpus, which is the question you want to ask.
 * Set the maximum number of results (`limit`) to return. **Default**: 10, **minimum**: 1
 
@@ -1034,7 +1045,7 @@ client.corpora.search(
 
 Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation.
 
-* Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+* Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus), and the corpus key is part of that process. When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
 * Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
 * Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.005`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
@@ -1208,7 +1219,7 @@ for chunk in response.data:
 
 Perform an advanced query on a specific corpus to find relevant results, highlight relevant snippets, and use Retrieval Augmented Generation.
 
-* Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+* Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus), and the corpus key is part of that process. When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
 * Leverage advanced search capabilities like reranking (`reranker`) and Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt in by setting the `generation` property. By excluding the property or by setting it to null, the response will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization).
 * Use hybrid search to achieve optimal results by setting different values for `lexical_interpolation` (e.g., `0.005`). [Learn more](https://docs.vectara.com/docs/learn/hybrid-search)
@@ -1379,12 +1390,20 @@ client.corpora.query(
 <dl>
 <dd>
 
-Upload files such as PDFs and Word Documents for automatic text extraction and metadata parsing.
+Upload a file, such as a PDF or Word document, to the specified corpus for automatic text extraction and metadata parsing.  
 
-The request expects a `multipart/form-data` format containing the following parts: 
-* `metadata` - Optionally specifies a JSON object representing any additional metadata to be associated with the extracted document. For example, `''metadata={\"key\": \"value\"};type=application/json''`
-* `chunking_strategy` - If provided, specifies the chunking strategy for the platform to use. If you do not set this option, the platform uses the default strategy, which creates one chunk per sentence. You can explicitly set sentence chunking with `''chunking_strategy={\"type\":\"sentence_chunking_strategy\"};type=application/json''` or use max chars chunking with `''chunking_strategy={\"type\":\"max_chars_chunking_strategy\",\"max_chars_per_chunk\":200};type=application/json''`
-* `table_extraction_config` - You can optionally specify whether to extract table data from the uploaded file. If you do not set this option, the platform does not extract tables from PDF files. Example config, `''table_extraction_config={\"extract_tables\":true};type=application/json''` \n* `file` - Specifies the file that you want to upload. * `filename` - Specified as part of the file field with the file name that you want to associate with the uploaded file. For a curl example, use the following syntax: `''file=@/path/to/file/file.pdf;filename=desired_filename.pdf''`\n\nFor more detailed information, see this [File Upload API guide.](https://docs.vectara.com/docs/api-reference/indexing-apis/file-upload/file-upload)"
+This endpoint expects a `multipart/form-data` request with the following fields:  
+
+- **metadata**: An optional JSON object containing additional metadata to associate with the document.  
+  Example: `metadata={"key": "value"}`
+- **chunking_strategy**: An optional JSON object that sets the chunking method for text extraction.  
+  - By default, the platform uses sentence-based chunking (one chunk per sentence).
+  - Example for explicit sentence chunking: `chunking_strategy={"type":"sentence_chunking_strategy"}`
+  - Example for max chars chunking: `chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":512}`
+- **table_extraction_config**: An optional JSON object to control table extraction from supported file types (e.g., PDF).  
+  Example: `table_extraction_config={"extract_tables": true}`
+- **file**: The file to upload. Attach your file as the value for this field.
+- **filename**: The desired name for the uploaded file. Specify as part of the file field in your request.
 </dd>
 </dl>
 </dd>
@@ -1751,7 +1770,7 @@ client.documents.create(
 <dl>
 <dd>
 
-Retrieve the content and metadata of a specific document, identified by its unique `document_id` from a specific corpus.
+Returns a specific image that is embedded within a document. The `image_id` uniquely identifies the image within the document. Use this endpoint to fetch the raw image data and associated metadata.
 </dd>
 </dl>
 </dd>
@@ -1776,6 +1795,7 @@ client = Vectara(
 client.documents.get(
     corpus_key="my-corpus",
     document_id="document_id",
+    image_id="image_id",
 )
 
 ```
@@ -1792,7 +1812,7 @@ client.documents.get(
 <dl>
 <dd>
 
-**corpus_key:** `CorpusKey` — The unique key identifying the corpus containing the document to retrieve.
+**corpus_key:** `CorpusKey` — A unique identifier for the corpus that contains the target document.
     
 </dd>
 </dl>
@@ -1800,7 +1820,15 @@ client.documents.get(
 <dl>
 <dd>
 
-**document_id:** `str` — The document ID of the document to retrieve. This `document_id` must be percent encoded.
+**document_id:** `str` — The identifier of the document containing the image. This `document_id` must be percent encoded.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**image_id:** `str` — The identifier of the image to retrieve from the specified document. Each image within a document has a unique `image_id`. This value must be percent-encoded when passed in the request URL.
     
 </dd>
 </dl>
@@ -2180,7 +2208,10 @@ client = Vectara(
 client.documents.summarize(
     corpus_key="my-corpus",
     document_id="document_id",
-    llm_name="llm_name",
+    llm_name="mockingbird-2.0",
+    prompt_template="Summarize the key clauses of the employment contract in ${document.metadata.jurisdiction}, focusing on arbitration, confidentiality, and termination terms.",
+    model_parameters={"max_tokens": 200, "temperature": 0.7},
+    stream_response=False,
 )
 
 ```
@@ -2273,6 +2304,150 @@ client.documents.summarize(
 </dl>
 </details>
 
+## Metadata
+<details><summary><code>client.metadata.<a href="src/vectara/metadata/client.py">query_metadata</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Query for documents in a specific corpus using fuzzy matching across specified metadata fields. The search first applies any exact metadata filters to narrow the results, then performs fuzzy matching on the remaining documents using the specified field queries.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import FieldQuery, Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.metadata.query_metadata(
+    corpus_key="my-corpus",
+    queries=[
+        FieldQuery(
+            field="title",
+            query="lease agreement",
+            weight=2.0,
+        ),
+        FieldQuery(
+            field="category",
+            query="contract",
+            weight=1.0,
+        ),
+    ],
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**corpus_key:** `CorpusKey` — The unique key identifying the corpus to search for metadata.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**queries:** `typing.Sequence[FieldQuery]` — List of field-specific queries to apply fuzzy matching.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**level:** `typing.Optional[MetadataQueryRequestLevel]` — Whether to search document-level or part-level metadata. Document-level returns unique documents, part-level can return multiple parts from the same document.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata_filter:** `typing.Optional[str]` 
+
+Optional filter expression to narrow down results before fuzzy matching is applied. 
+This uses the same expression format as document listing filters and applies exact matching.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — Sets the maximum number of documents to return.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**offset:** `typing.Optional[int]` — Starting position for pagination.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Queries
 <details><summary><code>client.queries.<a href="src/vectara/queries/client.py">query_stream</a>(...)</code></summary>
 <dl>
@@ -2288,7 +2463,7 @@ client.documents.summarize(
 
 Perform a multipurpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
 
-* Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+* Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus), and the corpus key is part of that process. When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
 * Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt-in by setting the `generation` property. By excluding the property or by setting it to null, the response will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
 * Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
@@ -2446,7 +2621,7 @@ for chunk in response.data:
 
 Perform a multipurpose query to retrieve relevant information from one or more corpora and generate a response using Retrieval Augmented Generation (RAG).
 
-* Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus). When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
+* Specify the unique `corpus_key` identifying the corpus to query. The `corpus_key` is [created in the Vectara Console UI](https://docs.vectara.com/docs/console-ui/creating-a-corpus) or the [Create Corpus API definition](https://docs.vectara.com/docs/api-reference/admin-apis/create-corpus), and the corpus key is part of that process. When creating a new corpus, you have the option to assign a custom `corpus_key` following your preferred naming convention. This key serves as a unique identifier for the corpus, allowing it to be referenced in search requests. For more information, see [Corpus Key Definition](https://docs.vectara.com/docs/api-reference/search-apis/search#corpus-key-definition).
 * Customize your search by specifying the query text (`query`), pagination details (`offset` and `limit`), and metadata filters (`metadata_filter`) to tailor your search results. [Learn more](https://docs.vectara.com/docs/api-reference/search-apis/search#query-definition)
 * Leverage advanced search capabilities like reranking (`reranker`) and opt-in Retrieval Augmented Generation (RAG) (`generation`) for enhanced query performance. Generation is opt-in by setting the `generation` property. By excluding the property or by setting it to null, the response will not include generation. [Learn more](https://docs.vectara.com/docs/learn/grounded-generation/configure-query-summarization)
 * Specify Vectara's RAG-focused LLM (Mockingbird) for the `generation_preset_name`. [Learn more](https://docs.vectara.com/docs/learn/mockingbird-llm)
@@ -2624,7 +2799,7 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 client.query_history.get(
-    query_id="query_id",
+    query_id="qry_123456789",
 )
 
 ```
@@ -2711,7 +2886,10 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.query_history.list()
+response = client.query_history.list(
+    corpus_key="my_corpus_key",
+    chat_id="cht_123456789",
+)
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
@@ -2757,6 +2935,14 @@ for page in response.iter_pages():
 <dd>
 
 **chat_id:** `typing.Optional[str]` — Specifies the chat_id of the query, this will return all queries in the specified chat.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**history_id:** `typing.Optional[str]` — Specifies the history_id of the query that you want to use as a filter.
     
 </dd>
 </dl>
@@ -4212,7 +4398,7 @@ Create a new LLM for use with query and chat endpoints
 <dd>
 
 ```python
-from vectara import Vectara
+from vectara import CreateOpenAillmRequest, Vectara
 
 client = Vectara(
     api_key="YOUR_API_KEY",
@@ -4220,9 +4406,11 @@ client = Vectara(
     client_secret="YOUR_CLIENT_SECRET",
 )
 client.llms.create(
-    name="name",
-    model="model",
-    uri="uri",
+    request=CreateOpenAillmRequest(
+        name="Claude 3.7 Sonnet",
+        model="model",
+        uri="https://api.anthropic.com/v1/chat/completions",
+    ),
 )
 
 ```
@@ -4239,23 +4427,7 @@ client.llms.create(
 <dl>
 <dd>
 
-**name:** `str` — Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM. If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform), then it will override that LLM for all usages.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**model:** `str` — The model name to use with the API (e.g. gpt-4, claude-2, etc). This is used in the API request to the remote LLM provider.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**uri:** `str` — The URI endpoint for the API (can be OpenAI or any compatible API endpoint)
+**request:** `CreateLlmRequest` 
     
 </dd>
 </dl>
@@ -4272,38 +4444,6 @@ client.llms.create(
 <dd>
 
 **request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**description:** `typing.Optional[str]` — Description of the LLM.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**auth:** `typing.Optional[RemoteAuth]` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**headers:** `typing.Optional[typing.Dict[str, str]]` — Additional HTTP headers to include with requests to the LLM API.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**test_model_parameters:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Any additional parameters that are required for the LLM during the test call.
     
 </dd>
 </dl>
@@ -4645,7 +4785,9 @@ client = Vectara(
     client_id="YOUR_CLIENT_ID",
     client_secret="YOUR_CLIENT_SECRET",
 )
-response = client.generation_presets.list()
+response = client.generation_presets.list(
+    llm_name="mockingbird-2.0",
+)
 for item in response:
     yield item
 # alternatively, you can paginate page-by-page
@@ -5403,7 +5545,7 @@ client.hallucination_correctors.hallucination_correction(
             text="text",
         )
     ],
-    model_name="vhc-large-10",
+    model_name="vhc-large-1.0",
 )
 
 ```
@@ -5894,7 +6036,23 @@ client.users.create(
 <dl>
 <dd>
 
-**api_roles:** `typing.Optional[typing.Sequence[ApiRole]]` — The role names assigned to the user.
+**api_roles:** `typing.Optional[typing.Sequence[ApiRole]]` — The customer-level role names assigned to the user.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**corpus_roles:** `typing.Optional[typing.Sequence[CorpusRole]]` — Corpus-specific role assignments for the user.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**agent_roles:** `typing.Optional[typing.Sequence[AgentRole]]` — Agent-specific role assignments for the user.
     
 </dd>
 </dl>
@@ -6174,7 +6332,23 @@ client.users.update(
 <dl>
 <dd>
 
-**api_roles:** `typing.Optional[typing.Sequence[ApiRole]]` — The new role names of the user.
+**api_roles:** `typing.Optional[typing.Sequence[ApiRole]]` — The new customer-level role names of the user.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**corpus_roles:** `typing.Optional[typing.Sequence[CorpusRole]]` — New corpus-specific role assignments for the user.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**agent_roles:** `typing.Optional[typing.Sequence[AgentRole]]` — New agent-specific role assignments for the user.
     
 </dd>
 </dl>
@@ -7340,6 +7514,4013 @@ client.auth.get_token(
 <dd>
 
 **client_secret:** `str` — The client secret of the application
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Tool Servers
+<details><summary><code>client.tool_servers.<a href="src/vectara/tool_servers/client.py">list</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve a list of available tool servers that expose various tools.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+response = client.tool_servers.list(
+    filter="rag.*",
+    enabled=True,
+)
+for item in response:
+    yield item
+# alternatively, you can paginate page-by-page
+for page in response.iter_pages():
+    yield page
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**filter:** `typing.Optional[str]` — A regular expression against tool server names and descriptions to filter the results.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**type:** `typing.Optional[typing.Literal["mcp"]]` — Filter tool servers by type.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` — Filter tool servers by enabled status.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — The maximum number of tool servers to return in the list.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of tool servers after the limit has been reached.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.tool_servers.<a href="src/vectara/tool_servers/client.py">create</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a new tool server to expose tools for use by agents.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.tool_servers.create(
+    name="RAG Search Server",
+    uri="https://api.example.com/rag_search",
+    transport="sse",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**name:** `ToolServerName` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**uri:** `str` — The URI of the tool server.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**transport:** `ToolServerTransport` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` — A detailed description of what this tool server does.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**headers:** `typing.Optional[typing.Dict[str, str]]` — Optional HTTP headers to include when connecting to the server.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**auth:** `typing.Optional[RemoteAuth]` — Authentication configuration for connecting to the tool server.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` — Whether the tool server is currently enabled and available for use.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Arbitrary metadata associated with the tool server.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.tool_servers.<a href="src/vectara/tool_servers/client.py">get</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve details about a specific tool server by its Id.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.tool_servers.get(
+    tool_server_id="tsr_rag_search",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**tool_server_id:** `str` — The unique identifier of the tool server to retrieve.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.tool_servers.<a href="src/vectara/tool_servers/client.py">delete</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Permanently delete a tool server and all its associated configuration and tools. This action cannot be undone.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.tool_servers.delete(
+    tool_server_id="tsr_rag_search",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**tool_server_id:** `str` — The unique identifier of the tool server to delete.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.tool_servers.<a href="src/vectara/tool_servers/client.py">update</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update the configuration of a specific tool server.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.tool_servers.update(
+    tool_server_id="tsr_rag_search",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**tool_server_id:** `str` — The unique identifier of the tool server to update.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**name:** `typing.Optional[ToolServerName]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` — A detailed description of what this tool server does.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**uri:** `typing.Optional[str]` — The URI of the tool server.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**headers:** `typing.Optional[typing.Dict[str, str]]` — Optional HTTP headers to include when connecting to the server.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**transport:** `typing.Optional[ToolServerTransport]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**auth:** `typing.Optional[RemoteAuth]` — Authentication configuration for connecting to the tool server.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` — Whether the tool server is currently enabled and available for use.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Arbitrary metadata associated with the tool server.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.tool_servers.<a href="src/vectara/tool_servers/client.py">sync</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Trigger a synchronization of the tool server to ensure it is up-to-date with the latest tools.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.tool_servers.sync(
+    tool_server_id="tsr_rag_search",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**tool_server_id:** `str` — The unique identifier of the tool server to synchronize.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Tools
+<details><summary><code>client.tools.<a href="src/vectara/tools/client.py">list</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+List all tools available to the authenticated user, with optional filtering and pagination.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+response = client.tools.list(
+    filter="rag.*",
+    enabled=True,
+    tool_server_id="tsr_rag_search",
+)
+for item in response:
+    yield item
+# alternatively, you can paginate page-by-page
+for page in response.iter_pages():
+    yield page
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**filter:** `typing.Optional[str]` — A regular expression against tool names and descriptions to filter the results.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**type:** `typing.Optional[ToolsListRequestType]` — Filter tools by type.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` — Filter tools by enabled status.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**tool_server_id:** `typing.Optional[str]` — Filter tools by the tool server they belong to.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — The maximum number of tools to return in the list.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of tools after the limit has been reached.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.tools.<a href="src/vectara/tools/client.py">create</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a new tool that agents can use. Currently supports Lambda tools for user-defined functions.
+Lambda tools allow you to write custom code that agents can execute in a secure sandbox.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.tools.create(
+    name="calculate_customer_score",
+    title="Customer Score Calculator",
+    description="Calculate a customer score based on order history and revenue. Returns a score between 0-100.",
+    code="def process(order_count: int, total_revenue: float, days_active: int = 1) -> dict:\n    score = (order_count * 10 + total_revenue * 0.1) / days_active\n    return {'score': round(score, 2)}\n",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**name:** `str` — The unique name of the tool (used as the function identifier).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**title:** `str` — Human-readable title of the tool displayed in the UI.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `str` — A detailed description of what the function does, when to use it, and what it returns.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**code:** `str` 
+
+The Python 3.12 code for the function.
+
+**Required**: Must define a `process()` entry point function. Use type annotations on parameters for automatic schema discovery.
+
+**Parameters**: Passed as keyword arguments matched to the function signature.
+
+**Return types**: Can return any JSON-serializable type (strings, numbers, booleans, lists, or objects).
+
+**Example: Returning a number**
+```python
+def process(x: int, y: int) -> int:
+    return x + y
+```
+
+**Example: Returning a string**
+```python
+def process(name: str) -> str:
+    return f"Hello, {name}!"
+```
+
+**Example: Returning a boolean**
+```python
+def process(value: int, threshold: int) -> bool:
+    return value > threshold
+```
+
+**Example: Returning a list**
+```python
+from typing import List
+
+def process(items: List[str]) -> List[str]:
+    return sorted(items)
+```
+
+**Example: Returning an object (dict)**
+```python
+def process(order_count: int, total_revenue: float, days_active: int = 1) -> dict:
+    score = (order_count * 10 + total_revenue * 0.1) / days_active
+    return {'score': round(score, 2), 'rating': 'high' if score > 100 else 'low'}
+```
+
+For complex types, use the `typing` module:
+
+```python
+from typing import List, Dict
+
+def process(items: List[str], config: Dict[str, float]) -> dict:
+    count = len(items)
+    multiplier = config.get('multiplier', 1.0)
+    return {'count': count, 'adjusted': count * multiplier}
+```
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**language:** `typing.Optional[typing.Literal["python"]]` — The programming language. Currently only 'python' (Python 3.12) is supported.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**execution_configuration:** `typing.Optional[ExecutionConfiguration]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.tools.<a href="src/vectara/tools/client.py">get</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve the details of a specific tool by its ID, including its configuration and capabilities.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.tools.get(
+    tool_id="tol_rag_search",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**tool_id:** `str` — The unique identifier of the tool to retrieve.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.tools.<a href="src/vectara/tools/client.py">delete</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Permanently delete a tool and all its associated configuration. This action cannot be undone.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.tools.delete(
+    tool_id="tol_rag_search",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**tool_id:** `str` — The unique identifier of the tool to delete.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.tools.<a href="src/vectara/tools/client.py">update</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update an existing tool's configuration.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import UpdateMcpToolRequest, Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.tools.update(
+    tool_id="tol_rag_search",
+    request=UpdateMcpToolRequest(),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**tool_id:** `str` — The unique identifier of the tool to update.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `UpdateToolRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.tools.<a href="src/vectara/tools/client.py">test</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Execute a Lambda tool with test inputs to verify it works correctly.
+This endpoint allows users to test their functions before using them with agents.
+The function is executed in a secure sandbox environment with the same constraints as production.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.tools.test(
+    tool_id="tol_python_function_123",
+    input={"number": 42, "text": "Hello, world!"},
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**tool_id:** `str` — The unique identifier of the Lambda tool to test.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**input:** `typing.Dict[str, typing.Optional[typing.Any]]` — The input parameters to pass to the function. Must match the tool's input schema.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**timeout_seconds:** `typing.Optional[int]` — Maximum execution time in seconds. If not specified, uses the tool's configured timeout.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Instructions
+<details><summary><code>client.instructions.<a href="src/vectara/instructions/client.py">list</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+List all instructions available to the authenticated user, with optional filtering and pagination.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+response = client.instructions.list(
+    filter="support.*",
+    enabled=True,
+)
+for item in response:
+    yield item
+# alternatively, you can paginate page-by-page
+for page in response.iter_pages():
+    yield page
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**filter:** `typing.Optional[str]` — A regular expression against instruction names and descriptions to filter the results.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**type:** `typing.Optional[typing.Literal["initial"]]` — Filter instructions by type.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` — Filter instructions by enabled status.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — The maximum number of instructions to return in the list.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of instructions after the limit has been reached.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.instructions.<a href="src/vectara/instructions/client.py">create</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a new instruction that can guide agent behavior.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.instructions.create(
+    name="Customer Support Initial Instruction",
+    template="You are a helpful customer support agent for Acme Corp. Today's date is ${currentDate}. You have access to the following tools: #foreach($tool in $tools)${tool.name}#if($foreach.hasNext), #end#end",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**name:** `InstructionName` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**template:** `str` — The instruction template content using the specified template engine.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` — A detailed description of what this instruction does.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**template_type:** `typing.Optional[TemplateType]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Arbitrary metadata associated with the instruction.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` — Whether the instruction should be enabled upon creation.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.instructions.<a href="src/vectara/instructions/client.py">get</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve the details of a specific instruction by its ID, including its template and configuration.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.instructions.get(
+    instruction_id="ins_customer_support_init",
+    version=1,
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**instruction_id:** `InstructionId` — The unique identifier of the instruction to retrieve.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**version:** `typing.Optional[int]` — The specific version of the instruction to retrieve. If not specified, the latest version will be returned.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.instructions.<a href="src/vectara/instructions/client.py">delete</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Permanently delete an instruction and all its associated configuration. This action cannot be undone.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.instructions.delete(
+    instruction_id="ins_customer_support_init",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**instruction_id:** `InstructionId` — The unique identifier of the instruction to delete.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.instructions.<a href="src/vectara/instructions/client.py">update</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update an existing instruction's template, metadata, and configuration.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.instructions.update(
+    instruction_id="ins_customer_support_init",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**instruction_id:** `InstructionId` — The unique identifier of the instruction to update.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**name:** `typing.Optional[InstructionName]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` — A detailed description of what this instruction does.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**template:** `typing.Optional[str]` — The instruction template content using the specified template engine.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**template_type:** `typing.Optional[TemplateType]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Arbitrary metadata associated with the instruction.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` — Whether the instruction is enabled.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.instructions.<a href="src/vectara/instructions/client.py">test</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Test an instruction by rendering its template with provided context data and tools.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.instructions.test(
+    instruction_id="ins_customer_support_init",
+    version=1,
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**instruction_id:** `InstructionId` — The unique identifier of the instruction to test.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**version:** `typing.Optional[int]` — The specific version of the instruction to test. If not specified, the latest version will be used.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**context:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Context data to use when rendering the instruction template.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**tools:** `typing.Optional[typing.Sequence[Tool]]` — List of tools to include in the instruction context for testing.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.instructions.<a href="src/vectara/instructions/client.py">delete_version</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Permanently delete the specified version of the instruction. This action cannot be undone.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.instructions.delete_version(
+    instruction_id="ins_customer_support_init",
+    version=1,
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**instruction_id:** `InstructionId` — The unique identifier of the instruction to delete.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**version:** `int` — The specific version of the instruction to delete.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Agents
+<details><summary><code>client.agents.<a href="src/vectara/agents/client.py">list</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+List all agents available to the authenticated user, with optional filtering and pagination.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+response = client.agents.list(
+    filter="support.*",
+    enabled=True,
+)
+for item in response:
+    yield item
+# alternatively, you can paginate page-by-page
+for page in response.iter_pages():
+    yield page
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**filter:** `typing.Optional[str]` — A regular expression against agent names and descriptions to filter the results.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` — Filter agents by enabled status.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — The maximum number of agents to return in the list.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of agents after the limit has been reached.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.agents.<a href="src/vectara/agents/client.py">create</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a new agent. An agent is compromised as 3 main things of functionality:
+  1. The instructions an agent follows. Known as a system in prompt in other platforms.
+  2. The steps an agent follows when receiving an input.
+  3. The tools an agent can use to resolve those steps and instructions.
+Instructions are tied to each step, and should be well crafted so that the agent can perform the desired actions when given an input.
+
+To use an agent, create a new session (called thread or chat in other platforms), and send new inputs to the agent to get responses.
+
+Note: Only a single step is supported with no follow up steps. So the `first_step` will be only the only step. We will add multiple steps and step types to execute complex workflows, but many agents can work well with a single step.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import (
+    AgentModel,
+    ConversationalAgentStep,
+    CorporaSearchQueryConfiguration,
+    CorporaSearchToolParameters,
+    DefaultOutputParser,
+    InlineCorporaSearchToolConfiguration,
+    ReferenceInstruction,
+    SearchCorporaParameters,
+    Vectara,
+)
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.agents.create(
+    name="Customer Support Agent",
+    tool_configurations={
+        "customer_search": InlineCorporaSearchToolConfiguration(
+            argument_override=CorporaSearchToolParameters(
+                query="customer support documentation",
+            ),
+            query_configuration=CorporaSearchQueryConfiguration(
+                search=SearchCorporaParameters(),
+            ),
+        )
+    },
+    model=AgentModel(
+        name="gpt-4",
+    ),
+    first_step=ConversationalAgentStep(
+        instructions=[
+            ReferenceInstruction(
+                id="ins_customer_support_init",
+            )
+        ],
+        output_parser=DefaultOutputParser(),
+    ),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**name:** `AgentName` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**tool_configurations:** `typing.Dict[str, AgentToolConfiguration]` — A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**model:** `AgentModel` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**first_step:** `ComponentsSchemasConversationalAgentStep` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**key:** `typing.Optional[AgentKey]` — A user provided key that uniquely identifies this agent. If not provided, one will be auto-generated based on the agent name.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` — A detailed description of the agent's purpose and capabilities.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Arbitrary metadata associated with the agent for customization and configuration.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` — Whether the agent should be enabled upon creation.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.agents.<a href="src/vectara/agents/client.py">get</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve the details of a specific agent by its ID, including its configuration, capabilities, and associated resources.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.agents.get(
+    agent_key="customer_support",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**agent_key:** `AgentKey` — The unique key of the agent to retrieve.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.agents.<a href="src/vectara/agents/client.py">replace</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Completely replace an existing agent's configuration, including its corpora, tools, and generation presets.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import (
+    AgentModel,
+    ConversationalAgentStep,
+    CorporaSearchQueryConfiguration,
+    CorporaSearchToolParameters,
+    DefaultOutputParser,
+    InlineCorporaSearchToolConfiguration,
+    ReferenceInstruction,
+    SearchCorporaParameters,
+    Vectara,
+)
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.agents.replace(
+    agent_key="customer_support",
+    name="Customer Support Agent",
+    tool_configurations={
+        "customer_search": InlineCorporaSearchToolConfiguration(
+            argument_override=CorporaSearchToolParameters(
+                query="customer support documentation",
+            ),
+            query_configuration=CorporaSearchQueryConfiguration(
+                search=SearchCorporaParameters(),
+            ),
+        )
+    },
+    model=AgentModel(
+        name="gpt-4",
+    ),
+    first_step=ConversationalAgentStep(
+        instructions=[
+            ReferenceInstruction(
+                id="ins_customer_support_init",
+            )
+        ],
+        output_parser=DefaultOutputParser(),
+    ),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**agent_key:** `AgentKey` — The unique key of the agent to replace.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**name:** `AgentName` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**tool_configurations:** `typing.Dict[str, AgentToolConfiguration]` — A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is an agent tool configuration.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**model:** `AgentModel` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**first_step:** `ComponentsSchemasConversationalAgentStep` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` — A detailed description of the agent's purpose and capabilities.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Arbitrary metadata associated with the agent for customization and configuration.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` — Whether the agent is enabled.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.agents.<a href="src/vectara/agents/client.py">delete</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Permanently delete an agent and all its associated configuration. This action cannot be undone.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.agents.delete(
+    agent_key="customer_support",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**agent_key:** `AgentKey` — The unique key of the agent to delete.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.agents.<a href="src/vectara/agents/client.py">update</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update an existing agent's configuration, including its corpora, tools, and generation presets.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.agents.update(
+    agent_key="customer_support",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**agent_key:** `AgentKey` — The unique key of the agent to update.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**name:** `typing.Optional[AgentName]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` — A detailed description of the agent's purpose and capabilities.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**tool_configurations:** `typing.Optional[typing.Dict[str, AgentToolConfiguration]]` — A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is an agent tool configuration.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**model:** `typing.Optional[AgentModel]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**first_step:** `typing.Optional[ComponentsSchemasConversationalAgentStep]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Arbitrary metadata associated with the agent for customization and configuration.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` — Whether the agent is enabled.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Agent Sessions
+<details><summary><code>client.agent_sessions.<a href="src/vectara/agent_sessions/client.py">list</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+List all agent sessions for a specific agent, with optional filtering and pagination.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+response = client.agent_sessions.list(
+    agent_key="customer_support",
+    filter="support.*",
+)
+for item in response:
+    yield item
+# alternatively, you can paginate page-by-page
+for page in response.iter_pages():
+    yield page
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**agent_key:** `AgentKey` — The unique identifier of the agent to list sessions for.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**filter:** `typing.Optional[str]` — A regular expression against session names and descriptions to filter the results.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — The maximum number of sessions to return in the list.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of sessions after the limit has been reached.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.agent_sessions.<a href="src/vectara/agent_sessions/client.py">create</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a new session for interacting with an agent. Sessions maintain conversation context.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.agent_sessions.create(
+    agent_key="customer_support",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**agent_key:** `AgentKey` — The unique key of the agent to create a session for.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**key:** `typing.Optional[AgentSessionKey]` — A user provided key that uniquely identifies this session. If not provided, one will be auto-generated based on the session name.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**name:** `typing.Optional[str]` — Human-readable name for the session.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` — Optional description of the session purpose or context.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Arbitrary metadata associated with the session.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` — Whether the session should be enabled upon creation.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**tti_minutes:** `typing.Optional[int]` — Time-to-idle in minutes for the session. If no events occur in the session for this duration, the session will be automatically deleted. If set to 0, the session will not expire.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.agent_sessions.<a href="src/vectara/agent_sessions/client.py">get</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve the details of a specific agent session by its ID, including session configuration.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.agent_sessions.get(
+    agent_key="customer_support",
+    session_key="customer_support_chat",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**agent_key:** `AgentKey` — The unique identifier of the agent.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**session_key:** `AgentSessionKey` — The unique key of the session to retrieve.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.agent_sessions.<a href="src/vectara/agent_sessions/client.py">delete</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Permanently delete an agent session. This action cannot be undone.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.agent_sessions.delete(
+    agent_key="customer_support",
+    session_key="customer_support_chat",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**agent_key:** `AgentKey` — The unique identifier of the agent.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**session_key:** `AgentSessionKey` — The unique key of the session to delete.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.agent_sessions.<a href="src/vectara/agent_sessions/client.py">update</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update an existing agent session's configuration and metadata.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.agent_sessions.update(
+    agent_key="customer_support",
+    session_key="customer_support_chat",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**agent_key:** `AgentKey` — The unique identifier of the agent.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**session_key:** `AgentSessionKey` — The unique key of the session to update.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**name:** `typing.Optional[str]` — Human-readable name for the session.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` — Optional description of the session purpose or context.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]` — Arbitrary metadata associated with the session.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` — Whether the session is enabled.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**tti_minutes:** `typing.Optional[int]` — Time-to-idle in minutes for the session. If no events occur in the session for this duration, the session will be automatically deleted. If set to 0, the session will not expire.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## AgentEvents
+<details><summary><code>client.agent_events.<a href="src/vectara/agent_events/client.py">list</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+List all events in a specific agent session, with optional pagination.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+response = client.agent_events.list(
+    agent_key="customer_support",
+    session_key="customer_support_chat",
+)
+for item in response:
+    yield item
+# alternatively, you can paginate page-by-page
+for page in response.iter_pages():
+    yield page
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**agent_key:** `AgentKey` — The unique identifier of the agent.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**session_key:** `AgentSessionKey` — The unique key of the session to list events for.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — The maximum number of events to return in the list.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of events after the limit has been reached.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.agent_events.<a href="src/vectara/agent_events/client.py">create_stream</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a new input to an agent to interact with it.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import AgentTextInput, Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+response = client.agent_events.create_stream(
+    agent_key="customer_support",
+    session_key="customer_support_chat",
+    messages=[
+        AgentTextInput(
+            content="I need help with my widget installation",
+        )
+    ],
+)
+for chunk in response.data:
+    yield chunk
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**agent_key:** `AgentKey` — The unique identifier of the agent.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**session_key:** `AgentSessionKey` — The unique key of the session to create an input in.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**messages:** `typing.Sequence[ComponentsSchemasAgentTextInput]` — List of inputs that make up this event.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.agent_events.<a href="src/vectara/agent_events/client.py">create</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a new input to an agent to interact with it.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import AgentTextInput, Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.agent_events.create(
+    agent_key="customer_support",
+    session_key="customer_support_chat",
+    messages=[
+        AgentTextInput(
+            content="I need help with my widget installation",
+        )
+    ],
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**agent_key:** `AgentKey` — The unique identifier of the agent.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**session_key:** `AgentSessionKey` — The unique key of the session to create an input in.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**messages:** `typing.Sequence[ComponentsSchemasAgentTextInput]` — List of inputs that make up this event.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.agent_events.<a href="src/vectara/agent_events/client.py">get</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve the details of a specific event within an agent session.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+
+client = Vectara(
+    api_key="YOUR_API_KEY",
+    client_id="YOUR_CLIENT_ID",
+    client_secret="YOUR_CLIENT_SECRET",
+)
+client.agent_events.get(
+    agent_key="customer_support",
+    session_key="customer_support_chat",
+    event_id="aev_user_001",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**agent_key:** `AgentKey` — The unique identifier of the agent.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**session_key:** `AgentSessionKey` — The unique key of the session.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**event_id:** `str` — The unique identifier of the event to retrieve.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>

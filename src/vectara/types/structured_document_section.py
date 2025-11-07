@@ -6,6 +6,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel, update_forward_refs
+from .image import Image
 from .table import Table
 
 
@@ -37,6 +38,11 @@ class StructuredDocumentSection(UniversalBaseModel):
     tables: typing.Optional[typing.List[Table]] = pydantic.Field(default=None)
     """
     The tables that this section contains.
+    """
+
+    images: typing.Optional[typing.List[Image]] = pydantic.Field(default=None)
+    """
+    The images that this section contains.
     """
 
     sections: typing.Optional[typing.List["StructuredDocumentSection"]] = pydantic.Field(default=None)

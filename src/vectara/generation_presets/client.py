@@ -71,7 +71,9 @@ class GenerationPresetsClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        response = client.generation_presets.list()
+        response = client.generation_presets.list(
+            llm_name="mockingbird-2.0",
+        )
         for item in response:
             yield item
         # alternatively, you can paginate page-by-page
@@ -155,7 +157,9 @@ class AsyncGenerationPresetsClient:
 
 
         async def main() -> None:
-            response = await client.generation_presets.list()
+            response = await client.generation_presets.list(
+                llm_name="mockingbird-2.0",
+            )
             async for item in response:
                 yield item
 

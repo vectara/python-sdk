@@ -5,6 +5,7 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .core_document_part import CoreDocumentPart
+from .image import Image
 from .table import Table
 
 
@@ -27,6 +28,11 @@ class CoreDocument(UniversalBaseModel):
     tables: typing.Optional[typing.List[Table]] = pydantic.Field(default=None)
     """
     The tables that this document contains.
+    """
+
+    images: typing.Optional[typing.List[Image]] = pydantic.Field(default=None)
+    """
+    The images that this document contains.
     """
 
     document_parts: typing.List[CoreDocumentPart] = pydantic.Field()

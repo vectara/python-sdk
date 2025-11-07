@@ -3,46 +3,16 @@
 import typing
 
 import pydantic
-from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .remote_auth import RemoteAuth
+from ..core.pydantic_utilities import IS_PYDANTIC_V2
+from .open_aillm_request_base import OpenAillmRequestBase
 
 
-class CreateOpenAillmRequest(UniversalBaseModel):
+class CreateOpenAillmRequest(OpenAillmRequestBase):
     """
     Request to create an OpenAI-compatible Large Language Model connection.
     """
 
     type: typing.Literal["openai-compatible"] = "openai-compatible"
-    name: str = pydantic.Field()
-    """
-    Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM. If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform), then it will override that LLM for all usages.
-    """
-
-    description: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    Description of the LLM.
-    """
-
-    model: str = pydantic.Field()
-    """
-    The model name to use with the API (e.g. gpt-4, claude-2, etc). This is used in the API request to the remote LLM provider.
-    """
-
-    uri: str = pydantic.Field()
-    """
-    The URI endpoint for the API (can be OpenAI or any compatible API endpoint)
-    """
-
-    auth: typing.Optional[RemoteAuth] = None
-    headers: typing.Optional[typing.Dict[str, str]] = pydantic.Field(default=None)
-    """
-    Additional HTTP headers to include with requests to the LLM API.
-    """
-
-    test_model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
-    """
-    Any additional parameters that are required for the LLM during the test call.
-    """
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

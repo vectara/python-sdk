@@ -21,6 +21,7 @@ from ..types.corpus_key import CorpusKey
 from ..types.create_document_request import CreateDocumentRequest
 from ..types.document import Document
 from ..types.error import Error
+from ..types.image import Image
 from ..types.list_documents_response import ListDocumentsResponse
 from ..types.not_found_error_body import NotFoundErrorBody
 from ..types.summarize_document_response import SummarizeDocumentResponse
@@ -260,21 +261,25 @@ class RawDocumentsClient:
         self,
         corpus_key: CorpusKey,
         document_id: str,
+        image_id: str,
         *,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[Document]:
+    ) -> HttpResponse[Image]:
         """
-        Retrieve the content and metadata of a specific document, identified by its unique `document_id` from a specific corpus.
+        Returns a specific image that is embedded within a document. The `image_id` uniquely identifies the image within the document. Use this endpoint to fetch the raw image data and associated metadata.
 
         Parameters
         ----------
         corpus_key : CorpusKey
-            The unique key identifying the corpus containing the document to retrieve.
+            A unique identifier for the corpus that contains the target document.
 
         document_id : str
-            The document ID of the document to retrieve. This `document_id` must be percent encoded.
+            The identifier of the document containing the image. This `document_id` must be percent encoded.
+
+        image_id : str
+            The identifier of the image to retrieve from the specified document. Each image within a document has a unique `image_id`. This value must be percent-encoded when passed in the request URL.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -287,11 +292,11 @@ class RawDocumentsClient:
 
         Returns
         -------
-        HttpResponse[Document]
-            Successfully retrieved the document.
+        HttpResponse[Image]
+            An image including raw image data and associated metadata.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}/images/{jsonable_encoder(image_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             headers={
@@ -303,9 +308,9 @@ class RawDocumentsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    Document,
+                    Image,
                     parse_obj_as(
-                        type_=Document,  # type: ignore
+                        type_=Image,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -952,21 +957,25 @@ class AsyncRawDocumentsClient:
         self,
         corpus_key: CorpusKey,
         document_id: str,
+        image_id: str,
         *,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[Document]:
+    ) -> AsyncHttpResponse[Image]:
         """
-        Retrieve the content and metadata of a specific document, identified by its unique `document_id` from a specific corpus.
+        Returns a specific image that is embedded within a document. The `image_id` uniquely identifies the image within the document. Use this endpoint to fetch the raw image data and associated metadata.
 
         Parameters
         ----------
         corpus_key : CorpusKey
-            The unique key identifying the corpus containing the document to retrieve.
+            A unique identifier for the corpus that contains the target document.
 
         document_id : str
-            The document ID of the document to retrieve. This `document_id` must be percent encoded.
+            The identifier of the document containing the image. This `document_id` must be percent encoded.
+
+        image_id : str
+            The identifier of the image to retrieve from the specified document. Each image within a document has a unique `image_id`. This value must be percent-encoded when passed in the request URL.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -979,11 +988,11 @@ class AsyncRawDocumentsClient:
 
         Returns
         -------
-        AsyncHttpResponse[Document]
-            Successfully retrieved the document.
+        AsyncHttpResponse[Image]
+            An image including raw image data and associated metadata.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}/images/{jsonable_encoder(image_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             headers={
@@ -995,9 +1004,9 @@ class AsyncRawDocumentsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    Document,
+                    Image,
                     parse_obj_as(
-                        type_=Document,  # type: ignore
+                        type_=Image,  # type: ignore
                         object_=_response.json(),
                     ),
                 )

@@ -5,8 +5,8 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
+from ..types.create_llm_request import CreateLlmRequest
 from ..types.llm import Llm
-from ..types.remote_auth import RemoteAuth
 from .raw_client import AsyncRawLlmsClient, RawLlmsClient
 
 # this is used as the default value for optional parameters
@@ -94,15 +94,9 @@ class LlmsClient:
     def create(
         self,
         *,
-        name: str,
-        model: str,
-        uri: str,
+        request: CreateLlmRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        description: typing.Optional[str] = OMIT,
-        auth: typing.Optional[RemoteAuth] = OMIT,
-        headers: typing.Optional[typing.Dict[str, str]] = OMIT,
-        test_model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Llm:
         """
@@ -110,31 +104,13 @@ class LlmsClient:
 
         Parameters
         ----------
-        name : str
-            Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM. If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform), then it will override that LLM for all usages.
-
-        model : str
-            The model name to use with the API (e.g. gpt-4, claude-2, etc). This is used in the API request to the remote LLM provider.
-
-        uri : str
-            The URI endpoint for the API (can be OpenAI or any compatible API endpoint)
+        request : CreateLlmRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        description : typing.Optional[str]
-            Description of the LLM.
-
-        auth : typing.Optional[RemoteAuth]
-
-        headers : typing.Optional[typing.Dict[str, str]]
-            Additional HTTP headers to include with requests to the LLM API.
-
-        test_model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Any additional parameters that are required for the LLM during the test call.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -146,7 +122,7 @@ class LlmsClient:
 
         Examples
         --------
-        from vectara import Vectara
+        from vectara import CreateOpenAillmRequest, Vectara
 
         client = Vectara(
             api_key="YOUR_API_KEY",
@@ -154,21 +130,17 @@ class LlmsClient:
             client_secret="YOUR_CLIENT_SECRET",
         )
         client.llms.create(
-            name="name",
-            model="model",
-            uri="uri",
+            request=CreateOpenAillmRequest(
+                name="Claude 3.7 Sonnet",
+                model="model",
+                uri="https://api.anthropic.com/v1/chat/completions",
+            ),
         )
         """
         _response = self._raw_client.create(
-            name=name,
-            model=model,
-            uri=uri,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
-            description=description,
-            auth=auth,
-            headers=headers,
-            test_model_parameters=test_model_parameters,
             request_options=request_options,
         )
         return _response.data
@@ -365,15 +337,9 @@ class AsyncLlmsClient:
     async def create(
         self,
         *,
-        name: str,
-        model: str,
-        uri: str,
+        request: CreateLlmRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        description: typing.Optional[str] = OMIT,
-        auth: typing.Optional[RemoteAuth] = OMIT,
-        headers: typing.Optional[typing.Dict[str, str]] = OMIT,
-        test_model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Llm:
         """
@@ -381,31 +347,13 @@ class AsyncLlmsClient:
 
         Parameters
         ----------
-        name : str
-            Name to reference the LLM.  This will be used in other endpoints (like query) when using this LLM. If this name conflicts with a global LLM (a LLM that is precofnigured with the Vectara platform), then it will override that LLM for all usages.
-
-        model : str
-            The model name to use with the API (e.g. gpt-4, claude-2, etc). This is used in the API request to the remote LLM provider.
-
-        uri : str
-            The URI endpoint for the API (can be OpenAI or any compatible API endpoint)
+        request : CreateLlmRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        description : typing.Optional[str]
-            Description of the LLM.
-
-        auth : typing.Optional[RemoteAuth]
-
-        headers : typing.Optional[typing.Dict[str, str]]
-            Additional HTTP headers to include with requests to the LLM API.
-
-        test_model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Any additional parameters that are required for the LLM during the test call.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -419,7 +367,7 @@ class AsyncLlmsClient:
         --------
         import asyncio
 
-        from vectara import AsyncVectara
+        from vectara import AsyncVectara, CreateOpenAillmRequest
 
         client = AsyncVectara(
             api_key="YOUR_API_KEY",
@@ -430,24 +378,20 @@ class AsyncLlmsClient:
 
         async def main() -> None:
             await client.llms.create(
-                name="name",
-                model="model",
-                uri="uri",
+                request=CreateOpenAillmRequest(
+                    name="Claude 3.7 Sonnet",
+                    model="model",
+                    uri="https://api.anthropic.com/v1/chat/completions",
+                ),
             )
 
 
         asyncio.run(main())
         """
         _response = await self._raw_client.create(
-            name=name,
-            model=model,
-            uri=uri,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
-            description=description,
-            auth=auth,
-            headers=headers,
-            test_model_parameters=test_model_parameters,
             request_options=request_options,
         )
         return _response.data

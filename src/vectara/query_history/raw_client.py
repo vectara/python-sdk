@@ -111,6 +111,7 @@ class RawQueryHistoryClient:
         started_after: typing.Optional[dt.datetime] = None,
         started_before: typing.Optional[dt.datetime] = None,
         chat_id: typing.Optional[str] = None,
+        history_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
@@ -133,6 +134,9 @@ class RawQueryHistoryClient:
 
         chat_id : typing.Optional[str]
             Specifies the chat_id of the query, this will return all queries in the specified chat.
+
+        history_id : typing.Optional[str]
+            Specifies the history_id of the query that you want to use as a filter.
 
         limit : typing.Optional[int]
             Specifies the maximum number of query history listed.
@@ -163,6 +167,7 @@ class RawQueryHistoryClient:
                 "started_after": serialize_datetime(started_after) if started_after is not None else None,
                 "started_before": serialize_datetime(started_before) if started_before is not None else None,
                 "chat_id": chat_id,
+                "history_id": history_id,
                 "limit": limit,
                 "page_key": page_key,
             },
@@ -192,6 +197,7 @@ class RawQueryHistoryClient:
                         started_after=started_after,
                         started_before=started_before,
                         chat_id=chat_id,
+                        history_id=history_id,
                         limit=limit,
                         page_key=_parsed_next,
                         request_timeout=request_timeout,
@@ -317,6 +323,7 @@ class AsyncRawQueryHistoryClient:
         started_after: typing.Optional[dt.datetime] = None,
         started_before: typing.Optional[dt.datetime] = None,
         chat_id: typing.Optional[str] = None,
+        history_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
@@ -339,6 +346,9 @@ class AsyncRawQueryHistoryClient:
 
         chat_id : typing.Optional[str]
             Specifies the chat_id of the query, this will return all queries in the specified chat.
+
+        history_id : typing.Optional[str]
+            Specifies the history_id of the query that you want to use as a filter.
 
         limit : typing.Optional[int]
             Specifies the maximum number of query history listed.
@@ -369,6 +379,7 @@ class AsyncRawQueryHistoryClient:
                 "started_after": serialize_datetime(started_after) if started_after is not None else None,
                 "started_before": serialize_datetime(started_before) if started_before is not None else None,
                 "chat_id": chat_id,
+                "history_id": history_id,
                 "limit": limit,
                 "page_key": page_key,
             },
@@ -400,6 +411,7 @@ class AsyncRawQueryHistoryClient:
                             started_after=started_after,
                             started_before=started_before,
                             chat_id=chat_id,
+                            history_id=history_id,
                             limit=limit,
                             page_key=_parsed_next,
                             request_timeout=request_timeout,

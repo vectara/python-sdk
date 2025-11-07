@@ -3,5 +3,6 @@
 import typing
 
 QueryWarning = typing.Union[
-    typing.Literal["exceeded_max_input_length_fcs", "intelligent_query_rewriting_failed"], typing.Any
+    typing.Literal["exceeded_max_input_length_fcs", "intelligent_query_rewriting_failed", "fcs_language_not_supported"],
+    typing.Any,
 ]

@@ -5,8 +5,10 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .agent_role import AgentRole
 from .api_policy import ApiPolicy
 from .api_role import ApiRole
+from .corpus_role import CorpusRole
 
 
 class User(UniversalBaseModel):
@@ -51,7 +53,17 @@ class User(UniversalBaseModel):
 
     api_roles: typing.Optional[typing.List[ApiRole]] = pydantic.Field(default=None)
     """
-    The role names of the user.
+    The customer-level role names of the user.
+    """
+
+    corpus_roles: typing.Optional[typing.List[CorpusRole]] = pydantic.Field(default=None)
+    """
+    Corpus-specific role assignments for the user.
+    """
+
+    agent_roles: typing.Optional[typing.List[AgentRole]] = pydantic.Field(default=None)
+    """
+    Agent-specific role assignments for the user.
     """
 
     api_policy: typing.Optional[ApiPolicy] = None

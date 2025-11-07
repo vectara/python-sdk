@@ -8,6 +8,7 @@ from ..core.request_options import RequestOptions
 from ..types.corpus_key import CorpusKey
 from ..types.create_document_request import CreateDocumentRequest
 from ..types.document import Document
+from ..types.image import Image
 from ..types.summarize_document_response import SummarizeDocumentResponse
 from .raw_client import AsyncRawDocumentsClient, RawDocumentsClient
 
@@ -182,21 +183,25 @@ class DocumentsClient:
         self,
         corpus_key: CorpusKey,
         document_id: str,
+        image_id: str,
         *,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> Document:
+    ) -> Image:
         """
-        Retrieve the content and metadata of a specific document, identified by its unique `document_id` from a specific corpus.
+        Returns a specific image that is embedded within a document. The `image_id` uniquely identifies the image within the document. Use this endpoint to fetch the raw image data and associated metadata.
 
         Parameters
         ----------
         corpus_key : CorpusKey
-            The unique key identifying the corpus containing the document to retrieve.
+            A unique identifier for the corpus that contains the target document.
 
         document_id : str
-            The document ID of the document to retrieve. This `document_id` must be percent encoded.
+            The identifier of the document containing the image. This `document_id` must be percent encoded.
+
+        image_id : str
+            The identifier of the image to retrieve from the specified document. Each image within a document has a unique `image_id`. This value must be percent-encoded when passed in the request URL.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -209,8 +214,8 @@ class DocumentsClient:
 
         Returns
         -------
-        Document
-            Successfully retrieved the document.
+        Image
+            An image including raw image data and associated metadata.
 
         Examples
         --------
@@ -224,11 +229,13 @@ class DocumentsClient:
         client.documents.get(
             corpus_key="my-corpus",
             document_id="document_id",
+            image_id="image_id",
         )
         """
         _response = self._raw_client.get(
             corpus_key,
             document_id,
+            image_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
@@ -477,7 +484,10 @@ class DocumentsClient:
         client.documents.summarize(
             corpus_key="my-corpus",
             document_id="document_id",
-            llm_name="llm_name",
+            llm_name="mockingbird-2.0",
+            prompt_template="Summarize the key clauses of the employment contract in ${document.metadata.jurisdiction}, focusing on arbitration, confidentiality, and termination terms.",
+            model_parameters={"max_tokens": 200, "temperature": 0.7},
+            stream_response=False,
         )
         """
         _response = self._raw_client.summarize(
@@ -678,21 +688,25 @@ class AsyncDocumentsClient:
         self,
         corpus_key: CorpusKey,
         document_id: str,
+        image_id: str,
         *,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> Document:
+    ) -> Image:
         """
-        Retrieve the content and metadata of a specific document, identified by its unique `document_id` from a specific corpus.
+        Returns a specific image that is embedded within a document. The `image_id` uniquely identifies the image within the document. Use this endpoint to fetch the raw image data and associated metadata.
 
         Parameters
         ----------
         corpus_key : CorpusKey
-            The unique key identifying the corpus containing the document to retrieve.
+            A unique identifier for the corpus that contains the target document.
 
         document_id : str
-            The document ID of the document to retrieve. This `document_id` must be percent encoded.
+            The identifier of the document containing the image. This `document_id` must be percent encoded.
+
+        image_id : str
+            The identifier of the image to retrieve from the specified document. Each image within a document has a unique `image_id`. This value must be percent-encoded when passed in the request URL.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -705,8 +719,8 @@ class AsyncDocumentsClient:
 
         Returns
         -------
-        Document
-            Successfully retrieved the document.
+        Image
+            An image including raw image data and associated metadata.
 
         Examples
         --------
@@ -725,6 +739,7 @@ class AsyncDocumentsClient:
             await client.documents.get(
                 corpus_key="my-corpus",
                 document_id="document_id",
+                image_id="image_id",
             )
 
 
@@ -733,6 +748,7 @@ class AsyncDocumentsClient:
         _response = await self._raw_client.get(
             corpus_key,
             document_id,
+            image_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
@@ -1010,7 +1026,10 @@ class AsyncDocumentsClient:
             await client.documents.summarize(
                 corpus_key="my-corpus",
                 document_id="document_id",
-                llm_name="llm_name",
+                llm_name="mockingbird-2.0",
+                prompt_template="Summarize the key clauses of the employment contract in ${document.metadata.jurisdiction}, focusing on arbitration, confidentiality, and termination terms.",
+                model_parameters={"max_tokens": 200, "temperature": 0.7},
+                stream_response=False,
             )
 
 

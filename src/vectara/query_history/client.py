@@ -66,7 +66,7 @@ class QueryHistoryClient:
             client_secret="YOUR_CLIENT_SECRET",
         )
         client.query_history.get(
-            query_id="query_id",
+            query_id="qry_123456789",
         )
         """
         _response = self._raw_client.get(
@@ -84,6 +84,7 @@ class QueryHistoryClient:
         started_after: typing.Optional[dt.datetime] = None,
         started_before: typing.Optional[dt.datetime] = None,
         chat_id: typing.Optional[str] = None,
+        history_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
@@ -106,6 +107,9 @@ class QueryHistoryClient:
 
         chat_id : typing.Optional[str]
             Specifies the chat_id of the query, this will return all queries in the specified chat.
+
+        history_id : typing.Optional[str]
+            Specifies the history_id of the query that you want to use as a filter.
 
         limit : typing.Optional[int]
             Specifies the maximum number of query history listed.
@@ -136,7 +140,10 @@ class QueryHistoryClient:
             client_id="YOUR_CLIENT_ID",
             client_secret="YOUR_CLIENT_SECRET",
         )
-        response = client.query_history.list()
+        response = client.query_history.list(
+            corpus_key="my_corpus_key",
+            chat_id="cht_123456789",
+        )
         for item in response:
             yield item
         # alternatively, you can paginate page-by-page
@@ -148,6 +155,7 @@ class QueryHistoryClient:
             started_after=started_after,
             started_before=started_before,
             chat_id=chat_id,
+            history_id=history_id,
             limit=limit,
             page_key=page_key,
             request_timeout=request_timeout,
@@ -216,7 +224,7 @@ class AsyncQueryHistoryClient:
 
         async def main() -> None:
             await client.query_history.get(
-                query_id="query_id",
+                query_id="qry_123456789",
             )
 
 
@@ -237,6 +245,7 @@ class AsyncQueryHistoryClient:
         started_after: typing.Optional[dt.datetime] = None,
         started_before: typing.Optional[dt.datetime] = None,
         chat_id: typing.Optional[str] = None,
+        history_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
@@ -259,6 +268,9 @@ class AsyncQueryHistoryClient:
 
         chat_id : typing.Optional[str]
             Specifies the chat_id of the query, this will return all queries in the specified chat.
+
+        history_id : typing.Optional[str]
+            Specifies the history_id of the query that you want to use as a filter.
 
         limit : typing.Optional[int]
             Specifies the maximum number of query history listed.
@@ -294,7 +306,10 @@ class AsyncQueryHistoryClient:
 
 
         async def main() -> None:
-            response = await client.query_history.list()
+            response = await client.query_history.list(
+                corpus_key="my_corpus_key",
+                chat_id="cht_123456789",
+            )
             async for item in response:
                 yield item
 
@@ -310,6 +325,7 @@ class AsyncQueryHistoryClient:
             started_after=started_after,
             started_before=started_before,
             chat_id=chat_id,
+            history_id=history_id,
             limit=limit,
             page_key=page_key,
             request_timeout=request_timeout,

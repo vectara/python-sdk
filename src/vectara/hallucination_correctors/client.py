@@ -150,7 +150,7 @@ class HallucinationCorrectorsClient:
                     text="text",
                 )
             ],
-            model_name="vhc-large-10",
+            model_name="vhc-large-1.0",
         )
         """
         _response = self._raw_client.hallucination_correction(
@@ -315,7 +315,7 @@ class AsyncHallucinationCorrectorsClient:
                         text="text",
                     )
                 ],
-                model_name="vhc-large-10",
+                model_name="vhc-large-1.0",
             )
 
 

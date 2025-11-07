@@ -5,8 +5,10 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
+from ..types.agent_role import AgentRole
 from ..types.api_role import ApiRole
 from ..types.corpus_key import CorpusKey
+from ..types.corpus_role import CorpusRole
 from ..types.user import User
 from .raw_client import AsyncRawUsersClient, RawUsersClient
 from .types.users_create_response import UsersCreateResponse
@@ -105,6 +107,8 @@ class UsersClient:
         username: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> UsersCreateResponse:
         """
@@ -128,7 +132,13 @@ class UsersClient:
             The description of the user.
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
-            The role names assigned to the user.
+            The customer-level role names assigned to the user.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            Corpus-specific role assignments for the user.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            Agent-specific role assignments for the user.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -158,6 +168,8 @@ class UsersClient:
             username=username,
             description=description,
             api_roles=api_roles,
+            corpus_roles=corpus_roles,
+            agent_roles=agent_roles,
             request_options=request_options,
         )
         return _response.data
@@ -271,6 +283,8 @@ class UsersClient:
         request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         description: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> User:
@@ -292,7 +306,13 @@ class UsersClient:
             Indicates whether to enable or disable the user.
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
-            The new role names of the user.
+            The new customer-level role names of the user.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            New corpus-specific role assignments for the user.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            New agent-specific role assignments for the user.
 
         description : typing.Optional[str]
             The description of the user.
@@ -324,6 +344,8 @@ class UsersClient:
             request_timeout_millis=request_timeout_millis,
             enabled=enabled,
             api_roles=api_roles,
+            corpus_roles=corpus_roles,
+            agent_roles=agent_roles,
             description=description,
             request_options=request_options,
         )
@@ -479,6 +501,8 @@ class AsyncUsersClient:
         username: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> UsersCreateResponse:
         """
@@ -502,7 +526,13 @@ class AsyncUsersClient:
             The description of the user.
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
-            The role names assigned to the user.
+            The customer-level role names assigned to the user.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            Corpus-specific role assignments for the user.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            Agent-specific role assignments for the user.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -540,6 +570,8 @@ class AsyncUsersClient:
             username=username,
             description=description,
             api_roles=api_roles,
+            corpus_roles=corpus_roles,
+            agent_roles=agent_roles,
             request_options=request_options,
         )
         return _response.data
@@ -669,6 +701,8 @@ class AsyncUsersClient:
         request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         description: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> User:
@@ -690,7 +724,13 @@ class AsyncUsersClient:
             Indicates whether to enable or disable the user.
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
-            The new role names of the user.
+            The new customer-level role names of the user.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            New corpus-specific role assignments for the user.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            New agent-specific role assignments for the user.
 
         description : typing.Optional[str]
             The description of the user.
@@ -730,6 +770,8 @@ class AsyncUsersClient:
             request_timeout_millis=request_timeout_millis,
             enabled=enabled,
             api_roles=api_roles,
+            corpus_roles=corpus_roles,
+            agent_roles=agent_roles,
             description=description,
             request_options=request_options,
         )
