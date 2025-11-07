@@ -28,6 +28,7 @@ class SearchCorporaParameters(SearchParameters):
             extra = pydantic.Extra.allow
 
 from .chain_reranker import ChainReranker  # noqa: E402
+from .search_reranker import SearchReranker  # noqa: E402
 
 update_forward_refs(ChainReranker)            
 
