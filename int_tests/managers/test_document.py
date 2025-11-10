@@ -21,8 +21,10 @@ class TestDocument(unittest.TestCase):
         cls.created_corpora = set()
         cls.created_documents = set()
 
-        # Create test corpus
-        response = cls.client.corpora.create(name="test-document-manager", key="test-document-manager")
+        # Create test corpus with unique name
+        timestamp = int(time.time())
+        corpus_name = f"test-document-manager-{timestamp}"
+        response = cls.client.corpora.create(name=corpus_name, key=corpus_name)
         cls.corpus_key = response.key
         cls.created_corpora.add(cls.corpus_key)
 
@@ -50,10 +52,8 @@ class TestDocument(unittest.TestCase):
         self.assertIsNone(response)
         self.created_documents.remove((self.corpus_key, doc_id))
 
-    def test_get_document(self):
-        doc_id = self._create_document("test-get-my-doc")
-        response = self.client.documents.get(self.corpus_key, doc_id)
-        self.assertEqual(response.id, doc_id)
+    # Removed test_get_document - documents.get() is now for getting images, not documents
+    # There is no direct "get document by ID" API endpoint anymore
 
     def test_list_documents(self):
         # Create test documents

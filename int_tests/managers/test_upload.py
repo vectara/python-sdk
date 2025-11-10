@@ -81,8 +81,11 @@ class UploadManagerTest(unittest.TestCase):
             raise ValueError("VECTARA_API_KEY not found in environment variables or .env file")
         
         cls.client = Vectara(api_key=api_key)
-        
-        response = cls.client.corpora.create(key="test-upload", name="test-upload")
+
+        # Create corpus with unique name
+        timestamp = int(time.time())
+        corpus_name = f"test-upload-{timestamp}"
+        response = cls.client.corpora.create(key=corpus_name, name=corpus_name)
         cls.corpus = response
 
     def _get_test_file(self):
@@ -163,16 +166,17 @@ class UploadManagerTest(unittest.TestCase):
             self.assertIsNotNone(document)
             self.assertGreater(document.storage_usage.bytes_used, 0)
 
+    @unittest.skip("Table extraction with GMFT can take longer than httpx default timeout - skip in CI")
     @retry_on_exception(max_retries=3, retry_delay=10)
     def test_upload_with_table_extraction(self):
         """Test file upload with table extraction."""
         test_file = self._get_test_file()
-        
+
         with open(test_file, "rb") as file_content:
             file = (test_file.name, file_content, "application/pdf")
-            
+
             table_config = TableExtractionConfig(extract_tables=True, extractor=TableExtractorSpec(name="gmft"))
-            
+
             document = self.client.upload.file(
                 corpus_key=self.corpus.key,
                 file=file,
