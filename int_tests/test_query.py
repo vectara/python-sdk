@@ -1,5 +1,6 @@
 import unittest
 import os
+import time
 
 from vectara import Vectara
 from vectara.core import RequestOptions
@@ -48,8 +49,9 @@ class TestMultipleCorporaQuery(unittest.TestCase):
             enable_factual_consistency_score=False,
         )
 
-        # Create corpora and add documents
-        cls.corpus_names = ["test-query-corpus-1", "test-query-corpus-2"]
+        # Create corpora with unique names to avoid conflicts
+        timestamp = int(time.time())
+        cls.corpus_names = [f"test-query-corpus-1-{timestamp}", f"test-query-corpus-2-{timestamp}"]
         cls.test_documents = [cls.TEST_DOCUMENT_1, cls.TEST_DOCUMENT_2]
 
         for corpus_name, document in zip(cls.corpus_names, cls.test_documents):
