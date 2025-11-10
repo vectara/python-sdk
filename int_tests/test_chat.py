@@ -1,5 +1,6 @@
 import unittest
 import os
+import time
 
 from vectara import Vectara
 from vectara.core import RequestOptions, ApiError
@@ -34,10 +35,12 @@ class TestChat(unittest.TestCase):
             citations=CitationParameters(style="none"),
             enable_factual_consistency_score=False,
         )
-        cls.chat_params = ChatParameters(store=True)
+        cls.chat_params = ChatParameters(store=False)
 
-        # Create corpus and add document
-        cls.corpus_name = "test-chat-corpus"
+        # Create corpus with unique name to avoid conflicts
+        timestamp = int(time.time())
+        cls.corpus_name = f"test-chat-corpus-{timestamp}"
+
         cls.client.corpora.create(name=cls.corpus_name, key=cls.corpus_name)
         cls.client.documents.create(cls.corpus_name, request=cls.TEST_DOCUMENT)
 

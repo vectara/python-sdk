@@ -1,5 +1,6 @@
 import unittest
 import os
+import time
 
 from vectara import Vectara
 
@@ -17,7 +18,10 @@ class TestApiKeys(unittest.TestCase):
             raise ValueError("VECTARA_API_KEY not found in environment variables or .env file")
         
         cls.client = Vectara(api_key=api_key)
-        cls.corpus_name = "test-api-keys"
+
+        # Create corpus with unique name to avoid conflicts
+        timestamp = int(time.time())
+        cls.corpus_name = f"test-api-keys-{timestamp}"
         cls.corpus_key = cls.corpus_name
         cls.created_api_keys = set()
 
