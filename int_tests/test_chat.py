@@ -42,6 +42,8 @@ class TestChat(unittest.TestCase):
         cls.corpus_name = f"test-chat-corpus-{timestamp}"
 
         cls.client.corpora.create(name=cls.corpus_name, key=cls.corpus_name)
+        # Small wait for corpus to be fully provisioned
+        time.sleep(2)
         cls.client.documents.create(cls.corpus_name, request=cls.TEST_DOCUMENT)
 
         # Create default search parameters

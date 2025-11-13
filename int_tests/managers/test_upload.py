@@ -86,6 +86,8 @@ class UploadManagerTest(unittest.TestCase):
         timestamp = int(time.time())
         corpus_name = f"test-upload-{timestamp}"
         response = cls.client.corpora.create(key=corpus_name, name=corpus_name)
+        # Small wait for corpus to be fully provisioned
+        time.sleep(2)
         cls.corpus = response
 
     def _get_test_file(self):
