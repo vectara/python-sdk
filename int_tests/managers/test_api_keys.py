@@ -27,6 +27,8 @@ class TestApiKeys(unittest.TestCase):
 
         # Create corpus
         response = cls.client.corpora.create(name=cls.corpus_name, key=cls.corpus_key)
+        # Small wait for corpus to be fully provisioned
+        time.sleep(2)
         cls.key = response.key
 
     def _create_api_key(self, name="test-key", api_key_role="serving"):
