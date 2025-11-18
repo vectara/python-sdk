@@ -56,6 +56,8 @@ class TestMultipleCorporaQuery(unittest.TestCase):
 
         for corpus_name, document in zip(cls.corpus_names, cls.test_documents):
             cls.client.corpora.create(name=corpus_name, key=corpus_name)
+            # Small wait for corpus to be fully provisioned
+            time.sleep(2)
             cls.client.documents.create(corpus_name, request=document)
 
     def setUp(self):

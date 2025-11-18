@@ -25,6 +25,8 @@ class TestDocument(unittest.TestCase):
         timestamp = int(time.time())
         corpus_name = f"test-document-manager-{timestamp}"
         response = cls.client.corpora.create(name=corpus_name, key=corpus_name)
+        # Small wait for corpus to be fully provisioned
+        time.sleep(2)
         cls.corpus_key = response.key
         cls.created_corpora.add(cls.corpus_key)
 
