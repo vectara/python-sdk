@@ -11,8 +11,6 @@ class StreamGenerationEnd(UniversalBaseModel):
     The end of generation. There may still be more information such as the factual consistency score, but generation has stopped.
     """
 
-    type: typing.Literal["generation_end"] = "generation_end"
-
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

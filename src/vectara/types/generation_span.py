@@ -12,7 +12,6 @@ class GenerationSpan(UniversalBaseModel):
     The generation by an LLM.
     """
 
-    type: typing.Literal["generation"] = "generation"
     latency_millis: typing.Optional[int] = pydantic.Field(default=None)
     """
     Time taken in milliseconds.

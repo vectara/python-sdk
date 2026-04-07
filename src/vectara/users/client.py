@@ -9,10 +9,11 @@ from ..types.agent_role import AgentRole
 from ..types.api_role import ApiRole
 from ..types.corpus_key import CorpusKey
 from ..types.corpus_role import CorpusRole
+from ..types.list_users_response import ListUsersResponse
 from ..types.user import User
 from .raw_client import AsyncRawUsersClient, RawUsersClient
-from .types.users_create_response import UsersCreateResponse
-from .types.users_reset_password_response import UsersResetPasswordResponse
+from .types.create_users_response import CreateUsersResponse
+from .types.reset_password_users_response import ResetPasswordUsersResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -42,9 +43,11 @@ class UsersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[User]:
+    ) -> SyncPager[User, ListUsersResponse]:
         """
-        Lists all users in the account.
+        The List Users API lets you list all users on your team and also their corpus access and customer-level authorizations.
+
+        Other activities such as adding, deleting, enabling, disabling, resetting passwords, and editing user roles are performed by the [Update User](/docs/rest-api/update-user) endpoint.
 
         Parameters
         ----------
@@ -68,18 +71,14 @@ class UsersClient:
 
         Returns
         -------
-        SyncPager[User]
+        SyncPager[User, ListUsersResponse]
             List of users.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.users.list(
             corpus_key="my-corpus",
         )
@@ -110,9 +109,9 @@ class UsersClient:
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
         agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> UsersCreateResponse:
+    ) -> CreateUsersResponse:
         """
-        Create a user for the current customer account.
+        Create a user for the current customer account. For example, a company wants to onboard new team members efficiently and this endpoint lets you streamline the process by adding new users programmatically, assigning appropriate roles, and setting up access permissions.
 
         Parameters
         ----------
@@ -145,18 +144,14 @@ class UsersClient:
 
         Returns
         -------
-        UsersCreateResponse
-            The created user.
+        CreateUsersResponse
+            The response returns a `user` object that contains the assigned user ID, email, username, enabled status, description, creation timestamp, and assigned API roles.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.users.create(
             email="email",
         )
@@ -208,11 +203,7 @@ class UsersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.users.get(
             username="username",
         )
@@ -258,11 +249,7 @@ class UsersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.users.delete(
             username="username",
         )
@@ -329,11 +316,7 @@ class UsersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.users.update(
             username="username",
         )
@@ -358,7 +341,7 @@ class UsersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> UsersResetPasswordResponse:
+    ) -> ResetPasswordUsersResponse:
         """
         Reset the password for a user.
 
@@ -378,18 +361,14 @@ class UsersClient:
 
         Returns
         -------
-        UsersResetPasswordResponse
+        ResetPasswordUsersResponse
             User was sent the password reset email.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.users.reset_password(
             username="username",
         )
@@ -427,9 +406,11 @@ class AsyncUsersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[User]:
+    ) -> AsyncPager[User, ListUsersResponse]:
         """
-        Lists all users in the account.
+        The List Users API lets you list all users on your team and also their corpus access and customer-level authorizations.
+
+        Other activities such as adding, deleting, enabling, disabling, resetting passwords, and editing user roles are performed by the [Update User](/docs/rest-api/update-user) endpoint.
 
         Parameters
         ----------
@@ -453,7 +434,7 @@ class AsyncUsersClient:
 
         Returns
         -------
-        AsyncPager[User]
+        AsyncPager[User, ListUsersResponse]
             List of users.
 
         Examples
@@ -462,11 +443,7 @@ class AsyncUsersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -504,9 +481,9 @@ class AsyncUsersClient:
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
         agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> UsersCreateResponse:
+    ) -> CreateUsersResponse:
         """
-        Create a user for the current customer account.
+        Create a user for the current customer account. For example, a company wants to onboard new team members efficiently and this endpoint lets you streamline the process by adding new users programmatically, assigning appropriate roles, and setting up access permissions.
 
         Parameters
         ----------
@@ -539,8 +516,8 @@ class AsyncUsersClient:
 
         Returns
         -------
-        UsersCreateResponse
-            The created user.
+        CreateUsersResponse
+            The response returns a `user` object that contains the assigned user ID, email, username, enabled status, description, creation timestamp, and assigned API roles.
 
         Examples
         --------
@@ -548,11 +525,7 @@ class AsyncUsersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -612,11 +585,7 @@ class AsyncUsersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -670,11 +639,7 @@ class AsyncUsersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -749,11 +714,7 @@ class AsyncUsersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -784,7 +745,7 @@ class AsyncUsersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> UsersResetPasswordResponse:
+    ) -> ResetPasswordUsersResponse:
         """
         Reset the password for a user.
 
@@ -804,7 +765,7 @@ class AsyncUsersClient:
 
         Returns
         -------
-        UsersResetPasswordResponse
+        ResetPasswordUsersResponse
             User was sent the password reset email.
 
         Examples
@@ -813,11 +774,7 @@ class AsyncUsersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:

@@ -4,6 +4,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .tool_description_template import ToolDescriptionTemplate
 from .tool_id import ToolId
 
 
@@ -12,9 +13,9 @@ class InlineMcpToolConfiguration(UniversalBaseModel):
     An MCP tool configuration defined inline in the agent.
     """
 
-    type: typing.Literal["mcp"] = "mcp"
     tool_id: ToolId
-    argument_override: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    description_template: typing.Optional[ToolDescriptionTemplate] = None
+    argument_override: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     Optional hardcoded arguments for tool calls. The key specifies the location in the tool arguments to overide, and the value specifies what to override with. The LLM will not be able to change the parameters, nor know those values exist within the tool.
     

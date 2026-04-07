@@ -4,7 +4,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
-from .components_schemas_initial_instruction import ComponentsSchemasInitialInstruction
+from .instruction import Instruction
 from .list_metadata import ListMetadata
 
 
@@ -13,7 +13,7 @@ class ListInstructionsResponse(UniversalBaseModel):
     Response containing a list of instructions.
     """
 
-    instructions: typing.List[ComponentsSchemasInitialInstruction] = pydantic.Field()
+    instructions: typing.List[Instruction] = pydantic.Field()
     """
     List of instructions.
     """

@@ -9,13 +9,14 @@ from ..types.chat import Chat
 from ..types.chat_parameters import ChatParameters
 from ..types.generation_parameters import GenerationParameters
 from ..types.list_chat_turns_response import ListChatTurnsResponse
+from ..types.list_chats_response import ListChatsResponse
 from ..types.search_corpora_parameters import SearchCorporaParameters
 from ..types.turn import Turn
 from .raw_client import AsyncRawChatsClient, RawChatsClient
-from .types.chats_create_response import ChatsCreateResponse
-from .types.chats_create_stream_response import ChatsCreateStreamResponse
-from .types.chats_create_turns_response import ChatsCreateTurnsResponse
-from .types.chats_create_turns_stream_response import ChatsCreateTurnsStreamResponse
+from .types.create_chats_response import CreateChatsResponse
+from .types.create_chats_stream_response import CreateChatsStreamResponse
+from .types.create_turns_chats_response import CreateTurnsChatsResponse
+from .types.create_turns_chats_stream_response import CreateTurnsChatsStreamResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -44,7 +45,7 @@ class ChatsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Chat]:
+    ) -> SyncPager[Chat, ListChatsResponse]:
         """
         Retrieve a list of previous chats in the Vectara account.
 
@@ -67,18 +68,14 @@ class ChatsClient:
 
         Returns
         -------
-        SyncPager[Chat]
+        SyncPager[Chat, ListChatsResponse]
             List of chats.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.chats.list()
         for item in response:
             yield item
@@ -106,7 +103,7 @@ class ChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.Iterator[ChatsCreateStreamResponse]:
+    ) -> typing.Iterator[CreateChatsStreamResponse]:
         """
         Create a chat while specifying the default retrieval parameters used by the prompt.
 
@@ -138,7 +135,7 @@ class ChatsClient:
 
         Yields
         ------
-        typing.Iterator[ChatsCreateStreamResponse]
+        typing.Iterator[CreateChatsStreamResponse]
 
 
         Examples
@@ -147,18 +144,14 @@ class ChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
-            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
             Vectara,
         )
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.chats.create_stream(
             query="What is a hallucination?",
             search=SearchCorporaParameters(
@@ -173,7 +166,7 @@ class ChatsClient:
                     sentences_before=2,
                     sentences_after=2,
                 ),
-                reranker=CustomerSpecificReranker(
+                reranker=SearchReranker_CustomerReranker(
                     reranker_id="rnk_272725719",
                 ),
             ),
@@ -216,7 +209,7 @@ class ChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ChatsCreateResponse:
+    ) -> CreateChatsResponse:
         """
         Create a chat while specifying the default retrieval parameters used by the prompt.
 
@@ -248,7 +241,7 @@ class ChatsClient:
 
         Returns
         -------
-        ChatsCreateResponse
+        CreateChatsResponse
 
 
         Examples
@@ -257,18 +250,14 @@ class ChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
-            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
             Vectara,
         )
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.chats.create(
             query="What is a hallucination?",
             search=SearchCorporaParameters(
@@ -283,7 +272,7 @@ class ChatsClient:
                     sentences_before=2,
                     sentences_after=2,
                 ),
-                reranker=CustomerSpecificReranker(
+                reranker=SearchReranker_CustomerReranker(
                     reranker_id="rnk_272725719",
                 ),
             ),
@@ -346,11 +335,7 @@ class ChatsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.chats.get(
             chat_id="chat_id",
         )
@@ -396,11 +381,7 @@ class ChatsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.chats.delete(
             chat_id="chat_id",
         )
@@ -447,11 +428,7 @@ class ChatsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.chats.list_turns(
             chat_id="cht_1234567890",
         )
@@ -477,7 +454,7 @@ class ChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.Iterator[ChatsCreateTurnsStreamResponse]:
+    ) -> typing.Iterator[CreateTurnsChatsStreamResponse]:
         """
         Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs that make up the dialog.
 
@@ -512,22 +489,24 @@ class ChatsClient:
 
         Yields
         ------
-        typing.Iterator[ChatsCreateTurnsStreamResponse]
+        typing.Iterator[CreateTurnsChatsStreamResponse]
 
 
         Examples
         --------
-        from vectara import SearchCorporaParameters, Vectara
+        from vectara import KeyedSearchCorpus, SearchCorporaParameters, Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.chats.create_turns_stream(
             chat_id="chat_id",
             query="What are the carbon reduction efforts by EU banks in 2023?",
-            search=SearchCorporaParameters(),
+            search=SearchCorporaParameters(
+                corpora=[
+                    KeyedSearchCorpus(
+                        corpus_key="my-corpus",
+                    )
+                ],
+            ),
         )
         for chunk in response:
             yield chunk
@@ -559,7 +538,7 @@ class ChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ChatsCreateTurnsResponse:
+    ) -> CreateTurnsChatsResponse:
         """
         Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs that make up the dialog.
 
@@ -594,22 +573,24 @@ class ChatsClient:
 
         Returns
         -------
-        ChatsCreateTurnsResponse
+        CreateTurnsChatsResponse
 
 
         Examples
         --------
-        from vectara import SearchCorporaParameters, Vectara
+        from vectara import KeyedSearchCorpus, SearchCorporaParameters, Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.chats.create_turns(
             chat_id="chat_id",
             query="What are the carbon reduction efforts by EU banks in 2023?",
-            search=SearchCorporaParameters(),
+            search=SearchCorporaParameters(
+                corpora=[
+                    KeyedSearchCorpus(
+                        corpus_key="my-corpus",
+                    )
+                ],
+            ),
         )
         """
         _response = self._raw_client.create_turns(
@@ -664,11 +645,7 @@ class ChatsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.chats.get_turn(
             chat_id="chat_id",
             turn_id="turn_id",
@@ -720,11 +697,7 @@ class ChatsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.chats.delete_turn(
             chat_id="chat_id",
             turn_id="turn_id",
@@ -781,11 +754,7 @@ class ChatsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.chats.update_turn(
             chat_id="cht_1234567890",
             turn_id="trn_987654321",
@@ -825,7 +794,7 @@ class AsyncChatsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Chat]:
+    ) -> AsyncPager[Chat, ListChatsResponse]:
         """
         Retrieve a list of previous chats in the Vectara account.
 
@@ -848,7 +817,7 @@ class AsyncChatsClient:
 
         Returns
         -------
-        AsyncPager[Chat]
+        AsyncPager[Chat, ListChatsResponse]
             List of chats.
 
         Examples
@@ -857,11 +826,7 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -896,7 +861,7 @@ class AsyncChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.AsyncIterator[ChatsCreateStreamResponse]:
+    ) -> typing.AsyncIterator[CreateChatsStreamResponse]:
         """
         Create a chat while specifying the default retrieval parameters used by the prompt.
 
@@ -928,7 +893,7 @@ class AsyncChatsClient:
 
         Yields
         ------
-        typing.AsyncIterator[ChatsCreateStreamResponse]
+        typing.AsyncIterator[CreateChatsStreamResponse]
 
 
         Examples
@@ -940,17 +905,13 @@ class AsyncChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
-            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
         )
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -968,7 +929,7 @@ class AsyncChatsClient:
                         sentences_before=2,
                         sentences_after=2,
                     ),
-                    reranker=CustomerSpecificReranker(
+                    reranker=SearchReranker_CustomerReranker(
                         reranker_id="rnk_272725719",
                     ),
                 ),
@@ -1015,7 +976,7 @@ class AsyncChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ChatsCreateResponse:
+    ) -> CreateChatsResponse:
         """
         Create a chat while specifying the default retrieval parameters used by the prompt.
 
@@ -1047,7 +1008,7 @@ class AsyncChatsClient:
 
         Returns
         -------
-        ChatsCreateResponse
+        CreateChatsResponse
 
 
         Examples
@@ -1059,17 +1020,13 @@ class AsyncChatsClient:
             ChatParameters,
             CitationParameters,
             ContextConfiguration,
-            CustomerSpecificReranker,
             GenerationParameters,
             KeyedSearchCorpus,
             SearchCorporaParameters,
+            SearchReranker_CustomerReranker,
         )
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -1087,7 +1044,7 @@ class AsyncChatsClient:
                         sentences_before=2,
                         sentences_after=2,
                     ),
-                    reranker=CustomerSpecificReranker(
+                    reranker=SearchReranker_CustomerReranker(
                         reranker_id="rnk_272725719",
                     ),
                 ),
@@ -1155,11 +1112,7 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -1213,11 +1166,7 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -1272,11 +1221,7 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -1308,7 +1253,7 @@ class AsyncChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.AsyncIterator[ChatsCreateTurnsStreamResponse]:
+    ) -> typing.AsyncIterator[CreateTurnsChatsStreamResponse]:
         """
         Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs that make up the dialog.
 
@@ -1343,27 +1288,29 @@ class AsyncChatsClient:
 
         Yields
         ------
-        typing.AsyncIterator[ChatsCreateTurnsStreamResponse]
+        typing.AsyncIterator[CreateTurnsChatsStreamResponse]
 
 
         Examples
         --------
         import asyncio
 
-        from vectara import AsyncVectara, SearchCorporaParameters
+        from vectara import AsyncVectara, KeyedSearchCorpus, SearchCorporaParameters
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
             response = await client.chats.create_turns_stream(
                 chat_id="chat_id",
                 query="What are the carbon reduction efforts by EU banks in 2023?",
-                search=SearchCorporaParameters(),
+                search=SearchCorporaParameters(
+                    corpora=[
+                        KeyedSearchCorpus(
+                            corpus_key="my-corpus",
+                        )
+                    ],
+                ),
             )
             async for chunk in response:
                 yield chunk
@@ -1399,7 +1346,7 @@ class AsyncChatsClient:
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ChatsCreateTurnsResponse:
+    ) -> CreateTurnsChatsResponse:
         """
         Create a new turn in the chat. Each conversation has a series of `turn` objects, which are the sequence of message and response pairs that make up the dialog.
 
@@ -1434,27 +1381,29 @@ class AsyncChatsClient:
 
         Returns
         -------
-        ChatsCreateTurnsResponse
+        CreateTurnsChatsResponse
 
 
         Examples
         --------
         import asyncio
 
-        from vectara import AsyncVectara, SearchCorporaParameters
+        from vectara import AsyncVectara, KeyedSearchCorpus, SearchCorporaParameters
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
             await client.chats.create_turns(
                 chat_id="chat_id",
                 query="What are the carbon reduction efforts by EU banks in 2023?",
-                search=SearchCorporaParameters(),
+                search=SearchCorporaParameters(
+                    corpora=[
+                        KeyedSearchCorpus(
+                            corpus_key="my-corpus",
+                        )
+                    ],
+                ),
             )
 
 
@@ -1514,11 +1463,7 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -1578,11 +1523,7 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -1647,11 +1588,7 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:

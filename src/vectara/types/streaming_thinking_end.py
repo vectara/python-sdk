@@ -12,7 +12,6 @@ class StreamingThinkingEnd(UniversalBaseModel):
     Signals the end of streaming thinking (SSE only, not stored).
     """
 
-    type: typing.Literal["streaming_thinking_end"] = "streaming_thinking_end"
     created_at: dt.datetime = pydantic.Field()
     """
     Timestamp when the event was created.

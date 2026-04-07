@@ -11,7 +11,6 @@ class NoneReranker(UniversalBaseModel):
     A placeholder reranker that does not modify the original search results ordering.
     """
 
-    type: typing.Literal["none"] = "none"
     limit: typing.Optional[int] = pydantic.Field(default=None)
     """
     Specifies the maximum number of results to be returned after the reranking process. When a reranker is applied, it performs the following steps:

@@ -13,7 +13,6 @@ class RerankSpan(UniversalBaseModel):
     The reranking of the search result.
     """
 
-    type: typing.Literal["rerank"] = "rerank"
     latency_millis: typing.Optional[int] = pydantic.Field(default=None)
     """
     Time taken in milliseconds.

@@ -7,7 +7,8 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
+from ..core.pagination import AsyncPager, SyncPager
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..core.serialization import convert_and_respect_annotation_metadata
@@ -15,16 +16,19 @@ from ..errors.bad_request_error import BadRequestError
 from ..errors.conflict_error import ConflictError
 from ..errors.forbidden_error import ForbiddenError
 from ..errors.not_found_error import NotFoundError
+from ..errors.unprocessable_entity_error import UnprocessableEntityError
 from ..types.bad_request_error_body import BadRequestErrorBody
-from ..types.components_schemas_initial_instruction import ComponentsSchemasInitialInstruction
+from ..types.create_instruction_request import CreateInstructionRequest
 from ..types.error import Error
+from ..types.instruction import Instruction
 from ..types.instruction_id import InstructionId
-from ..types.instruction_name import InstructionName
 from ..types.list_instructions_response import ListInstructionsResponse
 from ..types.not_found_error_body import NotFoundErrorBody
-from ..types.template_type import TemplateType
 from ..types.test_instruction_response import TestInstructionResponse
 from ..types.tool import Tool
+from ..types.update_instruction_request import UpdateInstructionRequest
+from .types.list_instructions_request_type import ListInstructionsRequestType
+from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -38,23 +42,23 @@ class RawInstructionsClient:
         self,
         *,
         filter: typing.Optional[str] = None,
-        type: typing.Optional[typing.Literal["initial"]] = None,
+        type: typing.Optional[ListInstructionsRequestType] = None,
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[ComponentsSchemasInitialInstruction]:
+    ) -> SyncPager[Instruction, ListInstructionsResponse]:
         """
-        List all instructions available to the authenticated user, with optional filtering and pagination.
+        List all instructions available to the authenticated user, with optional filtering and pagination. This endpoint returns high-level information about each instruction, including name, status, and version details.
 
         Parameters
         ----------
         filter : typing.Optional[str]
             A regular expression against instruction names and descriptions to filter the results.
 
-        type : typing.Optional[typing.Literal["initial"]]
+        type : typing.Optional[ListInstructionsRequestType]
             Filter instructions by type.
 
         enabled : typing.Optional[bool]
@@ -77,7 +81,7 @@ class RawInstructionsClient:
 
         Returns
         -------
-        SyncPager[ComponentsSchemasInitialInstruction]
+        SyncPager[Instruction, ListInstructionsResponse]
             List of available instructions.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -122,9 +126,7 @@ class RawInstructionsClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                return SyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -139,30 +141,68 @@ class RawInstructionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
         self,
         *,
-        name: InstructionName,
-        template: str,
+        request: CreateInstructionRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        description: typing.Optional[str] = OMIT,
-        template_type: typing.Optional[TemplateType] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
-        enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[ComponentsSchemasInitialInstruction]:
+    ) -> HttpResponse[Instruction]:
         """
-        Create a new instruction that can guide agent behavior.
+        Create a new instruction that defines how an agent should behave, reason, and respond. Instructions act as system-level guidelines that shape the agent's tone, style, constraints, and tool usage.
+
+        Instructions support dynamic content using the Apache Velocity templating engine. Velocity variables allow instructions to reference runtime context:
+
+        - `\\$\\tools`: The list of tools available to the agent.
+        - `\\$\\{session.metadata.field}`: Session-level metadata (user context, permissions, preferences).
+        - `\\$\\{agent.metadata.field}`: Agent-level metadata (configuration or environment).
+
+        Example tool iteration:
+        ```velocity
+        You have access to the following tools:
+        \\#foreach(\\$\\tool in $tools)
+          - \\$\\{tool.name}: \\$\\{tool.description}
+        #end
+        ```
+        :::tip Tips for effective instruction design
+        Instructions are one of the most critical parts of an agent's design. Best practices vary by model, but at a minimum you should provide clear guidance on what tools are available, what output format is desired, and what steps to follow for common queries. Instructions typically need to be iterated on and tested over time.
+
+        For guidance on writing effective instructions, see:
+        - [Claude Prompt Engineering](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview)
+        - [OpenAI Prompt Engineering](https://platform.openai.com/docs/guides/prompt-engineering)
+        :::
+
+        Metadata can personalize behavior at runtime. For example:
+
+        ```velocity
+        Hello ${session.metadata.user_name}, how can I help with ${session.metadata.department} today?
+        ```
+
+        **Example request:**
+        ```json
+        {
+          "name": "Customer Support Tone and Style Guide",
+          "description": "Defines tone and behavior for customer interactions.",
+          "template": "You are a customer support agent for the ${session.metadata.department} department.",
+          "enabled": true,
+          "metadata": {
+            "owner": "customer-support-team",
+            "version": "1.0.0"
+          }
+        }
+        ```
+        A successful response returns the full instruction definition, including its unique ID, version, and timestamps.
 
         Parameters
         ----------
-        name : InstructionName
-
-        template : str
-            The instruction template content using the specified template engine.
+        request : CreateInstructionRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -170,38 +210,21 @@ class RawInstructionsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        description : typing.Optional[str]
-            A detailed description of what this instruction does.
-
-        template_type : typing.Optional[TemplateType]
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Arbitrary metadata associated with the instruction.
-
-        enabled : typing.Optional[bool]
-            Whether the instruction should be enabled upon creation.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[ComponentsSchemasInitialInstruction]
-            The instruction has been created successfully.
+        HttpResponse[Instruction]
+            The response includes the full definition of the newly created instruction, including fields such as `id`, `version`, `created_at`, and `updated_at`.
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/instructions",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            json={
-                "name": name,
-                "description": description,
-                "template_type": template_type,
-                "template": template,
-                "metadata": metadata,
-                "enabled": enabled,
-                "type": "initial",
-            },
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=CreateInstructionRequest, direction="write"
+            ),
             headers={
                 "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -213,9 +236,9 @@ class RawInstructionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    ComponentsSchemasInitialInstruction,
+                    Instruction,
                     parse_obj_as(
-                        type_=ComponentsSchemasInitialInstruction,  # type: ignore
+                        type_=Instruction,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -245,6 +268,10 @@ class RawInstructionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
@@ -255,9 +282,9 @@ class RawInstructionsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[ComponentsSchemasInitialInstruction]:
+    ) -> HttpResponse[Instruction]:
         """
-        Retrieve the details of a specific instruction by its ID, including its template and configuration.
+        Retrieve the full definition of a specific instruction, including its template, metadata, enabled status, and version. Instruction templates may contain Velocity expressions that reference tools and metadata. If no version is specified, the latest version is returned.
 
         Parameters
         ----------
@@ -278,7 +305,7 @@ class RawInstructionsClient:
 
         Returns
         -------
-        HttpResponse[ComponentsSchemasInitialInstruction]
+        HttpResponse[Instruction]
             The requested instruction details.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -297,9 +324,9 @@ class RawInstructionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    ComponentsSchemasInitialInstruction,
+                    Instruction,
                     parse_obj_as(
-                        type_=ComponentsSchemasInitialInstruction,  # type: ignore
+                        type_=Instruction,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -329,6 +356,10 @@ class RawInstructionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
@@ -340,7 +371,11 @@ class RawInstructionsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[None]:
         """
-        Permanently delete an instruction and all its associated configuration. This action cannot be undone.
+        Permanently delete an instruction and all its associated configuration.
+
+        :::warning
+        This action cannot be undone. Agents currently using this instruction may fail or behave unexpectedly. Update agents to use different instructions before deleting.
+        :::
 
         Parameters
         ----------
@@ -398,29 +433,42 @@ class RawInstructionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def update(
         self,
         instruction_id: InstructionId,
         *,
+        request: UpdateInstructionRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        name: typing.Optional[InstructionName] = OMIT,
-        description: typing.Optional[str] = OMIT,
-        template: typing.Optional[str] = OMIT,
-        template_type: typing.Optional[TemplateType] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
-        enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[ComponentsSchemasInitialInstruction]:
+    ) -> HttpResponse[Instruction]:
         """
-        Update an existing instruction's template, metadata, and configuration.
+        Update an existing instruction's template, metadata, and configuration. Updated templates may include Velocity variables such as `$tools` or metadata references. Each update creates a new version, allowing agents to continue using existing versions until explicitly changed.
+
+        ::info Version Management
+        Agents referencing a specific version continue to use it until updated. Agents without a pinned version always use the latest.
+        :::
+
+        ## Disable an instruction
+
+        This endpoint can also be used to disable an instruction without deleting it.
+
+        :::warning
+        Disabling an instruction prevents it from being added to new agents, but agents already using it continue to operate normally.
+        :::
 
         Parameters
         ----------
         instruction_id : InstructionId
             The unique identifier of the instruction to update.
+
+        request : UpdateInstructionRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -428,43 +476,21 @@ class RawInstructionsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        name : typing.Optional[InstructionName]
-
-        description : typing.Optional[str]
-            A detailed description of what this instruction does.
-
-        template : typing.Optional[str]
-            The instruction template content using the specified template engine.
-
-        template_type : typing.Optional[TemplateType]
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Arbitrary metadata associated with the instruction.
-
-        enabled : typing.Optional[bool]
-            Whether the instruction is enabled.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        HttpResponse[ComponentsSchemasInitialInstruction]
+        HttpResponse[Instruction]
             The instruction has been updated successfully.
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/instructions/{jsonable_encoder(instruction_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
-            json={
-                "name": name,
-                "description": description,
-                "template": template,
-                "template_type": template_type,
-                "metadata": metadata,
-                "enabled": enabled,
-                "type": "initial",
-            },
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=UpdateInstructionRequest, direction="write"
+            ),
             headers={
                 "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -476,9 +502,9 @@ class RawInstructionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    ComponentsSchemasInitialInstruction,
+                    Instruction,
                     parse_obj_as(
-                        type_=ComponentsSchemasInitialInstruction,  # type: ignore
+                        type_=Instruction,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -519,6 +545,10 @@ class RawInstructionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def test(
@@ -528,12 +558,12 @@ class RawInstructionsClient:
         version: typing.Optional[int] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        context: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        context: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         tools: typing.Optional[typing.Sequence[Tool]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[TestInstructionResponse]:
         """
-        Test an instruction by rendering its template with provided context data and tools.
+        Test an instruction template using supplied context and available tools. This endpoint evaluates Velocity expressions such as `$tools`, `${session.metadata.field}`, or `${agent.metadata.field}`, and returns the fully rendered template output. Use this operation to validate formatting, logic, or metadata-dependent behavior before deploying instructions to agents.
 
         Parameters
         ----------
@@ -549,8 +579,10 @@ class RawInstructionsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        context : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Context data to use when rendering the instruction template.
+        context : typing.Optional[typing.Dict[str, typing.Any]]
+            Context data to use when rendering the instruction template. This will be merged into `$session.metadata` for template access.
+
+            Example: If you provide `{"currentDate": "2024-01-15"}`, you can access it in the template as `$session.metadata.currentDate`.
 
         tools : typing.Optional[typing.Sequence[Tool]]
             List of tools to include in the instruction context for testing.
@@ -627,9 +659,24 @@ class RawInstructionsClient:
                         ),
                     ),
                 )
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete_version(
@@ -714,6 +761,10 @@ class RawInstructionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -725,23 +776,23 @@ class AsyncRawInstructionsClient:
         self,
         *,
         filter: typing.Optional[str] = None,
-        type: typing.Optional[typing.Literal["initial"]] = None,
+        type: typing.Optional[ListInstructionsRequestType] = None,
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[ComponentsSchemasInitialInstruction]:
+    ) -> AsyncPager[Instruction, ListInstructionsResponse]:
         """
-        List all instructions available to the authenticated user, with optional filtering and pagination.
+        List all instructions available to the authenticated user, with optional filtering and pagination. This endpoint returns high-level information about each instruction, including name, status, and version details.
 
         Parameters
         ----------
         filter : typing.Optional[str]
             A regular expression against instruction names and descriptions to filter the results.
 
-        type : typing.Optional[typing.Literal["initial"]]
+        type : typing.Optional[ListInstructionsRequestType]
             Filter instructions by type.
 
         enabled : typing.Optional[bool]
@@ -764,7 +815,7 @@ class AsyncRawInstructionsClient:
 
         Returns
         -------
-        AsyncPager[ComponentsSchemasInitialInstruction]
+        AsyncPager[Instruction, ListInstructionsResponse]
             List of available instructions.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -812,9 +863,7 @@ class AsyncRawInstructionsClient:
                             request_options=request_options,
                         )
 
-                return AsyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -829,30 +878,68 @@ class AsyncRawInstructionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
         self,
         *,
-        name: InstructionName,
-        template: str,
+        request: CreateInstructionRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        description: typing.Optional[str] = OMIT,
-        template_type: typing.Optional[TemplateType] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
-        enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[ComponentsSchemasInitialInstruction]:
+    ) -> AsyncHttpResponse[Instruction]:
         """
-        Create a new instruction that can guide agent behavior.
+        Create a new instruction that defines how an agent should behave, reason, and respond. Instructions act as system-level guidelines that shape the agent's tone, style, constraints, and tool usage.
+
+        Instructions support dynamic content using the Apache Velocity templating engine. Velocity variables allow instructions to reference runtime context:
+
+        - `\\$\\tools`: The list of tools available to the agent.
+        - `\\$\\{session.metadata.field}`: Session-level metadata (user context, permissions, preferences).
+        - `\\$\\{agent.metadata.field}`: Agent-level metadata (configuration or environment).
+
+        Example tool iteration:
+        ```velocity
+        You have access to the following tools:
+        \\#foreach(\\$\\tool in $tools)
+          - \\$\\{tool.name}: \\$\\{tool.description}
+        #end
+        ```
+        :::tip Tips for effective instruction design
+        Instructions are one of the most critical parts of an agent's design. Best practices vary by model, but at a minimum you should provide clear guidance on what tools are available, what output format is desired, and what steps to follow for common queries. Instructions typically need to be iterated on and tested over time.
+
+        For guidance on writing effective instructions, see:
+        - [Claude Prompt Engineering](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview)
+        - [OpenAI Prompt Engineering](https://platform.openai.com/docs/guides/prompt-engineering)
+        :::
+
+        Metadata can personalize behavior at runtime. For example:
+
+        ```velocity
+        Hello ${session.metadata.user_name}, how can I help with ${session.metadata.department} today?
+        ```
+
+        **Example request:**
+        ```json
+        {
+          "name": "Customer Support Tone and Style Guide",
+          "description": "Defines tone and behavior for customer interactions.",
+          "template": "You are a customer support agent for the ${session.metadata.department} department.",
+          "enabled": true,
+          "metadata": {
+            "owner": "customer-support-team",
+            "version": "1.0.0"
+          }
+        }
+        ```
+        A successful response returns the full instruction definition, including its unique ID, version, and timestamps.
 
         Parameters
         ----------
-        name : InstructionName
-
-        template : str
-            The instruction template content using the specified template engine.
+        request : CreateInstructionRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -860,38 +947,21 @@ class AsyncRawInstructionsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        description : typing.Optional[str]
-            A detailed description of what this instruction does.
-
-        template_type : typing.Optional[TemplateType]
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Arbitrary metadata associated with the instruction.
-
-        enabled : typing.Optional[bool]
-            Whether the instruction should be enabled upon creation.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[ComponentsSchemasInitialInstruction]
-            The instruction has been created successfully.
+        AsyncHttpResponse[Instruction]
+            The response includes the full definition of the newly created instruction, including fields such as `id`, `version`, `created_at`, and `updated_at`.
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/instructions",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            json={
-                "name": name,
-                "description": description,
-                "template_type": template_type,
-                "template": template,
-                "metadata": metadata,
-                "enabled": enabled,
-                "type": "initial",
-            },
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=CreateInstructionRequest, direction="write"
+            ),
             headers={
                 "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -903,9 +973,9 @@ class AsyncRawInstructionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    ComponentsSchemasInitialInstruction,
+                    Instruction,
                     parse_obj_as(
-                        type_=ComponentsSchemasInitialInstruction,  # type: ignore
+                        type_=Instruction,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -935,6 +1005,10 @@ class AsyncRawInstructionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
@@ -945,9 +1019,9 @@ class AsyncRawInstructionsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[ComponentsSchemasInitialInstruction]:
+    ) -> AsyncHttpResponse[Instruction]:
         """
-        Retrieve the details of a specific instruction by its ID, including its template and configuration.
+        Retrieve the full definition of a specific instruction, including its template, metadata, enabled status, and version. Instruction templates may contain Velocity expressions that reference tools and metadata. If no version is specified, the latest version is returned.
 
         Parameters
         ----------
@@ -968,7 +1042,7 @@ class AsyncRawInstructionsClient:
 
         Returns
         -------
-        AsyncHttpResponse[ComponentsSchemasInitialInstruction]
+        AsyncHttpResponse[Instruction]
             The requested instruction details.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -987,9 +1061,9 @@ class AsyncRawInstructionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    ComponentsSchemasInitialInstruction,
+                    Instruction,
                     parse_obj_as(
-                        type_=ComponentsSchemasInitialInstruction,  # type: ignore
+                        type_=Instruction,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -1019,6 +1093,10 @@ class AsyncRawInstructionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
@@ -1030,7 +1108,11 @@ class AsyncRawInstructionsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[None]:
         """
-        Permanently delete an instruction and all its associated configuration. This action cannot be undone.
+        Permanently delete an instruction and all its associated configuration.
+
+        :::warning
+        This action cannot be undone. Agents currently using this instruction may fail or behave unexpectedly. Update agents to use different instructions before deleting.
+        :::
 
         Parameters
         ----------
@@ -1088,29 +1170,42 @@ class AsyncRawInstructionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def update(
         self,
         instruction_id: InstructionId,
         *,
+        request: UpdateInstructionRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        name: typing.Optional[InstructionName] = OMIT,
-        description: typing.Optional[str] = OMIT,
-        template: typing.Optional[str] = OMIT,
-        template_type: typing.Optional[TemplateType] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
-        enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[ComponentsSchemasInitialInstruction]:
+    ) -> AsyncHttpResponse[Instruction]:
         """
-        Update an existing instruction's template, metadata, and configuration.
+        Update an existing instruction's template, metadata, and configuration. Updated templates may include Velocity variables such as `$tools` or metadata references. Each update creates a new version, allowing agents to continue using existing versions until explicitly changed.
+
+        ::info Version Management
+        Agents referencing a specific version continue to use it until updated. Agents without a pinned version always use the latest.
+        :::
+
+        ## Disable an instruction
+
+        This endpoint can also be used to disable an instruction without deleting it.
+
+        :::warning
+        Disabling an instruction prevents it from being added to new agents, but agents already using it continue to operate normally.
+        :::
 
         Parameters
         ----------
         instruction_id : InstructionId
             The unique identifier of the instruction to update.
+
+        request : UpdateInstructionRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -1118,43 +1213,21 @@ class AsyncRawInstructionsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        name : typing.Optional[InstructionName]
-
-        description : typing.Optional[str]
-            A detailed description of what this instruction does.
-
-        template : typing.Optional[str]
-            The instruction template content using the specified template engine.
-
-        template_type : typing.Optional[TemplateType]
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Arbitrary metadata associated with the instruction.
-
-        enabled : typing.Optional[bool]
-            Whether the instruction is enabled.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        AsyncHttpResponse[ComponentsSchemasInitialInstruction]
+        AsyncHttpResponse[Instruction]
             The instruction has been updated successfully.
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/instructions/{jsonable_encoder(instruction_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
-            json={
-                "name": name,
-                "description": description,
-                "template": template,
-                "template_type": template_type,
-                "metadata": metadata,
-                "enabled": enabled,
-                "type": "initial",
-            },
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=UpdateInstructionRequest, direction="write"
+            ),
             headers={
                 "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -1166,9 +1239,9 @@ class AsyncRawInstructionsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    ComponentsSchemasInitialInstruction,
+                    Instruction,
                     parse_obj_as(
-                        type_=ComponentsSchemasInitialInstruction,  # type: ignore
+                        type_=Instruction,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -1209,6 +1282,10 @@ class AsyncRawInstructionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def test(
@@ -1218,12 +1295,12 @@ class AsyncRawInstructionsClient:
         version: typing.Optional[int] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        context: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        context: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         tools: typing.Optional[typing.Sequence[Tool]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[TestInstructionResponse]:
         """
-        Test an instruction by rendering its template with provided context data and tools.
+        Test an instruction template using supplied context and available tools. This endpoint evaluates Velocity expressions such as `$tools`, `${session.metadata.field}`, or `${agent.metadata.field}`, and returns the fully rendered template output. Use this operation to validate formatting, logic, or metadata-dependent behavior before deploying instructions to agents.
 
         Parameters
         ----------
@@ -1239,8 +1316,10 @@ class AsyncRawInstructionsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        context : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Context data to use when rendering the instruction template.
+        context : typing.Optional[typing.Dict[str, typing.Any]]
+            Context data to use when rendering the instruction template. This will be merged into `$session.metadata` for template access.
+
+            Example: If you provide `{"currentDate": "2024-01-15"}`, you can access it in the template as `$session.metadata.currentDate`.
 
         tools : typing.Optional[typing.Sequence[Tool]]
             List of tools to include in the instruction context for testing.
@@ -1317,9 +1396,24 @@ class AsyncRawInstructionsClient:
                         ),
                     ),
                 )
+            if _response.status_code == 422:
+                raise UnprocessableEntityError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete_version(
@@ -1404,4 +1498,8 @@ class AsyncRawInstructionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

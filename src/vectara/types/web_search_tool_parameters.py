@@ -4,11 +4,12 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .web_search_tool_parameters_provider import WebSearchToolParametersProvider
 
 
 class WebSearchToolParameters(UniversalBaseModel):
     """
-    Configurable parameters for the web search tool. If not provided, will be filled in by the LLM.
+    Configurable parameters for the web search tool. If not provided, will be filled in by the agent.
     """
 
     query: typing.Optional[str] = pydantic.Field(default=None)
@@ -21,9 +22,19 @@ class WebSearchToolParameters(UniversalBaseModel):
     Maximum number of results to return.
     """
 
-    provider: typing.Optional[typing.Literal["tavily"]] = pydantic.Field(default=None)
+    provider: typing.Optional[WebSearchToolParametersProvider] = pydantic.Field(default=None)
     """
     Search provider to use.
+    """
+
+    include_domains: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
+    """
+    List of domains to specifically include in search results. When specified, results will ONLY come from these domains. Supports exact domains (e.g., "github.com"), subdomains (e.g., "docs.github.com"), and wildcard patterns (e.g., "*.github.com"). Subpaths are not supported.
+    """
+
+    exclude_domains: typing.Optional[typing.List[str]] = pydantic.Field(default=None)
+    """
+    List of domains to specifically exclude from search results. Supports exact domains (e.g., "spam.com"), subdomains (e.g., "bad.spam.com"), and wildcard patterns (e.g., "*.spam.com"). Subpaths are not supported.
     """
 
     if IS_PYDANTIC_V2:

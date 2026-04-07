@@ -20,7 +20,6 @@ class StructuredDocument(UniversalBaseModel):
     The document ID must be unique within the corpus.
     """
 
-    type: typing.Literal["structured"] = "structured"
     title: typing.Optional[str] = pydantic.Field(default=None)
     """
     The title of the document.
@@ -31,7 +30,7 @@ class StructuredDocument(UniversalBaseModel):
     The description of the document.
     """
 
-    metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     The metadata for a document as an arbitrary JSON object. Properties of this object can be used by document level filter attributes.
     """
@@ -54,6 +53,6 @@ class StructuredDocument(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
-from .structured_document_section import StructuredDocumentSection  # noqa: E402, F401, I001
+from .structured_document_section import StructuredDocumentSection  # noqa: E402, I001
 
-update_forward_refs(StructuredDocument)
+update_forward_refs(StructuredDocument, StructuredDocumentSection=StructuredDocumentSection)

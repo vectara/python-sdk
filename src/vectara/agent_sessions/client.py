@@ -8,7 +8,9 @@ from ..core.request_options import RequestOptions
 from ..types.agent_key import AgentKey
 from ..types.agent_session import AgentSession
 from ..types.agent_session_key import AgentSessionKey
+from ..types.list_agent_sessions_response import ListAgentSessionsResponse
 from .raw_client import AsyncRawAgentSessionsClient, RawAgentSessionsClient
+from .types.create_agent_session_request_from_session import CreateAgentSessionRequestFromSession
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -39,9 +41,9 @@ class AgentSessionsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[AgentSession]:
+    ) -> SyncPager[AgentSession, ListAgentSessionsResponse]:
         """
-        List all agent sessions for a specific agent, with optional filtering and pagination.
+        List all agent sessions for the specified agent. This endpoint returns high-level information about each session, with optional filtering and pagination. Use this operation to browse existing sessions or to locate a specific session key for further inspection or updates.
 
         Parameters
         ----------
@@ -68,18 +70,14 @@ class AgentSessionsClient:
 
         Returns
         -------
-        SyncPager[AgentSession]
+        SyncPager[AgentSession, ListAgentSessionsResponse]
             List of available agent sessions.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.agent_sessions.list(
             agent_key="customer_support",
             filter="support.*",
@@ -109,60 +107,84 @@ class AgentSessionsClient:
         key: typing.Optional[AgentSessionKey] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
         tti_minutes: typing.Optional[int] = OMIT,
+        from_session: typing.Optional[CreateAgentSessionRequestFromSession] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AgentSession:
         """
-        Create a new session for interacting with an agent. Sessions maintain conversation context.
-
+        Create a new session for interacting with an agent. A session is the conversation container that maintains state across all messages, events, tool use, and agent responses.
+        
+        This endpoint initializes the session and enables you to configure its initial properties, including optional metadata. Metadata can influence agent behavior, personalize responses, or apply access controls. Instructions and tools can also reference metadata using `${\\session.metadata.field}` or `$\\ref` syntax.
+        
+        A session also serves as the workspace for artifacts, enabling file uploads and multi-step workflows. For more information, see [Working with artifacts in sessions](https://docs.vectara.com/docs/agent-os/sessions#working-with-artifacts-in-sessions).
+        
+        ## Example request
+        
+        ```json
+        \\$ curl -X POST https://api.vectara.io/v2/agents/support-agent/sessions \\
+        -H "Authorization: Bearer YOUR_API_KEY" \\
+        -H "Content-Type: application/json" \\
+        -d '{
+          "key": "user_12345_session",
+          "name": "Customer Support Session",
+          "metadata": {
+            "user_role": "premium",
+            "language": "en"
+          }
+        }'
+        ```
+        A successful response includes the unique session key, configuration metadata, and timestamps for creation and last update.
+        
         Parameters
         ----------
         agent_key : AgentKey
             The unique key of the agent to create a session for.
-
+        
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
-
+        
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
+        
         key : typing.Optional[AgentSessionKey]
             A user provided key that uniquely identifies this session. If not provided, one will be auto-generated based on the session name.
-
+        
         name : typing.Optional[str]
             Human-readable name for the session.
-
+        
         description : typing.Optional[str]
             Optional description of the session purpose or context.
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the session.
-
+        
         enabled : typing.Optional[bool]
             Whether the session should be enabled upon creation.
-
+        
         tti_minutes : typing.Optional[int]
             Time-to-idle in minutes for the session. If no events occur in the session for this duration, the session will be automatically deleted. If set to 0, the session will not expire.
-
+        
+        from_session : typing.Optional[CreateAgentSessionRequestFromSession]
+            Create a new session by forking an existing one. By default, copies all visible events
+            and artifacts from the source session without compaction. Optionally specify exactly one of
+            include_up_to_event_id or compact_up_to_event_id to control which events are included
+            and whether they are compacted. These two fields are mutually exclusive.
+        
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
-
+        
         Returns
         -------
         AgentSession
-            The agent session has been created successfully.
-
+            The response includes the complete session configuration including the unique session key, associated agent key, and creation timestamp.
+        
         Examples
         --------
         from vectara import Vectara
-
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        
+        client = Vectara()
         client.agent_sessions.create(
             agent_key="customer_support",
         )
@@ -177,6 +199,7 @@ class AgentSessionsClient:
             metadata=metadata,
             enabled=enabled,
             tti_minutes=tti_minutes,
+            from_session=from_session,
             request_options=request_options,
         )
         return _response.data
@@ -191,7 +214,7 @@ class AgentSessionsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AgentSession:
         """
-        Retrieve the details of a specific agent session by its ID, including session configuration.
+        Retrieve the full details of a specific agent session using its unique session key. The response includes the session's configuration, metadata, timestamps, and other stored properties. Use this endpoint to inspect the current state of a session or verify its configuration.
 
         Parameters
         ----------
@@ -219,11 +242,7 @@ class AgentSessionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.agent_sessions.get(
             agent_key="customer_support",
             session_key="customer_support_chat",
@@ -275,11 +294,7 @@ class AgentSessionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.agent_sessions.delete(
             agent_key="customer_support",
             session_key="customer_support_chat",
@@ -303,13 +318,15 @@ class AgentSessionsClient:
         request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
         tti_minutes: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AgentSession:
         """
-        Update an existing agent session's configuration and metadata.
+        Update the configuration of an existing agent session. This endpoint enables you to modify fields such as the name, description, or metadata.
+
+        Updated metadata immediately influences agent behavior and becomes available to instructions and tools for the remainder of the session. For more details about configuring the agent session, see [Create agent session](https://docs.vectara.com/docs/rest-api/create-agent-session).
 
         Parameters
         ----------
@@ -331,7 +348,7 @@ class AgentSessionsClient:
         description : typing.Optional[str]
             Optional description of the session purpose or context.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the session.
 
         enabled : typing.Optional[bool]
@@ -352,11 +369,7 @@ class AgentSessionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.agent_sessions.update(
             agent_key="customer_support",
             session_key="customer_support_chat",
@@ -402,9 +415,9 @@ class AsyncAgentSessionsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[AgentSession]:
+    ) -> AsyncPager[AgentSession, ListAgentSessionsResponse]:
         """
-        List all agent sessions for a specific agent, with optional filtering and pagination.
+        List all agent sessions for the specified agent. This endpoint returns high-level information about each session, with optional filtering and pagination. Use this operation to browse existing sessions or to locate a specific session key for further inspection or updates.
 
         Parameters
         ----------
@@ -431,7 +444,7 @@ class AsyncAgentSessionsClient:
 
         Returns
         -------
-        AsyncPager[AgentSession]
+        AsyncPager[AgentSession, ListAgentSessionsResponse]
             List of available agent sessions.
 
         Examples
@@ -440,11 +453,7 @@ class AsyncAgentSessionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -481,70 +490,94 @@ class AsyncAgentSessionsClient:
         key: typing.Optional[AgentSessionKey] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
         tti_minutes: typing.Optional[int] = OMIT,
+        from_session: typing.Optional[CreateAgentSessionRequestFromSession] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AgentSession:
         """
-        Create a new session for interacting with an agent. Sessions maintain conversation context.
-
+        Create a new session for interacting with an agent. A session is the conversation container that maintains state across all messages, events, tool use, and agent responses.
+        
+        This endpoint initializes the session and enables you to configure its initial properties, including optional metadata. Metadata can influence agent behavior, personalize responses, or apply access controls. Instructions and tools can also reference metadata using `${\\session.metadata.field}` or `$\\ref` syntax.
+        
+        A session also serves as the workspace for artifacts, enabling file uploads and multi-step workflows. For more information, see [Working with artifacts in sessions](https://docs.vectara.com/docs/agent-os/sessions#working-with-artifacts-in-sessions).
+        
+        ## Example request
+        
+        ```json
+        \\$ curl -X POST https://api.vectara.io/v2/agents/support-agent/sessions \\
+        -H "Authorization: Bearer YOUR_API_KEY" \\
+        -H "Content-Type: application/json" \\
+        -d '{
+          "key": "user_12345_session",
+          "name": "Customer Support Session",
+          "metadata": {
+            "user_role": "premium",
+            "language": "en"
+          }
+        }'
+        ```
+        A successful response includes the unique session key, configuration metadata, and timestamps for creation and last update.
+        
         Parameters
         ----------
         agent_key : AgentKey
             The unique key of the agent to create a session for.
-
+        
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
-
+        
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
+        
         key : typing.Optional[AgentSessionKey]
             A user provided key that uniquely identifies this session. If not provided, one will be auto-generated based on the session name.
-
+        
         name : typing.Optional[str]
             Human-readable name for the session.
-
+        
         description : typing.Optional[str]
             Optional description of the session purpose or context.
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the session.
-
+        
         enabled : typing.Optional[bool]
             Whether the session should be enabled upon creation.
-
+        
         tti_minutes : typing.Optional[int]
             Time-to-idle in minutes for the session. If no events occur in the session for this duration, the session will be automatically deleted. If set to 0, the session will not expire.
-
+        
+        from_session : typing.Optional[CreateAgentSessionRequestFromSession]
+            Create a new session by forking an existing one. By default, copies all visible events
+            and artifacts from the source session without compaction. Optionally specify exactly one of
+            include_up_to_event_id or compact_up_to_event_id to control which events are included
+            and whether they are compacted. These two fields are mutually exclusive.
+        
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
-
+        
         Returns
         -------
         AgentSession
-            The agent session has been created successfully.
-
+            The response includes the complete session configuration including the unique session key, associated agent key, and creation timestamp.
+        
         Examples
         --------
         import asyncio
-
+        
         from vectara import AsyncVectara
-
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
-
-
+        
+        client = AsyncVectara()
+        
+        
         async def main() -> None:
             await client.agent_sessions.create(
                 agent_key="customer_support",
             )
-
-
+        
+        
         asyncio.run(main())
         """
         _response = await self._raw_client.create(
@@ -557,6 +590,7 @@ class AsyncAgentSessionsClient:
             metadata=metadata,
             enabled=enabled,
             tti_minutes=tti_minutes,
+            from_session=from_session,
             request_options=request_options,
         )
         return _response.data
@@ -571,7 +605,7 @@ class AsyncAgentSessionsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AgentSession:
         """
-        Retrieve the details of a specific agent session by its ID, including session configuration.
+        Retrieve the full details of a specific agent session using its unique session key. The response includes the session's configuration, metadata, timestamps, and other stored properties. Use this endpoint to inspect the current state of a session or verify its configuration.
 
         Parameters
         ----------
@@ -601,11 +635,7 @@ class AsyncAgentSessionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -665,11 +695,7 @@ class AsyncAgentSessionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -699,13 +725,15 @@ class AsyncAgentSessionsClient:
         request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
         tti_minutes: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AgentSession:
         """
-        Update an existing agent session's configuration and metadata.
+        Update the configuration of an existing agent session. This endpoint enables you to modify fields such as the name, description, or metadata.
+
+        Updated metadata immediately influences agent behavior and becomes available to instructions and tools for the remainder of the session. For more details about configuring the agent session, see [Create agent session](https://docs.vectara.com/docs/rest-api/create-agent-session).
 
         Parameters
         ----------
@@ -727,7 +755,7 @@ class AsyncAgentSessionsClient:
         description : typing.Optional[str]
             Optional description of the session purpose or context.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the session.
 
         enabled : typing.Optional[bool]
@@ -750,11 +778,7 @@ class AsyncAgentSessionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:

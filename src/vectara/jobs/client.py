@@ -9,6 +9,7 @@ from ..core.request_options import RequestOptions
 from ..types.corpus_key import CorpusKey
 from ..types.job import Job
 from ..types.job_state import JobState
+from ..types.list_jobs_response import ListJobsResponse
 from .raw_client import AsyncRawJobsClient, RawJobsClient
 
 
@@ -38,7 +39,7 @@ class JobsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Job]:
+    ) -> SyncPager[Job, ListJobsResponse]:
         """
         List jobs for the account. Jobs are background processes like replacing the filterable metadata attributes.
 
@@ -70,18 +71,14 @@ class JobsClient:
 
         Returns
         -------
-        SyncPager[Job]
+        SyncPager[Job, ListJobsResponse]
             List of jobs.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.jobs.list()
         for item in response:
             yield item
@@ -109,7 +106,7 @@ class JobsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Job:
         """
-        Get a job by a specific ID. Jobs are background processes like replacing the filterable metadata attributes.
+        Get a job by a specific `job_id`. Jobs are background processes like replacing the filterable metadata attributes.
 
         Parameters
         ----------
@@ -134,11 +131,7 @@ class JobsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.jobs.get(
             job_id="job_id",
         )
@@ -178,7 +171,7 @@ class AsyncJobsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Job]:
+    ) -> AsyncPager[Job, ListJobsResponse]:
         """
         List jobs for the account. Jobs are background processes like replacing the filterable metadata attributes.
 
@@ -210,7 +203,7 @@ class AsyncJobsClient:
 
         Returns
         -------
-        AsyncPager[Job]
+        AsyncPager[Job, ListJobsResponse]
             List of jobs.
 
         Examples
@@ -219,11 +212,7 @@ class AsyncJobsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -258,7 +247,7 @@ class AsyncJobsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Job:
         """
-        Get a job by a specific ID. Jobs are background processes like replacing the filterable metadata attributes.
+        Get a job by a specific `job_id`. Jobs are background processes like replacing the filterable metadata attributes.
 
         Parameters
         ----------
@@ -285,11 +274,7 @@ class AsyncJobsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:

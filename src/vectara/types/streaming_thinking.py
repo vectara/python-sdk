@@ -12,7 +12,6 @@ class StreamingThinking(UniversalBaseModel):
     A streaming chunk of agent thinking (SSE only, not stored).
     """
 
-    type: typing.Literal["streaming_thinking"] = "streaming_thinking"
     content: str = pydantic.Field()
     """
     The thinking chunk content.

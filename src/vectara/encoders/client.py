@@ -5,8 +5,9 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
+from ..types.create_encoder_request import CreateEncoderRequest
 from ..types.encoder import Encoder
-from ..types.remote_auth import RemoteAuth
+from ..types.list_encoders_response import ListEncodersResponse
 from .raw_client import AsyncRawEncodersClient, RawEncodersClient
 
 # this is used as the default value for optional parameters
@@ -37,9 +38,9 @@ class EncodersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Encoder]:
+    ) -> SyncPager[Encoder, ListEncodersResponse]:
         """
-        Encoders are used to store and retrieve from a corpus.
+        The List Encoders API retrieves a list of available encoders used for embedding documents and queries.
 
         Parameters
         ----------
@@ -63,18 +64,14 @@ class EncodersClient:
 
         Returns
         -------
-        SyncPager[Encoder]
+        SyncPager[Encoder, ListEncodersResponse]
             List of encoders.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.encoders.list(
             filter="vectara.*",
         )
@@ -96,14 +93,9 @@ class EncodersClient:
     def create(
         self,
         *,
-        name: str,
-        description: str,
-        uri: str,
-        model: str,
+        request: CreateEncoderRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        output_dimensions: typing.Optional[int] = OMIT,
-        auth: typing.Optional[RemoteAuth] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Encoder:
         """
@@ -111,28 +103,13 @@ class EncodersClient:
 
         Parameters
         ----------
-        name : str
-            A unique name for the encoder
-
-        description : str
-            A description of what this encoder does
-
-        uri : str
-            The URI endpoint for the embedding API (can be OpenAI or any compatible embedding API endpoint)
-
-        model : str
-            The model name to use for embeddings
+        request : CreateEncoderRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        output_dimensions : typing.Optional[int]
-            The number of dimensions in the output embedding vector. If provided and the model supports truncation, the response will be truncated to this number of dimensions.
-
-        auth : typing.Optional[RemoteAuth]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -144,29 +121,22 @@ class EncodersClient:
 
         Examples
         --------
-        from vectara import Vectara
+        from vectara import CreateEncoderRequest_OpenaiCompatible, Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.encoders.create(
-            name="openai-text-encoder",
-            description="description",
-            uri="https://api.openai.com/v1/embeddings",
-            model="text-embedding-ada-002",
+            request=CreateEncoderRequest_OpenaiCompatible(
+                name="openai-text-encoder",
+                description="description",
+                uri="https://api.openai.com/v1/embeddings",
+                model="text-embedding-ada-002",
+            ),
         )
         """
         _response = self._raw_client.create(
-            name=name,
-            description=description,
-            uri=uri,
-            model=model,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
-            output_dimensions=output_dimensions,
-            auth=auth,
             request_options=request_options,
         )
         return _response.data
@@ -196,9 +166,9 @@ class AsyncEncodersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Encoder]:
+    ) -> AsyncPager[Encoder, ListEncodersResponse]:
         """
-        Encoders are used to store and retrieve from a corpus.
+        The List Encoders API retrieves a list of available encoders used for embedding documents and queries.
 
         Parameters
         ----------
@@ -222,7 +192,7 @@ class AsyncEncodersClient:
 
         Returns
         -------
-        AsyncPager[Encoder]
+        AsyncPager[Encoder, ListEncodersResponse]
             List of encoders.
 
         Examples
@@ -231,11 +201,7 @@ class AsyncEncodersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -264,14 +230,9 @@ class AsyncEncodersClient:
     async def create(
         self,
         *,
-        name: str,
-        description: str,
-        uri: str,
-        model: str,
+        request: CreateEncoderRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        output_dimensions: typing.Optional[int] = OMIT,
-        auth: typing.Optional[RemoteAuth] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Encoder:
         """
@@ -279,28 +240,13 @@ class AsyncEncodersClient:
 
         Parameters
         ----------
-        name : str
-            A unique name for the encoder
-
-        description : str
-            A description of what this encoder does
-
-        uri : str
-            The URI endpoint for the embedding API (can be OpenAI or any compatible embedding API endpoint)
-
-        model : str
-            The model name to use for embeddings
+        request : CreateEncoderRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        output_dimensions : typing.Optional[int]
-            The number of dimensions in the output embedding vector. If provided and the model supports truncation, the response will be truncated to this number of dimensions.
-
-        auth : typing.Optional[RemoteAuth]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -314,35 +260,28 @@ class AsyncEncodersClient:
         --------
         import asyncio
 
-        from vectara import AsyncVectara
+        from vectara import AsyncVectara, CreateEncoderRequest_OpenaiCompatible
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
             await client.encoders.create(
-                name="openai-text-encoder",
-                description="description",
-                uri="https://api.openai.com/v1/embeddings",
-                model="text-embedding-ada-002",
+                request=CreateEncoderRequest_OpenaiCompatible(
+                    name="openai-text-encoder",
+                    description="description",
+                    uri="https://api.openai.com/v1/embeddings",
+                    model="text-embedding-ada-002",
+                ),
             )
 
 
         asyncio.run(main())
         """
         _response = await self._raw_client.create(
-            name=name,
-            description=description,
-            uri=uri,
-            model=model,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
-            output_dimensions=output_dimensions,
-            auth=auth,
             request_options=request_options,
         )
         return _response.data

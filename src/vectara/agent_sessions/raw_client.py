@@ -7,9 +7,11 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
+from ..core.pagination import AsyncPager, SyncPager
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
+from ..core.serialization import convert_and_respect_annotation_metadata
 from ..errors.bad_request_error import BadRequestError
 from ..errors.forbidden_error import ForbiddenError
 from ..errors.not_found_error import NotFoundError
@@ -20,6 +22,8 @@ from ..types.bad_request_error_body import BadRequestErrorBody
 from ..types.error import Error
 from ..types.list_agent_sessions_response import ListAgentSessionsResponse
 from ..types.not_found_error_body import NotFoundErrorBody
+from .types.create_agent_session_request_from_session import CreateAgentSessionRequestFromSession
+from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -39,9 +43,9 @@ class RawAgentSessionsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[AgentSession]:
+    ) -> SyncPager[AgentSession, ListAgentSessionsResponse]:
         """
-        List all agent sessions for a specific agent, with optional filtering and pagination.
+        List all agent sessions for the specified agent. This endpoint returns high-level information about each session, with optional filtering and pagination. Use this operation to browse existing sessions or to locate a specific session key for further inspection or updates.
 
         Parameters
         ----------
@@ -68,7 +72,7 @@ class RawAgentSessionsClient:
 
         Returns
         -------
-        SyncPager[AgentSession]
+        SyncPager[AgentSession, ListAgentSessionsResponse]
             List of available agent sessions.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -110,9 +114,7 @@ class RawAgentSessionsClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                return SyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -138,6 +140,10 @@ class RawAgentSessionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
@@ -149,50 +155,78 @@ class RawAgentSessionsClient:
         key: typing.Optional[AgentSessionKey] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
         tti_minutes: typing.Optional[int] = OMIT,
+        from_session: typing.Optional[CreateAgentSessionRequestFromSession] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[AgentSession]:
         """
-        Create a new session for interacting with an agent. Sessions maintain conversation context.
-
+        Create a new session for interacting with an agent. A session is the conversation container that maintains state across all messages, events, tool use, and agent responses.
+        
+        This endpoint initializes the session and enables you to configure its initial properties, including optional metadata. Metadata can influence agent behavior, personalize responses, or apply access controls. Instructions and tools can also reference metadata using `${\\session.metadata.field}` or `$\\ref` syntax.
+        
+        A session also serves as the workspace for artifacts, enabling file uploads and multi-step workflows. For more information, see [Working with artifacts in sessions](https://docs.vectara.com/docs/agent-os/sessions#working-with-artifacts-in-sessions).
+        
+        ## Example request
+        
+        ```json
+        \\$ curl -X POST https://api.vectara.io/v2/agents/support-agent/sessions \\
+        -H "Authorization: Bearer YOUR_API_KEY" \\
+        -H "Content-Type: application/json" \\
+        -d '{
+          "key": "user_12345_session",
+          "name": "Customer Support Session",
+          "metadata": {
+            "user_role": "premium",
+            "language": "en"
+          }
+        }'
+        ```
+        A successful response includes the unique session key, configuration metadata, and timestamps for creation and last update.
+        
         Parameters
         ----------
         agent_key : AgentKey
             The unique key of the agent to create a session for.
-
+        
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
-
+        
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
+        
         key : typing.Optional[AgentSessionKey]
             A user provided key that uniquely identifies this session. If not provided, one will be auto-generated based on the session name.
-
+        
         name : typing.Optional[str]
             Human-readable name for the session.
-
+        
         description : typing.Optional[str]
             Optional description of the session purpose or context.
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the session.
-
+        
         enabled : typing.Optional[bool]
             Whether the session should be enabled upon creation.
-
+        
         tti_minutes : typing.Optional[int]
             Time-to-idle in minutes for the session. If no events occur in the session for this duration, the session will be automatically deleted. If set to 0, the session will not expire.
-
+        
+        from_session : typing.Optional[CreateAgentSessionRequestFromSession]
+            Create a new session by forking an existing one. By default, copies all visible events
+            and artifacts from the source session without compaction. Optionally specify exactly one of
+            include_up_to_event_id or compact_up_to_event_id to control which events are included
+            and whether they are compacted. These two fields are mutually exclusive.
+        
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
-
+        
         Returns
         -------
         HttpResponse[AgentSession]
-            The agent session has been created successfully.
+            The response includes the complete session configuration including the unique session key, associated agent key, and creation timestamp.
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/agents/{jsonable_encoder(agent_key)}/sessions",
@@ -205,6 +239,9 @@ class RawAgentSessionsClient:
                 "metadata": metadata,
                 "enabled": enabled,
                 "tti_minutes": tti_minutes,
+                "from_session": convert_and_respect_annotation_metadata(
+                    object_=from_session, annotation=CreateAgentSessionRequestFromSession, direction="write"
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -260,6 +297,10 @@ class RawAgentSessionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
@@ -272,7 +313,7 @@ class RawAgentSessionsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[AgentSession]:
         """
-        Retrieve the details of a specific agent session by its ID, including session configuration.
+        Retrieve the full details of a specific agent session using its unique session key. The response includes the session's configuration, metadata, timestamps, and other stored properties. Use this endpoint to inspect the current state of a session or verify its configuration.
 
         Parameters
         ----------
@@ -341,6 +382,10 @@ class RawAgentSessionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
@@ -414,6 +459,10 @@ class RawAgentSessionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def update(
@@ -425,13 +474,15 @@ class RawAgentSessionsClient:
         request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
         tti_minutes: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[AgentSession]:
         """
-        Update an existing agent session's configuration and metadata.
+        Update the configuration of an existing agent session. This endpoint enables you to modify fields such as the name, description, or metadata.
+
+        Updated metadata immediately influences agent behavior and becomes available to instructions and tools for the remainder of the session. For more details about configuring the agent session, see [Create agent session](https://docs.vectara.com/docs/rest-api/create-agent-session).
 
         Parameters
         ----------
@@ -453,7 +504,7 @@ class RawAgentSessionsClient:
         description : typing.Optional[str]
             Optional description of the session purpose or context.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the session.
 
         enabled : typing.Optional[bool]
@@ -535,6 +586,10 @@ class RawAgentSessionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -552,9 +607,9 @@ class AsyncRawAgentSessionsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[AgentSession]:
+    ) -> AsyncPager[AgentSession, ListAgentSessionsResponse]:
         """
-        List all agent sessions for a specific agent, with optional filtering and pagination.
+        List all agent sessions for the specified agent. This endpoint returns high-level information about each session, with optional filtering and pagination. Use this operation to browse existing sessions or to locate a specific session key for further inspection or updates.
 
         Parameters
         ----------
@@ -581,7 +636,7 @@ class AsyncRawAgentSessionsClient:
 
         Returns
         -------
-        AsyncPager[AgentSession]
+        AsyncPager[AgentSession, ListAgentSessionsResponse]
             List of available agent sessions.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -626,9 +681,7 @@ class AsyncRawAgentSessionsClient:
                             request_options=request_options,
                         )
 
-                return AsyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -654,6 +707,10 @@ class AsyncRawAgentSessionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
@@ -665,50 +722,78 @@ class AsyncRawAgentSessionsClient:
         key: typing.Optional[AgentSessionKey] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
         tti_minutes: typing.Optional[int] = OMIT,
+        from_session: typing.Optional[CreateAgentSessionRequestFromSession] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[AgentSession]:
         """
-        Create a new session for interacting with an agent. Sessions maintain conversation context.
-
+        Create a new session for interacting with an agent. A session is the conversation container that maintains state across all messages, events, tool use, and agent responses.
+        
+        This endpoint initializes the session and enables you to configure its initial properties, including optional metadata. Metadata can influence agent behavior, personalize responses, or apply access controls. Instructions and tools can also reference metadata using `${\\session.metadata.field}` or `$\\ref` syntax.
+        
+        A session also serves as the workspace for artifacts, enabling file uploads and multi-step workflows. For more information, see [Working with artifacts in sessions](https://docs.vectara.com/docs/agent-os/sessions#working-with-artifacts-in-sessions).
+        
+        ## Example request
+        
+        ```json
+        \\$ curl -X POST https://api.vectara.io/v2/agents/support-agent/sessions \\
+        -H "Authorization: Bearer YOUR_API_KEY" \\
+        -H "Content-Type: application/json" \\
+        -d '{
+          "key": "user_12345_session",
+          "name": "Customer Support Session",
+          "metadata": {
+            "user_role": "premium",
+            "language": "en"
+          }
+        }'
+        ```
+        A successful response includes the unique session key, configuration metadata, and timestamps for creation and last update.
+        
         Parameters
         ----------
         agent_key : AgentKey
             The unique key of the agent to create a session for.
-
+        
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
-
+        
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
+        
         key : typing.Optional[AgentSessionKey]
             A user provided key that uniquely identifies this session. If not provided, one will be auto-generated based on the session name.
-
+        
         name : typing.Optional[str]
             Human-readable name for the session.
-
+        
         description : typing.Optional[str]
             Optional description of the session purpose or context.
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the session.
-
+        
         enabled : typing.Optional[bool]
             Whether the session should be enabled upon creation.
-
+        
         tti_minutes : typing.Optional[int]
             Time-to-idle in minutes for the session. If no events occur in the session for this duration, the session will be automatically deleted. If set to 0, the session will not expire.
-
+        
+        from_session : typing.Optional[CreateAgentSessionRequestFromSession]
+            Create a new session by forking an existing one. By default, copies all visible events
+            and artifacts from the source session without compaction. Optionally specify exactly one of
+            include_up_to_event_id or compact_up_to_event_id to control which events are included
+            and whether they are compacted. These two fields are mutually exclusive.
+        
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
-
+        
         Returns
         -------
         AsyncHttpResponse[AgentSession]
-            The agent session has been created successfully.
+            The response includes the complete session configuration including the unique session key, associated agent key, and creation timestamp.
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/agents/{jsonable_encoder(agent_key)}/sessions",
@@ -721,6 +806,9 @@ class AsyncRawAgentSessionsClient:
                 "metadata": metadata,
                 "enabled": enabled,
                 "tti_minutes": tti_minutes,
+                "from_session": convert_and_respect_annotation_metadata(
+                    object_=from_session, annotation=CreateAgentSessionRequestFromSession, direction="write"
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -776,6 +864,10 @@ class AsyncRawAgentSessionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
@@ -788,7 +880,7 @@ class AsyncRawAgentSessionsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[AgentSession]:
         """
-        Retrieve the details of a specific agent session by its ID, including session configuration.
+        Retrieve the full details of a specific agent session using its unique session key. The response includes the session's configuration, metadata, timestamps, and other stored properties. Use this endpoint to inspect the current state of a session or verify its configuration.
 
         Parameters
         ----------
@@ -857,6 +949,10 @@ class AsyncRawAgentSessionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
@@ -930,6 +1026,10 @@ class AsyncRawAgentSessionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def update(
@@ -941,13 +1041,15 @@ class AsyncRawAgentSessionsClient:
         request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
         tti_minutes: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[AgentSession]:
         """
-        Update an existing agent session's configuration and metadata.
+        Update the configuration of an existing agent session. This endpoint enables you to modify fields such as the name, description, or metadata.
+
+        Updated metadata immediately influences agent behavior and becomes available to instructions and tools for the remainder of the session. For more details about configuring the agent session, see [Create agent session](https://docs.vectara.com/docs/rest-api/create-agent-session).
 
         Parameters
         ----------
@@ -969,7 +1071,7 @@ class AsyncRawAgentSessionsClient:
         description : typing.Optional[str]
             Optional description of the session purpose or context.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the session.
 
         enabled : typing.Optional[bool]
@@ -1051,4 +1153,8 @@ class AsyncRawAgentSessionsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

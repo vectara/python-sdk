@@ -4,6 +4,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .llm_capabilities import LlmCapabilities
 from .vertex_ai_auth import VertexAiAuth
 
 
@@ -12,7 +13,6 @@ class CreateVertexAillmRequest(UniversalBaseModel):
     Request to create a Vertex AI Large Language Model connection for Gemini models.
     """
 
-    type: typing.Literal["vertex-ai"] = "vertex-ai"
     name: str = pydantic.Field()
     """
     Name to reference the LLM. This will be used in other endpoints (like query) when using this LLM. If this name conflicts with a global LLM (a LLM that is preconfigured with the Vectara platform), then it will override that LLM for all usages.
@@ -30,14 +30,22 @@ class CreateVertexAillmRequest(UniversalBaseModel):
 
     uri: str = pydantic.Field()
     """
-    The URI endpoint for the Vertex AI API
+    The base URI for the Gemini API. You can provide URIs in various formats — the system will normalize them automatically, stripping any model path, method suffix, or query parameters.
+    
+    **Vertex AI** (for service account auth): Provide the project/location base URI. Example: `https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR-PROJECT/locations/us-central1`
+    
+    **Google AI Studio** (for API key auth): Provide the Generative Language API base URI. Example: `https://generativelanguage.googleapis.com/v1beta`
+    
+    Full URIs copied from Google docs also work — the model path and `:generateContent` suffix will be stripped and rebuilt automatically from the `model` field.
     """
 
     auth: VertexAiAuth
-    test_model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    test_model_parameters: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     Any additional parameters that are required for the LLM during the test call.
     """
+
+    capabilities: typing.Optional[LlmCapabilities] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

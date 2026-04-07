@@ -11,8 +11,6 @@ class DefaultOutputParser(UniversalBaseModel):
     Uses native tool calling capabilities and returns output directly to the user. This parser leverages the underlying model's built-in tool calling functionality and passes responses through without additional processing.
     """
 
-    type: typing.Literal["default"] = "default"
-
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

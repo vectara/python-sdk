@@ -2,6 +2,171 @@
 
 # isort: skip_file
 
-from .types import AgentEventsCreateResponse, AgentEventsCreateStreamResponse
+import typing
+from importlib import import_module
 
-__all__ = ["AgentEventsCreateResponse", "AgentEventsCreateStreamResponse"]
+if typing.TYPE_CHECKING:
+    from .types import (
+        CreateAgentEventsRequestBody,
+        CreateAgentEventsRequestBody_Compact,
+        CreateAgentEventsRequestBody_InputMessage,
+        CreateAgentEventsRequestBody_Interrupt,
+        CreateAgentEventsResponse,
+        CreateAgentEventsResponse_AgentOutput,
+        CreateAgentEventsResponse_ArtifactUpload,
+        CreateAgentEventsResponse_Compaction,
+        CreateAgentEventsResponse_ContextLimitExceeded,
+        CreateAgentEventsResponse_ImageRead,
+        CreateAgentEventsResponse_InputMessage,
+        CreateAgentEventsResponse_SessionInterrupted,
+        CreateAgentEventsResponse_SkillLoad,
+        CreateAgentEventsResponse_StepTransition,
+        CreateAgentEventsResponse_StepTransitionLimitExceeded,
+        CreateAgentEventsResponse_StructuredOutput,
+        CreateAgentEventsResponse_Thinking,
+        CreateAgentEventsResponse_ToolInput,
+        CreateAgentEventsResponse_ToolOutput,
+        CreateAgentEventsStreamRequestBody,
+        CreateAgentEventsStreamRequestBody_Compact,
+        CreateAgentEventsStreamRequestBody_InputMessage,
+        CreateAgentEventsStreamRequestBody_Interrupt,
+        CreateAgentEventsStreamResponse,
+        CreateAgentEventsStreamResponse_ArtifactUpload,
+        CreateAgentEventsStreamResponse_Compaction,
+        CreateAgentEventsStreamResponse_CompactionStarted,
+        CreateAgentEventsStreamResponse_ContextConsumed,
+        CreateAgentEventsStreamResponse_ContextLimitExceeded,
+        CreateAgentEventsStreamResponse_End,
+        CreateAgentEventsStreamResponse_Error,
+        CreateAgentEventsStreamResponse_ImageRead,
+        CreateAgentEventsStreamResponse_InputMessage,
+        CreateAgentEventsStreamResponse_SessionInterrupted,
+        CreateAgentEventsStreamResponse_SkillLoad,
+        CreateAgentEventsStreamResponse_StepTransition,
+        CreateAgentEventsStreamResponse_StepTransitionLimitExceeded,
+        CreateAgentEventsStreamResponse_StreamingAgentOutput,
+        CreateAgentEventsStreamResponse_StreamingAgentOutputEnd,
+        CreateAgentEventsStreamResponse_StreamingThinking,
+        CreateAgentEventsStreamResponse_StreamingThinkingEnd,
+        CreateAgentEventsStreamResponse_StructuredOutput,
+        CreateAgentEventsStreamResponse_Thinking,
+        CreateAgentEventsStreamResponse_ToolInput,
+        CreateAgentEventsStreamResponse_ToolOutput,
+    )
+_dynamic_imports: typing.Dict[str, str] = {
+    "CreateAgentEventsRequestBody": ".types",
+    "CreateAgentEventsRequestBody_Compact": ".types",
+    "CreateAgentEventsRequestBody_InputMessage": ".types",
+    "CreateAgentEventsRequestBody_Interrupt": ".types",
+    "CreateAgentEventsResponse": ".types",
+    "CreateAgentEventsResponse_AgentOutput": ".types",
+    "CreateAgentEventsResponse_ArtifactUpload": ".types",
+    "CreateAgentEventsResponse_Compaction": ".types",
+    "CreateAgentEventsResponse_ContextLimitExceeded": ".types",
+    "CreateAgentEventsResponse_ImageRead": ".types",
+    "CreateAgentEventsResponse_InputMessage": ".types",
+    "CreateAgentEventsResponse_SessionInterrupted": ".types",
+    "CreateAgentEventsResponse_SkillLoad": ".types",
+    "CreateAgentEventsResponse_StepTransition": ".types",
+    "CreateAgentEventsResponse_StepTransitionLimitExceeded": ".types",
+    "CreateAgentEventsResponse_StructuredOutput": ".types",
+    "CreateAgentEventsResponse_Thinking": ".types",
+    "CreateAgentEventsResponse_ToolInput": ".types",
+    "CreateAgentEventsResponse_ToolOutput": ".types",
+    "CreateAgentEventsStreamRequestBody": ".types",
+    "CreateAgentEventsStreamRequestBody_Compact": ".types",
+    "CreateAgentEventsStreamRequestBody_InputMessage": ".types",
+    "CreateAgentEventsStreamRequestBody_Interrupt": ".types",
+    "CreateAgentEventsStreamResponse": ".types",
+    "CreateAgentEventsStreamResponse_ArtifactUpload": ".types",
+    "CreateAgentEventsStreamResponse_Compaction": ".types",
+    "CreateAgentEventsStreamResponse_CompactionStarted": ".types",
+    "CreateAgentEventsStreamResponse_ContextConsumed": ".types",
+    "CreateAgentEventsStreamResponse_ContextLimitExceeded": ".types",
+    "CreateAgentEventsStreamResponse_End": ".types",
+    "CreateAgentEventsStreamResponse_Error": ".types",
+    "CreateAgentEventsStreamResponse_ImageRead": ".types",
+    "CreateAgentEventsStreamResponse_InputMessage": ".types",
+    "CreateAgentEventsStreamResponse_SessionInterrupted": ".types",
+    "CreateAgentEventsStreamResponse_SkillLoad": ".types",
+    "CreateAgentEventsStreamResponse_StepTransition": ".types",
+    "CreateAgentEventsStreamResponse_StepTransitionLimitExceeded": ".types",
+    "CreateAgentEventsStreamResponse_StreamingAgentOutput": ".types",
+    "CreateAgentEventsStreamResponse_StreamingAgentOutputEnd": ".types",
+    "CreateAgentEventsStreamResponse_StreamingThinking": ".types",
+    "CreateAgentEventsStreamResponse_StreamingThinkingEnd": ".types",
+    "CreateAgentEventsStreamResponse_StructuredOutput": ".types",
+    "CreateAgentEventsStreamResponse_Thinking": ".types",
+    "CreateAgentEventsStreamResponse_ToolInput": ".types",
+    "CreateAgentEventsStreamResponse_ToolOutput": ".types",
+}
+
+
+def __getattr__(attr_name: str) -> typing.Any:
+    module_name = _dynamic_imports.get(attr_name)
+    if module_name is None:
+        raise AttributeError(f"No {attr_name} found in _dynamic_imports for module name -> {__name__}")
+    try:
+        module = import_module(module_name, __package__)
+        if module_name == f".{attr_name}":
+            return module
+        else:
+            return getattr(module, attr_name)
+    except ImportError as e:
+        raise ImportError(f"Failed to import {attr_name} from {module_name}: {e}") from e
+    except AttributeError as e:
+        raise AttributeError(f"Failed to get {attr_name} from {module_name}: {e}") from e
+
+
+def __dir__():
+    lazy_attrs = list(_dynamic_imports.keys())
+    return sorted(lazy_attrs)
+
+
+__all__ = [
+    "CreateAgentEventsRequestBody",
+    "CreateAgentEventsRequestBody_Compact",
+    "CreateAgentEventsRequestBody_InputMessage",
+    "CreateAgentEventsRequestBody_Interrupt",
+    "CreateAgentEventsResponse",
+    "CreateAgentEventsResponse_AgentOutput",
+    "CreateAgentEventsResponse_ArtifactUpload",
+    "CreateAgentEventsResponse_Compaction",
+    "CreateAgentEventsResponse_ContextLimitExceeded",
+    "CreateAgentEventsResponse_ImageRead",
+    "CreateAgentEventsResponse_InputMessage",
+    "CreateAgentEventsResponse_SessionInterrupted",
+    "CreateAgentEventsResponse_SkillLoad",
+    "CreateAgentEventsResponse_StepTransition",
+    "CreateAgentEventsResponse_StepTransitionLimitExceeded",
+    "CreateAgentEventsResponse_StructuredOutput",
+    "CreateAgentEventsResponse_Thinking",
+    "CreateAgentEventsResponse_ToolInput",
+    "CreateAgentEventsResponse_ToolOutput",
+    "CreateAgentEventsStreamRequestBody",
+    "CreateAgentEventsStreamRequestBody_Compact",
+    "CreateAgentEventsStreamRequestBody_InputMessage",
+    "CreateAgentEventsStreamRequestBody_Interrupt",
+    "CreateAgentEventsStreamResponse",
+    "CreateAgentEventsStreamResponse_ArtifactUpload",
+    "CreateAgentEventsStreamResponse_Compaction",
+    "CreateAgentEventsStreamResponse_CompactionStarted",
+    "CreateAgentEventsStreamResponse_ContextConsumed",
+    "CreateAgentEventsStreamResponse_ContextLimitExceeded",
+    "CreateAgentEventsStreamResponse_End",
+    "CreateAgentEventsStreamResponse_Error",
+    "CreateAgentEventsStreamResponse_ImageRead",
+    "CreateAgentEventsStreamResponse_InputMessage",
+    "CreateAgentEventsStreamResponse_SessionInterrupted",
+    "CreateAgentEventsStreamResponse_SkillLoad",
+    "CreateAgentEventsStreamResponse_StepTransition",
+    "CreateAgentEventsStreamResponse_StepTransitionLimitExceeded",
+    "CreateAgentEventsStreamResponse_StreamingAgentOutput",
+    "CreateAgentEventsStreamResponse_StreamingAgentOutputEnd",
+    "CreateAgentEventsStreamResponse_StreamingThinking",
+    "CreateAgentEventsStreamResponse_StreamingThinkingEnd",
+    "CreateAgentEventsStreamResponse_StructuredOutput",
+    "CreateAgentEventsStreamResponse_Thinking",
+    "CreateAgentEventsStreamResponse_ToolInput",
+    "CreateAgentEventsStreamResponse_ToolOutput",
+]

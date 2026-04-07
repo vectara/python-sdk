@@ -2,7 +2,37 @@
 
 # isort: skip_file
 
-from .users_create_response import UsersCreateResponse
-from .users_reset_password_response import UsersResetPasswordResponse
+import typing
+from importlib import import_module
 
-__all__ = ["UsersCreateResponse", "UsersResetPasswordResponse"]
+if typing.TYPE_CHECKING:
+    from .create_users_response import CreateUsersResponse
+    from .reset_password_users_response import ResetPasswordUsersResponse
+_dynamic_imports: typing.Dict[str, str] = {
+    "CreateUsersResponse": ".create_users_response",
+    "ResetPasswordUsersResponse": ".reset_password_users_response",
+}
+
+
+def __getattr__(attr_name: str) -> typing.Any:
+    module_name = _dynamic_imports.get(attr_name)
+    if module_name is None:
+        raise AttributeError(f"No {attr_name} found in _dynamic_imports for module name -> {__name__}")
+    try:
+        module = import_module(module_name, __package__)
+        if module_name == f".{attr_name}":
+            return module
+        else:
+            return getattr(module, attr_name)
+    except ImportError as e:
+        raise ImportError(f"Failed to import {attr_name} from {module_name}: {e}") from e
+    except AttributeError as e:
+        raise AttributeError(f"Failed to get {attr_name} from {module_name}: {e}") from e
+
+
+def __dir__():
+    lazy_attrs = list(_dynamic_imports.keys())
+    return sorted(lazy_attrs)
+
+
+__all__ = ["CreateUsersResponse", "ResetPasswordUsersResponse"]

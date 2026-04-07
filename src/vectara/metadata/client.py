@@ -84,11 +84,7 @@ class MetadataClient:
         --------
         from vectara import FieldQuery, Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.metadata.query_metadata(
             corpus_key="my-corpus",
             queries=[
@@ -191,11 +187,7 @@ class AsyncMetadataClient:
 
         from vectara import AsyncVectara, FieldQuery
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:

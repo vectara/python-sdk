@@ -37,7 +37,7 @@ class SearchParameters(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
-from .chain_reranker import ChainReranker  # noqa: E402, F401, I001
-from .search_reranker import SearchReranker  # noqa: E402, F401, I001
+from .chain_reranker import ChainReranker  # noqa: E402, I001
+from .search_reranker import SearchReranker  # noqa: E402, I001
 
-update_forward_refs(SearchParameters)
+update_forward_refs(SearchParameters, ChainReranker=ChainReranker, SearchReranker=SearchReranker)

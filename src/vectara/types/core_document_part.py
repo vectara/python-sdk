@@ -17,19 +17,19 @@ class CoreDocumentPart(UniversalBaseModel):
     The text of the document part.
     """
 
-    metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     The metadata for a document part. These may be used in metadata filters at query time if filter attributes are configured on the corpus.
     """
 
     table_id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The ID of the table that this document part belongs to.
+    The ID of the table that this document part is summarizing.
     """
 
     image_id: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The ID of the image that this document part belongs to.
+    The ID of the image that this document part is summarizing.
     """
 
     context: typing.Optional[str] = pydantic.Field(default=None)

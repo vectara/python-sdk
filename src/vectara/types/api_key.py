@@ -4,8 +4,11 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .agent_role import AgentRole
 from .api_key_role import ApiKeyRole
 from .api_policy import ApiPolicy
+from .api_role import ApiRole
+from .corpus_role import CorpusRole
 
 
 class ApiKey(UniversalBaseModel):
@@ -33,7 +36,26 @@ class ApiKey(UniversalBaseModel):
     If this API key is enabled.
     """
 
-    api_key_role: typing.Optional[ApiKeyRole] = None
+    api_roles: typing.Optional[typing.List[ApiRole]] = pydantic.Field(default=None)
+    """
+    Customer-level roles for this API key.
+    """
+
+    api_key_role: typing.Optional[ApiKeyRole] = pydantic.Field(default=None)
+    """
+    Deprecated: Use api_roles instead. Legacy role of the API key.
+    """
+
+    corpus_roles: typing.Optional[typing.List[CorpusRole]] = pydantic.Field(default=None)
+    """
+    Corpus-specific role assignments for this API key.
+    """
+
+    agent_roles: typing.Optional[typing.List[AgentRole]] = pydantic.Field(default=None)
+    """
+    Agent-specific role assignments for this API key.
+    """
+
     api_policy: typing.Optional[ApiPolicy] = None
 
     if IS_PYDANTIC_V2:

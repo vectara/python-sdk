@@ -5,11 +5,14 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
+from ..types.list_tool_servers_response import ListToolServersResponse
 from ..types.remote_auth import RemoteAuth
 from ..types.tool_server import ToolServer
 from ..types.tool_server_name import ToolServerName
 from ..types.tool_server_transport import ToolServerTransport
+from ..types.tool_server_type import ToolServerType
 from .raw_client import AsyncRawToolServersClient, RawToolServersClient
+from .types.list_tool_servers_request_type import ListToolServersRequestType
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -34,14 +37,14 @@ class ToolServersClient:
         self,
         *,
         filter: typing.Optional[str] = None,
-        type: typing.Optional[typing.Literal["mcp"]] = None,
+        type: typing.Optional[ListToolServersRequestType] = None,
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[ToolServer]:
+    ) -> SyncPager[ToolServer, ListToolServersResponse]:
         """
         Retrieve a list of available tool servers that expose various tools.
 
@@ -50,7 +53,7 @@ class ToolServersClient:
         filter : typing.Optional[str]
             A regular expression against tool server names and descriptions to filter the results.
 
-        type : typing.Optional[typing.Literal["mcp"]]
+        type : typing.Optional[ListToolServersRequestType]
             Filter tool servers by type.
 
         enabled : typing.Optional[bool]
@@ -73,18 +76,14 @@ class ToolServersClient:
 
         Returns
         -------
-        SyncPager[ToolServer]
+        SyncPager[ToolServer, ListToolServersResponse]
             List of available tool servers.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.tool_servers.list(
             filter="rag.*",
             enabled=True,
@@ -110,6 +109,7 @@ class ToolServersClient:
         self,
         *,
         name: ToolServerName,
+        type: ToolServerType,
         uri: str,
         transport: ToolServerTransport,
         request_timeout: typing.Optional[int] = None,
@@ -118,7 +118,7 @@ class ToolServersClient:
         headers: typing.Optional[typing.Dict[str, str]] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ToolServer:
         """
@@ -127,6 +127,8 @@ class ToolServersClient:
         Parameters
         ----------
         name : ToolServerName
+
+        type : ToolServerType
 
         uri : str
             The URI of the tool server.
@@ -151,7 +153,7 @@ class ToolServersClient:
         enabled : typing.Optional[bool]
             Whether the tool server is currently enabled and available for use.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the tool server.
 
         request_options : typing.Optional[RequestOptions]
@@ -166,19 +168,17 @@ class ToolServersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.tool_servers.create(
             name="RAG Search Server",
+            type="mcp",
             uri="https://api.example.com/rag_search",
             transport="sse",
         )
         """
         _response = self._raw_client.create(
             name=name,
+            type=type,
             uri=uri,
             transport=transport,
             request_timeout=request_timeout,
@@ -226,11 +226,7 @@ class ToolServersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.tool_servers.get(
             tool_server_id="tsr_rag_search",
         )
@@ -276,11 +272,7 @@ class ToolServersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.tool_servers.delete(
             tool_server_id="tsr_rag_search",
         )
@@ -306,7 +298,7 @@ class ToolServersClient:
         transport: typing.Optional[ToolServerTransport] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ToolServer:
         """
@@ -342,7 +334,7 @@ class ToolServersClient:
         enabled : typing.Optional[bool]
             Whether the tool server is currently enabled and available for use.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the tool server.
 
         request_options : typing.Optional[RequestOptions]
@@ -357,11 +349,7 @@ class ToolServersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.tool_servers.update(
             tool_server_id="tsr_rag_search",
         )
@@ -415,11 +403,7 @@ class ToolServersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.tool_servers.sync(
             tool_server_id="tsr_rag_search",
         )
@@ -452,14 +436,14 @@ class AsyncToolServersClient:
         self,
         *,
         filter: typing.Optional[str] = None,
-        type: typing.Optional[typing.Literal["mcp"]] = None,
+        type: typing.Optional[ListToolServersRequestType] = None,
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[ToolServer]:
+    ) -> AsyncPager[ToolServer, ListToolServersResponse]:
         """
         Retrieve a list of available tool servers that expose various tools.
 
@@ -468,7 +452,7 @@ class AsyncToolServersClient:
         filter : typing.Optional[str]
             A regular expression against tool server names and descriptions to filter the results.
 
-        type : typing.Optional[typing.Literal["mcp"]]
+        type : typing.Optional[ListToolServersRequestType]
             Filter tool servers by type.
 
         enabled : typing.Optional[bool]
@@ -491,7 +475,7 @@ class AsyncToolServersClient:
 
         Returns
         -------
-        AsyncPager[ToolServer]
+        AsyncPager[ToolServer, ListToolServersResponse]
             List of available tool servers.
 
         Examples
@@ -500,11 +484,7 @@ class AsyncToolServersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -537,6 +517,7 @@ class AsyncToolServersClient:
         self,
         *,
         name: ToolServerName,
+        type: ToolServerType,
         uri: str,
         transport: ToolServerTransport,
         request_timeout: typing.Optional[int] = None,
@@ -545,7 +526,7 @@ class AsyncToolServersClient:
         headers: typing.Optional[typing.Dict[str, str]] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ToolServer:
         """
@@ -554,6 +535,8 @@ class AsyncToolServersClient:
         Parameters
         ----------
         name : ToolServerName
+
+        type : ToolServerType
 
         uri : str
             The URI of the tool server.
@@ -578,7 +561,7 @@ class AsyncToolServersClient:
         enabled : typing.Optional[bool]
             Whether the tool server is currently enabled and available for use.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the tool server.
 
         request_options : typing.Optional[RequestOptions]
@@ -595,16 +578,13 @@ class AsyncToolServersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
             await client.tool_servers.create(
                 name="RAG Search Server",
+                type="mcp",
                 uri="https://api.example.com/rag_search",
                 transport="sse",
             )
@@ -614,6 +594,7 @@ class AsyncToolServersClient:
         """
         _response = await self._raw_client.create(
             name=name,
+            type=type,
             uri=uri,
             transport=transport,
             request_timeout=request_timeout,
@@ -663,11 +644,7 @@ class AsyncToolServersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -721,11 +698,7 @@ class AsyncToolServersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -757,7 +730,7 @@ class AsyncToolServersClient:
         transport: typing.Optional[ToolServerTransport] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ToolServer:
         """
@@ -793,7 +766,7 @@ class AsyncToolServersClient:
         enabled : typing.Optional[bool]
             Whether the tool server is currently enabled and available for use.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the tool server.
 
         request_options : typing.Optional[RequestOptions]
@@ -810,11 +783,7 @@ class AsyncToolServersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -876,11 +845,7 @@ class AsyncToolServersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:

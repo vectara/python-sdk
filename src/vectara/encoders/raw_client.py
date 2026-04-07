@@ -6,17 +6,19 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
+from ..core.pagination import AsyncPager, SyncPager
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..core.serialization import convert_and_respect_annotation_metadata
 from ..errors.bad_request_error import BadRequestError
 from ..errors.forbidden_error import ForbiddenError
 from ..types.bad_request_error_body import BadRequestErrorBody
+from ..types.create_encoder_request import CreateEncoderRequest
 from ..types.encoder import Encoder
 from ..types.error import Error
 from ..types.list_encoders_response import ListEncodersResponse
-from ..types.remote_auth import RemoteAuth
+from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -35,9 +37,9 @@ class RawEncodersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Encoder]:
+    ) -> SyncPager[Encoder, ListEncodersResponse]:
         """
-        Encoders are used to store and retrieve from a corpus.
+        The List Encoders API retrieves a list of available encoders used for embedding documents and queries.
 
         Parameters
         ----------
@@ -61,7 +63,7 @@ class RawEncodersClient:
 
         Returns
         -------
-        SyncPager[Encoder]
+        SyncPager[Encoder, ListEncodersResponse]
             List of encoders.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -102,9 +104,7 @@ class RawEncodersClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                return SyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -119,19 +119,18 @@ class RawEncodersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
         self,
         *,
-        name: str,
-        description: str,
-        uri: str,
-        model: str,
+        request: CreateEncoderRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        output_dimensions: typing.Optional[int] = OMIT,
-        auth: typing.Optional[RemoteAuth] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Encoder]:
         """
@@ -139,28 +138,13 @@ class RawEncodersClient:
 
         Parameters
         ----------
-        name : str
-            A unique name for the encoder
-
-        description : str
-            A description of what this encoder does
-
-        uri : str
-            The URI endpoint for the embedding API (can be OpenAI or any compatible embedding API endpoint)
-
-        model : str
-            The model name to use for embeddings
+        request : CreateEncoderRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        output_dimensions : typing.Optional[int]
-            The number of dimensions in the output embedding vector. If provided and the model supports truncation, the response will be truncated to this number of dimensions.
-
-        auth : typing.Optional[RemoteAuth]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -174,15 +158,9 @@ class RawEncodersClient:
             "v2/encoders",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            json={
-                "name": name,
-                "description": description,
-                "output_dimensions": output_dimensions,
-                "uri": uri,
-                "model": model,
-                "auth": convert_and_respect_annotation_metadata(object_=auth, annotation=RemoteAuth, direction="write"),
-                "type": "openai-compatible",
-            },
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=CreateEncoderRequest, direction="write"
+            ),
             headers={
                 "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -226,6 +204,10 @@ class RawEncodersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -242,9 +224,9 @@ class AsyncRawEncodersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Encoder]:
+    ) -> AsyncPager[Encoder, ListEncodersResponse]:
         """
-        Encoders are used to store and retrieve from a corpus.
+        The List Encoders API retrieves a list of available encoders used for embedding documents and queries.
 
         Parameters
         ----------
@@ -268,7 +250,7 @@ class AsyncRawEncodersClient:
 
         Returns
         -------
-        AsyncPager[Encoder]
+        AsyncPager[Encoder, ListEncodersResponse]
             List of encoders.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -312,9 +294,7 @@ class AsyncRawEncodersClient:
                             request_options=request_options,
                         )
 
-                return AsyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -329,19 +309,18 @@ class AsyncRawEncodersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
         self,
         *,
-        name: str,
-        description: str,
-        uri: str,
-        model: str,
+        request: CreateEncoderRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        output_dimensions: typing.Optional[int] = OMIT,
-        auth: typing.Optional[RemoteAuth] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Encoder]:
         """
@@ -349,28 +328,13 @@ class AsyncRawEncodersClient:
 
         Parameters
         ----------
-        name : str
-            A unique name for the encoder
-
-        description : str
-            A description of what this encoder does
-
-        uri : str
-            The URI endpoint for the embedding API (can be OpenAI or any compatible embedding API endpoint)
-
-        model : str
-            The model name to use for embeddings
+        request : CreateEncoderRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        output_dimensions : typing.Optional[int]
-            The number of dimensions in the output embedding vector. If provided and the model supports truncation, the response will be truncated to this number of dimensions.
-
-        auth : typing.Optional[RemoteAuth]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -384,15 +348,9 @@ class AsyncRawEncodersClient:
             "v2/encoders",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            json={
-                "name": name,
-                "description": description,
-                "output_dimensions": output_dimensions,
-                "uri": uri,
-                "model": model,
-                "auth": convert_and_respect_annotation_metadata(object_=auth, annotation=RemoteAuth, direction="write"),
-                "type": "openai-compatible",
-            },
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=CreateEncoderRequest, direction="write"
+            ),
             headers={
                 "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -436,4 +394,8 @@ class AsyncRawEncodersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

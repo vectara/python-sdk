@@ -5,6 +5,7 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .chat_completion_response_choice import ChatCompletionResponseChoice
+from .create_chat_completion_response_object import CreateChatCompletionResponseObject
 
 
 class CreateChatCompletionResponse(UniversalBaseModel):
@@ -12,7 +13,7 @@ class CreateChatCompletionResponse(UniversalBaseModel):
     Response object containing the generated chat completion.
     """
 
-    object: typing.Literal["chat.completion"] = pydantic.Field(default="chat.completion")
+    object: CreateChatCompletionResponseObject = pydantic.Field()
     """
     The object type, which is always 'chat.completion'.
     """

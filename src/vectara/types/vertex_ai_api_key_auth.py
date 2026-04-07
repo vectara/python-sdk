@@ -11,7 +11,6 @@ class VertexAiApiKeyAuth(UniversalBaseModel):
     API key authentication for Vertex AI
     """
 
-    type: typing.Literal["api_key"] = "api_key"
     api_key: str = pydantic.Field()
     """
     The Google Cloud API key for authentication

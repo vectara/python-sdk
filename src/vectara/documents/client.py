@@ -5,12 +5,15 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
+from ..types.bulk_delete_documents_response import BulkDeleteDocumentsResponse
 from ..types.corpus_key import CorpusKey
 from ..types.create_document_request import CreateDocumentRequest
 from ..types.document import Document
 from ..types.image import Image
+from ..types.list_documents_response import ListDocumentsResponse
 from ..types.summarize_document_response import SummarizeDocumentResponse
 from .raw_client import AsyncRawDocumentsClient, RawDocumentsClient
+from .types.create_documents_request_wait_for import CreateDocumentsRequestWaitFor
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -41,9 +44,15 @@ class DocumentsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Document]:
+    ) -> SyncPager[Document, ListDocumentsResponse]:
         """
-        Retrieve a list of documents stored in a specific corpus. This endpoint provides an overview of document metadata without returning the full content of each document.
+        The List Documents API enables you to retrieve a list of documents stored in a specific corpus. This endpoint provides an overview of document metadata, including document IDs, tables (if table extraction is enabled), and pagination details.
+
+        Use this API for viewing documents indexed so far and helping you decide to remove documents that are no longer needed. It helps you manage the document lifecycle in your environment.
+
+        This information enables you to catalog and inventory large amounts of data while also retrieving lists of documents for further analysis. For example, developers can utilize the metadata to to build custom search and filtering capabilities into their applications. If you enabled tabled extraction, this endpoint also returns the tables that this document contains.
+
+        Currently Document Admin APIs do not allow you to access the text of your documents.
 
         Parameters
         ----------
@@ -70,18 +79,14 @@ class DocumentsClient:
 
         Returns
         -------
-        SyncPager[Document]
-            List of documents.
+        SyncPager[Document, ListDocumentsResponse]
+            The response contains an array of document objects with the matching document IDs, metadata, tables, parts, storage usage, and metadata about the pagination.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.documents.list(
             corpus_key="my-corpus",
         )
@@ -106,17 +111,47 @@ class DocumentsClient:
         corpus_key: CorpusKey,
         *,
         request: CreateDocumentRequest,
+        wait_for: typing.Optional[CreateDocumentsRequestWaitFor] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
-        Add a document to a corpus. This endpoint supports two document formats: structured and core.
+        Add a document to a corpus for indexing, making its content available for search, retrieval, and generation. This endpoint supports two ingestion modes: **structured** documents and **core** documents. These modes offer different levels of control over document structure and chunking.
 
-        * **Structured** documents have a conventional structure that provides document sections and parts in a format created by our proprietary strategy automatically. You provide a logical document structure, and Vectara handles the partitioning.
-        * **Core** documents differ in that they follow an advanced, granular structure that explicitly defines each document part in an array. Each part becomes a distinct, searchable item in query results. You have precise control over the document structure and content.
+        Each document becomes part of a corpus. You can use this API directly or with [Vectara Ingest](https://github.com/vectara/vectara-ingest) or the [File Upload API](/docs/rest-api/upload-file).
 
-        For more details, see [Indexing](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
+        ## Structured documents
+
+        Structured documents provide a natural hierarchy where Vectar handles chunking and metadata automatically. Structured documents are ideal when you want to index documents that have logical organization (titles, sections, paragraphs, and optionally tables or images) but prefer Vectara to manage how the content is split into search-optimized units.
+
+        Each structured document contains:
+        - A unique `id` and optional `title`, `description`, and `metadata`.
+        - An array of `sections`, each with its own title, text, and optional nested sections, tables, or images.
+        - Optional `custom_dimensions` that can influence ranking during search.
+
+        When indexed, Vectara partitions the text into document parts automatically using an intelligent sentence- or character-based chunking strategy. This lets you ingest data with minimal pre-processing while maintaining semantic integrity across context boundaries.
+
+        Structured documents are recommended for content with well-defined sections such as reports, articles, FAQs, or documentation.
+
+        ## Core documents
+
+        Core documents offer fine-grained, explicit control of every part of a document that becomes searchable. Instead of providing a hierarchical structure, you specify each **document part** directly as unit that maps 1:1 to a search result or embedding.
+
+        A core document includes:
+        - A unique `id` and optional `metadata`.
+        - A list of `document_parts`, where each part includes `text`, optional `context`, `metadata`, and `custom_dimensions`.
+        - Optional `tables` and `images`, allowing you to represent complex structured data like spreadsheets or charts.
+
+        Core documents are designed for advanced use cases such as precise chunk-level optimization or experimental corpus structures, and applications where metadata-driven retrieval or ranking must be explicitly controlled.
+
+        ## Chunking strategies
+
+        By default, Vectara uses **sentence-based chunking**, which provides optimal retrieval accuracy for most datasets.
+
+        For larger documents or performance-tuned ingestion, you can explicitly set a `chunking_strategy`:
+        - `sentence_chunking_strategy` — creates one chunk per sentence (default).
+        - `max_chars_chunking_strategy` — creates larger chunks up to a specified character limit (`max_chars_per_chunk`), balancing retrieval speed with contextual coherence.
 
         Parameters
         ----------
@@ -124,6 +159,13 @@ class DocumentsClient:
             The unique key identifying the queried corpus.
 
         request : CreateDocumentRequest
+
+        wait_for : typing.Optional[CreateDocumentsRequestWaitFor]
+            Controls how long the request waits before returning a response.
+            - `searchable` (default): Waits until the document is fully indexed and immediately searchable. Use this when you need to query the document immediately after indexing.
+            - `indexed`: Waits until the document is durably stored and will be included in future search results. This is faster but the document may not appear in search results for a brief period after the response.
+
+            Both modes return a successful response once the specified condition is met.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -141,16 +183,16 @@ class DocumentsClient:
 
         Examples
         --------
-        from vectara import StructuredDocument, StructuredDocumentSection, Vectara
-
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+        from vectara import (
+            CreateDocumentRequest_Structured,
+            StructuredDocumentSection,
+            Vectara,
         )
+
+        client = Vectara()
         client.documents.create(
             corpus_key="my-corpus-key",
-            request=StructuredDocument(
+            request=CreateDocumentRequest_Structured(
                 id="my-doc-id",
                 sections=[
                     StructuredDocumentSection(
@@ -173,35 +215,56 @@ class DocumentsClient:
         _response = self._raw_client.create(
             corpus_key,
             request=request,
+            wait_for=wait_for,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
         return _response.data
 
-    def get(
+    def bulk_delete(
         self,
         corpus_key: CorpusKey,
-        document_id: str,
-        image_id: str,
         *,
+        metadata_filter: typing.Optional[str] = None,
+        document_ids: typing.Optional[str] = None,
+        async_: typing.Optional[bool] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> Image:
+    ) -> BulkDeleteDocumentsResponse:
         """
-        Returns a specific image that is embedded within a document. The `image_id` uniquely identifies the image within the document. Use this endpoint to fetch the raw image data and associated metadata.
+        Initiates an asynchronous bulk delete operation for documents in a corpus.
+        This operation accepts a metadata filter, a list of specific document IDs, or both.
+
+        **Important**: This is a best-effort operation.
+        See the response schema documentation for details on the behavior differences between `metadata_filter` and `document_ids` parameters.
+
+        The operation runs as a background workflow.
+        Use the returned `job_id` to track progress via the Jobs API.
 
         Parameters
         ----------
         corpus_key : CorpusKey
-            A unique identifier for the corpus that contains the target document.
+            The unique key identifying the corpus containing documents to delete.
 
-        document_id : str
-            The identifier of the document containing the image. This `document_id` must be percent encoded.
+        metadata_filter : typing.Optional[str]
+            Filter documents by metadata. Uses the same expression as a query metadata filter.
+            Example: `doc.status = 'archived' AND doc.year < 2020`
 
-        image_id : str
-            The identifier of the image to retrieve from the specified document. Each image within a document has a unique `image_id`. This value must be percent-encoded when passed in the request URL.
+        document_ids : typing.Optional[str]
+            Comma-separated list of document IDs to delete. Maximum 10,000 IDs per request.
+
+        async_ : typing.Optional[bool]
+            Whether to perform the deletion asynchronously.
+            - `true` (default): Returns immediately with job_id to track progress (HTTP 202)
+            - `false`: Waits for completion and returns deletion results (HTTP 200)
+
+            When `async=false`, the operation will wait for the deletion to complete up to the timeout specified in the `Request-Timeout` or `Request-Timeout-Millis` header.
+            If no timeout header is provided, defaults to 7 days.
+            If the operation times out, returns HTTP 504 with job_id to track via Jobs API.
+
+            The workflow continues running in the background even if the API wait times out.
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -214,28 +277,78 @@ class DocumentsClient:
 
         Returns
         -------
-        Image
-            An image including raw image data and associated metadata.
+        BulkDeleteDocumentsResponse
+            Bulk delete operation completed successfully (synchronous mode).
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+        client = Vectara()
+        client.documents.bulk_delete(
+            corpus_key="my-corpus",
         )
+        """
+        _response = self._raw_client.bulk_delete(
+            corpus_key,
+            metadata_filter=metadata_filter,
+            document_ids=document_ids,
+            async_=async_,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def get(
+        self,
+        corpus_key: CorpusKey,
+        document_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Document:
+        """
+        The Retrieve Document API enables you to fetch the content and metadata of a specific document from a corpus, identified by its unique `document_id` from a specific corpus. Use this endpoint to view the full details of a document, including its text, metadata, and associated tables, if table extraction is enabled.
+
+        This information is particularly useful when you need to analyze the details of a specific document or integrate document content into your application workflows.
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus containing the document to retrieve.
+
+        document_id : str
+            The document ID of the document to retrieve. This `document_id` must be percent encoded.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Document
+            Successfully retrieved the document.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara()
         client.documents.get(
             corpus_key="my-corpus",
             document_id="document_id",
-            image_id="image_id",
         )
         """
         _response = self._raw_client.get(
             corpus_key,
             document_id,
-            image_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
@@ -279,11 +392,7 @@ class DocumentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.documents.delete(
             corpus_key="my-corpus",
             document_id="document_id",
@@ -305,7 +414,7 @@ class DocumentsClient:
         *,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
@@ -325,7 +434,7 @@ class DocumentsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
         request_options : typing.Optional[RequestOptions]
@@ -340,11 +449,7 @@ class DocumentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.documents.update(
             corpus_key="my-corpus",
             document_id="document_id",
@@ -367,7 +472,7 @@ class DocumentsClient:
         *,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
@@ -387,7 +492,7 @@ class DocumentsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
         request_options : typing.Optional[RequestOptions]
@@ -402,11 +507,7 @@ class DocumentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.documents.update_metadata(
             corpus_key="my-corpus",
             document_id="document_id",
@@ -431,12 +532,70 @@ class DocumentsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         prompt_template: typing.Optional[str] = OMIT,
-        model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        model_parameters: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SummarizeDocumentResponse:
         """
-        Summarize a document identified by its unique `document_id` from a specific corpus.
+        Organizations often struggle with extracting relevant insights from extensive documentation, such as vendor quotes, financial statements, and technical reports. Manually reviewing these documents is both time-consuming and prone to errors.
+
+        The tech preview of the Documentation Summarization API enables users to generate concise summaries that capture essential insights from single documents without having to process entire documents manually. Efficiently process large documents, extract key insights, and interact with real-time data summaries.
+
+        * Enable streaming for large documents to receive summaries incrementally.
+        * Customize `prompt_template` to fine-tune summary output for specific domains.
+        * Use standard responses for small documents where streaming is unnecessary.
+        * Monitor streaming events to track the progress of real-time summarization.
+
+        :::note
+        The documentation length is limited by the context window of your selected LLM.
+        :::
+
+        ## Response formats
+
+        The API supports two response modes:
+
+        * **Standard**: Provides a complete summary in one response.
+        * **Streaming** Provides incremental responses using Server-Sent Events (SSE).
+
+        ### Non-streaming response
+
+        In standard mode, the API returns a structured response containing the complete summary of the document. The summary field contains the generated text, enabling users to extract essential information quickly.
+
+        ### Streaming response
+
+        For streaming responses, the API returns Server-Sent Events (SSE). The first event begins streaming partial results as soon as they are available, while the final event marks the end of the summarization process.
+
+        The streamed response consists of multiple events:
+
+        * `generation_info`: Contains the `rendered_prompt` which is the compiled prompt sent to the LLM for document summarization.
+        * `generation_chunk`: Returns partial chunk of the generated summary.
+        * `generation_end`: Marks the completion of the summary generation.
+        * `error`: Returns an error message if summarization fails.
+        * `end`: Indicates the end of the streaming session.
+
+        ## Prompt template example
+
+        When crafting a prompt, you can access your document with the `$vectaraDocument` field. This example shows a simple prompt:
+
+        ```json
+        {
+          "role": "user",
+          "content": "Summarize the document: \\$vectaraDocument.json()"
+        }
+        ```
+        The document also has the following methods to support custom prompts.
+
+        * `$vectaraDocument.json()`: Provides a JSON representation of the whole document.
+        * `$vectaraDocument.id()`: Specifies the unique identifier of the document (`document_id`)
+        * `$vectaraDocument.metadata()`: Specifies metadata from the document.
+          For example,
+          `$vectaraDocument.metadata().get("key")` retrieves a specific metadata value by key.
+        * `$vectaraDocument.parts()`: Returns an array of document parts which you can look through.
+          For example, `#foreach ($part in $vectaraDocument.parts())`.
+        * `$part.text()`: Retrieves the text of the part.
+        * `$part.metadata()`: Retrieves metadata of a part.
+        * `$part.hasTable()`: Determines if the part contains a table.
+        * `$part.table()`: Provides access to the table within the part. For example, use `$part.table().json()` to retrieve the table in JSON format.
 
         Parameters
         ----------
@@ -458,7 +617,7 @@ class DocumentsClient:
         prompt_template : typing.Optional[str]
             The prompt template to use when generating the summary. Vectara manages both system and user roles and prompts for the generative LLM out of the box by default. However, users can override the `prompt_template` via this variable. The `prompt_template` is in the form of an Apache Velocity template. For more details on how to configure the `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
 
-        model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        model_parameters : typing.Optional[typing.Dict[str, typing.Any]]
             Optional parameters for the specified model used when generating the summary.
 
         stream_response : typing.Optional[bool]
@@ -476,11 +635,7 @@ class DocumentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.documents.summarize(
             corpus_key="my-corpus",
             document_id="document_id",
@@ -503,188 +658,7 @@ class DocumentsClient:
         )
         return _response.data
 
-
-class AsyncDocumentsClient:
-    def __init__(self, *, client_wrapper: AsyncClientWrapper):
-        self._raw_client = AsyncRawDocumentsClient(client_wrapper=client_wrapper)
-
-    @property
-    def with_raw_response(self) -> AsyncRawDocumentsClient:
-        """
-        Retrieves a raw implementation of this client that returns raw responses.
-
-        Returns
-        -------
-        AsyncRawDocumentsClient
-        """
-        return self._raw_client
-
-    async def list(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        limit: typing.Optional[int] = None,
-        metadata_filter: typing.Optional[str] = None,
-        page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Document]:
-        """
-        Retrieve a list of documents stored in a specific corpus. This endpoint provides an overview of document metadata without returning the full content of each document.
-
-        Parameters
-        ----------
-        corpus_key : CorpusKey
-            The unique key identifying the queried corpus.
-
-        limit : typing.Optional[int]
-            The maximum number of documents to return at one time.
-
-        metadata_filter : typing.Optional[str]
-            Filter documents by metadata. Uses the same expression as a query metadata filter, but only allows filtering on document metadata.
-
-        page_key : typing.Optional[str]
-            Used to retrieve the next page of documents after the limit has been reached.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        AsyncPager[Document]
-            List of documents.
-
-        Examples
-        --------
-        import asyncio
-
-        from vectara import AsyncVectara
-
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
-
-
-        async def main() -> None:
-            response = await client.documents.list(
-                corpus_key="my-corpus",
-            )
-            async for item in response:
-                yield item
-
-            # alternatively, you can paginate page-by-page
-            async for page in response.iter_pages():
-                yield page
-
-
-        asyncio.run(main())
-        """
-        return await self._raw_client.list(
-            corpus_key,
-            limit=limit,
-            metadata_filter=metadata_filter,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
-
-    async def create(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request: CreateDocumentRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Document:
-        """
-        Add a document to a corpus. This endpoint supports two document formats: structured and core.
-
-        * **Structured** documents have a conventional structure that provides document sections and parts in a format created by our proprietary strategy automatically. You provide a logical document structure, and Vectara handles the partitioning.
-        * **Core** documents differ in that they follow an advanced, granular structure that explicitly defines each document part in an array. Each part becomes a distinct, searchable item in query results. You have precise control over the document structure and content.
-
-        For more details, see [Indexing](https://docs.vectara.com/docs/learn/select-ideal-indexing-api).
-
-        Parameters
-        ----------
-        corpus_key : CorpusKey
-            The unique key identifying the queried corpus.
-
-        request : CreateDocumentRequest
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        request_options : typing.Optional[RequestOptions]
-            Request-specific configuration.
-
-        Returns
-        -------
-        Document
-            Document added to the corpus.
-
-        Examples
-        --------
-        import asyncio
-
-        from vectara import AsyncVectara, StructuredDocument, StructuredDocumentSection
-
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
-
-
-        async def main() -> None:
-            await client.documents.create(
-                corpus_key="my-corpus-key",
-                request=StructuredDocument(
-                    id="my-doc-id",
-                    sections=[
-                        StructuredDocumentSection(
-                            id=1,
-                            title="A nice title.",
-                            text="I'm a nice document section.",
-                            metadata={"section": "1.1"},
-                        ),
-                        StructuredDocumentSection(
-                            id=2,
-                            title="Another nice title.",
-                            text="I'm another document section on something else.",
-                            metadata={"section": "1.2"},
-                        ),
-                    ],
-                    metadata={"url": "https://example.com"},
-                ),
-            )
-
-
-        asyncio.run(main())
-        """
-        _response = await self._raw_client.create(
-            corpus_key,
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
-        return _response.data
-
-    async def get(
+    def get_image(
         self,
         corpus_key: CorpusKey,
         document_id: str,
@@ -724,22 +698,381 @@ class AsyncDocumentsClient:
 
         Examples
         --------
+        from vectara import Vectara
+
+        client = Vectara()
+        client.documents.get_image(
+            corpus_key="my-corpus",
+            document_id="document_id",
+            image_id="image_id",
+        )
+        """
+        _response = self._raw_client.get_image(
+            corpus_key,
+            document_id,
+            image_id,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+
+class AsyncDocumentsClient:
+    def __init__(self, *, client_wrapper: AsyncClientWrapper):
+        self._raw_client = AsyncRawDocumentsClient(client_wrapper=client_wrapper)
+
+    @property
+    def with_raw_response(self) -> AsyncRawDocumentsClient:
+        """
+        Retrieves a raw implementation of this client that returns raw responses.
+
+        Returns
+        -------
+        AsyncRawDocumentsClient
+        """
+        return self._raw_client
+
+    async def list(
+        self,
+        corpus_key: CorpusKey,
+        *,
+        limit: typing.Optional[int] = None,
+        metadata_filter: typing.Optional[str] = None,
+        page_key: typing.Optional[str] = None,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncPager[Document, ListDocumentsResponse]:
+        """
+        The List Documents API enables you to retrieve a list of documents stored in a specific corpus. This endpoint provides an overview of document metadata, including document IDs, tables (if table extraction is enabled), and pagination details.
+
+        Use this API for viewing documents indexed so far and helping you decide to remove documents that are no longer needed. It helps you manage the document lifecycle in your environment.
+
+        This information enables you to catalog and inventory large amounts of data while also retrieving lists of documents for further analysis. For example, developers can utilize the metadata to to build custom search and filtering capabilities into their applications. If you enabled tabled extraction, this endpoint also returns the tables that this document contains.
+
+        Currently Document Admin APIs do not allow you to access the text of your documents.
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the queried corpus.
+
+        limit : typing.Optional[int]
+            The maximum number of documents to return at one time.
+
+        metadata_filter : typing.Optional[str]
+            Filter documents by metadata. Uses the same expression as a query metadata filter, but only allows filtering on document metadata.
+
+        page_key : typing.Optional[str]
+            Used to retrieve the next page of documents after the limit has been reached.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncPager[Document, ListDocumentsResponse]
+            The response contains an array of document objects with the matching document IDs, metadata, tables, parts, storage usage, and metadata about the pagination.
+
+        Examples
+        --------
         import asyncio
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
+        client = AsyncVectara()
+
+
+        async def main() -> None:
+            response = await client.documents.list(
+                corpus_key="my-corpus",
+            )
+            async for item in response:
+                yield item
+
+            # alternatively, you can paginate page-by-page
+            async for page in response.iter_pages():
+                yield page
+
+
+        asyncio.run(main())
+        """
+        return await self._raw_client.list(
+            corpus_key,
+            limit=limit,
+            metadata_filter=metadata_filter,
+            page_key=page_key,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
         )
+
+    async def create(
+        self,
+        corpus_key: CorpusKey,
+        *,
+        request: CreateDocumentRequest,
+        wait_for: typing.Optional[CreateDocumentsRequestWaitFor] = None,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Document:
+        """
+        Add a document to a corpus for indexing, making its content available for search, retrieval, and generation. This endpoint supports two ingestion modes: **structured** documents and **core** documents. These modes offer different levels of control over document structure and chunking.
+
+        Each document becomes part of a corpus. You can use this API directly or with [Vectara Ingest](https://github.com/vectara/vectara-ingest) or the [File Upload API](/docs/rest-api/upload-file).
+
+        ## Structured documents
+
+        Structured documents provide a natural hierarchy where Vectar handles chunking and metadata automatically. Structured documents are ideal when you want to index documents that have logical organization (titles, sections, paragraphs, and optionally tables or images) but prefer Vectara to manage how the content is split into search-optimized units.
+
+        Each structured document contains:
+        - A unique `id` and optional `title`, `description`, and `metadata`.
+        - An array of `sections`, each with its own title, text, and optional nested sections, tables, or images.
+        - Optional `custom_dimensions` that can influence ranking during search.
+
+        When indexed, Vectara partitions the text into document parts automatically using an intelligent sentence- or character-based chunking strategy. This lets you ingest data with minimal pre-processing while maintaining semantic integrity across context boundaries.
+
+        Structured documents are recommended for content with well-defined sections such as reports, articles, FAQs, or documentation.
+
+        ## Core documents
+
+        Core documents offer fine-grained, explicit control of every part of a document that becomes searchable. Instead of providing a hierarchical structure, you specify each **document part** directly as unit that maps 1:1 to a search result or embedding.
+
+        A core document includes:
+        - A unique `id` and optional `metadata`.
+        - A list of `document_parts`, where each part includes `text`, optional `context`, `metadata`, and `custom_dimensions`.
+        - Optional `tables` and `images`, allowing you to represent complex structured data like spreadsheets or charts.
+
+        Core documents are designed for advanced use cases such as precise chunk-level optimization or experimental corpus structures, and applications where metadata-driven retrieval or ranking must be explicitly controlled.
+
+        ## Chunking strategies
+
+        By default, Vectara uses **sentence-based chunking**, which provides optimal retrieval accuracy for most datasets.
+
+        For larger documents or performance-tuned ingestion, you can explicitly set a `chunking_strategy`:
+        - `sentence_chunking_strategy` — creates one chunk per sentence (default).
+        - `max_chars_chunking_strategy` — creates larger chunks up to a specified character limit (`max_chars_per_chunk`), balancing retrieval speed with contextual coherence.
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the queried corpus.
+
+        request : CreateDocumentRequest
+
+        wait_for : typing.Optional[CreateDocumentsRequestWaitFor]
+            Controls how long the request waits before returning a response.
+            - `searchable` (default): Waits until the document is fully indexed and immediately searchable. Use this when you need to query the document immediately after indexing.
+            - `indexed`: Waits until the document is durably stored and will be included in future search results. This is faster but the document may not appear in search results for a brief period after the response.
+
+            Both modes return a successful response once the specified condition is met.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Document
+            Document added to the corpus.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import (
+            AsyncVectara,
+            CreateDocumentRequest_Structured,
+            StructuredDocumentSection,
+        )
+
+        client = AsyncVectara()
+
+
+        async def main() -> None:
+            await client.documents.create(
+                corpus_key="my-corpus-key",
+                request=CreateDocumentRequest_Structured(
+                    id="my-doc-id",
+                    sections=[
+                        StructuredDocumentSection(
+                            id=1,
+                            title="A nice title.",
+                            text="I'm a nice document section.",
+                            metadata={"section": "1.1"},
+                        ),
+                        StructuredDocumentSection(
+                            id=2,
+                            title="Another nice title.",
+                            text="I'm another document section on something else.",
+                            metadata={"section": "1.2"},
+                        ),
+                    ],
+                    metadata={"url": "https://example.com"},
+                ),
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.create(
+            corpus_key,
+            request=request,
+            wait_for=wait_for,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def bulk_delete(
+        self,
+        corpus_key: CorpusKey,
+        *,
+        metadata_filter: typing.Optional[str] = None,
+        document_ids: typing.Optional[str] = None,
+        async_: typing.Optional[bool] = None,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> BulkDeleteDocumentsResponse:
+        """
+        Initiates an asynchronous bulk delete operation for documents in a corpus.
+        This operation accepts a metadata filter, a list of specific document IDs, or both.
+
+        **Important**: This is a best-effort operation.
+        See the response schema documentation for details on the behavior differences between `metadata_filter` and `document_ids` parameters.
+
+        The operation runs as a background workflow.
+        Use the returned `job_id` to track progress via the Jobs API.
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus containing documents to delete.
+
+        metadata_filter : typing.Optional[str]
+            Filter documents by metadata. Uses the same expression as a query metadata filter.
+            Example: `doc.status = 'archived' AND doc.year < 2020`
+
+        document_ids : typing.Optional[str]
+            Comma-separated list of document IDs to delete. Maximum 10,000 IDs per request.
+
+        async_ : typing.Optional[bool]
+            Whether to perform the deletion asynchronously.
+            - `true` (default): Returns immediately with job_id to track progress (HTTP 202)
+            - `false`: Waits for completion and returns deletion results (HTTP 200)
+
+            When `async=false`, the operation will wait for the deletion to complete up to the timeout specified in the `Request-Timeout` or `Request-Timeout-Millis` header.
+            If no timeout header is provided, defaults to 7 days.
+            If the operation times out, returns HTTP 504 with job_id to track via Jobs API.
+
+            The workflow continues running in the background even if the API wait times out.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        BulkDeleteDocumentsResponse
+            Bulk delete operation completed successfully (synchronous mode).
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara()
+
+
+        async def main() -> None:
+            await client.documents.bulk_delete(
+                corpus_key="my-corpus",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.bulk_delete(
+            corpus_key,
+            metadata_filter=metadata_filter,
+            document_ids=document_ids,
+            async_=async_,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def get(
+        self,
+        corpus_key: CorpusKey,
+        document_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Document:
+        """
+        The Retrieve Document API enables you to fetch the content and metadata of a specific document from a corpus, identified by its unique `document_id` from a specific corpus. Use this endpoint to view the full details of a document, including its text, metadata, and associated tables, if table extraction is enabled.
+
+        This information is particularly useful when you need to analyze the details of a specific document or integrate document content into your application workflows.
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            The unique key identifying the corpus containing the document to retrieve.
+
+        document_id : str
+            The document ID of the document to retrieve. This `document_id` must be percent encoded.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Document
+            Successfully retrieved the document.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara()
 
 
         async def main() -> None:
             await client.documents.get(
                 corpus_key="my-corpus",
                 document_id="document_id",
-                image_id="image_id",
             )
 
 
@@ -748,7 +1081,6 @@ class AsyncDocumentsClient:
         _response = await self._raw_client.get(
             corpus_key,
             document_id,
-            image_id,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
@@ -794,11 +1126,7 @@ class AsyncDocumentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -826,7 +1154,7 @@ class AsyncDocumentsClient:
         *,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
@@ -846,7 +1174,7 @@ class AsyncDocumentsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
         request_options : typing.Optional[RequestOptions]
@@ -863,11 +1191,7 @@ class AsyncDocumentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -896,7 +1220,7 @@ class AsyncDocumentsClient:
         *,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
@@ -916,7 +1240,7 @@ class AsyncDocumentsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
         request_options : typing.Optional[RequestOptions]
@@ -933,11 +1257,7 @@ class AsyncDocumentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -968,12 +1288,70 @@ class AsyncDocumentsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         prompt_template: typing.Optional[str] = OMIT,
-        model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        model_parameters: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         stream_response: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SummarizeDocumentResponse:
         """
-        Summarize a document identified by its unique `document_id` from a specific corpus.
+        Organizations often struggle with extracting relevant insights from extensive documentation, such as vendor quotes, financial statements, and technical reports. Manually reviewing these documents is both time-consuming and prone to errors.
+
+        The tech preview of the Documentation Summarization API enables users to generate concise summaries that capture essential insights from single documents without having to process entire documents manually. Efficiently process large documents, extract key insights, and interact with real-time data summaries.
+
+        * Enable streaming for large documents to receive summaries incrementally.
+        * Customize `prompt_template` to fine-tune summary output for specific domains.
+        * Use standard responses for small documents where streaming is unnecessary.
+        * Monitor streaming events to track the progress of real-time summarization.
+
+        :::note
+        The documentation length is limited by the context window of your selected LLM.
+        :::
+
+        ## Response formats
+
+        The API supports two response modes:
+
+        * **Standard**: Provides a complete summary in one response.
+        * **Streaming** Provides incremental responses using Server-Sent Events (SSE).
+
+        ### Non-streaming response
+
+        In standard mode, the API returns a structured response containing the complete summary of the document. The summary field contains the generated text, enabling users to extract essential information quickly.
+
+        ### Streaming response
+
+        For streaming responses, the API returns Server-Sent Events (SSE). The first event begins streaming partial results as soon as they are available, while the final event marks the end of the summarization process.
+
+        The streamed response consists of multiple events:
+
+        * `generation_info`: Contains the `rendered_prompt` which is the compiled prompt sent to the LLM for document summarization.
+        * `generation_chunk`: Returns partial chunk of the generated summary.
+        * `generation_end`: Marks the completion of the summary generation.
+        * `error`: Returns an error message if summarization fails.
+        * `end`: Indicates the end of the streaming session.
+
+        ## Prompt template example
+
+        When crafting a prompt, you can access your document with the `$vectaraDocument` field. This example shows a simple prompt:
+
+        ```json
+        {
+          "role": "user",
+          "content": "Summarize the document: \\$vectaraDocument.json()"
+        }
+        ```
+        The document also has the following methods to support custom prompts.
+
+        * `$vectaraDocument.json()`: Provides a JSON representation of the whole document.
+        * `$vectaraDocument.id()`: Specifies the unique identifier of the document (`document_id`)
+        * `$vectaraDocument.metadata()`: Specifies metadata from the document.
+          For example,
+          `$vectaraDocument.metadata().get("key")` retrieves a specific metadata value by key.
+        * `$vectaraDocument.parts()`: Returns an array of document parts which you can look through.
+          For example, `#foreach ($part in $vectaraDocument.parts())`.
+        * `$part.text()`: Retrieves the text of the part.
+        * `$part.metadata()`: Retrieves metadata of a part.
+        * `$part.hasTable()`: Determines if the part contains a table.
+        * `$part.table()`: Provides access to the table within the part. For example, use `$part.table().json()` to retrieve the table in JSON format.
 
         Parameters
         ----------
@@ -995,7 +1373,7 @@ class AsyncDocumentsClient:
         prompt_template : typing.Optional[str]
             The prompt template to use when generating the summary. Vectara manages both system and user roles and prompts for the generative LLM out of the box by default. However, users can override the `prompt_template` via this variable. The `prompt_template` is in the form of an Apache Velocity template. For more details on how to configure the `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
 
-        model_parameters : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        model_parameters : typing.Optional[typing.Dict[str, typing.Any]]
             Optional parameters for the specified model used when generating the summary.
 
         stream_response : typing.Optional[bool]
@@ -1015,11 +1393,7 @@ class AsyncDocumentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -1044,6 +1418,73 @@ class AsyncDocumentsClient:
             prompt_template=prompt_template,
             model_parameters=model_parameters,
             stream_response=stream_response,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def get_image(
+        self,
+        corpus_key: CorpusKey,
+        document_id: str,
+        image_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Image:
+        """
+        Returns a specific image that is embedded within a document. The `image_id` uniquely identifies the image within the document. Use this endpoint to fetch the raw image data and associated metadata.
+
+        Parameters
+        ----------
+        corpus_key : CorpusKey
+            A unique identifier for the corpus that contains the target document.
+
+        document_id : str
+            The identifier of the document containing the image. This `document_id` must be percent encoded.
+
+        image_id : str
+            The identifier of the image to retrieve from the specified document. Each image within a document has a unique `image_id`. This value must be percent-encoded when passed in the request URL.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Image
+            An image including raw image data and associated metadata.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara()
+
+
+        async def main() -> None:
+            await client.documents.get_image(
+                corpus_key="my-corpus",
+                document_id="document_id",
+                image_id="image_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.get_image(
+            corpus_key,
+            document_id,
+            image_id,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
         return _response.data

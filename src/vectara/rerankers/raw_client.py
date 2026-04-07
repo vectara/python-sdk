@@ -5,13 +5,15 @@ from json.decoder import JSONDecodeError
 
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
-from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
+from ..core.pagination import AsyncPager, SyncPager
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.forbidden_error import ForbiddenError
 from ..types.error import Error
 from ..types.list_rerankers_response import ListRerankersResponse
 from ..types.reranker import Reranker
+from pydantic import ValidationError
 
 
 class RawRerankersClient:
@@ -27,9 +29,11 @@ class RawRerankersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Reranker]:
+    ) -> SyncPager[Reranker, ListRerankersResponse]:
         """
-        Rerankers are used to improve the ranking (ordering) of search results.
+        The List Rerankers API retrieves a list of available rerankers used to improve the ranking and ordering of search results.
+
+        For more information about the available rerankers, see [Reranking overview](https://docs.vectara.com/docs/search-and-retrieval/rerankers/reranking-overview).
 
         Parameters
         ----------
@@ -53,7 +57,7 @@ class RawRerankersClient:
 
         Returns
         -------
-        SyncPager[Reranker]
+        SyncPager[Reranker, ListRerankersResponse]
             List of rerankers.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -94,9 +98,7 @@ class RawRerankersClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                return SyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -111,6 +113,10 @@ class RawRerankersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -127,9 +133,11 @@ class AsyncRawRerankersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Reranker]:
+    ) -> AsyncPager[Reranker, ListRerankersResponse]:
         """
-        Rerankers are used to improve the ranking (ordering) of search results.
+        The List Rerankers API retrieves a list of available rerankers used to improve the ranking and ordering of search results.
+
+        For more information about the available rerankers, see [Reranking overview](https://docs.vectara.com/docs/search-and-retrieval/rerankers/reranking-overview).
 
         Parameters
         ----------
@@ -153,7 +161,7 @@ class AsyncRawRerankersClient:
 
         Returns
         -------
-        AsyncPager[Reranker]
+        AsyncPager[Reranker, ListRerankersResponse]
             List of rerankers.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -197,9 +205,7 @@ class AsyncRawRerankersClient:
                             request_options=request_options,
                         )
 
-                return AsyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -214,4 +220,8 @@ class AsyncRawRerankersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

@@ -13,7 +13,6 @@ class SearchSpan(UniversalBaseModel):
     The search portion of the query pipeline. This occurs before any reranking span.
     """
 
-    type: typing.Literal["search"] = "search"
     latency_millis: typing.Optional[int] = pydantic.Field(default=None)
     """
     Time taken in milliseconds.

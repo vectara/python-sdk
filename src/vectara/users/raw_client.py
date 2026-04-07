@@ -7,7 +7,8 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
+from ..core.pagination import AsyncPager, SyncPager
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..core.serialization import convert_and_respect_annotation_metadata
@@ -23,8 +24,9 @@ from ..types.error import Error
 from ..types.list_users_response import ListUsersResponse
 from ..types.not_found_error_body import NotFoundErrorBody
 from ..types.user import User
-from .types.users_create_response import UsersCreateResponse
-from .types.users_reset_password_response import UsersResetPasswordResponse
+from .types.create_users_response import CreateUsersResponse
+from .types.reset_password_users_response import ResetPasswordUsersResponse
+from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -43,9 +45,11 @@ class RawUsersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[User]:
+    ) -> SyncPager[User, ListUsersResponse]:
         """
-        Lists all users in the account.
+        The List Users API lets you list all users on your team and also their corpus access and customer-level authorizations.
+
+        Other activities such as adding, deleting, enabling, disabling, resetting passwords, and editing user roles are performed by the [Update User](/docs/rest-api/update-user) endpoint.
 
         Parameters
         ----------
@@ -69,7 +73,7 @@ class RawUsersClient:
 
         Returns
         -------
-        SyncPager[User]
+        SyncPager[User, ListUsersResponse]
             List of users.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -110,9 +114,7 @@ class RawUsersClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                return SyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -127,6 +129,10 @@ class RawUsersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
@@ -141,9 +147,9 @@ class RawUsersClient:
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
         agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[UsersCreateResponse]:
+    ) -> HttpResponse[CreateUsersResponse]:
         """
-        Create a user for the current customer account.
+        Create a user for the current customer account. For example, a company wants to onboard new team members efficiently and this endpoint lets you streamline the process by adding new users programmatically, assigning appropriate roles, and setting up access permissions.
 
         Parameters
         ----------
@@ -176,8 +182,8 @@ class RawUsersClient:
 
         Returns
         -------
-        HttpResponse[UsersCreateResponse]
-            The created user.
+        HttpResponse[CreateUsersResponse]
+            The response returns a `user` object that contains the assigned user ID, email, username, enabled status, description, creation timestamp, and assigned API roles.
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/users",
@@ -206,9 +212,9 @@ class RawUsersClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    UsersCreateResponse,
+                    CreateUsersResponse,
                     parse_obj_as(
-                        type_=UsersCreateResponse,  # type: ignore
+                        type_=CreateUsersResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -238,6 +244,10 @@ class RawUsersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
@@ -315,6 +325,10 @@ class RawUsersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
@@ -384,6 +398,10 @@ class RawUsersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def update(
@@ -494,6 +512,10 @@ class RawUsersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def reset_password(
@@ -503,7 +525,7 @@ class RawUsersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[UsersResetPasswordResponse]:
+    ) -> HttpResponse[ResetPasswordUsersResponse]:
         """
         Reset the password for a user.
 
@@ -523,7 +545,7 @@ class RawUsersClient:
 
         Returns
         -------
-        HttpResponse[UsersResetPasswordResponse]
+        HttpResponse[ResetPasswordUsersResponse]
             User was sent the password reset email.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -539,9 +561,9 @@ class RawUsersClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    UsersResetPasswordResponse,
+                    ResetPasswordUsersResponse,
                     parse_obj_as(
-                        type_=UsersResetPasswordResponse,  # type: ignore
+                        type_=ResetPasswordUsersResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -571,6 +593,10 @@ class RawUsersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -587,9 +613,11 @@ class AsyncRawUsersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[User]:
+    ) -> AsyncPager[User, ListUsersResponse]:
         """
-        Lists all users in the account.
+        The List Users API lets you list all users on your team and also their corpus access and customer-level authorizations.
+
+        Other activities such as adding, deleting, enabling, disabling, resetting passwords, and editing user roles are performed by the [Update User](/docs/rest-api/update-user) endpoint.
 
         Parameters
         ----------
@@ -613,7 +641,7 @@ class AsyncRawUsersClient:
 
         Returns
         -------
-        AsyncPager[User]
+        AsyncPager[User, ListUsersResponse]
             List of users.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -657,9 +685,7 @@ class AsyncRawUsersClient:
                             request_options=request_options,
                         )
 
-                return AsyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -674,6 +700,10 @@ class AsyncRawUsersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
@@ -688,9 +718,9 @@ class AsyncRawUsersClient:
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
         agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[UsersCreateResponse]:
+    ) -> AsyncHttpResponse[CreateUsersResponse]:
         """
-        Create a user for the current customer account.
+        Create a user for the current customer account. For example, a company wants to onboard new team members efficiently and this endpoint lets you streamline the process by adding new users programmatically, assigning appropriate roles, and setting up access permissions.
 
         Parameters
         ----------
@@ -723,8 +753,8 @@ class AsyncRawUsersClient:
 
         Returns
         -------
-        AsyncHttpResponse[UsersCreateResponse]
-            The created user.
+        AsyncHttpResponse[CreateUsersResponse]
+            The response returns a `user` object that contains the assigned user ID, email, username, enabled status, description, creation timestamp, and assigned API roles.
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/users",
@@ -753,9 +783,9 @@ class AsyncRawUsersClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    UsersCreateResponse,
+                    CreateUsersResponse,
                     parse_obj_as(
-                        type_=UsersCreateResponse,  # type: ignore
+                        type_=CreateUsersResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -785,6 +815,10 @@ class AsyncRawUsersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
@@ -862,6 +896,10 @@ class AsyncRawUsersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
@@ -931,6 +969,10 @@ class AsyncRawUsersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def update(
@@ -1041,6 +1083,10 @@ class AsyncRawUsersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def reset_password(
@@ -1050,7 +1096,7 @@ class AsyncRawUsersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[UsersResetPasswordResponse]:
+    ) -> AsyncHttpResponse[ResetPasswordUsersResponse]:
         """
         Reset the password for a user.
 
@@ -1070,7 +1116,7 @@ class AsyncRawUsersClient:
 
         Returns
         -------
-        AsyncHttpResponse[UsersResetPasswordResponse]
+        AsyncHttpResponse[ResetPasswordUsersResponse]
             User was sent the password reset email.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -1086,9 +1132,9 @@ class AsyncRawUsersClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    UsersResetPasswordResponse,
+                    ResetPasswordUsersResponse,
                     parse_obj_as(
-                        type_=UsersResetPasswordResponse,  # type: ignore
+                        type_=ResetPasswordUsersResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -1118,4 +1164,8 @@ class AsyncRawUsersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

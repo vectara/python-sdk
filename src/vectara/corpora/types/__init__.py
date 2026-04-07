@@ -2,8 +2,69 @@
 
 # isort: skip_file
 
-from .corpora_query_response import CorporaQueryResponse
-from .corpora_query_stream_response import CorporaQueryStreamResponse
-from .search_corpus_parameters import SearchCorpusParameters
+import typing
+from importlib import import_module
 
-__all__ = ["CorporaQueryResponse", "CorporaQueryStreamResponse", "SearchCorpusParameters"]
+if typing.TYPE_CHECKING:
+    from .query_corpora_request_search import QueryCorporaRequestSearch
+    from .query_corpora_response import QueryCorporaResponse
+    from .query_corpora_stream_request_search import QueryCorporaStreamRequestSearch
+    from .query_corpora_stream_response import (
+        QueryCorporaStreamResponse,
+        QueryCorporaStreamResponse_End,
+        QueryCorporaStreamResponse_Error,
+        QueryCorporaStreamResponse_FactualConsistencyScore,
+        QueryCorporaStreamResponse_GenerationChunk,
+        QueryCorporaStreamResponse_GenerationEnd,
+        QueryCorporaStreamResponse_GenerationInfo,
+        QueryCorporaStreamResponse_SearchResults,
+    )
+_dynamic_imports: typing.Dict[str, str] = {
+    "QueryCorporaRequestSearch": ".query_corpora_request_search",
+    "QueryCorporaResponse": ".query_corpora_response",
+    "QueryCorporaStreamRequestSearch": ".query_corpora_stream_request_search",
+    "QueryCorporaStreamResponse": ".query_corpora_stream_response",
+    "QueryCorporaStreamResponse_End": ".query_corpora_stream_response",
+    "QueryCorporaStreamResponse_Error": ".query_corpora_stream_response",
+    "QueryCorporaStreamResponse_FactualConsistencyScore": ".query_corpora_stream_response",
+    "QueryCorporaStreamResponse_GenerationChunk": ".query_corpora_stream_response",
+    "QueryCorporaStreamResponse_GenerationEnd": ".query_corpora_stream_response",
+    "QueryCorporaStreamResponse_GenerationInfo": ".query_corpora_stream_response",
+    "QueryCorporaStreamResponse_SearchResults": ".query_corpora_stream_response",
+}
+
+
+def __getattr__(attr_name: str) -> typing.Any:
+    module_name = _dynamic_imports.get(attr_name)
+    if module_name is None:
+        raise AttributeError(f"No {attr_name} found in _dynamic_imports for module name -> {__name__}")
+    try:
+        module = import_module(module_name, __package__)
+        if module_name == f".{attr_name}":
+            return module
+        else:
+            return getattr(module, attr_name)
+    except ImportError as e:
+        raise ImportError(f"Failed to import {attr_name} from {module_name}: {e}") from e
+    except AttributeError as e:
+        raise AttributeError(f"Failed to get {attr_name} from {module_name}: {e}") from e
+
+
+def __dir__():
+    lazy_attrs = list(_dynamic_imports.keys())
+    return sorted(lazy_attrs)
+
+
+__all__ = [
+    "QueryCorporaRequestSearch",
+    "QueryCorporaResponse",
+    "QueryCorporaStreamRequestSearch",
+    "QueryCorporaStreamResponse",
+    "QueryCorporaStreamResponse_End",
+    "QueryCorporaStreamResponse_Error",
+    "QueryCorporaStreamResponse_FactualConsistencyScore",
+    "QueryCorporaStreamResponse_GenerationChunk",
+    "QueryCorporaStreamResponse_GenerationEnd",
+    "QueryCorporaStreamResponse_GenerationInfo",
+    "QueryCorporaStreamResponse_SearchResults",
+]

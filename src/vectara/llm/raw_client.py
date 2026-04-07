@@ -6,6 +6,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..core.serialization import convert_and_respect_annotation_metadata
@@ -15,6 +16,8 @@ from ..types.bad_request_error_body import BadRequestErrorBody
 from ..types.chat_completion_request_message import ChatCompletionRequestMessage
 from ..types.create_chat_completion_response import CreateChatCompletionResponse
 from ..types.error import Error
+from ..types.response_format import ResponseFormat
+from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -32,10 +35,59 @@ class RawLlmClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         stream: typing.Optional[bool] = OMIT,
+        response_format: typing.Optional[ResponseFormat] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[CreateChatCompletionResponse]:
         """
-        OpenAI-compatible endpoint for chat completions. Creates a response for the given chat conversation. The chat completion API allows you to chat with Vectara's language models in a way that's compatible with OpenAI's specification. This makes it easy to integrate with applications already designed for OpenAI's API.
+        The Chat Completions API provides an OpenAI-compatible interface for generating model responses in multi-turn chat conversations. This API enables you to integrate our language models directly into applications designed to work with the OpenAI Chat Completions format, making it easy to leverage Vectara capabilities with minimal changes to existing tools or code.
+
+        Use this API to enable interactive chat experiences that support context-aware responses, streaming output, and token usage tracking.
+
+        The request includes a series of chat messages and optional parameters that control the behavior and structure of the model response. The request body must include the `messages` parameter, an array of message objects (role, content) representing the full conversation so far.
+
+        ### Streaming responses
+
+        If the `stream` parameter is set to `true`, the response appears as a series of text/event-stream parts (also known as chunks). Each chunk includes a `delta` field showing the incremental message update.
+
+        ### Example request
+
+        This example sends a simple chat conversation to the API, asking the assistant for the capital of France. The request includes a system prompt, a user message, and a temperature setting for response variability.
+        ```json
+        {
+          "model": "chat-model-001","messages": [{ "role": "system", "content": "You are a helpful assistant." },
+          { "role": "user", "content": "What is the capital of France?" }
+        ],
+        "temperature": 0.7,
+        "stream": false
+        }
+        ```
+
+        ### Example response
+        The response includes a generated reply from the assistant, along with token usage statistics. In this example, the model returns a direct answer to a user question.
+        ```json
+        {
+        "id": "chatcmpl-abc123",}
+        "object": "chat.completion",
+        "created": 1712454830,
+        "model": "chat-model-001",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "The capital of France is Paris."
+          },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 21,
+          "completion_tokens": 9,
+          "total_tokens": 30
+          }
+        }
+        ```
+        If the input summary is accurate, the `corrected_summary` matches the `original_summary`.
 
         Parameters
         ----------
@@ -53,6 +105,9 @@ class RawLlmClient:
 
         stream : typing.Optional[bool]
             Optional. When set to `true`, the API streams partial message deltas as they become available, similar to ChatGPT's streaming mode.
+
+        response_format : typing.Optional[ResponseFormat]
+            Specifies the output format for the model response.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -72,6 +127,9 @@ class RawLlmClient:
                     object_=messages, annotation=typing.Sequence[ChatCompletionRequestMessage], direction="write"
                 ),
                 "stream": stream,
+                "response_format": convert_and_respect_annotation_metadata(
+                    object_=response_format, annotation=ResponseFormat, direction="write"
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -116,6 +174,10 @@ class RawLlmClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -131,10 +193,59 @@ class AsyncRawLlmClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         stream: typing.Optional[bool] = OMIT,
+        response_format: typing.Optional[ResponseFormat] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[CreateChatCompletionResponse]:
         """
-        OpenAI-compatible endpoint for chat completions. Creates a response for the given chat conversation. The chat completion API allows you to chat with Vectara's language models in a way that's compatible with OpenAI's specification. This makes it easy to integrate with applications already designed for OpenAI's API.
+        The Chat Completions API provides an OpenAI-compatible interface for generating model responses in multi-turn chat conversations. This API enables you to integrate our language models directly into applications designed to work with the OpenAI Chat Completions format, making it easy to leverage Vectara capabilities with minimal changes to existing tools or code.
+
+        Use this API to enable interactive chat experiences that support context-aware responses, streaming output, and token usage tracking.
+
+        The request includes a series of chat messages and optional parameters that control the behavior and structure of the model response. The request body must include the `messages` parameter, an array of message objects (role, content) representing the full conversation so far.
+
+        ### Streaming responses
+
+        If the `stream` parameter is set to `true`, the response appears as a series of text/event-stream parts (also known as chunks). Each chunk includes a `delta` field showing the incremental message update.
+
+        ### Example request
+
+        This example sends a simple chat conversation to the API, asking the assistant for the capital of France. The request includes a system prompt, a user message, and a temperature setting for response variability.
+        ```json
+        {
+          "model": "chat-model-001","messages": [{ "role": "system", "content": "You are a helpful assistant." },
+          { "role": "user", "content": "What is the capital of France?" }
+        ],
+        "temperature": 0.7,
+        "stream": false
+        }
+        ```
+
+        ### Example response
+        The response includes a generated reply from the assistant, along with token usage statistics. In this example, the model returns a direct answer to a user question.
+        ```json
+        {
+        "id": "chatcmpl-abc123",}
+        "object": "chat.completion",
+        "created": 1712454830,
+        "model": "chat-model-001",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "The capital of France is Paris."
+          },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 21,
+          "completion_tokens": 9,
+          "total_tokens": 30
+          }
+        }
+        ```
+        If the input summary is accurate, the `corrected_summary` matches the `original_summary`.
 
         Parameters
         ----------
@@ -152,6 +263,9 @@ class AsyncRawLlmClient:
 
         stream : typing.Optional[bool]
             Optional. When set to `true`, the API streams partial message deltas as they become available, similar to ChatGPT's streaming mode.
+
+        response_format : typing.Optional[ResponseFormat]
+            Specifies the output format for the model response.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -171,6 +285,9 @@ class AsyncRawLlmClient:
                     object_=messages, annotation=typing.Sequence[ChatCompletionRequestMessage], direction="write"
                 ),
                 "stream": stream,
+                "response_format": convert_and_respect_annotation_metadata(
+                    object_=response_format, annotation=ResponseFormat, direction="write"
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -215,4 +332,8 @@ class AsyncRawLlmClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

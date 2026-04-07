@@ -12,7 +12,6 @@ class RephraseSpan(UniversalBaseModel):
     During the query pipeline, the query may be rephrased to better suit the corpus.
     """
 
-    type: typing.Literal["rephrase"] = "rephrase"
     latency_millis: typing.Optional[int] = pydantic.Field(default=None)
     """
     Time taken in milliseconds.

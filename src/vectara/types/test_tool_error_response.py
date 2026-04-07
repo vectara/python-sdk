@@ -12,7 +12,6 @@ class TestToolErrorResponse(UniversalBaseModel):
     Error response from testing a Lambda tool.
     """
 
-    type: typing.Literal["error"] = "error"
     error: TestToolErrorResponseError = pydantic.Field()
     """
     Error information from the failed execution.

@@ -13,7 +13,6 @@ class ChainReranker(UniversalBaseModel):
     A reranker that applies multiple rerankers in sequence to produce the final search results.
     """
 
-    type: typing.Literal["chain"] = "chain"
     rerankers: typing.List["SearchReranker"] = pydantic.Field()
     """
     Specify an array of rerankers to apply to search results consecutively.
@@ -29,6 +28,6 @@ class ChainReranker(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
-from .search_reranker import SearchReranker  # noqa: E402, F401, I001
+from .search_reranker import SearchReranker  # noqa: E402, I001
 
-update_forward_refs(ChainReranker)
+update_forward_refs(ChainReranker, SearchReranker=SearchReranker)

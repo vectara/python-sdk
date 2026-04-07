@@ -5,13 +5,15 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
-from ..types.components_schemas_initial_instruction import ComponentsSchemasInitialInstruction
+from ..types.create_instruction_request import CreateInstructionRequest
+from ..types.instruction import Instruction
 from ..types.instruction_id import InstructionId
-from ..types.instruction_name import InstructionName
-from ..types.template_type import TemplateType
+from ..types.list_instructions_response import ListInstructionsResponse
 from ..types.test_instruction_response import TestInstructionResponse
 from ..types.tool import Tool
+from ..types.update_instruction_request import UpdateInstructionRequest
 from .raw_client import AsyncRawInstructionsClient, RawInstructionsClient
+from .types.list_instructions_request_type import ListInstructionsRequestType
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -36,23 +38,23 @@ class InstructionsClient:
         self,
         *,
         filter: typing.Optional[str] = None,
-        type: typing.Optional[typing.Literal["initial"]] = None,
+        type: typing.Optional[ListInstructionsRequestType] = None,
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[ComponentsSchemasInitialInstruction]:
+    ) -> SyncPager[Instruction, ListInstructionsResponse]:
         """
-        List all instructions available to the authenticated user, with optional filtering and pagination.
+        List all instructions available to the authenticated user, with optional filtering and pagination. This endpoint returns high-level information about each instruction, including name, status, and version details.
 
         Parameters
         ----------
         filter : typing.Optional[str]
             A regular expression against instruction names and descriptions to filter the results.
 
-        type : typing.Optional[typing.Literal["initial"]]
+        type : typing.Optional[ListInstructionsRequestType]
             Filter instructions by type.
 
         enabled : typing.Optional[bool]
@@ -75,18 +77,14 @@ class InstructionsClient:
 
         Returns
         -------
-        SyncPager[ComponentsSchemasInitialInstruction]
+        SyncPager[Instruction, ListInstructionsResponse]
             List of available instructions.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.instructions.list(
             filter="support.*",
             enabled=True,
@@ -111,25 +109,59 @@ class InstructionsClient:
     def create(
         self,
         *,
-        name: InstructionName,
-        template: str,
+        request: CreateInstructionRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        description: typing.Optional[str] = OMIT,
-        template_type: typing.Optional[TemplateType] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
-        enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ComponentsSchemasInitialInstruction:
+    ) -> Instruction:
         """
-        Create a new instruction that can guide agent behavior.
+        Create a new instruction that defines how an agent should behave, reason, and respond. Instructions act as system-level guidelines that shape the agent's tone, style, constraints, and tool usage.
+
+        Instructions support dynamic content using the Apache Velocity templating engine. Velocity variables allow instructions to reference runtime context:
+
+        - `\\$\\tools`: The list of tools available to the agent.
+        - `\\$\\{session.metadata.field}`: Session-level metadata (user context, permissions, preferences).
+        - `\\$\\{agent.metadata.field}`: Agent-level metadata (configuration or environment).
+
+        Example tool iteration:
+        ```velocity
+        You have access to the following tools:
+        \\#foreach(\\$\\tool in $tools)
+          - \\$\\{tool.name}: \\$\\{tool.description}
+        #end
+        ```
+        :::tip Tips for effective instruction design
+        Instructions are one of the most critical parts of an agent's design. Best practices vary by model, but at a minimum you should provide clear guidance on what tools are available, what output format is desired, and what steps to follow for common queries. Instructions typically need to be iterated on and tested over time.
+
+        For guidance on writing effective instructions, see:
+        - [Claude Prompt Engineering](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview)
+        - [OpenAI Prompt Engineering](https://platform.openai.com/docs/guides/prompt-engineering)
+        :::
+
+        Metadata can personalize behavior at runtime. For example:
+
+        ```velocity
+        Hello ${session.metadata.user_name}, how can I help with ${session.metadata.department} today?
+        ```
+
+        **Example request:**
+        ```json
+        {
+          "name": "Customer Support Tone and Style Guide",
+          "description": "Defines tone and behavior for customer interactions.",
+          "template": "You are a customer support agent for the ${session.metadata.department} department.",
+          "enabled": true,
+          "metadata": {
+            "owner": "customer-support-team",
+            "version": "1.0.0"
+          }
+        }
+        ```
+        A successful response returns the full instruction definition, including its unique ID, version, and timestamps.
 
         Parameters
         ----------
-        name : InstructionName
-
-        template : str
-            The instruction template content using the specified template engine.
+        request : CreateInstructionRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -137,48 +169,30 @@ class InstructionsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        description : typing.Optional[str]
-            A detailed description of what this instruction does.
-
-        template_type : typing.Optional[TemplateType]
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Arbitrary metadata associated with the instruction.
-
-        enabled : typing.Optional[bool]
-            Whether the instruction should be enabled upon creation.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ComponentsSchemasInitialInstruction
-            The instruction has been created successfully.
+        Instruction
+            The response includes the full definition of the newly created instruction, including fields such as `id`, `version`, `created_at`, and `updated_at`.
 
         Examples
         --------
-        from vectara import Vectara
+        from vectara import CreateInstructionRequest_Initial, Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.instructions.create(
-            name="Customer Support Initial Instruction",
-            template="You are a helpful customer support agent for Acme Corp. Today's date is ${currentDate}. You have access to the following tools: #foreach($tool in $tools)${tool.name}#if($foreach.hasNext), #end#end",
+            request=CreateInstructionRequest_Initial(
+                name="Customer Support Initial Instruction",
+                template="You are an expert customer support agent for $agent.name. Available tools: #foreach($tool in $tools)${tool.name}#if($foreach.hasNext), #end#end",
+            ),
         )
         """
         _response = self._raw_client.create(
-            name=name,
-            template=template,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
-            description=description,
-            template_type=template_type,
-            metadata=metadata,
-            enabled=enabled,
             request_options=request_options,
         )
         return _response.data
@@ -191,9 +205,9 @@ class InstructionsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ComponentsSchemasInitialInstruction:
+    ) -> Instruction:
         """
-        Retrieve the details of a specific instruction by its ID, including its template and configuration.
+        Retrieve the full definition of a specific instruction, including its template, metadata, enabled status, and version. Instruction templates may contain Velocity expressions that reference tools and metadata. If no version is specified, the latest version is returned.
 
         Parameters
         ----------
@@ -214,18 +228,14 @@ class InstructionsClient:
 
         Returns
         -------
-        ComponentsSchemasInitialInstruction
+        Instruction
             The requested instruction details.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.instructions.get(
             instruction_id="ins_customer_support_init",
             version=1,
@@ -249,7 +259,11 @@ class InstructionsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Permanently delete an instruction and all its associated configuration. This action cannot be undone.
+        Permanently delete an instruction and all its associated configuration.
+
+        :::warning
+        This action cannot be undone. Agents currently using this instruction may fail or behave unexpectedly. Update agents to use different instructions before deleting.
+        :::
 
         Parameters
         ----------
@@ -273,11 +287,7 @@ class InstructionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.instructions.delete(
             instruction_id="ins_customer_support_init",
         )
@@ -294,23 +304,32 @@ class InstructionsClient:
         self,
         instruction_id: InstructionId,
         *,
+        request: UpdateInstructionRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        name: typing.Optional[InstructionName] = OMIT,
-        description: typing.Optional[str] = OMIT,
-        template: typing.Optional[str] = OMIT,
-        template_type: typing.Optional[TemplateType] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
-        enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ComponentsSchemasInitialInstruction:
+    ) -> Instruction:
         """
-        Update an existing instruction's template, metadata, and configuration.
+        Update an existing instruction's template, metadata, and configuration. Updated templates may include Velocity variables such as `$tools` or metadata references. Each update creates a new version, allowing agents to continue using existing versions until explicitly changed.
+
+        ::info Version Management
+        Agents referencing a specific version continue to use it until updated. Agents without a pinned version always use the latest.
+        :::
+
+        ## Disable an instruction
+
+        This endpoint can also be used to disable an instruction without deleting it.
+
+        :::warning
+        Disabling an instruction prevents it from being added to new agents, but agents already using it continue to operate normally.
+        :::
 
         Parameters
         ----------
         instruction_id : InstructionId
             The unique identifier of the instruction to update.
+
+        request : UpdateInstructionRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -318,53 +337,29 @@ class InstructionsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        name : typing.Optional[InstructionName]
-
-        description : typing.Optional[str]
-            A detailed description of what this instruction does.
-
-        template : typing.Optional[str]
-            The instruction template content using the specified template engine.
-
-        template_type : typing.Optional[TemplateType]
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Arbitrary metadata associated with the instruction.
-
-        enabled : typing.Optional[bool]
-            Whether the instruction is enabled.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ComponentsSchemasInitialInstruction
+        Instruction
             The instruction has been updated successfully.
 
         Examples
         --------
-        from vectara import Vectara
+        from vectara import UpdateInstructionRequest_Initial, Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.instructions.update(
             instruction_id="ins_customer_support_init",
+            request=UpdateInstructionRequest_Initial(),
         )
         """
         _response = self._raw_client.update(
             instruction_id,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
-            name=name,
-            description=description,
-            template=template,
-            template_type=template_type,
-            metadata=metadata,
-            enabled=enabled,
             request_options=request_options,
         )
         return _response.data
@@ -376,12 +371,12 @@ class InstructionsClient:
         version: typing.Optional[int] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        context: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        context: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         tools: typing.Optional[typing.Sequence[Tool]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> TestInstructionResponse:
         """
-        Test an instruction by rendering its template with provided context data and tools.
+        Test an instruction template using supplied context and available tools. This endpoint evaluates Velocity expressions such as `$tools`, `${session.metadata.field}`, or `${agent.metadata.field}`, and returns the fully rendered template output. Use this operation to validate formatting, logic, or metadata-dependent behavior before deploying instructions to agents.
 
         Parameters
         ----------
@@ -397,8 +392,10 @@ class InstructionsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        context : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Context data to use when rendering the instruction template.
+        context : typing.Optional[typing.Dict[str, typing.Any]]
+            Context data to use when rendering the instruction template. This will be merged into `$session.metadata` for template access.
+
+            Example: If you provide `{"currentDate": "2024-01-15"}`, you can access it in the template as `$session.metadata.currentDate`.
 
         tools : typing.Optional[typing.Sequence[Tool]]
             List of tools to include in the instruction context for testing.
@@ -415,11 +412,7 @@ class InstructionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.instructions.test(
             instruction_id="ins_customer_support_init",
             version=1,
@@ -473,11 +466,7 @@ class InstructionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.instructions.delete_version(
             instruction_id="ins_customer_support_init",
             version=1,
@@ -512,23 +501,23 @@ class AsyncInstructionsClient:
         self,
         *,
         filter: typing.Optional[str] = None,
-        type: typing.Optional[typing.Literal["initial"]] = None,
+        type: typing.Optional[ListInstructionsRequestType] = None,
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[ComponentsSchemasInitialInstruction]:
+    ) -> AsyncPager[Instruction, ListInstructionsResponse]:
         """
-        List all instructions available to the authenticated user, with optional filtering and pagination.
+        List all instructions available to the authenticated user, with optional filtering and pagination. This endpoint returns high-level information about each instruction, including name, status, and version details.
 
         Parameters
         ----------
         filter : typing.Optional[str]
             A regular expression against instruction names and descriptions to filter the results.
 
-        type : typing.Optional[typing.Literal["initial"]]
+        type : typing.Optional[ListInstructionsRequestType]
             Filter instructions by type.
 
         enabled : typing.Optional[bool]
@@ -551,7 +540,7 @@ class AsyncInstructionsClient:
 
         Returns
         -------
-        AsyncPager[ComponentsSchemasInitialInstruction]
+        AsyncPager[Instruction, ListInstructionsResponse]
             List of available instructions.
 
         Examples
@@ -560,11 +549,7 @@ class AsyncInstructionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -596,25 +581,59 @@ class AsyncInstructionsClient:
     async def create(
         self,
         *,
-        name: InstructionName,
-        template: str,
+        request: CreateInstructionRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        description: typing.Optional[str] = OMIT,
-        template_type: typing.Optional[TemplateType] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
-        enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ComponentsSchemasInitialInstruction:
+    ) -> Instruction:
         """
-        Create a new instruction that can guide agent behavior.
+        Create a new instruction that defines how an agent should behave, reason, and respond. Instructions act as system-level guidelines that shape the agent's tone, style, constraints, and tool usage.
+
+        Instructions support dynamic content using the Apache Velocity templating engine. Velocity variables allow instructions to reference runtime context:
+
+        - `\\$\\tools`: The list of tools available to the agent.
+        - `\\$\\{session.metadata.field}`: Session-level metadata (user context, permissions, preferences).
+        - `\\$\\{agent.metadata.field}`: Agent-level metadata (configuration or environment).
+
+        Example tool iteration:
+        ```velocity
+        You have access to the following tools:
+        \\#foreach(\\$\\tool in $tools)
+          - \\$\\{tool.name}: \\$\\{tool.description}
+        #end
+        ```
+        :::tip Tips for effective instruction design
+        Instructions are one of the most critical parts of an agent's design. Best practices vary by model, but at a minimum you should provide clear guidance on what tools are available, what output format is desired, and what steps to follow for common queries. Instructions typically need to be iterated on and tested over time.
+
+        For guidance on writing effective instructions, see:
+        - [Claude Prompt Engineering](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview)
+        - [OpenAI Prompt Engineering](https://platform.openai.com/docs/guides/prompt-engineering)
+        :::
+
+        Metadata can personalize behavior at runtime. For example:
+
+        ```velocity
+        Hello ${session.metadata.user_name}, how can I help with ${session.metadata.department} today?
+        ```
+
+        **Example request:**
+        ```json
+        {
+          "name": "Customer Support Tone and Style Guide",
+          "description": "Defines tone and behavior for customer interactions.",
+          "template": "You are a customer support agent for the ${session.metadata.department} department.",
+          "enabled": true,
+          "metadata": {
+            "owner": "customer-support-team",
+            "version": "1.0.0"
+          }
+        }
+        ```
+        A successful response returns the full instruction definition, including its unique ID, version, and timestamps.
 
         Parameters
         ----------
-        name : InstructionName
-
-        template : str
-            The instruction template content using the specified template engine.
+        request : CreateInstructionRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -622,56 +641,38 @@ class AsyncInstructionsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        description : typing.Optional[str]
-            A detailed description of what this instruction does.
-
-        template_type : typing.Optional[TemplateType]
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Arbitrary metadata associated with the instruction.
-
-        enabled : typing.Optional[bool]
-            Whether the instruction should be enabled upon creation.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ComponentsSchemasInitialInstruction
-            The instruction has been created successfully.
+        Instruction
+            The response includes the full definition of the newly created instruction, including fields such as `id`, `version`, `created_at`, and `updated_at`.
 
         Examples
         --------
         import asyncio
 
-        from vectara import AsyncVectara
+        from vectara import AsyncVectara, CreateInstructionRequest_Initial
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
             await client.instructions.create(
-                name="Customer Support Initial Instruction",
-                template="You are a helpful customer support agent for Acme Corp. Today's date is ${currentDate}. You have access to the following tools: #foreach($tool in $tools)${tool.name}#if($foreach.hasNext), #end#end",
+                request=CreateInstructionRequest_Initial(
+                    name="Customer Support Initial Instruction",
+                    template="You are an expert customer support agent for $agent.name. Available tools: #foreach($tool in $tools)${tool.name}#if($foreach.hasNext), #end#end",
+                ),
             )
 
 
         asyncio.run(main())
         """
         _response = await self._raw_client.create(
-            name=name,
-            template=template,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
-            description=description,
-            template_type=template_type,
-            metadata=metadata,
-            enabled=enabled,
             request_options=request_options,
         )
         return _response.data
@@ -684,9 +685,9 @@ class AsyncInstructionsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ComponentsSchemasInitialInstruction:
+    ) -> Instruction:
         """
-        Retrieve the details of a specific instruction by its ID, including its template and configuration.
+        Retrieve the full definition of a specific instruction, including its template, metadata, enabled status, and version. Instruction templates may contain Velocity expressions that reference tools and metadata. If no version is specified, the latest version is returned.
 
         Parameters
         ----------
@@ -707,7 +708,7 @@ class AsyncInstructionsClient:
 
         Returns
         -------
-        ComponentsSchemasInitialInstruction
+        Instruction
             The requested instruction details.
 
         Examples
@@ -716,11 +717,7 @@ class AsyncInstructionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -750,7 +747,11 @@ class AsyncInstructionsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Permanently delete an instruction and all its associated configuration. This action cannot be undone.
+        Permanently delete an instruction and all its associated configuration.
+
+        :::warning
+        This action cannot be undone. Agents currently using this instruction may fail or behave unexpectedly. Update agents to use different instructions before deleting.
+        :::
 
         Parameters
         ----------
@@ -776,11 +777,7 @@ class AsyncInstructionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -803,23 +800,32 @@ class AsyncInstructionsClient:
         self,
         instruction_id: InstructionId,
         *,
+        request: UpdateInstructionRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        name: typing.Optional[InstructionName] = OMIT,
-        description: typing.Optional[str] = OMIT,
-        template: typing.Optional[str] = OMIT,
-        template_type: typing.Optional[TemplateType] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
-        enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> ComponentsSchemasInitialInstruction:
+    ) -> Instruction:
         """
-        Update an existing instruction's template, metadata, and configuration.
+        Update an existing instruction's template, metadata, and configuration. Updated templates may include Velocity variables such as `$tools` or metadata references. Each update creates a new version, allowing agents to continue using existing versions until explicitly changed.
+
+        ::info Version Management
+        Agents referencing a specific version continue to use it until updated. Agents without a pinned version always use the latest.
+        :::
+
+        ## Disable an instruction
+
+        This endpoint can also be used to disable an instruction without deleting it.
+
+        :::warning
+        Disabling an instruction prevents it from being added to new agents, but agents already using it continue to operate normally.
+        :::
 
         Parameters
         ----------
         instruction_id : InstructionId
             The unique identifier of the instruction to update.
+
+        request : UpdateInstructionRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -827,46 +833,27 @@ class AsyncInstructionsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        name : typing.Optional[InstructionName]
-
-        description : typing.Optional[str]
-            A detailed description of what this instruction does.
-
-        template : typing.Optional[str]
-            The instruction template content using the specified template engine.
-
-        template_type : typing.Optional[TemplateType]
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Arbitrary metadata associated with the instruction.
-
-        enabled : typing.Optional[bool]
-            Whether the instruction is enabled.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
         Returns
         -------
-        ComponentsSchemasInitialInstruction
+        Instruction
             The instruction has been updated successfully.
 
         Examples
         --------
         import asyncio
 
-        from vectara import AsyncVectara
+        from vectara import AsyncVectara, UpdateInstructionRequest_Initial
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
             await client.instructions.update(
                 instruction_id="ins_customer_support_init",
+                request=UpdateInstructionRequest_Initial(),
             )
 
 
@@ -874,14 +861,9 @@ class AsyncInstructionsClient:
         """
         _response = await self._raw_client.update(
             instruction_id,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
-            name=name,
-            description=description,
-            template=template,
-            template_type=template_type,
-            metadata=metadata,
-            enabled=enabled,
             request_options=request_options,
         )
         return _response.data
@@ -893,12 +875,12 @@ class AsyncInstructionsClient:
         version: typing.Optional[int] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        context: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        context: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         tools: typing.Optional[typing.Sequence[Tool]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> TestInstructionResponse:
         """
-        Test an instruction by rendering its template with provided context data and tools.
+        Test an instruction template using supplied context and available tools. This endpoint evaluates Velocity expressions such as `$tools`, `${session.metadata.field}`, or `${agent.metadata.field}`, and returns the fully rendered template output. Use this operation to validate formatting, logic, or metadata-dependent behavior before deploying instructions to agents.
 
         Parameters
         ----------
@@ -914,8 +896,10 @@ class AsyncInstructionsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
-        context : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Context data to use when rendering the instruction template.
+        context : typing.Optional[typing.Dict[str, typing.Any]]
+            Context data to use when rendering the instruction template. This will be merged into `$session.metadata` for template access.
+
+            Example: If you provide `{"currentDate": "2024-01-15"}`, you can access it in the template as `$session.metadata.currentDate`.
 
         tools : typing.Optional[typing.Sequence[Tool]]
             List of tools to include in the instruction context for testing.
@@ -934,11 +918,7 @@ class AsyncInstructionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -1000,11 +980,7 @@ class AsyncInstructionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:

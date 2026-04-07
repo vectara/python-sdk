@@ -4,7 +4,9 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .agent_role import AgentRole
 from .api_role import ApiRole
+from .corpus_role import CorpusRole
 
 
 class CreateClientCredentialsRequest(UniversalBaseModel):
@@ -22,10 +24,19 @@ class CreateClientCredentialsRequest(UniversalBaseModel):
     Description of the client credentials.
     """
 
-    type: typing.Literal["client_credentials"] = "client_credentials"
     api_roles: typing.Optional[typing.List[ApiRole]] = pydantic.Field(default=None)
     """
     API roles that the client credentials will have.
+    """
+
+    corpus_roles: typing.Optional[typing.List[CorpusRole]] = pydantic.Field(default=None)
+    """
+    Corpus-specific role assignments for this App Client.
+    """
+
+    agent_roles: typing.Optional[typing.List[AgentRole]] = pydantic.Field(default=None)
+    """
+    Agent-specific role assignments for this App Client.
     """
 
     if IS_PYDANTIC_V2:

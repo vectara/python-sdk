@@ -12,7 +12,11 @@ class StreamingAgentOutputEnd(UniversalBaseModel):
     Signals the end of streaming agent output (SSE only, not stored).
     """
 
-    type: typing.Literal["streaming_agent_output_end"] = "streaming_agent_output_end"
+    event_id: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The ID of the persisted AgentOutputEvent.
+    """
+
     created_at: dt.datetime = pydantic.Field()
     """
     Timestamp when the event was created.

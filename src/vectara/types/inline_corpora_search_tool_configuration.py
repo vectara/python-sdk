@@ -6,8 +6,9 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel, update_forward_refs
-from .corpora_search_query_configuration import CorporaSearchQueryConfiguration
+from .agent_corpora_search_query_configuration import AgentCorporaSearchQueryConfiguration
 from .corpora_search_tool_parameters import CorporaSearchToolParameters
+from .tool_description_template import ToolDescriptionTemplate
 
 
 class InlineCorporaSearchToolConfiguration(UniversalBaseModel):
@@ -15,15 +16,15 @@ class InlineCorporaSearchToolConfiguration(UniversalBaseModel):
     A corpora search tool configuration defined inline in the agent.
     """
 
-    type: typing.Literal["corpora_search"] = "corpora_search"
+    description_template: typing.Optional[ToolDescriptionTemplate] = None
     argument_override: typing.Optional[CorporaSearchToolParameters] = pydantic.Field(default=None)
     """
     Optional hardcoded arguments for the corpus search call such as the query. When specified, these values will be used instead of allowing the LLM to fill in those parameters.
     """
 
-    query_configuration: CorporaSearchQueryConfiguration = pydantic.Field()
+    query_configuration: AgentCorporaSearchQueryConfiguration = pydantic.Field()
     """
-    User-configurable settings for the corpus search that are not exposed to the LLM.
+    User-configurable settings for the corpus search that are not exposed to the LLM. Supports dynamic references for runtime resolution from session context.
     """
 
     if IS_PYDANTIC_V2:
@@ -35,7 +36,5 @@ class InlineCorporaSearchToolConfiguration(UniversalBaseModel):
             smart_union = True
             extra = pydantic.Extra.allow
 
-
-from .chain_reranker import ChainReranker  # noqa: E402, F401, I001
 
 update_forward_refs(InlineCorporaSearchToolConfiguration)

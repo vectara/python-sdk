@@ -11,8 +11,6 @@ class SentenceChunkingStrategy(UniversalBaseModel):
     Sets a chunking strategy that creates one chunk per sentence. This is the default strategy used when no chunking strategy is specified.
     """
 
-    type: typing.Literal["sentence_chunking_strategy"] = "sentence_chunking_strategy"
-
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

@@ -12,7 +12,6 @@ class StreamingAgentOutput(UniversalBaseModel):
     A streaming chunk of agent output (SSE only, not stored).
     """
 
-    type: typing.Literal["streaming_agent_output"] = "streaming_agent_output"
     content: str = pydantic.Field()
     """
     The text chunk content.

@@ -8,10 +8,12 @@ from ..core.request_options import RequestOptions
 from ..types.agent_event import AgentEvent
 from ..types.agent_key import AgentKey
 from ..types.agent_session_key import AgentSessionKey
-from ..types.components_schemas_agent_text_input import ComponentsSchemasAgentTextInput
+from ..types.list_agent_events_response import ListAgentEventsResponse
 from .raw_client import AsyncRawAgentEventsClient, RawAgentEventsClient
-from .types.agent_events_create_response import AgentEventsCreateResponse
-from .types.agent_events_create_stream_response import AgentEventsCreateStreamResponse
+from .types.create_agent_events_request_body import CreateAgentEventsRequestBody
+from .types.create_agent_events_response import CreateAgentEventsResponse
+from .types.create_agent_events_stream_request_body import CreateAgentEventsStreamRequestBody
+from .types.create_agent_events_stream_response import CreateAgentEventsStreamResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -39,10 +41,11 @@ class AgentEventsClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
+        include_hidden: typing.Optional[bool] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[AgentEvent]:
+    ) -> SyncPager[AgentEvent, ListAgentEventsResponse]:
         """
         List all events in a specific agent session, with optional pagination.
 
@@ -60,6 +63,9 @@ class AgentEventsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of events after the limit has been reached.
 
+        include_hidden : typing.Optional[bool]
+            Include hidden events (compacted or manually hidden) in the response. Defaults to false.
+
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
@@ -71,18 +77,14 @@ class AgentEventsClient:
 
         Returns
         -------
-        SyncPager[AgentEvent]
+        SyncPager[AgentEvent, ListAgentEventsResponse]
             List of events in the session.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.agent_events.list(
             agent_key="customer_support",
             session_key="customer_support_chat",
@@ -98,6 +100,7 @@ class AgentEventsClient:
             session_key,
             limit=limit,
             page_key=page_key,
+            include_hidden=include_hidden,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
@@ -108,11 +111,11 @@ class AgentEventsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        messages: typing.Sequence[ComponentsSchemasAgentTextInput],
+        request: CreateAgentEventsStreamRequestBody,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.Iterator[AgentEventsCreateStreamResponse]:
+    ) -> typing.Iterator[CreateAgentEventsStreamResponse]:
         """
         Create a new input to an agent to interact with it.
 
@@ -124,8 +127,7 @@ class AgentEventsClient:
         session_key : AgentSessionKey
             The unique key of the session to create an input in.
 
-        messages : typing.Sequence[ComponentsSchemasAgentTextInput]
-            List of inputs that make up this event.
+        request : CreateAgentEventsStreamRequestBody
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -138,26 +140,26 @@ class AgentEventsClient:
 
         Yields
         ------
-        typing.Iterator[AgentEventsCreateStreamResponse]
+        typing.Iterator[CreateAgentEventsStreamResponse]
 
 
         Examples
         --------
-        from vectara import AgentTextInput, Vectara
+        from vectara import AgentInput_Text, Vectara
+        from vectara.agent_events import CreateAgentEventsStreamRequestBody_InputMessage
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.agent_events.create_stream(
             agent_key="customer_support",
             session_key="customer_support_chat",
-            messages=[
-                AgentTextInput(
-                    content="I need help with my widget installation",
-                )
-            ],
+            request=CreateAgentEventsStreamRequestBody_InputMessage(
+                messages=[
+                    AgentInput_Text(
+                        content="I need help with my widget installation",
+                    )
+                ],
+                stream_response=True,
+            ),
         )
         for chunk in response:
             yield chunk
@@ -165,7 +167,7 @@ class AgentEventsClient:
         with self._raw_client.create_stream(
             agent_key,
             session_key,
-            messages=messages,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
@@ -177,11 +179,11 @@ class AgentEventsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        messages: typing.Sequence[ComponentsSchemasAgentTextInput],
+        request: CreateAgentEventsRequestBody,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AgentEventsCreateResponse:
+    ) -> CreateAgentEventsResponse:
         """
         Create a new input to an agent to interact with it.
 
@@ -193,8 +195,7 @@ class AgentEventsClient:
         session_key : AgentSessionKey
             The unique key of the session to create an input in.
 
-        messages : typing.Sequence[ComponentsSchemasAgentTextInput]
-            List of inputs that make up this event.
+        request : CreateAgentEventsRequestBody
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -207,32 +208,32 @@ class AgentEventsClient:
 
         Returns
         -------
-        AgentEventsCreateResponse
+        CreateAgentEventsResponse
 
 
         Examples
         --------
-        from vectara import AgentTextInput, Vectara
+        from vectara import AgentInput_Text, Vectara
+        from vectara.agent_events import CreateAgentEventsRequestBody_InputMessage
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.agent_events.create(
             agent_key="customer_support",
             session_key="customer_support_chat",
-            messages=[
-                AgentTextInput(
-                    content="I need help with my widget installation",
-                )
-            ],
+            request=CreateAgentEventsRequestBody_InputMessage(
+                messages=[
+                    AgentInput_Text(
+                        content="I need help with my widget installation",
+                    )
+                ],
+                stream_response=False,
+            ),
         )
         """
         _response = self._raw_client.create(
             agent_key,
             session_key,
-            messages=messages,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
@@ -281,11 +282,7 @@ class AgentEventsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.agent_events.get(
             agent_key="customer_support",
             session_key="customer_support_chat",
@@ -293,6 +290,173 @@ class AgentEventsClient:
         )
         """
         _response = self._raw_client.get(
+            agent_key,
+            session_key,
+            event_id,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def delete(
+        self,
+        agent_key: AgentKey,
+        session_key: AgentSessionKey,
+        event_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> None:
+        """
+        Permanently delete an event from a session. Removes the event from both the metadata database and the encrypted event store.
+
+        Parameters
+        ----------
+        agent_key : AgentKey
+
+        session_key : AgentSessionKey
+
+        event_id : str
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara()
+        client.agent_events.delete(
+            agent_key="customer_support",
+            session_key="customer_support_chat",
+            event_id="event_id",
+        )
+        """
+        _response = self._raw_client.delete(
+            agent_key,
+            session_key,
+            event_id,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def hide(
+        self,
+        agent_key: AgentKey,
+        session_key: AgentSessionKey,
+        event_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AgentEvent:
+        """
+        Manually hide an event in a session. Sets hide_reason to 'manual'.
+
+        Parameters
+        ----------
+        agent_key : AgentKey
+
+        session_key : AgentSessionKey
+
+        event_id : str
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AgentEvent
+            Event hidden.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara()
+        client.agent_events.hide(
+            agent_key="customer_support",
+            session_key="customer_support_chat",
+            event_id="event_id",
+        )
+        """
+        _response = self._raw_client.hide(
+            agent_key,
+            session_key,
+            event_id,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def unhide(
+        self,
+        agent_key: AgentKey,
+        session_key: AgentSessionKey,
+        event_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AgentEvent:
+        """
+        Unhide a hidden event in a session. Clears the hide_reason.
+
+        Parameters
+        ----------
+        agent_key : AgentKey
+
+        session_key : AgentSessionKey
+
+        event_id : str
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AgentEvent
+            Event unhidden.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara()
+        client.agent_events.unhide(
+            agent_key="customer_support",
+            session_key="customer_support_chat",
+            event_id="event_id",
+        )
+        """
+        _response = self._raw_client.unhide(
             agent_key,
             session_key,
             event_id,
@@ -325,10 +489,11 @@ class AsyncAgentEventsClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
+        include_hidden: typing.Optional[bool] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[AgentEvent]:
+    ) -> AsyncPager[AgentEvent, ListAgentEventsResponse]:
         """
         List all events in a specific agent session, with optional pagination.
 
@@ -346,6 +511,9 @@ class AsyncAgentEventsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of events after the limit has been reached.
 
+        include_hidden : typing.Optional[bool]
+            Include hidden events (compacted or manually hidden) in the response. Defaults to false.
+
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
@@ -357,7 +525,7 @@ class AsyncAgentEventsClient:
 
         Returns
         -------
-        AsyncPager[AgentEvent]
+        AsyncPager[AgentEvent, ListAgentEventsResponse]
             List of events in the session.
 
         Examples
@@ -366,11 +534,7 @@ class AsyncAgentEventsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -393,6 +557,7 @@ class AsyncAgentEventsClient:
             session_key,
             limit=limit,
             page_key=page_key,
+            include_hidden=include_hidden,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
@@ -403,11 +568,11 @@ class AsyncAgentEventsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        messages: typing.Sequence[ComponentsSchemasAgentTextInput],
+        request: CreateAgentEventsStreamRequestBody,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.AsyncIterator[AgentEventsCreateStreamResponse]:
+    ) -> typing.AsyncIterator[CreateAgentEventsStreamResponse]:
         """
         Create a new input to an agent to interact with it.
 
@@ -419,8 +584,7 @@ class AsyncAgentEventsClient:
         session_key : AgentSessionKey
             The unique key of the session to create an input in.
 
-        messages : typing.Sequence[ComponentsSchemasAgentTextInput]
-            List of inputs that make up this event.
+        request : CreateAgentEventsStreamRequestBody
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -433,31 +597,31 @@ class AsyncAgentEventsClient:
 
         Yields
         ------
-        typing.AsyncIterator[AgentEventsCreateStreamResponse]
+        typing.AsyncIterator[CreateAgentEventsStreamResponse]
 
 
         Examples
         --------
         import asyncio
 
-        from vectara import AgentTextInput, AsyncVectara
+        from vectara import AgentInput_Text, AsyncVectara
+        from vectara.agent_events import CreateAgentEventsStreamRequestBody_InputMessage
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
             response = await client.agent_events.create_stream(
                 agent_key="customer_support",
                 session_key="customer_support_chat",
-                messages=[
-                    AgentTextInput(
-                        content="I need help with my widget installation",
-                    )
-                ],
+                request=CreateAgentEventsStreamRequestBody_InputMessage(
+                    messages=[
+                        AgentInput_Text(
+                            content="I need help with my widget installation",
+                        )
+                    ],
+                    stream_response=True,
+                ),
             )
             async for chunk in response:
                 yield chunk
@@ -468,7 +632,7 @@ class AsyncAgentEventsClient:
         async with self._raw_client.create_stream(
             agent_key,
             session_key,
-            messages=messages,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
@@ -481,11 +645,11 @@ class AsyncAgentEventsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        messages: typing.Sequence[ComponentsSchemasAgentTextInput],
+        request: CreateAgentEventsRequestBody,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AgentEventsCreateResponse:
+    ) -> CreateAgentEventsResponse:
         """
         Create a new input to an agent to interact with it.
 
@@ -497,8 +661,7 @@ class AsyncAgentEventsClient:
         session_key : AgentSessionKey
             The unique key of the session to create an input in.
 
-        messages : typing.Sequence[ComponentsSchemasAgentTextInput]
-            List of inputs that make up this event.
+        request : CreateAgentEventsRequestBody
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -511,31 +674,31 @@ class AsyncAgentEventsClient:
 
         Returns
         -------
-        AgentEventsCreateResponse
+        CreateAgentEventsResponse
 
 
         Examples
         --------
         import asyncio
 
-        from vectara import AgentTextInput, AsyncVectara
+        from vectara import AgentInput_Text, AsyncVectara
+        from vectara.agent_events import CreateAgentEventsRequestBody_InputMessage
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
             await client.agent_events.create(
                 agent_key="customer_support",
                 session_key="customer_support_chat",
-                messages=[
-                    AgentTextInput(
-                        content="I need help with my widget installation",
-                    )
-                ],
+                request=CreateAgentEventsRequestBody_InputMessage(
+                    messages=[
+                        AgentInput_Text(
+                            content="I need help with my widget installation",
+                        )
+                    ],
+                    stream_response=False,
+                ),
             )
 
 
@@ -544,7 +707,7 @@ class AsyncAgentEventsClient:
         _response = await self._raw_client.create(
             agent_key,
             session_key,
-            messages=messages,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
@@ -595,11 +758,7 @@ class AsyncAgentEventsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -613,6 +772,197 @@ class AsyncAgentEventsClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.get(
+            agent_key,
+            session_key,
+            event_id,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def delete(
+        self,
+        agent_key: AgentKey,
+        session_key: AgentSessionKey,
+        event_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> None:
+        """
+        Permanently delete an event from a session. Removes the event from both the metadata database and the encrypted event store.
+
+        Parameters
+        ----------
+        agent_key : AgentKey
+
+        session_key : AgentSessionKey
+
+        event_id : str
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara()
+
+
+        async def main() -> None:
+            await client.agent_events.delete(
+                agent_key="customer_support",
+                session_key="customer_support_chat",
+                event_id="event_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.delete(
+            agent_key,
+            session_key,
+            event_id,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def hide(
+        self,
+        agent_key: AgentKey,
+        session_key: AgentSessionKey,
+        event_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AgentEvent:
+        """
+        Manually hide an event in a session. Sets hide_reason to 'manual'.
+
+        Parameters
+        ----------
+        agent_key : AgentKey
+
+        session_key : AgentSessionKey
+
+        event_id : str
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AgentEvent
+            Event hidden.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara()
+
+
+        async def main() -> None:
+            await client.agent_events.hide(
+                agent_key="customer_support",
+                session_key="customer_support_chat",
+                event_id="event_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.hide(
+            agent_key,
+            session_key,
+            event_id,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def unhide(
+        self,
+        agent_key: AgentKey,
+        session_key: AgentSessionKey,
+        event_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AgentEvent:
+        """
+        Unhide a hidden event in a session. Clears the hide_reason.
+
+        Parameters
+        ----------
+        agent_key : AgentKey
+
+        session_key : AgentSessionKey
+
+        event_id : str
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AgentEvent
+            Event unhidden.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara()
+
+
+        async def main() -> None:
+            await client.agent_events.unhide(
+                agent_key="customer_support",
+                session_key="customer_support_chat",
+                event_id="event_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.unhide(
             agent_key,
             session_key,
             event_id,

@@ -11,7 +11,6 @@ class FactualConsistencyScore(UniversalBaseModel):
     Event containing the factual consistency score.
     """
 
-    type: typing.Literal["factual_consistency_score"] = "factual_consistency_score"
     factual_consistency_score: typing.Optional[float] = pydantic.Field(default=None)
     """
     The probability that the summary is factually consistent with the results.

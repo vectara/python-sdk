@@ -9,7 +9,8 @@ from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.datetime_utils import serialize_datetime
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
+from ..core.pagination import AsyncPager, SyncPager
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.forbidden_error import ForbiddenError
@@ -20,6 +21,7 @@ from ..types.job import Job
 from ..types.job_state import JobState
 from ..types.list_jobs_response import ListJobsResponse
 from ..types.not_found_error_body import NotFoundErrorBody
+from pydantic import ValidationError
 
 
 class RawJobsClient:
@@ -37,7 +39,7 @@ class RawJobsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Job]:
+    ) -> SyncPager[Job, ListJobsResponse]:
         """
         List jobs for the account. Jobs are background processes like replacing the filterable metadata attributes.
 
@@ -69,7 +71,7 @@ class RawJobsClient:
 
         Returns
         -------
-        SyncPager[Job]
+        SyncPager[Job, ListJobsResponse]
             List of jobs.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -114,9 +116,7 @@ class RawJobsClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                return SyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -131,6 +131,10 @@ class RawJobsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
@@ -142,7 +146,7 @@ class RawJobsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Job]:
         """
-        Get a job by a specific ID. Jobs are background processes like replacing the filterable metadata attributes.
+        Get a job by a specific `job_id`. Jobs are background processes like replacing the filterable metadata attributes.
 
         Parameters
         ----------
@@ -208,6 +212,10 @@ class RawJobsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -226,7 +234,7 @@ class AsyncRawJobsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Job]:
+    ) -> AsyncPager[Job, ListJobsResponse]:
         """
         List jobs for the account. Jobs are background processes like replacing the filterable metadata attributes.
 
@@ -258,7 +266,7 @@ class AsyncRawJobsClient:
 
         Returns
         -------
-        AsyncPager[Job]
+        AsyncPager[Job, ListJobsResponse]
             List of jobs.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -306,9 +314,7 @@ class AsyncRawJobsClient:
                             request_options=request_options,
                         )
 
-                return AsyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -323,6 +329,10 @@ class AsyncRawJobsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
@@ -334,7 +344,7 @@ class AsyncRawJobsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Job]:
         """
-        Get a job by a specific ID. Jobs are background processes like replacing the filterable metadata attributes.
+        Get a job by a specific `job_id`. Jobs are background processes like replacing the filterable metadata attributes.
 
         Parameters
         ----------
@@ -400,4 +410,8 @@ class AsyncRawJobsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

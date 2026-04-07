@@ -5,13 +5,15 @@ from json.decoder import JSONDecodeError
 
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
-from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
+from ..core.pagination import AsyncPager, SyncPager
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.forbidden_error import ForbiddenError
 from ..types.error import Error
 from ..types.generation_preset import GenerationPreset
 from ..types.list_generation_presets_response import ListGenerationPresetsResponse
+from pydantic import ValidationError
 
 
 class RawGenerationPresetsClient:
@@ -27,9 +29,19 @@ class RawGenerationPresetsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[GenerationPreset]:
+    ) -> SyncPager[GenerationPreset, ListGenerationPresetsResponse]:
         """
-        List generation presets used for query or chat requests. Generation presets are the build of properties used to configure generation for a request. This includes the template that renders the prompt, and various generation settings like `temperature`.
+        Organizations often struggle to fine-tune query responses and maintain consistency across different use cases. Vectara creates and maintains predefined generation presets for our users which provides a flexible and powerful way to utilize generation parameters. Each preset includes a complete Velocity template for the prompt along with other generation parameters. Presets are typically associated with a single LLM.
+
+        The List Generation Presets API lets you view the generation presets used for [query](/docs/rest-api/queries) requests. Generation presets group several properties that configure generation for a request. These presets provide more flexibility in how generation parameters are configured, enabling more fine-tuned control over query responses.
+
+        This includes the `prompt_template`, the Large Language Model (LLM), and other generation settings like `max_tokens` and `temperature`. Users specify a generation preset in their query or chat requests using the `generation_preset_name` field.
+
+        ## Generation presets object
+
+        The `generation_presets` object contains the `name`, `description`, `llm_name`, `prompt_template`, and other fields make up the preset.
+
+        If your account has access to a preset, then `enabled` is set to `true`. A preset can also be set as a `default`.\\n\\n### Example generation presets response\\n\\n```json\\n{\\n  \\"generation_presets\\": [\\n    {\\n      \\"name\\": \\"vectara-summary-ext-24-05-med-omni\\",\\n      \\"description\\": \\"Generate summary with controllable citations, Uses GPT-4o with 2,048 max tokens\\",\\n      \\"llm_name\\": \\"gpt-4o\\",\\n      \\"prompt_template\\": \\"[\\\\n    {\\\\\\"role\\\\\\": \\\\\\"system\\\\\\", \\\\\\"content\\\\\\": \\\\\\"Follow these detailed step-by-step\\",\\n      \\"max_used_search_results\\": 25,\\n      \\"max_tokens\\": 2048,\\n      \\"temperature\\": 0,\\n      \\"frequency_penalty\\": 0,\\n      \\"presence_penalty\\": 0,\\n      \\"enabled\\": true,\\n      \\"default\\": false\\n    },\\n    // More presets appear here\\n}\\n```\\n"
 
         Parameters
         ----------
@@ -53,7 +65,7 @@ class RawGenerationPresetsClient:
 
         Returns
         -------
-        SyncPager[GenerationPreset]
+        SyncPager[GenerationPreset, ListGenerationPresetsResponse]
             List of Generation Presets.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -94,9 +106,7 @@ class RawGenerationPresetsClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                return SyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -111,6 +121,10 @@ class RawGenerationPresetsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -127,9 +141,19 @@ class AsyncRawGenerationPresetsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[GenerationPreset]:
+    ) -> AsyncPager[GenerationPreset, ListGenerationPresetsResponse]:
         """
-        List generation presets used for query or chat requests. Generation presets are the build of properties used to configure generation for a request. This includes the template that renders the prompt, and various generation settings like `temperature`.
+        Organizations often struggle to fine-tune query responses and maintain consistency across different use cases. Vectara creates and maintains predefined generation presets for our users which provides a flexible and powerful way to utilize generation parameters. Each preset includes a complete Velocity template for the prompt along with other generation parameters. Presets are typically associated with a single LLM.
+
+        The List Generation Presets API lets you view the generation presets used for [query](/docs/rest-api/queries) requests. Generation presets group several properties that configure generation for a request. These presets provide more flexibility in how generation parameters are configured, enabling more fine-tuned control over query responses.
+
+        This includes the `prompt_template`, the Large Language Model (LLM), and other generation settings like `max_tokens` and `temperature`. Users specify a generation preset in their query or chat requests using the `generation_preset_name` field.
+
+        ## Generation presets object
+
+        The `generation_presets` object contains the `name`, `description`, `llm_name`, `prompt_template`, and other fields make up the preset.
+
+        If your account has access to a preset, then `enabled` is set to `true`. A preset can also be set as a `default`.\\n\\n### Example generation presets response\\n\\n```json\\n{\\n  \\"generation_presets\\": [\\n    {\\n      \\"name\\": \\"vectara-summary-ext-24-05-med-omni\\",\\n      \\"description\\": \\"Generate summary with controllable citations, Uses GPT-4o with 2,048 max tokens\\",\\n      \\"llm_name\\": \\"gpt-4o\\",\\n      \\"prompt_template\\": \\"[\\\\n    {\\\\\\"role\\\\\\": \\\\\\"system\\\\\\", \\\\\\"content\\\\\\": \\\\\\"Follow these detailed step-by-step\\",\\n      \\"max_used_search_results\\": 25,\\n      \\"max_tokens\\": 2048,\\n      \\"temperature\\": 0,\\n      \\"frequency_penalty\\": 0,\\n      \\"presence_penalty\\": 0,\\n      \\"enabled\\": true,\\n      \\"default\\": false\\n    },\\n    // More presets appear here\\n}\\n```\\n"
 
         Parameters
         ----------
@@ -153,7 +177,7 @@ class AsyncRawGenerationPresetsClient:
 
         Returns
         -------
-        AsyncPager[GenerationPreset]
+        AsyncPager[GenerationPreset, ListGenerationPresetsResponse]
             List of Generation Presets.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -197,9 +221,7 @@ class AsyncRawGenerationPresetsClient:
                             request_options=request_options,
                         )
 
-                return AsyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -214,4 +236,8 @@ class AsyncRawGenerationPresetsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

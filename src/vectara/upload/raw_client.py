@@ -9,6 +9,7 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.bad_request_error import BadRequestError
@@ -22,6 +23,7 @@ from ..types.document import Document
 from ..types.error import Error
 from ..types.not_found_error_body import NotFoundErrorBody
 from ..types.table_extraction_config import TableExtractionConfig
+from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -38,55 +40,127 @@ class RawUploadClient:
         file: core.File,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         chunking_strategy: typing.Optional[ChunkingStrategy] = OMIT,
         table_extraction_config: typing.Optional[TableExtractionConfig] = OMIT,
         filename: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Document]:
         """
-        Upload a file, such as a PDF or Word document, to the specified corpus for automatic text extraction and metadata parsing.
-
+        Upload a file to a corpus for automatic text extraction, chunking, and indexing. This endpoint is designed for unstructured documents where you want Vectara to handle parsing for you. Each uploaded file can be up to **10 MB**.
+        
+        Supported file types include:
+        - Markdown (`.md`)
+        - PDF/A (`.pdf`)
+        - OpenOffice documents (`.odt`)
+        - Microsoft Word (`.doc`, `.docx`)
+        - Microsoft PowerPoint (`.ppt`, `.pptx`)
+        - Plain text (`.txt`)
+        - HTML (`.html`)
+        - LXML (`.lxml`)
+        - RTF (`.rtf`)
+        - EPUB (`.epub`)
+        - Email files (RFC 822)   
+        
+        :::note
+        For semi-structured documents that require more control over fields or metadata, use the [**Create Corpus Document API**](/docs/rest-api/create-corpus-document) instead.
+        :::
+        
+        ## Additional format support through Vectara Ingest
+        
+        If you need to ingest additional file types or data sources, you can use the open-source [**Vectara Ingest**](https://github.com/vectara/vectara-ingest) Python framework. It supports connectors for websites, RSS feeds, CSV, Confluence, HubSpot, ServiceNow, Jira, Notion, Slack, MediaWiki, GitHub, SharePoint, Twitter/X, YouTube, and more.
+        
+        :::caution
+        Vectara Ingest is provided as an open-source example and is not officially supported.
+        :::
+        
+        ## Multipart form fields
+        
         This endpoint expects a `multipart/form-data` request with the following fields:
-
-        - **metadata**: An optional JSON object containing additional metadata to associate with the document.
-          Example: `metadata={"key": "value"}`
-        - **chunking_strategy**: An optional JSON object that sets the chunking method for text extraction.
-          - By default, the platform uses sentence-based chunking (one chunk per sentence).
-          - Example for explicit sentence chunking: `chunking_strategy={"type":"sentence_chunking_strategy"}`
-          - Example for max chars chunking: `chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":512}`
-        - **table_extraction_config**: An optional JSON object to control table extraction from supported file types (e.g., PDF).
-          Example: `table_extraction_config={"extract_tables": true}`
-        - **file**: The file to upload. Attach your file as the value for this field.
-        - **filename**: The desired name for the uploaded file. Specify as part of the file field in your request.
-
+        
+        - **metadata** (optional): JSON metadata to attach to the parsed document.  
+          Example: `metadata={"key":"value"}`
+        - **chunking_strategy** (optional): Controls how extracted text is chunked.  
+          Defaults to sentence-based chunking (one chunk per sentence).  
+          Example: `{"type":"sentence_chunking_strategy"}`. 
+          Example for max character chunking: `{"type":"max_chars_chunking_strategy","max_chars_per_chunk":512}`
+        - **table_extraction_config** (optional): Enables extraction of tables from supported file types such as PDFs.  
+          Example: `{"extract_tables": true}`
+        - **file** (required): The file to upload.
+        - **filename** (required): The desired document ID, specified within the file upload field.
+        
+        Apart from these parameters, the servers expect a valid JWT Token in the HTTP headers:
+        
+        ```curl
+        \\$ curl -L -X POST 'https://api.vectara.io/v2/corpora/:corpus_key/upload_file' \\
+        -H 'Content-Type: multipart/form-data' \\
+        -H 'Accept: application/json' \\
+        -H 'x-api-key: zwt_123456' \\
+        -F 'metadata=\\{"key": "value"\\};type=application/json' \\
+        -F 'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'
+        
+        ```
+        
+        ## Filenames with non-ASCII characters
+        
+        When uploading files with non-ASCII (non-English) characters, such as Russian or Chinese, ensure that the filename is URL encoded. The Vectara REST API follows web standards which require URL-encoded file names.
+        
+        ## Set the document ID
+          
+        To set a custom Document ID, pass it as the filename in the `Content-Disposition` header:
+        
+        `Content-Disposition: form-data; name="file"; filename="your_document_id"`
+        
+        For more information about Content-Disposition, see the [Mozilla documentation on headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition).
+        
+        ## Attach additional metadata
+        
+        You can attach additional metadata to the file by specifying a metadata form field, which can contain a JSON string:
+        
+        `{ "filesize": 1234 }`
+        
+        ## Tabular data extraction and summarization
+        
+        Setting `table_extraction_config.extract_tables = true` enables extraction of tabular data (such as financial filings such as 10-K, 10-Q, S-1). You can also apply custom prompt templates to summarize table content during upload.
+        
+        :::caution
+        Table extraction does not support scanned images of tables.
+        :::
+        
+        ## Custom table summarization with prompt templates
+        
+        Vectara supports [table summarization using custom prompt templates](https://docs.vectara.com/docs/build/working-with-tables#summarize-tables-with-custom-prompts) during document upload. This lets you define custom prompt templates that control how the LLM interprets and summarizes table data during extraction. By customizing the prompt_template, you can tailor summaries for domain-specific language, analytical perspectives, or formatting preferences.
+        
+        ## Image support
+        You can include images in structured documents using the [Indexing API](/docs/rest-api/create-corpus-document) with Base64 encoding. You cannot send images directly with individual query requests. If you want to retrieve a specific image that is embedded within a document, use the [Retrieve image API](/docs/rest-api/get-image)
+        
         Parameters
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus of which to upload the file.
-
+        
         file : core.File
             See core.File for more documentation
-
+        
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
-
+        
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary object that will be attached as document metadata to the extracted document.
-
+        
         chunking_strategy : typing.Optional[ChunkingStrategy]
-
+        
         table_extraction_config : typing.Optional[TableExtractionConfig]
-
+        
         filename : typing.Optional[str]
             Optional multipart section to override the filename.
-
+        
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
-
+        
         Returns
         -------
         HttpResponse[Document]
@@ -187,6 +261,10 @@ class RawUploadClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -201,55 +279,127 @@ class AsyncRawUploadClient:
         file: core.File,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         chunking_strategy: typing.Optional[ChunkingStrategy] = OMIT,
         table_extraction_config: typing.Optional[TableExtractionConfig] = OMIT,
         filename: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Document]:
         """
-        Upload a file, such as a PDF or Word document, to the specified corpus for automatic text extraction and metadata parsing.
-
+        Upload a file to a corpus for automatic text extraction, chunking, and indexing. This endpoint is designed for unstructured documents where you want Vectara to handle parsing for you. Each uploaded file can be up to **10 MB**.
+        
+        Supported file types include:
+        - Markdown (`.md`)
+        - PDF/A (`.pdf`)
+        - OpenOffice documents (`.odt`)
+        - Microsoft Word (`.doc`, `.docx`)
+        - Microsoft PowerPoint (`.ppt`, `.pptx`)
+        - Plain text (`.txt`)
+        - HTML (`.html`)
+        - LXML (`.lxml`)
+        - RTF (`.rtf`)
+        - EPUB (`.epub`)
+        - Email files (RFC 822)   
+        
+        :::note
+        For semi-structured documents that require more control over fields or metadata, use the [**Create Corpus Document API**](/docs/rest-api/create-corpus-document) instead.
+        :::
+        
+        ## Additional format support through Vectara Ingest
+        
+        If you need to ingest additional file types or data sources, you can use the open-source [**Vectara Ingest**](https://github.com/vectara/vectara-ingest) Python framework. It supports connectors for websites, RSS feeds, CSV, Confluence, HubSpot, ServiceNow, Jira, Notion, Slack, MediaWiki, GitHub, SharePoint, Twitter/X, YouTube, and more.
+        
+        :::caution
+        Vectara Ingest is provided as an open-source example and is not officially supported.
+        :::
+        
+        ## Multipart form fields
+        
         This endpoint expects a `multipart/form-data` request with the following fields:
-
-        - **metadata**: An optional JSON object containing additional metadata to associate with the document.
-          Example: `metadata={"key": "value"}`
-        - **chunking_strategy**: An optional JSON object that sets the chunking method for text extraction.
-          - By default, the platform uses sentence-based chunking (one chunk per sentence).
-          - Example for explicit sentence chunking: `chunking_strategy={"type":"sentence_chunking_strategy"}`
-          - Example for max chars chunking: `chunking_strategy={"type":"max_chars_chunking_strategy","max_chars_per_chunk":512}`
-        - **table_extraction_config**: An optional JSON object to control table extraction from supported file types (e.g., PDF).
-          Example: `table_extraction_config={"extract_tables": true}`
-        - **file**: The file to upload. Attach your file as the value for this field.
-        - **filename**: The desired name for the uploaded file. Specify as part of the file field in your request.
-
+        
+        - **metadata** (optional): JSON metadata to attach to the parsed document.  
+          Example: `metadata={"key":"value"}`
+        - **chunking_strategy** (optional): Controls how extracted text is chunked.  
+          Defaults to sentence-based chunking (one chunk per sentence).  
+          Example: `{"type":"sentence_chunking_strategy"}`. 
+          Example for max character chunking: `{"type":"max_chars_chunking_strategy","max_chars_per_chunk":512}`
+        - **table_extraction_config** (optional): Enables extraction of tables from supported file types such as PDFs.  
+          Example: `{"extract_tables": true}`
+        - **file** (required): The file to upload.
+        - **filename** (required): The desired document ID, specified within the file upload field.
+        
+        Apart from these parameters, the servers expect a valid JWT Token in the HTTP headers:
+        
+        ```curl
+        \\$ curl -L -X POST 'https://api.vectara.io/v2/corpora/:corpus_key/upload_file' \\
+        -H 'Content-Type: multipart/form-data' \\
+        -H 'Accept: application/json' \\
+        -H 'x-api-key: zwt_123456' \\
+        -F 'metadata=\\{"key": "value"\\};type=application/json' \\
+        -F 'file=@/path/to/file/file.pdf;filename=desired_filename.pdf'
+        
+        ```
+        
+        ## Filenames with non-ASCII characters
+        
+        When uploading files with non-ASCII (non-English) characters, such as Russian or Chinese, ensure that the filename is URL encoded. The Vectara REST API follows web standards which require URL-encoded file names.
+        
+        ## Set the document ID
+          
+        To set a custom Document ID, pass it as the filename in the `Content-Disposition` header:
+        
+        `Content-Disposition: form-data; name="file"; filename="your_document_id"`
+        
+        For more information about Content-Disposition, see the [Mozilla documentation on headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition).
+        
+        ## Attach additional metadata
+        
+        You can attach additional metadata to the file by specifying a metadata form field, which can contain a JSON string:
+        
+        `{ "filesize": 1234 }`
+        
+        ## Tabular data extraction and summarization
+        
+        Setting `table_extraction_config.extract_tables = true` enables extraction of tabular data (such as financial filings such as 10-K, 10-Q, S-1). You can also apply custom prompt templates to summarize table content during upload.
+        
+        :::caution
+        Table extraction does not support scanned images of tables.
+        :::
+        
+        ## Custom table summarization with prompt templates
+        
+        Vectara supports [table summarization using custom prompt templates](https://docs.vectara.com/docs/build/working-with-tables#summarize-tables-with-custom-prompts) during document upload. This lets you define custom prompt templates that control how the LLM interprets and summarizes table data during extraction. By customizing the prompt_template, you can tailor summaries for domain-specific language, analytical perspectives, or formatting preferences.
+        
+        ## Image support
+        You can include images in structured documents using the [Indexing API](/docs/rest-api/create-corpus-document) with Base64 encoding. You cannot send images directly with individual query requests. If you want to retrieve a specific image that is embedded within a document, use the [Retrieve image API](/docs/rest-api/get-image)
+        
         Parameters
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus of which to upload the file.
-
+        
         file : core.File
             See core.File for more documentation
-
+        
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
-
+        
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary object that will be attached as document metadata to the extracted document.
-
+        
         chunking_strategy : typing.Optional[ChunkingStrategy]
-
+        
         table_extraction_config : typing.Optional[TableExtractionConfig]
-
+        
         filename : typing.Optional[str]
             Optional multipart section to override the filename.
-
+        
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
-
+        
         Returns
         -------
         AsyncHttpResponse[Document]
@@ -350,4 +500,8 @@ class AsyncRawUploadClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

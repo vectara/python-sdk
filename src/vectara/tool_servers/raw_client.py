@@ -7,7 +7,8 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
+from ..core.pagination import AsyncPager, SyncPager
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..core.serialization import convert_and_respect_annotation_metadata
@@ -22,6 +23,9 @@ from ..types.remote_auth import RemoteAuth
 from ..types.tool_server import ToolServer
 from ..types.tool_server_name import ToolServerName
 from ..types.tool_server_transport import ToolServerTransport
+from ..types.tool_server_type import ToolServerType
+from .types.list_tool_servers_request_type import ListToolServersRequestType
+from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -35,14 +39,14 @@ class RawToolServersClient:
         self,
         *,
         filter: typing.Optional[str] = None,
-        type: typing.Optional[typing.Literal["mcp"]] = None,
+        type: typing.Optional[ListToolServersRequestType] = None,
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[ToolServer]:
+    ) -> SyncPager[ToolServer, ListToolServersResponse]:
         """
         Retrieve a list of available tool servers that expose various tools.
 
@@ -51,7 +55,7 @@ class RawToolServersClient:
         filter : typing.Optional[str]
             A regular expression against tool server names and descriptions to filter the results.
 
-        type : typing.Optional[typing.Literal["mcp"]]
+        type : typing.Optional[ListToolServersRequestType]
             Filter tool servers by type.
 
         enabled : typing.Optional[bool]
@@ -74,7 +78,7 @@ class RawToolServersClient:
 
         Returns
         -------
-        SyncPager[ToolServer]
+        SyncPager[ToolServer, ListToolServersResponse]
             List of available tool servers.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -119,9 +123,7 @@ class RawToolServersClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                return SyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -136,12 +138,17 @@ class RawToolServersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
         self,
         *,
         name: ToolServerName,
+        type: ToolServerType,
         uri: str,
         transport: ToolServerTransport,
         request_timeout: typing.Optional[int] = None,
@@ -150,7 +157,7 @@ class RawToolServersClient:
         headers: typing.Optional[typing.Dict[str, str]] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ToolServer]:
         """
@@ -159,6 +166,8 @@ class RawToolServersClient:
         Parameters
         ----------
         name : ToolServerName
+
+        type : ToolServerType
 
         uri : str
             The URI of the tool server.
@@ -183,7 +192,7 @@ class RawToolServersClient:
         enabled : typing.Optional[bool]
             Whether the tool server is currently enabled and available for use.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the tool server.
 
         request_options : typing.Optional[RequestOptions]
@@ -200,6 +209,7 @@ class RawToolServersClient:
             method="POST",
             json={
                 "name": name,
+                "type": type,
                 "description": description,
                 "uri": uri,
                 "headers": headers,
@@ -207,7 +217,6 @@ class RawToolServersClient:
                 "auth": convert_and_respect_annotation_metadata(object_=auth, annotation=RemoteAuth, direction="write"),
                 "enabled": enabled,
                 "metadata": metadata,
-                "type": "mcp",
             },
             headers={
                 "content-type": "application/json",
@@ -252,6 +261,10 @@ class RawToolServersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
@@ -329,6 +342,10 @@ class RawToolServersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
@@ -398,6 +415,10 @@ class RawToolServersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def update(
@@ -413,7 +434,7 @@ class RawToolServersClient:
         transport: typing.Optional[ToolServerTransport] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ToolServer]:
         """
@@ -449,7 +470,7 @@ class RawToolServersClient:
         enabled : typing.Optional[bool]
             Whether the tool server is currently enabled and available for use.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the tool server.
 
         request_options : typing.Optional[RequestOptions]
@@ -528,6 +549,10 @@ class RawToolServersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def sync(
@@ -597,6 +622,10 @@ class RawToolServersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -608,14 +637,14 @@ class AsyncRawToolServersClient:
         self,
         *,
         filter: typing.Optional[str] = None,
-        type: typing.Optional[typing.Literal["mcp"]] = None,
+        type: typing.Optional[ListToolServersRequestType] = None,
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[ToolServer]:
+    ) -> AsyncPager[ToolServer, ListToolServersResponse]:
         """
         Retrieve a list of available tool servers that expose various tools.
 
@@ -624,7 +653,7 @@ class AsyncRawToolServersClient:
         filter : typing.Optional[str]
             A regular expression against tool server names and descriptions to filter the results.
 
-        type : typing.Optional[typing.Literal["mcp"]]
+        type : typing.Optional[ListToolServersRequestType]
             Filter tool servers by type.
 
         enabled : typing.Optional[bool]
@@ -647,7 +676,7 @@ class AsyncRawToolServersClient:
 
         Returns
         -------
-        AsyncPager[ToolServer]
+        AsyncPager[ToolServer, ListToolServersResponse]
             List of available tool servers.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -695,9 +724,7 @@ class AsyncRawToolServersClient:
                             request_options=request_options,
                         )
 
-                return AsyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -712,12 +739,17 @@ class AsyncRawToolServersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
         self,
         *,
         name: ToolServerName,
+        type: ToolServerType,
         uri: str,
         transport: ToolServerTransport,
         request_timeout: typing.Optional[int] = None,
@@ -726,7 +758,7 @@ class AsyncRawToolServersClient:
         headers: typing.Optional[typing.Dict[str, str]] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ToolServer]:
         """
@@ -735,6 +767,8 @@ class AsyncRawToolServersClient:
         Parameters
         ----------
         name : ToolServerName
+
+        type : ToolServerType
 
         uri : str
             The URI of the tool server.
@@ -759,7 +793,7 @@ class AsyncRawToolServersClient:
         enabled : typing.Optional[bool]
             Whether the tool server is currently enabled and available for use.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the tool server.
 
         request_options : typing.Optional[RequestOptions]
@@ -776,6 +810,7 @@ class AsyncRawToolServersClient:
             method="POST",
             json={
                 "name": name,
+                "type": type,
                 "description": description,
                 "uri": uri,
                 "headers": headers,
@@ -783,7 +818,6 @@ class AsyncRawToolServersClient:
                 "auth": convert_and_respect_annotation_metadata(object_=auth, annotation=RemoteAuth, direction="write"),
                 "enabled": enabled,
                 "metadata": metadata,
-                "type": "mcp",
             },
             headers={
                 "content-type": "application/json",
@@ -828,6 +862,10 @@ class AsyncRawToolServersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
@@ -905,6 +943,10 @@ class AsyncRawToolServersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
@@ -974,6 +1016,10 @@ class AsyncRawToolServersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def update(
@@ -989,7 +1035,7 @@ class AsyncRawToolServersClient:
         transport: typing.Optional[ToolServerTransport] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ToolServer]:
         """
@@ -1025,7 +1071,7 @@ class AsyncRawToolServersClient:
         enabled : typing.Optional[bool]
             Whether the tool server is currently enabled and available for use.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the tool server.
 
         request_options : typing.Optional[RequestOptions]
@@ -1104,6 +1150,10 @@ class AsyncRawToolServersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def sync(
@@ -1173,4 +1223,8 @@ class AsyncRawToolServersClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

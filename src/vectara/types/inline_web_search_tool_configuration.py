@@ -4,6 +4,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .tool_description_template import ToolDescriptionTemplate
 from .web_search_tool_parameters import WebSearchToolParameters
 
 
@@ -12,7 +13,7 @@ class InlineWebSearchToolConfiguration(UniversalBaseModel):
     A web search tool configuration defined inline in the agent.
     """
 
-    type: typing.Literal["web_search"] = "web_search"
+    description_template: typing.Optional[ToolDescriptionTemplate] = None
     argument_override: typing.Optional[WebSearchToolParameters] = pydantic.Field(default=None)
     """
     Optional hardcoded arguments for the web search tool call such as limit etc. When specified, these values will be used instead of allowing the LLM to fill in those parameters.

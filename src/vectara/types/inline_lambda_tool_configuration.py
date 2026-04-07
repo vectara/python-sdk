@@ -4,6 +4,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .tool_description_template import ToolDescriptionTemplate
 from .tool_id import ToolId
 
 
@@ -12,9 +13,9 @@ class InlineLambdaToolConfiguration(UniversalBaseModel):
     A lambda tool configuration defined inline in the agent for executing user-defined functions.
     """
 
-    type: typing.Literal["lambda"] = "lambda"
     tool_id: ToolId
-    argument_override: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    description_template: typing.Optional[ToolDescriptionTemplate] = None
+    argument_override: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     Optional hardcoded arguments that will be passed to the lambda function. When specified, these values will be used instead of allowing the LLM to fill in those parameters.
     """

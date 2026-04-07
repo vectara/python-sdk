@@ -14,7 +14,11 @@ class CitationParameters(UniversalBaseModel):
 
     style: typing.Optional[CitationParametersStyle] = pydantic.Field(default=None)
     """
-    The citation style to be used in summary. Can be one of: * `numeric` - Citations formatted as simple numerals: \[1\], \[2\] ... * `none` - Citations removed from text. * `html` - Citation formatted as a URL like `<a href="url_pattern">text_pattern</a>`. * `markdown` - Formatted as `[text_pattern](url_pattern)`.
+    The citation style that you want to use in the summary: 
+    * `numeric` - Citations formatted as simple numerals: \\[1\\], \\[2\\], etc.
+    * `none` - Citations removed from text.
+    * `html` - Citation formatted as a URL like `<a href="url_pattern">text_pattern</a>`.
+    * `markdown` - Formatted as `[text_pattern](url_pattern)`.
     """
 
     url_pattern: typing.Optional[str] = pydantic.Field(default=None)

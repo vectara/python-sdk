@@ -2,14 +2,98 @@
 
 # isort: skip_file
 
-from .chats_create_response import ChatsCreateResponse
-from .chats_create_stream_response import ChatsCreateStreamResponse
-from .chats_create_turns_response import ChatsCreateTurnsResponse
-from .chats_create_turns_stream_response import ChatsCreateTurnsStreamResponse
+import typing
+from importlib import import_module
+
+if typing.TYPE_CHECKING:
+    from .create_chats_response import CreateChatsResponse
+    from .create_chats_stream_response import (
+        CreateChatsStreamResponse,
+        CreateChatsStreamResponse_ChatInfo,
+        CreateChatsStreamResponse_End,
+        CreateChatsStreamResponse_Error,
+        CreateChatsStreamResponse_FactualConsistencyScore,
+        CreateChatsStreamResponse_GenerationChunk,
+        CreateChatsStreamResponse_GenerationEnd,
+        CreateChatsStreamResponse_GenerationInfo,
+        CreateChatsStreamResponse_SearchResults,
+    )
+    from .create_turns_chats_response import CreateTurnsChatsResponse
+    from .create_turns_chats_stream_response import (
+        CreateTurnsChatsStreamResponse,
+        CreateTurnsChatsStreamResponse_ChatInfo,
+        CreateTurnsChatsStreamResponse_End,
+        CreateTurnsChatsStreamResponse_Error,
+        CreateTurnsChatsStreamResponse_FactualConsistencyScore,
+        CreateTurnsChatsStreamResponse_GenerationChunk,
+        CreateTurnsChatsStreamResponse_GenerationEnd,
+        CreateTurnsChatsStreamResponse_GenerationInfo,
+        CreateTurnsChatsStreamResponse_SearchResults,
+    )
+_dynamic_imports: typing.Dict[str, str] = {
+    "CreateChatsResponse": ".create_chats_response",
+    "CreateChatsStreamResponse": ".create_chats_stream_response",
+    "CreateChatsStreamResponse_ChatInfo": ".create_chats_stream_response",
+    "CreateChatsStreamResponse_End": ".create_chats_stream_response",
+    "CreateChatsStreamResponse_Error": ".create_chats_stream_response",
+    "CreateChatsStreamResponse_FactualConsistencyScore": ".create_chats_stream_response",
+    "CreateChatsStreamResponse_GenerationChunk": ".create_chats_stream_response",
+    "CreateChatsStreamResponse_GenerationEnd": ".create_chats_stream_response",
+    "CreateChatsStreamResponse_GenerationInfo": ".create_chats_stream_response",
+    "CreateChatsStreamResponse_SearchResults": ".create_chats_stream_response",
+    "CreateTurnsChatsResponse": ".create_turns_chats_response",
+    "CreateTurnsChatsStreamResponse": ".create_turns_chats_stream_response",
+    "CreateTurnsChatsStreamResponse_ChatInfo": ".create_turns_chats_stream_response",
+    "CreateTurnsChatsStreamResponse_End": ".create_turns_chats_stream_response",
+    "CreateTurnsChatsStreamResponse_Error": ".create_turns_chats_stream_response",
+    "CreateTurnsChatsStreamResponse_FactualConsistencyScore": ".create_turns_chats_stream_response",
+    "CreateTurnsChatsStreamResponse_GenerationChunk": ".create_turns_chats_stream_response",
+    "CreateTurnsChatsStreamResponse_GenerationEnd": ".create_turns_chats_stream_response",
+    "CreateTurnsChatsStreamResponse_GenerationInfo": ".create_turns_chats_stream_response",
+    "CreateTurnsChatsStreamResponse_SearchResults": ".create_turns_chats_stream_response",
+}
+
+
+def __getattr__(attr_name: str) -> typing.Any:
+    module_name = _dynamic_imports.get(attr_name)
+    if module_name is None:
+        raise AttributeError(f"No {attr_name} found in _dynamic_imports for module name -> {__name__}")
+    try:
+        module = import_module(module_name, __package__)
+        if module_name == f".{attr_name}":
+            return module
+        else:
+            return getattr(module, attr_name)
+    except ImportError as e:
+        raise ImportError(f"Failed to import {attr_name} from {module_name}: {e}") from e
+    except AttributeError as e:
+        raise AttributeError(f"Failed to get {attr_name} from {module_name}: {e}") from e
+
+
+def __dir__():
+    lazy_attrs = list(_dynamic_imports.keys())
+    return sorted(lazy_attrs)
+
 
 __all__ = [
-    "ChatsCreateResponse",
-    "ChatsCreateStreamResponse",
-    "ChatsCreateTurnsResponse",
-    "ChatsCreateTurnsStreamResponse",
+    "CreateChatsResponse",
+    "CreateChatsStreamResponse",
+    "CreateChatsStreamResponse_ChatInfo",
+    "CreateChatsStreamResponse_End",
+    "CreateChatsStreamResponse_Error",
+    "CreateChatsStreamResponse_FactualConsistencyScore",
+    "CreateChatsStreamResponse_GenerationChunk",
+    "CreateChatsStreamResponse_GenerationEnd",
+    "CreateChatsStreamResponse_GenerationInfo",
+    "CreateChatsStreamResponse_SearchResults",
+    "CreateTurnsChatsResponse",
+    "CreateTurnsChatsStreamResponse",
+    "CreateTurnsChatsStreamResponse_ChatInfo",
+    "CreateTurnsChatsStreamResponse_End",
+    "CreateTurnsChatsStreamResponse_Error",
+    "CreateTurnsChatsStreamResponse_FactualConsistencyScore",
+    "CreateTurnsChatsStreamResponse_GenerationChunk",
+    "CreateTurnsChatsStreamResponse_GenerationEnd",
+    "CreateTurnsChatsStreamResponse_GenerationInfo",
+    "CreateTurnsChatsStreamResponse_SearchResults",
 ]

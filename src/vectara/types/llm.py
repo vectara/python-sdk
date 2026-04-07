@@ -4,6 +4,8 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .llm_capabilities import LlmCapabilities
+from .llm_ownership import LlmOwnership
 
 
 class Llm(UniversalBaseModel):
@@ -36,7 +38,16 @@ class Llm(UniversalBaseModel):
     If this is the default LLM, it is used in queries when the generator is not specified.
     """
 
-    prompts: typing.Optional[typing.Optional[typing.Any]] = None
+    capabilities: typing.Optional[LlmCapabilities] = None
+    ownership: typing.Optional[LlmOwnership] = pydantic.Field(default=None)
+    """
+    Indicates whether the LLM is provided by the platform (`platform`) or created by the customer (`customer`).
+    """
+
+    prompts: typing.Optional[typing.Any] = pydantic.Field(default=None)
+    """
+    List of prompts that the model can use. This is deprecated; see `/v2/generation_presets` instead.
+    """
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

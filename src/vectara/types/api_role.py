@@ -12,6 +12,11 @@ ApiRole = typing.Union[
         "agent_administrator",
         "agent_viewer",
         "agent_developer",
+        "agent_user",
+        "pipeline_administrator",
+        "pipeline_viewer",
+        "viewer",
+        "corpus_viewer",
     ],
     typing.Any,
 ]

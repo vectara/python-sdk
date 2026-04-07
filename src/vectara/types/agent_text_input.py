@@ -11,7 +11,6 @@ class AgentTextInput(UniversalBaseModel):
     A text input for an agent message.
     """
 
-    type: typing.Literal["text"] = "text"
     content: str = pydantic.Field()
     """
     The text content of the input.

@@ -16,11 +16,7 @@ class ChatCompletionRequestMessage(UniversalBaseModel):
     The role of the author of this message. Common values include 'system', 'user', 'assistant', 'function', and 'tool'.
     """
 
-    content: str = pydantic.Field()
-    """
-    The contents of the message.
-    """
-
+    content: typing.Any
     name: typing.Optional[str] = pydantic.Field(default=None)
     """
     The name of the author of this message, used to connect messages in a conversation.

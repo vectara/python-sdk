@@ -11,8 +11,6 @@ class StreamResponseEnd(UniversalBaseModel):
     The end of a query response stream.
     """
 
-    type: typing.Literal["end"] = "end"
-
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

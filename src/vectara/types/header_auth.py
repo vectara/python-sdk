@@ -11,7 +11,6 @@ class HeaderAuth(UniversalBaseModel):
     Custom header-based authentication
     """
 
-    type: typing.Literal["header"] = "header"
     header: str = pydantic.Field()
     """
     The header name to use (e.g. x-api-key)

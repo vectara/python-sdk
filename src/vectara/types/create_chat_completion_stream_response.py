@@ -5,6 +5,7 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .chat_completion_stream_response_choice import ChatCompletionStreamResponseChoice
+from .create_chat_completion_stream_response_object import CreateChatCompletionStreamResponseObject
 
 
 class CreateChatCompletionStreamResponse(UniversalBaseModel):
@@ -12,7 +13,7 @@ class CreateChatCompletionStreamResponse(UniversalBaseModel):
     The response object for streaming chat completions in chunks.
     """
 
-    object: typing.Literal["chat.completion.chunk"] = pydantic.Field(default="chat.completion.chunk")
+    object: CreateChatCompletionStreamResponseObject = pydantic.Field()
     """
     The object type, which is always 'chat.completion.chunk' for streaming responses.
     """

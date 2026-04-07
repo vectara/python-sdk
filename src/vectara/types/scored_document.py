@@ -21,7 +21,7 @@ class ScoredDocument(UniversalBaseModel):
     The overall relevance score for this document.
     """
 
-    metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     Document metadata object containing all document metadata fields.
     """

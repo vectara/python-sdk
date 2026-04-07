@@ -4,18 +4,17 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .create_lambda_tool_request_language import CreateLambdaToolRequestLanguage
 from .execution_configuration import ExecutionConfiguration
 
 
 class CreateLambdaToolRequest(UniversalBaseModel):
     """
-    Request to create a new lambda tool. Lambda tools are user-defined functions that run
-    in a secure, sandboxed environment with Python 3.12.
+    Request to create a new lambda tool. Lambda tools are user-defined functions that run in a secure, sandboxed environment with Python 3.12.
 
     Input and output schemas are automatically discovered from function parameter type annotations in your code.
     """
 
-    type: typing.Literal["lambda"] = "lambda"
     name: str = pydantic.Field()
     """
     The unique name of the tool (used as the function identifier).
@@ -31,64 +30,14 @@ class CreateLambdaToolRequest(UniversalBaseModel):
     A detailed description of what the function does, when to use it, and what it returns.
     """
 
-    language: typing.Optional[typing.Literal["python"]] = pydantic.Field(default=None)
+    language: typing.Optional[CreateLambdaToolRequestLanguage] = pydantic.Field(default=None)
     """
     The programming language. Currently only 'python' (Python 3.12) is supported.
     """
 
     code: str = pydantic.Field()
     """
-    The Python 3.12 code for the function.
-    
-    **Required**: Must define a `process()` entry point function. Use type annotations on parameters for automatic schema discovery.
-    
-    **Parameters**: Passed as keyword arguments matched to the function signature.
-    
-    **Return types**: Can return any JSON-serializable type (strings, numbers, booleans, lists, or objects).
-    
-    **Example: Returning a number**
-    ```python
-    def process(x: int, y: int) -> int:
-        return x + y
-    ```
-    
-    **Example: Returning a string**
-    ```python
-    def process(name: str) -> str:
-        return f"Hello, {name}!"
-    ```
-    
-    **Example: Returning a boolean**
-    ```python
-    def process(value: int, threshold: int) -> bool:
-        return value > threshold
-    ```
-    
-    **Example: Returning a list**
-    ```python
-    from typing import List
-    
-    def process(items: List[str]) -> List[str]:
-        return sorted(items)
-    ```
-    
-    **Example: Returning an object (dict)**
-    ```python
-    def process(order_count: int, total_revenue: float, days_active: int = 1) -> dict:
-        score = (order_count * 10 + total_revenue * 0.1) / days_active
-        return {'score': round(score, 2), 'rating': 'high' if score > 100 else 'low'}
-    ```
-    
-    For complex types, use the `typing` module:
-    
-    ```python
-    from typing import List, Dict
-    
-    def process(items: List[str], config: Dict[str, float]) -> dict:
-        count = len(items)
-        multiplier = config.get('multiplier', 1.0)
-        return {'count': count, 'adjusted': count * multiplier}
-    ```
+    The Python 3.12 code for the function. Must define a process() entry point function. Use type annotations on parameters for automatic schema discovery. Parameters are passed as keyword arguments matched to the function signature. Can return any JSON-serializable type (strings, numbers, booleans, lists, or objects). Use docstrings to provide descriptions for parameters (Google, NumPy, ReST, and Epydoc styles are supported). These descriptions are automatically extracted and included in the input schema. Object parameters must use TypedDict. Bare dict and Dict[K, V] parameters are not supported and will be rejected during validation.
     """
 
     execution_configuration: typing.Optional[ExecutionConfiguration] = None

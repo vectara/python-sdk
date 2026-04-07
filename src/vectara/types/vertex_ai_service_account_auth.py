@@ -11,7 +11,6 @@ class VertexAiServiceAccountAuth(UniversalBaseModel):
     Service account authentication for Vertex AI
     """
 
-    type: typing.Literal["service_account"] = "service_account"
     key_json: str = pydantic.Field()
     """
     The service account JSON key file contents as a string

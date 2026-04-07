@@ -2,16 +2,96 @@
 
 # isort: skip_file
 
-from .types import (
-    ChatsCreateResponse,
-    ChatsCreateStreamResponse,
-    ChatsCreateTurnsResponse,
-    ChatsCreateTurnsStreamResponse,
-)
+import typing
+from importlib import import_module
+
+if typing.TYPE_CHECKING:
+    from .types import (
+        CreateChatsResponse,
+        CreateChatsStreamResponse,
+        CreateChatsStreamResponse_ChatInfo,
+        CreateChatsStreamResponse_End,
+        CreateChatsStreamResponse_Error,
+        CreateChatsStreamResponse_FactualConsistencyScore,
+        CreateChatsStreamResponse_GenerationChunk,
+        CreateChatsStreamResponse_GenerationEnd,
+        CreateChatsStreamResponse_GenerationInfo,
+        CreateChatsStreamResponse_SearchResults,
+        CreateTurnsChatsResponse,
+        CreateTurnsChatsStreamResponse,
+        CreateTurnsChatsStreamResponse_ChatInfo,
+        CreateTurnsChatsStreamResponse_End,
+        CreateTurnsChatsStreamResponse_Error,
+        CreateTurnsChatsStreamResponse_FactualConsistencyScore,
+        CreateTurnsChatsStreamResponse_GenerationChunk,
+        CreateTurnsChatsStreamResponse_GenerationEnd,
+        CreateTurnsChatsStreamResponse_GenerationInfo,
+        CreateTurnsChatsStreamResponse_SearchResults,
+    )
+_dynamic_imports: typing.Dict[str, str] = {
+    "CreateChatsResponse": ".types",
+    "CreateChatsStreamResponse": ".types",
+    "CreateChatsStreamResponse_ChatInfo": ".types",
+    "CreateChatsStreamResponse_End": ".types",
+    "CreateChatsStreamResponse_Error": ".types",
+    "CreateChatsStreamResponse_FactualConsistencyScore": ".types",
+    "CreateChatsStreamResponse_GenerationChunk": ".types",
+    "CreateChatsStreamResponse_GenerationEnd": ".types",
+    "CreateChatsStreamResponse_GenerationInfo": ".types",
+    "CreateChatsStreamResponse_SearchResults": ".types",
+    "CreateTurnsChatsResponse": ".types",
+    "CreateTurnsChatsStreamResponse": ".types",
+    "CreateTurnsChatsStreamResponse_ChatInfo": ".types",
+    "CreateTurnsChatsStreamResponse_End": ".types",
+    "CreateTurnsChatsStreamResponse_Error": ".types",
+    "CreateTurnsChatsStreamResponse_FactualConsistencyScore": ".types",
+    "CreateTurnsChatsStreamResponse_GenerationChunk": ".types",
+    "CreateTurnsChatsStreamResponse_GenerationEnd": ".types",
+    "CreateTurnsChatsStreamResponse_GenerationInfo": ".types",
+    "CreateTurnsChatsStreamResponse_SearchResults": ".types",
+}
+
+
+def __getattr__(attr_name: str) -> typing.Any:
+    module_name = _dynamic_imports.get(attr_name)
+    if module_name is None:
+        raise AttributeError(f"No {attr_name} found in _dynamic_imports for module name -> {__name__}")
+    try:
+        module = import_module(module_name, __package__)
+        if module_name == f".{attr_name}":
+            return module
+        else:
+            return getattr(module, attr_name)
+    except ImportError as e:
+        raise ImportError(f"Failed to import {attr_name} from {module_name}: {e}") from e
+    except AttributeError as e:
+        raise AttributeError(f"Failed to get {attr_name} from {module_name}: {e}") from e
+
+
+def __dir__():
+    lazy_attrs = list(_dynamic_imports.keys())
+    return sorted(lazy_attrs)
+
 
 __all__ = [
-    "ChatsCreateResponse",
-    "ChatsCreateStreamResponse",
-    "ChatsCreateTurnsResponse",
-    "ChatsCreateTurnsStreamResponse",
+    "CreateChatsResponse",
+    "CreateChatsStreamResponse",
+    "CreateChatsStreamResponse_ChatInfo",
+    "CreateChatsStreamResponse_End",
+    "CreateChatsStreamResponse_Error",
+    "CreateChatsStreamResponse_FactualConsistencyScore",
+    "CreateChatsStreamResponse_GenerationChunk",
+    "CreateChatsStreamResponse_GenerationEnd",
+    "CreateChatsStreamResponse_GenerationInfo",
+    "CreateChatsStreamResponse_SearchResults",
+    "CreateTurnsChatsResponse",
+    "CreateTurnsChatsStreamResponse",
+    "CreateTurnsChatsStreamResponse_ChatInfo",
+    "CreateTurnsChatsStreamResponse_End",
+    "CreateTurnsChatsStreamResponse_Error",
+    "CreateTurnsChatsStreamResponse_FactualConsistencyScore",
+    "CreateTurnsChatsStreamResponse_GenerationChunk",
+    "CreateTurnsChatsStreamResponse_GenerationEnd",
+    "CreateTurnsChatsStreamResponse_GenerationInfo",
+    "CreateTurnsChatsStreamResponse_SearchResults",
 ]

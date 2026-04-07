@@ -5,8 +5,12 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
+from ..types.agent_role import AgentRole
 from ..types.api_role import ApiRole
 from ..types.app_client import AppClient
+from ..types.corpus_role import CorpusRole
+from ..types.create_app_client_request import CreateAppClientRequest
+from ..types.list_app_clients_response import ListAppClientsResponse
 from .raw_client import AsyncRawAppClientsClient, RawAppClientsClient
 
 # this is used as the default value for optional parameters
@@ -37,7 +41,7 @@ class AppClientsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[AppClient]:
+    ) -> SyncPager[AppClient, ListAppClientsResponse]:
         """
         Retrieve a list of application clients configured for the customer account.
 
@@ -63,18 +67,14 @@ class AppClientsClient:
 
         Returns
         -------
-        SyncPager[AppClient]
+        SyncPager[AppClient, ListAppClientsResponse]
             An array of App Clients.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.app_clients.list()
         for item in response:
             yield item
@@ -94,11 +94,9 @@ class AppClientsClient:
     def create(
         self,
         *,
-        name: str,
+        request: CreateAppClientRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        description: typing.Optional[str] = OMIT,
-        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AppClient:
         """
@@ -106,20 +104,13 @@ class AppClientsClient:
 
         Parameters
         ----------
-        name : str
-            Name of the client credentials.
+        request : CreateAppClientRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        description : typing.Optional[str]
-            Description of the client credentials.
-
-        api_roles : typing.Optional[typing.Sequence[ApiRole]]
-            API roles that the client credentials will have.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -131,23 +122,19 @@ class AppClientsClient:
 
         Examples
         --------
-        from vectara import Vectara
+        from vectara import CreateAppClientRequest_ClientCredentials, Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.app_clients.create(
-            name="name",
+            request=CreateAppClientRequest_ClientCredentials(
+                name="name",
+            ),
         )
         """
         _response = self._raw_client.create(
-            name=name,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
-            description=description,
-            api_roles=api_roles,
             request_options=request_options,
         )
         return _response.data
@@ -186,11 +173,7 @@ class AppClientsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.app_clients.get(
             app_client_id="app_client_id",
         )
@@ -236,11 +219,7 @@ class AppClientsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.app_clients.delete(
             app_client_id="app_client_id",
         )
@@ -261,6 +240,8 @@ class AppClientsClient:
         request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AppClient:
         """
@@ -283,6 +264,12 @@ class AppClientsClient:
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
             The new roles attached to the App Client. These roles will replace the current roles.
 
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            The new corpus role assignments. These will replace the current corpus roles.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            The new agent role assignments. These will replace the current agent roles.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -295,11 +282,7 @@ class AppClientsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.app_clients.update(
             app_client_id="app_client_id",
         )
@@ -310,6 +293,8 @@ class AppClientsClient:
             request_timeout_millis=request_timeout_millis,
             description=description,
             api_roles=api_roles,
+            corpus_roles=corpus_roles,
+            agent_roles=agent_roles,
             request_options=request_options,
         )
         return _response.data
@@ -339,7 +324,7 @@ class AsyncAppClientsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[AppClient]:
+    ) -> AsyncPager[AppClient, ListAppClientsResponse]:
         """
         Retrieve a list of application clients configured for the customer account.
 
@@ -365,7 +350,7 @@ class AsyncAppClientsClient:
 
         Returns
         -------
-        AsyncPager[AppClient]
+        AsyncPager[AppClient, ListAppClientsResponse]
             An array of App Clients.
 
         Examples
@@ -374,11 +359,7 @@ class AsyncAppClientsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -405,11 +386,9 @@ class AsyncAppClientsClient:
     async def create(
         self,
         *,
-        name: str,
+        request: CreateAppClientRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        description: typing.Optional[str] = OMIT,
-        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AppClient:
         """
@@ -417,20 +396,13 @@ class AsyncAppClientsClient:
 
         Parameters
         ----------
-        name : str
-            Name of the client credentials.
+        request : CreateAppClientRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        description : typing.Optional[str]
-            Description of the client credentials.
-
-        api_roles : typing.Optional[typing.Sequence[ApiRole]]
-            API roles that the client credentials will have.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -444,29 +416,25 @@ class AsyncAppClientsClient:
         --------
         import asyncio
 
-        from vectara import AsyncVectara
+        from vectara import AsyncVectara, CreateAppClientRequest_ClientCredentials
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
             await client.app_clients.create(
-                name="name",
+                request=CreateAppClientRequest_ClientCredentials(
+                    name="name",
+                ),
             )
 
 
         asyncio.run(main())
         """
         _response = await self._raw_client.create(
-            name=name,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
-            description=description,
-            api_roles=api_roles,
             request_options=request_options,
         )
         return _response.data
@@ -507,11 +475,7 @@ class AsyncAppClientsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -565,11 +529,7 @@ class AsyncAppClientsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -596,6 +556,8 @@ class AsyncAppClientsClient:
         request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AppClient:
         """
@@ -618,6 +580,12 @@ class AsyncAppClientsClient:
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
             The new roles attached to the App Client. These roles will replace the current roles.
 
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            The new corpus role assignments. These will replace the current corpus roles.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            The new agent role assignments. These will replace the current agent roles.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -632,11 +600,7 @@ class AsyncAppClientsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -653,6 +617,8 @@ class AsyncAppClientsClient:
             request_timeout_millis=request_timeout_millis,
             description=description,
             api_roles=api_roles,
+            corpus_roles=corpus_roles,
+            agent_roles=agent_roles,
             request_options=request_options,
         )
         return _response.data

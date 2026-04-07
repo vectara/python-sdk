@@ -1,0 +1,22 @@
+{
+  "cliVersion": "4.62.4",
+  "generatorName": "fernapi/fern-python-sdk",
+  "generatorVersion": "4.63.5",
+  "generatorConfig": {
+    "extra_dependencies": {
+      "PyYAML": "6.0.2"
+    },
+    "extra_dev_dependencies": {
+      "types-PyYAML": "6.0.2",
+      "pytest-dotenv": "^0.5.2"
+    },
+    "client": {
+      "class_name": "BaseVectara",
+      "filename": "base_client.py",
+      "exported_class_name": "Vectara",
+      "exported_filename": "client.py"
+    }
+  },
+  "originGitCommit": "777266fa9e8cee9026994890c37ef9c6fb91f272",
+  "sdkVersion": "0.4.1"
+}

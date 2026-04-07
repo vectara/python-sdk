@@ -5,6 +5,7 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .instruction_name import InstructionName
+from .instruction_template import InstructionTemplate
 from .template_type import TemplateType
 
 
@@ -13,20 +14,15 @@ class UpdateInitialInstructionRequest(UniversalBaseModel):
     Request object for updating an existing initial instruction.
     """
 
-    type: typing.Literal["initial"] = "initial"
     name: typing.Optional[InstructionName] = None
     description: typing.Optional[str] = pydantic.Field(default=None)
     """
     A detailed description of what this instruction does.
     """
 
-    template: typing.Optional[str] = pydantic.Field(default=None)
-    """
-    The instruction template content using the specified template engine.
-    """
-
+    template: typing.Optional[InstructionTemplate] = None
     template_type: typing.Optional[TemplateType] = None
-    metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     Arbitrary metadata associated with the instruction.
     """

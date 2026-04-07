@@ -7,6 +7,8 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .agent_key import AgentKey
 from .agent_session_key import AgentSessionKey
+from .compaction_config import CompactionConfig
+from .session_context_usage import SessionContextUsage
 
 
 class AgentSession(UniversalBaseModel):
@@ -14,7 +16,7 @@ class AgentSession(UniversalBaseModel):
     A session for interacting with an agent, allowing conversation context.
     """
 
-    key: typing.Optional[AgentSessionKey] = None
+    key: AgentSessionKey
     agent_key: AgentKey
     name: str = pydantic.Field()
     """
@@ -26,9 +28,15 @@ class AgentSession(UniversalBaseModel):
     Optional description of the session purpose or context.
     """
 
-    metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     Arbitrary metadata associated with the session.
+    """
+
+    current_step_name: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The step name the session will resume at on the next user message.
+    If null, the session starts at the agent's first_step.
     """
 
     enabled: bool = pydantic.Field()
@@ -44,6 +52,16 @@ class AgentSession(UniversalBaseModel):
     created_at: dt.datetime = pydantic.Field()
     """
     Timestamp when the session was created.
+    """
+
+    session_context_usage: typing.Optional[SessionContextUsage] = pydantic.Field(default=None)
+    """
+    Context used in session.
+    """
+
+    effective_compaction: typing.Optional[CompactionConfig] = pydantic.Field(default=None)
+    """
+    The compaction configuration snapshotted when the session was created.
     """
 
     if IS_PYDANTIC_V2:

@@ -13,7 +13,7 @@ class CorporaSearchToolParameters(UniversalBaseModel):
 
     query: typing.Optional[str] = pydantic.Field(default=None)
     """
-    The search query string, which is the question the user is asking. If not provided, will be filled in by the LLM.
+    The search query string, which is the question the user is asking. If not provided, will be filled in by the agent.
     """
 
     if IS_PYDANTIC_V2:

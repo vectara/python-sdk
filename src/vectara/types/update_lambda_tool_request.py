@@ -14,7 +14,6 @@ class UpdateLambdaToolRequest(UniversalBaseModel):
     When code is updated, input and output schemas are automatically re-discovered from function parameter type annotations.
     """
 
-    type: typing.Literal["lambda"] = "lambda"
     enabled: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Whether the tool should be enabled or disabled.
@@ -33,6 +32,8 @@ class UpdateLambdaToolRequest(UniversalBaseModel):
     code: typing.Optional[str] = pydantic.Field(default=None)
     """
     Updated code for the lambda function. Use function parameter type annotations for automatic schema discovery.
+    Object parameters must use `TypedDict`; bare `dict` and `Dict[K, V]` parameters are rejected.
+    See the `code` field on `CreateLambdaToolRequest` for full details and examples.
     """
 
     execution_configuration: typing.Optional[ExecutionConfiguration] = pydantic.Field(default=None)

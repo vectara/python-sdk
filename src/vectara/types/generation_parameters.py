@@ -5,8 +5,8 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .citation_parameters import CitationParameters
+from .generation_parameters_model_parameters import GenerationParametersModelParameters
 from .language import Language
-from .model_parameters import ModelParameters
 
 
 class GenerationParameters(UniversalBaseModel):
@@ -58,7 +58,7 @@ class GenerationParameters(UniversalBaseModel):
     """
 
     response_language: typing.Optional[Language] = None
-    model_parameters: typing.Optional[ModelParameters] = pydantic.Field(default=None)
+    model_parameters: typing.Optional[GenerationParametersModelParameters] = pydantic.Field(default=None)
     """
     The parameters for the model. WARNING: This is an experimental feature, and breakable at any point with virtually no notice. It is meant for experimentation to converge on optimal parameters that can then be set in the prompt definitions.
     """

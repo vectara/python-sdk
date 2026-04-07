@@ -2,4 +2,4 @@
 
 import typing
 
-TemplateType = typing.Literal["velocity"]
+TemplateType = typing.Union[typing.Literal["velocity"], typing.Any]

@@ -7,7 +7,8 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
+from ..core.pagination import AsyncPager, SyncPager
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..core.serialization import convert_and_respect_annotation_metadata
@@ -15,15 +16,27 @@ from ..errors.bad_request_error import BadRequestError
 from ..errors.forbidden_error import ForbiddenError
 from ..errors.not_found_error import NotFoundError
 from ..types.agent import Agent
+from ..types.agent_identity import AgentIdentity
+from ..types.agent_identity_mode import AgentIdentityMode
 from ..types.agent_key import AgentKey
 from ..types.agent_model import AgentModel
 from ..types.agent_name import AgentName
+from ..types.agent_role import AgentRole
+from ..types.agent_skill import AgentSkill
+from ..types.agent_step import AgentStep
 from ..types.agent_tool_configuration import AgentToolConfiguration
+from ..types.api_role import ApiRole
 from ..types.bad_request_error_body import BadRequestErrorBody
-from ..types.components_schemas_conversational_agent_step import ComponentsSchemasConversationalAgentStep
+from ..types.compaction_config import CompactionConfig
+from ..types.corpus_role import CorpusRole
 from ..types.error import Error
+from ..types.first_agent_step import FirstAgentStep
 from ..types.list_agents_response import ListAgentsResponse
 from ..types.not_found_error_body import NotFoundErrorBody
+from ..types.tool_output_offloading_configuration import ToolOutputOffloadingConfiguration
+from ..types.update_agent_step import UpdateAgentStep
+from ..types.update_first_agent_step import UpdateFirstAgentStep
+from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -43,9 +56,9 @@ class RawAgentsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Agent]:
+    ) -> SyncPager[Agent, ListAgentsResponse]:
         """
-        List all agents available to the authenticated user, with optional filtering and pagination.
+        The List Agents API enables you to retrieve a paginated list of all agents available to the authenticated user. This is useful for managing and monitoring agent deployments across use cases and environments.
 
         Parameters
         ----------
@@ -72,7 +85,7 @@ class RawAgentsClient:
 
         Returns
         -------
-        SyncPager[Agent]
+        SyncPager[Agent, ListAgentsResponse]
             List of available agents.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -115,9 +128,7 @@ class RawAgentsClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                return SyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -132,6 +143,10 @@ class RawAgentsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
@@ -140,25 +155,53 @@ class RawAgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        first_step: ComponentsSchemasConversationalAgentStep,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
+        first_step: typing.Optional[FirstAgentStep] = OMIT,
+        first_step_name: typing.Optional[str] = OMIT,
+        steps: typing.Optional[typing.Dict[str, AgentStep]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
+        compaction: typing.Optional[CompactionConfig] = OMIT,
+        tool_output_offloading: typing.Optional[ToolOutputOffloadingConfiguration] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Agent]:
         """
         Create a new agent. An agent is compromised as 3 main things of functionality:
-          1. The instructions an agent follows. Known as a system in prompt in other platforms.
-          2. The steps an agent follows when receiving an input.
-          3. The tools an agent can use to resolve those steps and instructions.
-        Instructions are tied to each step, and should be well crafted so that the agent can perform the desired actions when given an input.
+          1. The **instructions** an agent follows. Known as a system in prompt in other platforms.
+          2. The **steps** an agent follows when receiving an input.
+          3. The **tools** an agent can use to resolve those steps and instructions.
+
+        Instructions are tied to each step, and should be precisely crafted so that the agent can perform the desired actions when given an input.
+
+        :::tip Creating more precise instructions
+        Be specific to exactly what you want the agent to do. For emphasis, use CAPS if you want the agent to follow a specific format. Negative prompts also help with precision such as saying **DO NOT DO THIS**.
+        :::
 
         To use an agent, create a new session (called thread or chat in other platforms), and send new inputs to the agent to get responses.
 
-        Note: Only a single step is supported with no follow up steps. So the `first_step` will be only the only step. We will add multiple steps and step types to execute complex workflows, but many agents can work well with a single step.
+        :::note
+        Only a single step is supported with no follow up steps. So the `first_step` will be only the only step. We will add multiple steps and step types to execute complex workflows, but many agents can work well with a single step.
+        :::
+
+        ## LLM configuration
+
+        Agents use LLMs for reasoning and response generation. You can configure the following:
+        - **Model**: Choose from available models like GPT-4o.
+        - **Parameters**: Adjust temperature, max tokens, and other model-specific settings.
+        - **Cost optimization**: Balance performance with token usage.
+        - **Retry configuration**: Configure automatic retry behavior for transient failures.
+
+        ## Using retries to improve user experience
+
+        When agents interact with LLMs, transient failures like network interruptions can disrupt communication between the agent and the LLM. You can configure your agent to resume disrupted communication to ensure a smooth user experience.
+        - `max_retries`: After an error, the agent will retry its request to the LLM this many times.
+        - `initial_backoff_ms`: This is how many milliseconds the agent will wait before retrying, to give the cause of the error time to resolve.
+        - `backoff_factor`: Every time the agent retries, it can multiply the last retry delay by this number, increasing the wait between retries. This is like giving a toddler a longer and longer timeout if it continues to misbehave.
+        - `max_backoff_ms`: The maximum time you want the agent to wait between retries, so the backoff_factor does not create an unreasonably long delay for your users.
 
         Parameters
         ----------
@@ -168,8 +211,6 @@ class RawAgentsClient:
             A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
 
         model : AgentModel
-
-        first_step : ComponentsSchemasConversationalAgentStep
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -183,11 +224,35 @@ class RawAgentsClient:
         description : typing.Optional[str]
             A detailed description of the agent's purpose and capabilities.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        skills : typing.Optional[typing.Dict[str, AgentSkill]]
+            A map of skills available to the agent, keyed by skill name.
+            Skills provide specialized instructions that can be invoked during agent execution.
+
+        first_step : typing.Optional[FirstAgentStep]
+            Deprecated: prefer defining all steps in the steps map and using first_step_name.
+            Inline definition of the entry point step. Can be combined with first_step_name
+            only if first_step_name equals first_step.name AND steps[first_step.name] is
+            identical to first_step.
+
+        first_step_name : typing.Optional[str]
+            Name of a step in the steps map to use as the entry point. This is the preferred
+            way to define the entry point - define all steps in the steps map and reference
+            the entry point by name here.
+
+        steps : typing.Optional[typing.Dict[str, AgentStep]]
+            A map of named steps keyed by step name.
+            Steps can transition to other steps defined here via next_steps.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the agent for customization and configuration.
 
         enabled : typing.Optional[bool]
             Whether the agent should be enabled upon creation.
+
+        compaction : typing.Optional[CompactionConfig]
+            Configuration for automatic context compaction when the session approaches context limits.
+
+        tool_output_offloading : typing.Optional[ToolOutputOffloadingConfiguration]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -195,7 +260,7 @@ class RawAgentsClient:
         Returns
         -------
         HttpResponse[Agent]
-            The agent has been created successfully.
+            The response includes the complete agent configuration with system-generated fields including the unique agent key, creation timestamp, and update timestamp.
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/agents",
@@ -208,14 +273,27 @@ class RawAgentsClient:
                 "tool_configurations": convert_and_respect_annotation_metadata(
                     object_=tool_configurations, annotation=typing.Dict[str, AgentToolConfiguration], direction="write"
                 ),
+                "skills": convert_and_respect_annotation_metadata(
+                    object_=skills, annotation=typing.Dict[str, AgentSkill], direction="write"
+                ),
                 "model": convert_and_respect_annotation_metadata(
                     object_=model, annotation=AgentModel, direction="write"
                 ),
                 "first_step": convert_and_respect_annotation_metadata(
-                    object_=first_step, annotation=ComponentsSchemasConversationalAgentStep, direction="write"
+                    object_=first_step, annotation=FirstAgentStep, direction="write"
+                ),
+                "first_step_name": first_step_name,
+                "steps": convert_and_respect_annotation_metadata(
+                    object_=steps, annotation=typing.Dict[str, AgentStep], direction="write"
                 ),
                 "metadata": metadata,
                 "enabled": enabled,
+                "compaction": convert_and_respect_annotation_metadata(
+                    object_=compaction, annotation=CompactionConfig, direction="write"
+                ),
+                "tool_output_offloading": convert_and_respect_annotation_metadata(
+                    object_=tool_output_offloading, annotation=ToolOutputOffloadingConfiguration, direction="write"
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -260,6 +338,10 @@ class RawAgentsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
@@ -271,7 +353,9 @@ class RawAgentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Agent]:
         """
-        Retrieve the details of a specific agent by its ID, including its configuration, capabilities, and associated resources.
+        The Get Agent API enables you to retrieve the complete configuration and operational details of a specific AI agent, providing comprehensive visibility into agent capabilities, tool integrations, behavioral instructions, and metadata.
+
+        Use this API to inspect agent configurations before creating sessions, troubleshoot agent behavior issues, clone agent configurations for new deployments, and maintain documentation of agent capabilities across your enterprise AI infrastructure.
 
         Parameters
         ----------
@@ -290,7 +374,7 @@ class RawAgentsClient:
         Returns
         -------
         HttpResponse[Agent]
-            The requested agent details.
+            The response includes the complete agent configuration with all tools, instructions, model parameters, and metadata as originally configured during agent creation or subsequent updates.
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/agents/{jsonable_encoder(agent_key)}",
@@ -337,6 +421,10 @@ class RawAgentsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def replace(
@@ -346,16 +434,22 @@ class RawAgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        first_step: ComponentsSchemasConversationalAgentStep,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
+        key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
+        first_step: typing.Optional[FirstAgentStep] = OMIT,
+        first_step_name: typing.Optional[str] = OMIT,
+        steps: typing.Optional[typing.Dict[str, AgentStep]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
+        compaction: typing.Optional[CompactionConfig] = OMIT,
+        tool_output_offloading: typing.Optional[ToolOutputOffloadingConfiguration] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Agent]:
         """
-        Completely replace an existing agent's configuration, including its corpora, tools, and generation presets.
+        The Replace Agent API enables you to completely replace an existing agent configuration, including its corpora, tools, and generation presets. This endpoint performs a full replacement of the agent definition, unlike the Update Agent API which only modifies specified fields.
 
         Parameters
         ----------
@@ -365,11 +459,9 @@ class RawAgentsClient:
         name : AgentName
 
         tool_configurations : typing.Dict[str, AgentToolConfiguration]
-            A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is an agent tool configuration.
+            A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
 
         model : AgentModel
-
-        first_step : ComponentsSchemasConversationalAgentStep
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -377,14 +469,41 @@ class RawAgentsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
+        key : typing.Optional[AgentKey]
+            A user provided key that uniquely identifies this agent. If not provided, one will be auto-generated based on the agent name.
+
         description : typing.Optional[str]
             A detailed description of the agent's purpose and capabilities.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        skills : typing.Optional[typing.Dict[str, AgentSkill]]
+            A map of skills available to the agent, keyed by skill name.
+            Skills provide specialized instructions that can be invoked during agent execution.
+
+        first_step : typing.Optional[FirstAgentStep]
+            Deprecated: prefer defining all steps in the steps map and using first_step_name.
+            Inline definition of the entry point step. Can be combined with first_step_name
+            only if first_step_name equals first_step.name AND steps[first_step.name] is
+            identical to first_step.
+
+        first_step_name : typing.Optional[str]
+            Name of a step in the steps map to use as the entry point. This is the preferred
+            way to define the entry point - define all steps in the steps map and reference
+            the entry point by name here.
+
+        steps : typing.Optional[typing.Dict[str, AgentStep]]
+            A map of named steps keyed by step name.
+            Steps can transition to other steps defined here via next_steps.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the agent for customization and configuration.
 
         enabled : typing.Optional[bool]
-            Whether the agent is enabled.
+            Whether the agent should be enabled upon creation.
+
+        compaction : typing.Optional[CompactionConfig]
+            Configuration for automatic context compaction when the session approaches context limits.
+
+        tool_output_offloading : typing.Optional[ToolOutputOffloadingConfiguration]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -399,19 +518,33 @@ class RawAgentsClient:
             base_url=self._client_wrapper.get_environment().default,
             method="PUT",
             json={
+                "key": key,
                 "name": name,
                 "description": description,
                 "tool_configurations": convert_and_respect_annotation_metadata(
                     object_=tool_configurations, annotation=typing.Dict[str, AgentToolConfiguration], direction="write"
                 ),
+                "skills": convert_and_respect_annotation_metadata(
+                    object_=skills, annotation=typing.Dict[str, AgentSkill], direction="write"
+                ),
                 "model": convert_and_respect_annotation_metadata(
                     object_=model, annotation=AgentModel, direction="write"
                 ),
                 "first_step": convert_and_respect_annotation_metadata(
-                    object_=first_step, annotation=ComponentsSchemasConversationalAgentStep, direction="write"
+                    object_=first_step, annotation=FirstAgentStep, direction="write"
+                ),
+                "first_step_name": first_step_name,
+                "steps": convert_and_respect_annotation_metadata(
+                    object_=steps, annotation=typing.Dict[str, AgentStep], direction="write"
                 ),
                 "metadata": metadata,
                 "enabled": enabled,
+                "compaction": convert_and_respect_annotation_metadata(
+                    object_=compaction, annotation=CompactionConfig, direction="write"
+                ),
+                "tool_output_offloading": convert_and_respect_annotation_metadata(
+                    object_=tool_output_offloading, annotation=ToolOutputOffloadingConfiguration, direction="write"
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -467,6 +600,10 @@ class RawAgentsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
@@ -478,7 +615,9 @@ class RawAgentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[None]:
         """
-        Permanently delete an agent and all its associated configuration. This action cannot be undone.
+        The Delete Agent API enables you to permanently remove an AI agent and its configuration from the Vectara platform, supporting agent lifecycle management and resource cleanup in enterprise environments.
+
+        Use this API for decommissioning outdated agents, cleaning up development and testing environments, removing agents that are no longer needed, and maintaining organized agent inventories as your AI deployments evolve. The permanent nature of deletion makes this API critical for environments where data governance and resource management are essential.
 
         Parameters
         ----------
@@ -536,6 +675,10 @@ class RawAgentsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def update(
@@ -546,15 +689,22 @@ class RawAgentsClient:
         request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[AgentName] = OMIT,
         description: typing.Optional[str] = OMIT,
-        tool_configurations: typing.Optional[typing.Dict[str, AgentToolConfiguration]] = OMIT,
+        tool_configurations: typing.Optional[typing.Dict[str, typing.Optional[AgentToolConfiguration]]] = OMIT,
+        skills: typing.Optional[typing.Dict[str, typing.Optional[AgentSkill]]] = OMIT,
         model: typing.Optional[AgentModel] = OMIT,
-        first_step: typing.Optional[ComponentsSchemasConversationalAgentStep] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        first_step: typing.Optional[UpdateFirstAgentStep] = OMIT,
+        first_step_name: typing.Optional[str] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
+        compaction: typing.Optional[CompactionConfig] = OMIT,
+        tool_output_offloading: typing.Optional[ToolOutputOffloadingConfiguration] = OMIT,
+        steps: typing.Optional[typing.Dict[str, typing.Optional[UpdateAgentStep]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Agent]:
         """
-        Update an existing agent's configuration, including its corpora, tools, and generation presets.
+        The Update Agent API enables you to modify an existing agent configuration, including tool assignments, behavioral instructions, model parameters, and operational metadata.
+
+        Use this API to evolve agent capabilities over time, adding new tools as they become available, refining behavioral instructions based on user feedback, adjusting model parameters for optimal performance, and updating metadata for better organization across your agent ecosystem.
 
         Parameters
         ----------
@@ -570,20 +720,42 @@ class RawAgentsClient:
         name : typing.Optional[AgentName]
 
         description : typing.Optional[str]
-            A detailed description of the agent's purpose and capabilities.
+            A detailed description of the agent's purpose and capabilities. Set to null to clear.
 
-        tool_configurations : typing.Optional[typing.Dict[str, AgentToolConfiguration]]
-            A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is an agent tool configuration.
+        tool_configurations : typing.Optional[typing.Dict[str, typing.Optional[AgentToolConfiguration]]]
+            A map of tool configurations available to the agent. Set to null to clear all tools.
+            Individual map values set to null will delete that tool configuration.
+
+        skills : typing.Optional[typing.Dict[str, typing.Optional[AgentSkill]]]
+            A map of skills available to the agent. Set to null to clear all skills.
+            Individual map values set to null will delete that skill.
 
         model : typing.Optional[AgentModel]
 
-        first_step : typing.Optional[ComponentsSchemasConversationalAgentStep]
+        first_step : typing.Optional[UpdateFirstAgentStep]
+            Deprecated: prefer updating steps directly via the steps map.
+            Partial update to the current first step. Can be combined with first_step_name
+            only if first_step_name equals first_step.name.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Arbitrary metadata associated with the agent for customization and configuration.
+        first_step_name : typing.Optional[str]
+            Reassign the entry point to an existing step by name. This is the preferred way
+            to change the entry point. The named step must exist in the steps map.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
+            Arbitrary metadata associated with the agent. Set to null to clear.
 
         enabled : typing.Optional[bool]
-            Whether the agent is enabled.
+            Whether the agent is enabled. Set to null to reset to default (true).
+
+        compaction : typing.Optional[CompactionConfig]
+            Configuration for automatic context compaction. Set to null to clear.
+
+        tool_output_offloading : typing.Optional[ToolOutputOffloadingConfiguration]
+
+        steps : typing.Optional[typing.Dict[str, typing.Optional[UpdateAgentStep]]]
+            A map of additional named steps keyed by step name for partial update.
+            Only provided keys are modified; missing keys are preserved.
+            Set a key's value to null to delete that step.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -591,7 +763,8 @@ class RawAgentsClient:
         Returns
         -------
         HttpResponse[Agent]
-            The agent has been updated successfully.
+            The response includes the complete updated agent configuration with the new
+            `updated_at` timestamp reflecting when the changes were applied.
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/agents/{jsonable_encoder(agent_key)}",
@@ -601,16 +774,35 @@ class RawAgentsClient:
                 "name": name,
                 "description": description,
                 "tool_configurations": convert_and_respect_annotation_metadata(
-                    object_=tool_configurations, annotation=typing.Dict[str, AgentToolConfiguration], direction="write"
+                    object_=tool_configurations,
+                    annotation=typing.Optional[typing.Dict[str, typing.Optional[AgentToolConfiguration]]],
+                    direction="write",
+                ),
+                "skills": convert_and_respect_annotation_metadata(
+                    object_=skills,
+                    annotation=typing.Optional[typing.Dict[str, typing.Optional[AgentSkill]]],
+                    direction="write",
                 ),
                 "model": convert_and_respect_annotation_metadata(
                     object_=model, annotation=AgentModel, direction="write"
                 ),
                 "first_step": convert_and_respect_annotation_metadata(
-                    object_=first_step, annotation=ComponentsSchemasConversationalAgentStep, direction="write"
+                    object_=first_step, annotation=UpdateFirstAgentStep, direction="write"
                 ),
+                "first_step_name": first_step_name,
                 "metadata": metadata,
                 "enabled": enabled,
+                "compaction": convert_and_respect_annotation_metadata(
+                    object_=compaction, annotation=CompactionConfig, direction="write"
+                ),
+                "tool_output_offloading": convert_and_respect_annotation_metadata(
+                    object_=tool_output_offloading, annotation=ToolOutputOffloadingConfiguration, direction="write"
+                ),
+                "steps": convert_and_respect_annotation_metadata(
+                    object_=steps,
+                    annotation=typing.Optional[typing.Dict[str, typing.Optional[UpdateAgentStep]]],
+                    direction="write",
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -666,6 +858,218 @@ class RawAgentsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def get_identity(
+        self,
+        agent_key: AgentKey,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[AgentIdentity]:
+        """
+        Retrieve the identity associated with an agent. The identity is the service account the agent uses when executing tools.
+
+        In `auto` mode (the default), the platform keeps the identity's roles in sync with the agent's tool configuration.
+
+        In `manual` mode, the roles are frozen and the platform will not modify them when the agent is updated.
+
+        Parameters
+        ----------
+        agent_key : AgentKey
+            The unique key of the agent.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[AgentIdentity]
+            The agent's identity details.
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/agents/{jsonable_encoder(agent_key)}/identity",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    AgentIdentity,
+                    parse_obj_as(
+                        type_=AgentIdentity,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def update_identity(
+        self,
+        agent_key: AgentKey,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        mode: typing.Optional[AgentIdentityMode] = OMIT,
+        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[AgentIdentity]:
+        """
+        Update the agent's identity role management mode and/or roles.
+
+        Setting mode to `manual` freezes the current roles. The platform will no longer recompute roles when the agent's tool configuration changes. This is useful when you need to grant the agent additional permissions beyond what its tools require.
+
+        Setting mode to `auto` resumes platform-managed roles. The platform will immediately resync the roles to match the current tool configuration.
+
+        Parameters
+        ----------
+        agent_key : AgentKey
+            The unique key of the agent.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        mode : typing.Optional[AgentIdentityMode]
+
+        api_roles : typing.Optional[typing.Sequence[ApiRole]]
+            Customer-level roles to assign. Only applied in `manual` mode.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            Corpus-specific roles to assign. Only applied in `manual` mode.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            Agent-specific roles to assign. Only applied in `manual` mode.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[AgentIdentity]
+            The updated agent identity.
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/agents/{jsonable_encoder(agent_key)}/identity",
+            base_url=self._client_wrapper.get_environment().default,
+            method="PATCH",
+            json={
+                "mode": mode,
+                "api_roles": api_roles,
+                "corpus_roles": convert_and_respect_annotation_metadata(
+                    object_=corpus_roles, annotation=typing.Sequence[CorpusRole], direction="write"
+                ),
+                "agent_roles": convert_and_respect_annotation_metadata(
+                    object_=agent_roles, annotation=typing.Sequence[AgentRole], direction="write"
+                ),
+            },
+            headers={
+                "content-type": "application/json",
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    AgentIdentity,
+                    parse_obj_as(
+                        type_=AgentIdentity,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -683,9 +1087,9 @@ class AsyncRawAgentsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Agent]:
+    ) -> AsyncPager[Agent, ListAgentsResponse]:
         """
-        List all agents available to the authenticated user, with optional filtering and pagination.
+        The List Agents API enables you to retrieve a paginated list of all agents available to the authenticated user. This is useful for managing and monitoring agent deployments across use cases and environments.
 
         Parameters
         ----------
@@ -712,7 +1116,7 @@ class AsyncRawAgentsClient:
 
         Returns
         -------
-        AsyncPager[Agent]
+        AsyncPager[Agent, ListAgentsResponse]
             List of available agents.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -758,9 +1162,7 @@ class AsyncRawAgentsClient:
                             request_options=request_options,
                         )
 
-                return AsyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -775,6 +1177,10 @@ class AsyncRawAgentsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
@@ -783,25 +1189,53 @@ class AsyncRawAgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        first_step: ComponentsSchemasConversationalAgentStep,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
+        first_step: typing.Optional[FirstAgentStep] = OMIT,
+        first_step_name: typing.Optional[str] = OMIT,
+        steps: typing.Optional[typing.Dict[str, AgentStep]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
+        compaction: typing.Optional[CompactionConfig] = OMIT,
+        tool_output_offloading: typing.Optional[ToolOutputOffloadingConfiguration] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Agent]:
         """
         Create a new agent. An agent is compromised as 3 main things of functionality:
-          1. The instructions an agent follows. Known as a system in prompt in other platforms.
-          2. The steps an agent follows when receiving an input.
-          3. The tools an agent can use to resolve those steps and instructions.
-        Instructions are tied to each step, and should be well crafted so that the agent can perform the desired actions when given an input.
+          1. The **instructions** an agent follows. Known as a system in prompt in other platforms.
+          2. The **steps** an agent follows when receiving an input.
+          3. The **tools** an agent can use to resolve those steps and instructions.
+
+        Instructions are tied to each step, and should be precisely crafted so that the agent can perform the desired actions when given an input.
+
+        :::tip Creating more precise instructions
+        Be specific to exactly what you want the agent to do. For emphasis, use CAPS if you want the agent to follow a specific format. Negative prompts also help with precision such as saying **DO NOT DO THIS**.
+        :::
 
         To use an agent, create a new session (called thread or chat in other platforms), and send new inputs to the agent to get responses.
 
-        Note: Only a single step is supported with no follow up steps. So the `first_step` will be only the only step. We will add multiple steps and step types to execute complex workflows, but many agents can work well with a single step.
+        :::note
+        Only a single step is supported with no follow up steps. So the `first_step` will be only the only step. We will add multiple steps and step types to execute complex workflows, but many agents can work well with a single step.
+        :::
+
+        ## LLM configuration
+
+        Agents use LLMs for reasoning and response generation. You can configure the following:
+        - **Model**: Choose from available models like GPT-4o.
+        - **Parameters**: Adjust temperature, max tokens, and other model-specific settings.
+        - **Cost optimization**: Balance performance with token usage.
+        - **Retry configuration**: Configure automatic retry behavior for transient failures.
+
+        ## Using retries to improve user experience
+
+        When agents interact with LLMs, transient failures like network interruptions can disrupt communication between the agent and the LLM. You can configure your agent to resume disrupted communication to ensure a smooth user experience.
+        - `max_retries`: After an error, the agent will retry its request to the LLM this many times.
+        - `initial_backoff_ms`: This is how many milliseconds the agent will wait before retrying, to give the cause of the error time to resolve.
+        - `backoff_factor`: Every time the agent retries, it can multiply the last retry delay by this number, increasing the wait between retries. This is like giving a toddler a longer and longer timeout if it continues to misbehave.
+        - `max_backoff_ms`: The maximum time you want the agent to wait between retries, so the backoff_factor does not create an unreasonably long delay for your users.
 
         Parameters
         ----------
@@ -811,8 +1245,6 @@ class AsyncRawAgentsClient:
             A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
 
         model : AgentModel
-
-        first_step : ComponentsSchemasConversationalAgentStep
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -826,11 +1258,35 @@ class AsyncRawAgentsClient:
         description : typing.Optional[str]
             A detailed description of the agent's purpose and capabilities.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        skills : typing.Optional[typing.Dict[str, AgentSkill]]
+            A map of skills available to the agent, keyed by skill name.
+            Skills provide specialized instructions that can be invoked during agent execution.
+
+        first_step : typing.Optional[FirstAgentStep]
+            Deprecated: prefer defining all steps in the steps map and using first_step_name.
+            Inline definition of the entry point step. Can be combined with first_step_name
+            only if first_step_name equals first_step.name AND steps[first_step.name] is
+            identical to first_step.
+
+        first_step_name : typing.Optional[str]
+            Name of a step in the steps map to use as the entry point. This is the preferred
+            way to define the entry point - define all steps in the steps map and reference
+            the entry point by name here.
+
+        steps : typing.Optional[typing.Dict[str, AgentStep]]
+            A map of named steps keyed by step name.
+            Steps can transition to other steps defined here via next_steps.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the agent for customization and configuration.
 
         enabled : typing.Optional[bool]
             Whether the agent should be enabled upon creation.
+
+        compaction : typing.Optional[CompactionConfig]
+            Configuration for automatic context compaction when the session approaches context limits.
+
+        tool_output_offloading : typing.Optional[ToolOutputOffloadingConfiguration]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -838,7 +1294,7 @@ class AsyncRawAgentsClient:
         Returns
         -------
         AsyncHttpResponse[Agent]
-            The agent has been created successfully.
+            The response includes the complete agent configuration with system-generated fields including the unique agent key, creation timestamp, and update timestamp.
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/agents",
@@ -851,14 +1307,27 @@ class AsyncRawAgentsClient:
                 "tool_configurations": convert_and_respect_annotation_metadata(
                     object_=tool_configurations, annotation=typing.Dict[str, AgentToolConfiguration], direction="write"
                 ),
+                "skills": convert_and_respect_annotation_metadata(
+                    object_=skills, annotation=typing.Dict[str, AgentSkill], direction="write"
+                ),
                 "model": convert_and_respect_annotation_metadata(
                     object_=model, annotation=AgentModel, direction="write"
                 ),
                 "first_step": convert_and_respect_annotation_metadata(
-                    object_=first_step, annotation=ComponentsSchemasConversationalAgentStep, direction="write"
+                    object_=first_step, annotation=FirstAgentStep, direction="write"
+                ),
+                "first_step_name": first_step_name,
+                "steps": convert_and_respect_annotation_metadata(
+                    object_=steps, annotation=typing.Dict[str, AgentStep], direction="write"
                 ),
                 "metadata": metadata,
                 "enabled": enabled,
+                "compaction": convert_and_respect_annotation_metadata(
+                    object_=compaction, annotation=CompactionConfig, direction="write"
+                ),
+                "tool_output_offloading": convert_and_respect_annotation_metadata(
+                    object_=tool_output_offloading, annotation=ToolOutputOffloadingConfiguration, direction="write"
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -903,6 +1372,10 @@ class AsyncRawAgentsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
@@ -914,7 +1387,9 @@ class AsyncRawAgentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Agent]:
         """
-        Retrieve the details of a specific agent by its ID, including its configuration, capabilities, and associated resources.
+        The Get Agent API enables you to retrieve the complete configuration and operational details of a specific AI agent, providing comprehensive visibility into agent capabilities, tool integrations, behavioral instructions, and metadata.
+
+        Use this API to inspect agent configurations before creating sessions, troubleshoot agent behavior issues, clone agent configurations for new deployments, and maintain documentation of agent capabilities across your enterprise AI infrastructure.
 
         Parameters
         ----------
@@ -933,7 +1408,7 @@ class AsyncRawAgentsClient:
         Returns
         -------
         AsyncHttpResponse[Agent]
-            The requested agent details.
+            The response includes the complete agent configuration with all tools, instructions, model parameters, and metadata as originally configured during agent creation or subsequent updates.
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/agents/{jsonable_encoder(agent_key)}",
@@ -980,6 +1455,10 @@ class AsyncRawAgentsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def replace(
@@ -989,16 +1468,22 @@ class AsyncRawAgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        first_step: ComponentsSchemasConversationalAgentStep,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
+        key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
+        first_step: typing.Optional[FirstAgentStep] = OMIT,
+        first_step_name: typing.Optional[str] = OMIT,
+        steps: typing.Optional[typing.Dict[str, AgentStep]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
+        compaction: typing.Optional[CompactionConfig] = OMIT,
+        tool_output_offloading: typing.Optional[ToolOutputOffloadingConfiguration] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Agent]:
         """
-        Completely replace an existing agent's configuration, including its corpora, tools, and generation presets.
+        The Replace Agent API enables you to completely replace an existing agent configuration, including its corpora, tools, and generation presets. This endpoint performs a full replacement of the agent definition, unlike the Update Agent API which only modifies specified fields.
 
         Parameters
         ----------
@@ -1008,11 +1493,9 @@ class AsyncRawAgentsClient:
         name : AgentName
 
         tool_configurations : typing.Dict[str, AgentToolConfiguration]
-            A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is an agent tool configuration.
+            A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
 
         model : AgentModel
-
-        first_step : ComponentsSchemasConversationalAgentStep
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -1020,14 +1503,41 @@ class AsyncRawAgentsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
+        key : typing.Optional[AgentKey]
+            A user provided key that uniquely identifies this agent. If not provided, one will be auto-generated based on the agent name.
+
         description : typing.Optional[str]
             A detailed description of the agent's purpose and capabilities.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        skills : typing.Optional[typing.Dict[str, AgentSkill]]
+            A map of skills available to the agent, keyed by skill name.
+            Skills provide specialized instructions that can be invoked during agent execution.
+
+        first_step : typing.Optional[FirstAgentStep]
+            Deprecated: prefer defining all steps in the steps map and using first_step_name.
+            Inline definition of the entry point step. Can be combined with first_step_name
+            only if first_step_name equals first_step.name AND steps[first_step.name] is
+            identical to first_step.
+
+        first_step_name : typing.Optional[str]
+            Name of a step in the steps map to use as the entry point. This is the preferred
+            way to define the entry point - define all steps in the steps map and reference
+            the entry point by name here.
+
+        steps : typing.Optional[typing.Dict[str, AgentStep]]
+            A map of named steps keyed by step name.
+            Steps can transition to other steps defined here via next_steps.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the agent for customization and configuration.
 
         enabled : typing.Optional[bool]
-            Whether the agent is enabled.
+            Whether the agent should be enabled upon creation.
+
+        compaction : typing.Optional[CompactionConfig]
+            Configuration for automatic context compaction when the session approaches context limits.
+
+        tool_output_offloading : typing.Optional[ToolOutputOffloadingConfiguration]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1042,19 +1552,33 @@ class AsyncRawAgentsClient:
             base_url=self._client_wrapper.get_environment().default,
             method="PUT",
             json={
+                "key": key,
                 "name": name,
                 "description": description,
                 "tool_configurations": convert_and_respect_annotation_metadata(
                     object_=tool_configurations, annotation=typing.Dict[str, AgentToolConfiguration], direction="write"
                 ),
+                "skills": convert_and_respect_annotation_metadata(
+                    object_=skills, annotation=typing.Dict[str, AgentSkill], direction="write"
+                ),
                 "model": convert_and_respect_annotation_metadata(
                     object_=model, annotation=AgentModel, direction="write"
                 ),
                 "first_step": convert_and_respect_annotation_metadata(
-                    object_=first_step, annotation=ComponentsSchemasConversationalAgentStep, direction="write"
+                    object_=first_step, annotation=FirstAgentStep, direction="write"
+                ),
+                "first_step_name": first_step_name,
+                "steps": convert_and_respect_annotation_metadata(
+                    object_=steps, annotation=typing.Dict[str, AgentStep], direction="write"
                 ),
                 "metadata": metadata,
                 "enabled": enabled,
+                "compaction": convert_and_respect_annotation_metadata(
+                    object_=compaction, annotation=CompactionConfig, direction="write"
+                ),
+                "tool_output_offloading": convert_and_respect_annotation_metadata(
+                    object_=tool_output_offloading, annotation=ToolOutputOffloadingConfiguration, direction="write"
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -1110,6 +1634,10 @@ class AsyncRawAgentsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
@@ -1121,7 +1649,9 @@ class AsyncRawAgentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[None]:
         """
-        Permanently delete an agent and all its associated configuration. This action cannot be undone.
+        The Delete Agent API enables you to permanently remove an AI agent and its configuration from the Vectara platform, supporting agent lifecycle management and resource cleanup in enterprise environments.
+
+        Use this API for decommissioning outdated agents, cleaning up development and testing environments, removing agents that are no longer needed, and maintaining organized agent inventories as your AI deployments evolve. The permanent nature of deletion makes this API critical for environments where data governance and resource management are essential.
 
         Parameters
         ----------
@@ -1179,6 +1709,10 @@ class AsyncRawAgentsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def update(
@@ -1189,15 +1723,22 @@ class AsyncRawAgentsClient:
         request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[AgentName] = OMIT,
         description: typing.Optional[str] = OMIT,
-        tool_configurations: typing.Optional[typing.Dict[str, AgentToolConfiguration]] = OMIT,
+        tool_configurations: typing.Optional[typing.Dict[str, typing.Optional[AgentToolConfiguration]]] = OMIT,
+        skills: typing.Optional[typing.Dict[str, typing.Optional[AgentSkill]]] = OMIT,
         model: typing.Optional[AgentModel] = OMIT,
-        first_step: typing.Optional[ComponentsSchemasConversationalAgentStep] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        first_step: typing.Optional[UpdateFirstAgentStep] = OMIT,
+        first_step_name: typing.Optional[str] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
+        compaction: typing.Optional[CompactionConfig] = OMIT,
+        tool_output_offloading: typing.Optional[ToolOutputOffloadingConfiguration] = OMIT,
+        steps: typing.Optional[typing.Dict[str, typing.Optional[UpdateAgentStep]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Agent]:
         """
-        Update an existing agent's configuration, including its corpora, tools, and generation presets.
+        The Update Agent API enables you to modify an existing agent configuration, including tool assignments, behavioral instructions, model parameters, and operational metadata.
+
+        Use this API to evolve agent capabilities over time, adding new tools as they become available, refining behavioral instructions based on user feedback, adjusting model parameters for optimal performance, and updating metadata for better organization across your agent ecosystem.
 
         Parameters
         ----------
@@ -1213,20 +1754,42 @@ class AsyncRawAgentsClient:
         name : typing.Optional[AgentName]
 
         description : typing.Optional[str]
-            A detailed description of the agent's purpose and capabilities.
+            A detailed description of the agent's purpose and capabilities. Set to null to clear.
 
-        tool_configurations : typing.Optional[typing.Dict[str, AgentToolConfiguration]]
-            A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is an agent tool configuration.
+        tool_configurations : typing.Optional[typing.Dict[str, typing.Optional[AgentToolConfiguration]]]
+            A map of tool configurations available to the agent. Set to null to clear all tools.
+            Individual map values set to null will delete that tool configuration.
+
+        skills : typing.Optional[typing.Dict[str, typing.Optional[AgentSkill]]]
+            A map of skills available to the agent. Set to null to clear all skills.
+            Individual map values set to null will delete that skill.
 
         model : typing.Optional[AgentModel]
 
-        first_step : typing.Optional[ComponentsSchemasConversationalAgentStep]
+        first_step : typing.Optional[UpdateFirstAgentStep]
+            Deprecated: prefer updating steps directly via the steps map.
+            Partial update to the current first step. Can be combined with first_step_name
+            only if first_step_name equals first_step.name.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Arbitrary metadata associated with the agent for customization and configuration.
+        first_step_name : typing.Optional[str]
+            Reassign the entry point to an existing step by name. This is the preferred way
+            to change the entry point. The named step must exist in the steps map.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
+            Arbitrary metadata associated with the agent. Set to null to clear.
 
         enabled : typing.Optional[bool]
-            Whether the agent is enabled.
+            Whether the agent is enabled. Set to null to reset to default (true).
+
+        compaction : typing.Optional[CompactionConfig]
+            Configuration for automatic context compaction. Set to null to clear.
+
+        tool_output_offloading : typing.Optional[ToolOutputOffloadingConfiguration]
+
+        steps : typing.Optional[typing.Dict[str, typing.Optional[UpdateAgentStep]]]
+            A map of additional named steps keyed by step name for partial update.
+            Only provided keys are modified; missing keys are preserved.
+            Set a key's value to null to delete that step.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1234,7 +1797,8 @@ class AsyncRawAgentsClient:
         Returns
         -------
         AsyncHttpResponse[Agent]
-            The agent has been updated successfully.
+            The response includes the complete updated agent configuration with the new
+            `updated_at` timestamp reflecting when the changes were applied.
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/agents/{jsonable_encoder(agent_key)}",
@@ -1244,16 +1808,35 @@ class AsyncRawAgentsClient:
                 "name": name,
                 "description": description,
                 "tool_configurations": convert_and_respect_annotation_metadata(
-                    object_=tool_configurations, annotation=typing.Dict[str, AgentToolConfiguration], direction="write"
+                    object_=tool_configurations,
+                    annotation=typing.Optional[typing.Dict[str, typing.Optional[AgentToolConfiguration]]],
+                    direction="write",
+                ),
+                "skills": convert_and_respect_annotation_metadata(
+                    object_=skills,
+                    annotation=typing.Optional[typing.Dict[str, typing.Optional[AgentSkill]]],
+                    direction="write",
                 ),
                 "model": convert_and_respect_annotation_metadata(
                     object_=model, annotation=AgentModel, direction="write"
                 ),
                 "first_step": convert_and_respect_annotation_metadata(
-                    object_=first_step, annotation=ComponentsSchemasConversationalAgentStep, direction="write"
+                    object_=first_step, annotation=UpdateFirstAgentStep, direction="write"
                 ),
+                "first_step_name": first_step_name,
                 "metadata": metadata,
                 "enabled": enabled,
+                "compaction": convert_and_respect_annotation_metadata(
+                    object_=compaction, annotation=CompactionConfig, direction="write"
+                ),
+                "tool_output_offloading": convert_and_respect_annotation_metadata(
+                    object_=tool_output_offloading, annotation=ToolOutputOffloadingConfiguration, direction="write"
+                ),
+                "steps": convert_and_respect_annotation_metadata(
+                    object_=steps,
+                    annotation=typing.Optional[typing.Dict[str, typing.Optional[UpdateAgentStep]]],
+                    direction="write",
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -1309,4 +1892,216 @@ class AsyncRawAgentsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def get_identity(
+        self,
+        agent_key: AgentKey,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[AgentIdentity]:
+        """
+        Retrieve the identity associated with an agent. The identity is the service account the agent uses when executing tools.
+
+        In `auto` mode (the default), the platform keeps the identity's roles in sync with the agent's tool configuration.
+
+        In `manual` mode, the roles are frozen and the platform will not modify them when the agent is updated.
+
+        Parameters
+        ----------
+        agent_key : AgentKey
+            The unique key of the agent.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[AgentIdentity]
+            The agent's identity details.
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/agents/{jsonable_encoder(agent_key)}/identity",
+            base_url=self._client_wrapper.get_environment().default,
+            method="GET",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    AgentIdentity,
+                    parse_obj_as(
+                        type_=AgentIdentity,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def update_identity(
+        self,
+        agent_key: AgentKey,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        mode: typing.Optional[AgentIdentityMode] = OMIT,
+        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[AgentIdentity]:
+        """
+        Update the agent's identity role management mode and/or roles.
+
+        Setting mode to `manual` freezes the current roles. The platform will no longer recompute roles when the agent's tool configuration changes. This is useful when you need to grant the agent additional permissions beyond what its tools require.
+
+        Setting mode to `auto` resumes platform-managed roles. The platform will immediately resync the roles to match the current tool configuration.
+
+        Parameters
+        ----------
+        agent_key : AgentKey
+            The unique key of the agent.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        mode : typing.Optional[AgentIdentityMode]
+
+        api_roles : typing.Optional[typing.Sequence[ApiRole]]
+            Customer-level roles to assign. Only applied in `manual` mode.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            Corpus-specific roles to assign. Only applied in `manual` mode.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            Agent-specific roles to assign. Only applied in `manual` mode.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[AgentIdentity]
+            The updated agent identity.
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/agents/{jsonable_encoder(agent_key)}/identity",
+            base_url=self._client_wrapper.get_environment().default,
+            method="PATCH",
+            json={
+                "mode": mode,
+                "api_roles": api_roles,
+                "corpus_roles": convert_and_respect_annotation_metadata(
+                    object_=corpus_roles, annotation=typing.Sequence[CorpusRole], direction="write"
+                ),
+                "agent_roles": convert_and_respect_annotation_metadata(
+                    object_=agent_roles, annotation=typing.Sequence[AgentRole], direction="write"
+                ),
+            },
+            headers={
+                "content-type": "application/json",
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    AgentIdentity,
+                    parse_obj_as(
+                        type_=AgentIdentity,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

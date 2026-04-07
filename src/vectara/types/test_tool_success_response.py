@@ -12,8 +12,7 @@ class TestToolSuccessResponse(UniversalBaseModel):
     Successful execution response from testing a Lambda tool.
     """
 
-    type: typing.Literal["success"] = "success"
-    output: typing.Dict[str, typing.Optional[typing.Any]] = pydantic.Field()
+    output: typing.Dict[str, typing.Any] = pydantic.Field()
     """
     The output returned by the function.
     """

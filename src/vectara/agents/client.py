@@ -6,11 +6,23 @@ from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
 from ..types.agent import Agent
+from ..types.agent_identity import AgentIdentity
+from ..types.agent_identity_mode import AgentIdentityMode
 from ..types.agent_key import AgentKey
 from ..types.agent_model import AgentModel
 from ..types.agent_name import AgentName
+from ..types.agent_role import AgentRole
+from ..types.agent_skill import AgentSkill
+from ..types.agent_step import AgentStep
 from ..types.agent_tool_configuration import AgentToolConfiguration
-from ..types.components_schemas_conversational_agent_step import ComponentsSchemasConversationalAgentStep
+from ..types.api_role import ApiRole
+from ..types.compaction_config import CompactionConfig
+from ..types.corpus_role import CorpusRole
+from ..types.first_agent_step import FirstAgentStep
+from ..types.list_agents_response import ListAgentsResponse
+from ..types.tool_output_offloading_configuration import ToolOutputOffloadingConfiguration
+from ..types.update_agent_step import UpdateAgentStep
+from ..types.update_first_agent_step import UpdateFirstAgentStep
 from .raw_client import AsyncRawAgentsClient, RawAgentsClient
 
 # this is used as the default value for optional parameters
@@ -42,9 +54,9 @@ class AgentsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Agent]:
+    ) -> SyncPager[Agent, ListAgentsResponse]:
         """
-        List all agents available to the authenticated user, with optional filtering and pagination.
+        The List Agents API enables you to retrieve a paginated list of all agents available to the authenticated user. This is useful for managing and monitoring agent deployments across use cases and environments.
 
         Parameters
         ----------
@@ -71,18 +83,14 @@ class AgentsClient:
 
         Returns
         -------
-        SyncPager[Agent]
+        SyncPager[Agent, ListAgentsResponse]
             List of available agents.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.agents.list(
             filter="support.*",
             enabled=True,
@@ -109,25 +117,53 @@ class AgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        first_step: ComponentsSchemasConversationalAgentStep,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
+        first_step: typing.Optional[FirstAgentStep] = OMIT,
+        first_step_name: typing.Optional[str] = OMIT,
+        steps: typing.Optional[typing.Dict[str, AgentStep]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
+        compaction: typing.Optional[CompactionConfig] = OMIT,
+        tool_output_offloading: typing.Optional[ToolOutputOffloadingConfiguration] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Agent:
         """
         Create a new agent. An agent is compromised as 3 main things of functionality:
-          1. The instructions an agent follows. Known as a system in prompt in other platforms.
-          2. The steps an agent follows when receiving an input.
-          3. The tools an agent can use to resolve those steps and instructions.
-        Instructions are tied to each step, and should be well crafted so that the agent can perform the desired actions when given an input.
+          1. The **instructions** an agent follows. Known as a system in prompt in other platforms.
+          2. The **steps** an agent follows when receiving an input.
+          3. The **tools** an agent can use to resolve those steps and instructions.
+
+        Instructions are tied to each step, and should be precisely crafted so that the agent can perform the desired actions when given an input.
+
+        :::tip Creating more precise instructions
+        Be specific to exactly what you want the agent to do. For emphasis, use CAPS if you want the agent to follow a specific format. Negative prompts also help with precision such as saying **DO NOT DO THIS**.
+        :::
 
         To use an agent, create a new session (called thread or chat in other platforms), and send new inputs to the agent to get responses.
 
-        Note: Only a single step is supported with no follow up steps. So the `first_step` will be only the only step. We will add multiple steps and step types to execute complex workflows, but many agents can work well with a single step.
+        :::note
+        Only a single step is supported with no follow up steps. So the `first_step` will be only the only step. We will add multiple steps and step types to execute complex workflows, but many agents can work well with a single step.
+        :::
+
+        ## LLM configuration
+
+        Agents use LLMs for reasoning and response generation. You can configure the following:
+        - **Model**: Choose from available models like GPT-4o.
+        - **Parameters**: Adjust temperature, max tokens, and other model-specific settings.
+        - **Cost optimization**: Balance performance with token usage.
+        - **Retry configuration**: Configure automatic retry behavior for transient failures.
+
+        ## Using retries to improve user experience
+
+        When agents interact with LLMs, transient failures like network interruptions can disrupt communication between the agent and the LLM. You can configure your agent to resume disrupted communication to ensure a smooth user experience.
+        - `max_retries`: After an error, the agent will retry its request to the LLM this many times.
+        - `initial_backoff_ms`: This is how many milliseconds the agent will wait before retrying, to give the cause of the error time to resolve.
+        - `backoff_factor`: Every time the agent retries, it can multiply the last retry delay by this number, increasing the wait between retries. This is like giving a toddler a longer and longer timeout if it continues to misbehave.
+        - `max_backoff_ms`: The maximum time you want the agent to wait between retries, so the backoff_factor does not create an unreasonably long delay for your users.
 
         Parameters
         ----------
@@ -137,8 +173,6 @@ class AgentsClient:
             A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
 
         model : AgentModel
-
-        first_step : ComponentsSchemasConversationalAgentStep
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -152,11 +186,35 @@ class AgentsClient:
         description : typing.Optional[str]
             A detailed description of the agent's purpose and capabilities.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        skills : typing.Optional[typing.Dict[str, AgentSkill]]
+            A map of skills available to the agent, keyed by skill name.
+            Skills provide specialized instructions that can be invoked during agent execution.
+
+        first_step : typing.Optional[FirstAgentStep]
+            Deprecated: prefer defining all steps in the steps map and using first_step_name.
+            Inline definition of the entry point step. Can be combined with first_step_name
+            only if first_step_name equals first_step.name AND steps[first_step.name] is
+            identical to first_step.
+
+        first_step_name : typing.Optional[str]
+            Name of a step in the steps map to use as the entry point. This is the preferred
+            way to define the entry point - define all steps in the steps map and reference
+            the entry point by name here.
+
+        steps : typing.Optional[typing.Dict[str, AgentStep]]
+            A map of named steps keyed by step name.
+            Steps can transition to other steps defined here via next_steps.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the agent for customization and configuration.
 
         enabled : typing.Optional[bool]
             Whether the agent should be enabled upon creation.
+
+        compaction : typing.Optional[CompactionConfig]
+            Configuration for automatic context compaction when the session approaches context limits.
+
+        tool_output_offloading : typing.Optional[ToolOutputOffloadingConfiguration]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -164,49 +222,30 @@ class AgentsClient:
         Returns
         -------
         Agent
-            The agent has been created successfully.
+            The response includes the complete agent configuration with system-generated fields including the unique agent key, creation timestamp, and update timestamp.
 
         Examples
         --------
         from vectara import (
+            AgentCorporaSearchQueryConfiguration,
             AgentModel,
-            ConversationalAgentStep,
-            CorporaSearchQueryConfiguration,
-            CorporaSearchToolParameters,
-            DefaultOutputParser,
-            InlineCorporaSearchToolConfiguration,
-            ReferenceInstruction,
-            SearchCorporaParameters,
+            AgentSearchCorporaParameters,
+            AgentToolConfiguration_CorporaSearch,
             Vectara,
         )
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.agents.create(
             name="Customer Support Agent",
             tool_configurations={
-                "customer_search": InlineCorporaSearchToolConfiguration(
-                    argument_override=CorporaSearchToolParameters(
-                        query="customer support documentation",
-                    ),
-                    query_configuration=CorporaSearchQueryConfiguration(
-                        search=SearchCorporaParameters(),
+                "customer_search": AgentToolConfiguration_CorporaSearch(
+                    query_configuration=AgentCorporaSearchQueryConfiguration(
+                        search=AgentSearchCorporaParameters(),
                     ),
                 )
             },
             model=AgentModel(
                 name="gpt-4",
-            ),
-            first_step=ConversationalAgentStep(
-                instructions=[
-                    ReferenceInstruction(
-                        id="ins_customer_support_init",
-                    )
-                ],
-                output_parser=DefaultOutputParser(),
             ),
         )
         """
@@ -214,13 +253,18 @@ class AgentsClient:
             name=name,
             tool_configurations=tool_configurations,
             model=model,
-            first_step=first_step,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             key=key,
             description=description,
+            skills=skills,
+            first_step=first_step,
+            first_step_name=first_step_name,
+            steps=steps,
             metadata=metadata,
             enabled=enabled,
+            compaction=compaction,
+            tool_output_offloading=tool_output_offloading,
             request_options=request_options,
         )
         return _response.data
@@ -234,7 +278,9 @@ class AgentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Agent:
         """
-        Retrieve the details of a specific agent by its ID, including its configuration, capabilities, and associated resources.
+        The Get Agent API enables you to retrieve the complete configuration and operational details of a specific AI agent, providing comprehensive visibility into agent capabilities, tool integrations, behavioral instructions, and metadata.
+
+        Use this API to inspect agent configurations before creating sessions, troubleshoot agent behavior issues, clone agent configurations for new deployments, and maintain documentation of agent capabilities across your enterprise AI infrastructure.
 
         Parameters
         ----------
@@ -253,17 +299,13 @@ class AgentsClient:
         Returns
         -------
         Agent
-            The requested agent details.
+            The response includes the complete agent configuration with all tools, instructions, model parameters, and metadata as originally configured during agent creation or subsequent updates.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.agents.get(
             agent_key="customer_support",
         )
@@ -283,16 +325,22 @@ class AgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        first_step: ComponentsSchemasConversationalAgentStep,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
+        key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
+        first_step: typing.Optional[FirstAgentStep] = OMIT,
+        first_step_name: typing.Optional[str] = OMIT,
+        steps: typing.Optional[typing.Dict[str, AgentStep]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
+        compaction: typing.Optional[CompactionConfig] = OMIT,
+        tool_output_offloading: typing.Optional[ToolOutputOffloadingConfiguration] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Agent:
         """
-        Completely replace an existing agent's configuration, including its corpora, tools, and generation presets.
+        The Replace Agent API enables you to completely replace an existing agent configuration, including its corpora, tools, and generation presets. This endpoint performs a full replacement of the agent definition, unlike the Update Agent API which only modifies specified fields.
 
         Parameters
         ----------
@@ -302,11 +350,9 @@ class AgentsClient:
         name : AgentName
 
         tool_configurations : typing.Dict[str, AgentToolConfiguration]
-            A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is an agent tool configuration.
+            A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
 
         model : AgentModel
-
-        first_step : ComponentsSchemasConversationalAgentStep
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -314,14 +360,41 @@ class AgentsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
+        key : typing.Optional[AgentKey]
+            A user provided key that uniquely identifies this agent. If not provided, one will be auto-generated based on the agent name.
+
         description : typing.Optional[str]
             A detailed description of the agent's purpose and capabilities.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        skills : typing.Optional[typing.Dict[str, AgentSkill]]
+            A map of skills available to the agent, keyed by skill name.
+            Skills provide specialized instructions that can be invoked during agent execution.
+
+        first_step : typing.Optional[FirstAgentStep]
+            Deprecated: prefer defining all steps in the steps map and using first_step_name.
+            Inline definition of the entry point step. Can be combined with first_step_name
+            only if first_step_name equals first_step.name AND steps[first_step.name] is
+            identical to first_step.
+
+        first_step_name : typing.Optional[str]
+            Name of a step in the steps map to use as the entry point. This is the preferred
+            way to define the entry point - define all steps in the steps map and reference
+            the entry point by name here.
+
+        steps : typing.Optional[typing.Dict[str, AgentStep]]
+            A map of named steps keyed by step name.
+            Steps can transition to other steps defined here via next_steps.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the agent for customization and configuration.
 
         enabled : typing.Optional[bool]
-            Whether the agent is enabled.
+            Whether the agent should be enabled upon creation.
+
+        compaction : typing.Optional[CompactionConfig]
+            Configuration for automatic context compaction when the session approaches context limits.
+
+        tool_output_offloading : typing.Optional[ToolOutputOffloadingConfiguration]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -334,45 +407,26 @@ class AgentsClient:
         Examples
         --------
         from vectara import (
+            AgentCorporaSearchQueryConfiguration,
             AgentModel,
-            ConversationalAgentStep,
-            CorporaSearchQueryConfiguration,
-            CorporaSearchToolParameters,
-            DefaultOutputParser,
-            InlineCorporaSearchToolConfiguration,
-            ReferenceInstruction,
-            SearchCorporaParameters,
+            AgentSearchCorporaParameters,
+            AgentToolConfiguration_CorporaSearch,
             Vectara,
         )
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.agents.replace(
             agent_key="customer_support",
             name="Customer Support Agent",
             tool_configurations={
-                "customer_search": InlineCorporaSearchToolConfiguration(
-                    argument_override=CorporaSearchToolParameters(
-                        query="customer support documentation",
-                    ),
-                    query_configuration=CorporaSearchQueryConfiguration(
-                        search=SearchCorporaParameters(),
+                "customer_search": AgentToolConfiguration_CorporaSearch(
+                    query_configuration=AgentCorporaSearchQueryConfiguration(
+                        search=AgentSearchCorporaParameters(),
                     ),
                 )
             },
             model=AgentModel(
                 name="gpt-4",
-            ),
-            first_step=ConversationalAgentStep(
-                instructions=[
-                    ReferenceInstruction(
-                        id="ins_customer_support_init",
-                    )
-                ],
-                output_parser=DefaultOutputParser(),
             ),
         )
         """
@@ -381,12 +435,18 @@ class AgentsClient:
             name=name,
             tool_configurations=tool_configurations,
             model=model,
-            first_step=first_step,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
+            key=key,
             description=description,
+            skills=skills,
+            first_step=first_step,
+            first_step_name=first_step_name,
+            steps=steps,
             metadata=metadata,
             enabled=enabled,
+            compaction=compaction,
+            tool_output_offloading=tool_output_offloading,
             request_options=request_options,
         )
         return _response.data
@@ -400,7 +460,9 @@ class AgentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Permanently delete an agent and all its associated configuration. This action cannot be undone.
+        The Delete Agent API enables you to permanently remove an AI agent and its configuration from the Vectara platform, supporting agent lifecycle management and resource cleanup in enterprise environments.
+
+        Use this API for decommissioning outdated agents, cleaning up development and testing environments, removing agents that are no longer needed, and maintaining organized agent inventories as your AI deployments evolve. The permanent nature of deletion makes this API critical for environments where data governance and resource management are essential.
 
         Parameters
         ----------
@@ -424,11 +486,7 @@ class AgentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.agents.delete(
             agent_key="customer_support",
         )
@@ -449,15 +507,22 @@ class AgentsClient:
         request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[AgentName] = OMIT,
         description: typing.Optional[str] = OMIT,
-        tool_configurations: typing.Optional[typing.Dict[str, AgentToolConfiguration]] = OMIT,
+        tool_configurations: typing.Optional[typing.Dict[str, typing.Optional[AgentToolConfiguration]]] = OMIT,
+        skills: typing.Optional[typing.Dict[str, typing.Optional[AgentSkill]]] = OMIT,
         model: typing.Optional[AgentModel] = OMIT,
-        first_step: typing.Optional[ComponentsSchemasConversationalAgentStep] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        first_step: typing.Optional[UpdateFirstAgentStep] = OMIT,
+        first_step_name: typing.Optional[str] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
+        compaction: typing.Optional[CompactionConfig] = OMIT,
+        tool_output_offloading: typing.Optional[ToolOutputOffloadingConfiguration] = OMIT,
+        steps: typing.Optional[typing.Dict[str, typing.Optional[UpdateAgentStep]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Agent:
         """
-        Update an existing agent's configuration, including its corpora, tools, and generation presets.
+        The Update Agent API enables you to modify an existing agent configuration, including tool assignments, behavioral instructions, model parameters, and operational metadata.
+
+        Use this API to evolve agent capabilities over time, adding new tools as they become available, refining behavioral instructions based on user feedback, adjusting model parameters for optimal performance, and updating metadata for better organization across your agent ecosystem.
 
         Parameters
         ----------
@@ -473,20 +538,42 @@ class AgentsClient:
         name : typing.Optional[AgentName]
 
         description : typing.Optional[str]
-            A detailed description of the agent's purpose and capabilities.
+            A detailed description of the agent's purpose and capabilities. Set to null to clear.
 
-        tool_configurations : typing.Optional[typing.Dict[str, AgentToolConfiguration]]
-            A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is an agent tool configuration.
+        tool_configurations : typing.Optional[typing.Dict[str, typing.Optional[AgentToolConfiguration]]]
+            A map of tool configurations available to the agent. Set to null to clear all tools.
+            Individual map values set to null will delete that tool configuration.
+
+        skills : typing.Optional[typing.Dict[str, typing.Optional[AgentSkill]]]
+            A map of skills available to the agent. Set to null to clear all skills.
+            Individual map values set to null will delete that skill.
 
         model : typing.Optional[AgentModel]
 
-        first_step : typing.Optional[ComponentsSchemasConversationalAgentStep]
+        first_step : typing.Optional[UpdateFirstAgentStep]
+            Deprecated: prefer updating steps directly via the steps map.
+            Partial update to the current first step. Can be combined with first_step_name
+            only if first_step_name equals first_step.name.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Arbitrary metadata associated with the agent for customization and configuration.
+        first_step_name : typing.Optional[str]
+            Reassign the entry point to an existing step by name. This is the preferred way
+            to change the entry point. The named step must exist in the steps map.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
+            Arbitrary metadata associated with the agent. Set to null to clear.
 
         enabled : typing.Optional[bool]
-            Whether the agent is enabled.
+            Whether the agent is enabled. Set to null to reset to default (true).
+
+        compaction : typing.Optional[CompactionConfig]
+            Configuration for automatic context compaction. Set to null to clear.
+
+        tool_output_offloading : typing.Optional[ToolOutputOffloadingConfiguration]
+
+        steps : typing.Optional[typing.Dict[str, typing.Optional[UpdateAgentStep]]]
+            A map of additional named steps keyed by step name for partial update.
+            Only provided keys are modified; missing keys are preserved.
+            Set a key's value to null to delete that step.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -494,17 +581,14 @@ class AgentsClient:
         Returns
         -------
         Agent
-            The agent has been updated successfully.
+            The response includes the complete updated agent configuration with the new
+            `updated_at` timestamp reflecting when the changes were applied.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.agents.update(
             agent_key="customer_support",
         )
@@ -516,10 +600,136 @@ class AgentsClient:
             name=name,
             description=description,
             tool_configurations=tool_configurations,
+            skills=skills,
             model=model,
             first_step=first_step,
+            first_step_name=first_step_name,
             metadata=metadata,
             enabled=enabled,
+            compaction=compaction,
+            tool_output_offloading=tool_output_offloading,
+            steps=steps,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def get_identity(
+        self,
+        agent_key: AgentKey,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AgentIdentity:
+        """
+        Retrieve the identity associated with an agent. The identity is the service account the agent uses when executing tools.
+
+        In `auto` mode (the default), the platform keeps the identity's roles in sync with the agent's tool configuration.
+
+        In `manual` mode, the roles are frozen and the platform will not modify them when the agent is updated.
+
+        Parameters
+        ----------
+        agent_key : AgentKey
+            The unique key of the agent.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AgentIdentity
+            The agent's identity details.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara()
+        client.agents.get_identity(
+            agent_key="customer_support",
+        )
+        """
+        _response = self._raw_client.get_identity(
+            agent_key,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def update_identity(
+        self,
+        agent_key: AgentKey,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        mode: typing.Optional[AgentIdentityMode] = OMIT,
+        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AgentIdentity:
+        """
+        Update the agent's identity role management mode and/or roles.
+
+        Setting mode to `manual` freezes the current roles. The platform will no longer recompute roles when the agent's tool configuration changes. This is useful when you need to grant the agent additional permissions beyond what its tools require.
+
+        Setting mode to `auto` resumes platform-managed roles. The platform will immediately resync the roles to match the current tool configuration.
+
+        Parameters
+        ----------
+        agent_key : AgentKey
+            The unique key of the agent.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        mode : typing.Optional[AgentIdentityMode]
+
+        api_roles : typing.Optional[typing.Sequence[ApiRole]]
+            Customer-level roles to assign. Only applied in `manual` mode.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            Corpus-specific roles to assign. Only applied in `manual` mode.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            Agent-specific roles to assign. Only applied in `manual` mode.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AgentIdentity
+            The updated agent identity.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara()
+        client.agents.update_identity(
+            agent_key="customer_support",
+        )
+        """
+        _response = self._raw_client.update_identity(
+            agent_key,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            mode=mode,
+            api_roles=api_roles,
+            corpus_roles=corpus_roles,
+            agent_roles=agent_roles,
             request_options=request_options,
         )
         return _response.data
@@ -550,9 +760,9 @@ class AsyncAgentsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Agent]:
+    ) -> AsyncPager[Agent, ListAgentsResponse]:
         """
-        List all agents available to the authenticated user, with optional filtering and pagination.
+        The List Agents API enables you to retrieve a paginated list of all agents available to the authenticated user. This is useful for managing and monitoring agent deployments across use cases and environments.
 
         Parameters
         ----------
@@ -579,7 +789,7 @@ class AsyncAgentsClient:
 
         Returns
         -------
-        AsyncPager[Agent]
+        AsyncPager[Agent, ListAgentsResponse]
             List of available agents.
 
         Examples
@@ -588,11 +798,7 @@ class AsyncAgentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -626,25 +832,53 @@ class AsyncAgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        first_step: ComponentsSchemasConversationalAgentStep,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
+        first_step: typing.Optional[FirstAgentStep] = OMIT,
+        first_step_name: typing.Optional[str] = OMIT,
+        steps: typing.Optional[typing.Dict[str, AgentStep]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
+        compaction: typing.Optional[CompactionConfig] = OMIT,
+        tool_output_offloading: typing.Optional[ToolOutputOffloadingConfiguration] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Agent:
         """
         Create a new agent. An agent is compromised as 3 main things of functionality:
-          1. The instructions an agent follows. Known as a system in prompt in other platforms.
-          2. The steps an agent follows when receiving an input.
-          3. The tools an agent can use to resolve those steps and instructions.
-        Instructions are tied to each step, and should be well crafted so that the agent can perform the desired actions when given an input.
+          1. The **instructions** an agent follows. Known as a system in prompt in other platforms.
+          2. The **steps** an agent follows when receiving an input.
+          3. The **tools** an agent can use to resolve those steps and instructions.
+
+        Instructions are tied to each step, and should be precisely crafted so that the agent can perform the desired actions when given an input.
+
+        :::tip Creating more precise instructions
+        Be specific to exactly what you want the agent to do. For emphasis, use CAPS if you want the agent to follow a specific format. Negative prompts also help with precision such as saying **DO NOT DO THIS**.
+        :::
 
         To use an agent, create a new session (called thread or chat in other platforms), and send new inputs to the agent to get responses.
 
-        Note: Only a single step is supported with no follow up steps. So the `first_step` will be only the only step. We will add multiple steps and step types to execute complex workflows, but many agents can work well with a single step.
+        :::note
+        Only a single step is supported with no follow up steps. So the `first_step` will be only the only step. We will add multiple steps and step types to execute complex workflows, but many agents can work well with a single step.
+        :::
+
+        ## LLM configuration
+
+        Agents use LLMs for reasoning and response generation. You can configure the following:
+        - **Model**: Choose from available models like GPT-4o.
+        - **Parameters**: Adjust temperature, max tokens, and other model-specific settings.
+        - **Cost optimization**: Balance performance with token usage.
+        - **Retry configuration**: Configure automatic retry behavior for transient failures.
+
+        ## Using retries to improve user experience
+
+        When agents interact with LLMs, transient failures like network interruptions can disrupt communication between the agent and the LLM. You can configure your agent to resume disrupted communication to ensure a smooth user experience.
+        - `max_retries`: After an error, the agent will retry its request to the LLM this many times.
+        - `initial_backoff_ms`: This is how many milliseconds the agent will wait before retrying, to give the cause of the error time to resolve.
+        - `backoff_factor`: Every time the agent retries, it can multiply the last retry delay by this number, increasing the wait between retries. This is like giving a toddler a longer and longer timeout if it continues to misbehave.
+        - `max_backoff_ms`: The maximum time you want the agent to wait between retries, so the backoff_factor does not create an unreasonably long delay for your users.
 
         Parameters
         ----------
@@ -654,8 +888,6 @@ class AsyncAgentsClient:
             A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
 
         model : AgentModel
-
-        first_step : ComponentsSchemasConversationalAgentStep
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -669,11 +901,35 @@ class AsyncAgentsClient:
         description : typing.Optional[str]
             A detailed description of the agent's purpose and capabilities.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        skills : typing.Optional[typing.Dict[str, AgentSkill]]
+            A map of skills available to the agent, keyed by skill name.
+            Skills provide specialized instructions that can be invoked during agent execution.
+
+        first_step : typing.Optional[FirstAgentStep]
+            Deprecated: prefer defining all steps in the steps map and using first_step_name.
+            Inline definition of the entry point step. Can be combined with first_step_name
+            only if first_step_name equals first_step.name AND steps[first_step.name] is
+            identical to first_step.
+
+        first_step_name : typing.Optional[str]
+            Name of a step in the steps map to use as the entry point. This is the preferred
+            way to define the entry point - define all steps in the steps map and reference
+            the entry point by name here.
+
+        steps : typing.Optional[typing.Dict[str, AgentStep]]
+            A map of named steps keyed by step name.
+            Steps can transition to other steps defined here via next_steps.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the agent for customization and configuration.
 
         enabled : typing.Optional[bool]
             Whether the agent should be enabled upon creation.
+
+        compaction : typing.Optional[CompactionConfig]
+            Configuration for automatic context compaction when the session approaches context limits.
+
+        tool_output_offloading : typing.Optional[ToolOutputOffloadingConfiguration]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -681,54 +937,35 @@ class AsyncAgentsClient:
         Returns
         -------
         Agent
-            The agent has been created successfully.
+            The response includes the complete agent configuration with system-generated fields including the unique agent key, creation timestamp, and update timestamp.
 
         Examples
         --------
         import asyncio
 
         from vectara import (
+            AgentCorporaSearchQueryConfiguration,
             AgentModel,
+            AgentSearchCorporaParameters,
+            AgentToolConfiguration_CorporaSearch,
             AsyncVectara,
-            ConversationalAgentStep,
-            CorporaSearchQueryConfiguration,
-            CorporaSearchToolParameters,
-            DefaultOutputParser,
-            InlineCorporaSearchToolConfiguration,
-            ReferenceInstruction,
-            SearchCorporaParameters,
         )
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
             await client.agents.create(
                 name="Customer Support Agent",
                 tool_configurations={
-                    "customer_search": InlineCorporaSearchToolConfiguration(
-                        argument_override=CorporaSearchToolParameters(
-                            query="customer support documentation",
-                        ),
-                        query_configuration=CorporaSearchQueryConfiguration(
-                            search=SearchCorporaParameters(),
+                    "customer_search": AgentToolConfiguration_CorporaSearch(
+                        query_configuration=AgentCorporaSearchQueryConfiguration(
+                            search=AgentSearchCorporaParameters(),
                         ),
                     )
                 },
                 model=AgentModel(
                     name="gpt-4",
-                ),
-                first_step=ConversationalAgentStep(
-                    instructions=[
-                        ReferenceInstruction(
-                            id="ins_customer_support_init",
-                        )
-                    ],
-                    output_parser=DefaultOutputParser(),
                 ),
             )
 
@@ -739,13 +976,18 @@ class AsyncAgentsClient:
             name=name,
             tool_configurations=tool_configurations,
             model=model,
-            first_step=first_step,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             key=key,
             description=description,
+            skills=skills,
+            first_step=first_step,
+            first_step_name=first_step_name,
+            steps=steps,
             metadata=metadata,
             enabled=enabled,
+            compaction=compaction,
+            tool_output_offloading=tool_output_offloading,
             request_options=request_options,
         )
         return _response.data
@@ -759,7 +1001,9 @@ class AsyncAgentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Agent:
         """
-        Retrieve the details of a specific agent by its ID, including its configuration, capabilities, and associated resources.
+        The Get Agent API enables you to retrieve the complete configuration and operational details of a specific AI agent, providing comprehensive visibility into agent capabilities, tool integrations, behavioral instructions, and metadata.
+
+        Use this API to inspect agent configurations before creating sessions, troubleshoot agent behavior issues, clone agent configurations for new deployments, and maintain documentation of agent capabilities across your enterprise AI infrastructure.
 
         Parameters
         ----------
@@ -778,7 +1022,7 @@ class AsyncAgentsClient:
         Returns
         -------
         Agent
-            The requested agent details.
+            The response includes the complete agent configuration with all tools, instructions, model parameters, and metadata as originally configured during agent creation or subsequent updates.
 
         Examples
         --------
@@ -786,11 +1030,7 @@ class AsyncAgentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -816,16 +1056,22 @@ class AsyncAgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        first_step: ComponentsSchemasConversationalAgentStep,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
+        key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
+        first_step: typing.Optional[FirstAgentStep] = OMIT,
+        first_step_name: typing.Optional[str] = OMIT,
+        steps: typing.Optional[typing.Dict[str, AgentStep]] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
+        compaction: typing.Optional[CompactionConfig] = OMIT,
+        tool_output_offloading: typing.Optional[ToolOutputOffloadingConfiguration] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Agent:
         """
-        Completely replace an existing agent's configuration, including its corpora, tools, and generation presets.
+        The Replace Agent API enables you to completely replace an existing agent configuration, including its corpora, tools, and generation presets. This endpoint performs a full replacement of the agent definition, unlike the Update Agent API which only modifies specified fields.
 
         Parameters
         ----------
@@ -835,11 +1081,9 @@ class AsyncAgentsClient:
         name : AgentName
 
         tool_configurations : typing.Dict[str, AgentToolConfiguration]
-            A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is an agent tool configuration.
+            A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
 
         model : AgentModel
-
-        first_step : ComponentsSchemasConversationalAgentStep
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -847,14 +1091,41 @@ class AsyncAgentsClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
+        key : typing.Optional[AgentKey]
+            A user provided key that uniquely identifies this agent. If not provided, one will be auto-generated based on the agent name.
+
         description : typing.Optional[str]
             A detailed description of the agent's purpose and capabilities.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
+        skills : typing.Optional[typing.Dict[str, AgentSkill]]
+            A map of skills available to the agent, keyed by skill name.
+            Skills provide specialized instructions that can be invoked during agent execution.
+
+        first_step : typing.Optional[FirstAgentStep]
+            Deprecated: prefer defining all steps in the steps map and using first_step_name.
+            Inline definition of the entry point step. Can be combined with first_step_name
+            only if first_step_name equals first_step.name AND steps[first_step.name] is
+            identical to first_step.
+
+        first_step_name : typing.Optional[str]
+            Name of a step in the steps map to use as the entry point. This is the preferred
+            way to define the entry point - define all steps in the steps map and reference
+            the entry point by name here.
+
+        steps : typing.Optional[typing.Dict[str, AgentStep]]
+            A map of named steps keyed by step name.
+            Steps can transition to other steps defined here via next_steps.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary metadata associated with the agent for customization and configuration.
 
         enabled : typing.Optional[bool]
-            Whether the agent is enabled.
+            Whether the agent should be enabled upon creation.
+
+        compaction : typing.Optional[CompactionConfig]
+            Configuration for automatic context compaction when the session approaches context limits.
+
+        tool_output_offloading : typing.Optional[ToolOutputOffloadingConfiguration]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -869,22 +1140,14 @@ class AsyncAgentsClient:
         import asyncio
 
         from vectara import (
+            AgentCorporaSearchQueryConfiguration,
             AgentModel,
+            AgentSearchCorporaParameters,
+            AgentToolConfiguration_CorporaSearch,
             AsyncVectara,
-            ConversationalAgentStep,
-            CorporaSearchQueryConfiguration,
-            CorporaSearchToolParameters,
-            DefaultOutputParser,
-            InlineCorporaSearchToolConfiguration,
-            ReferenceInstruction,
-            SearchCorporaParameters,
         )
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -892,25 +1155,14 @@ class AsyncAgentsClient:
                 agent_key="customer_support",
                 name="Customer Support Agent",
                 tool_configurations={
-                    "customer_search": InlineCorporaSearchToolConfiguration(
-                        argument_override=CorporaSearchToolParameters(
-                            query="customer support documentation",
-                        ),
-                        query_configuration=CorporaSearchQueryConfiguration(
-                            search=SearchCorporaParameters(),
+                    "customer_search": AgentToolConfiguration_CorporaSearch(
+                        query_configuration=AgentCorporaSearchQueryConfiguration(
+                            search=AgentSearchCorporaParameters(),
                         ),
                     )
                 },
                 model=AgentModel(
                     name="gpt-4",
-                ),
-                first_step=ConversationalAgentStep(
-                    instructions=[
-                        ReferenceInstruction(
-                            id="ins_customer_support_init",
-                        )
-                    ],
-                    output_parser=DefaultOutputParser(),
                 ),
             )
 
@@ -922,12 +1174,18 @@ class AsyncAgentsClient:
             name=name,
             tool_configurations=tool_configurations,
             model=model,
-            first_step=first_step,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
+            key=key,
             description=description,
+            skills=skills,
+            first_step=first_step,
+            first_step_name=first_step_name,
+            steps=steps,
             metadata=metadata,
             enabled=enabled,
+            compaction=compaction,
+            tool_output_offloading=tool_output_offloading,
             request_options=request_options,
         )
         return _response.data
@@ -941,7 +1199,9 @@ class AsyncAgentsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Permanently delete an agent and all its associated configuration. This action cannot be undone.
+        The Delete Agent API enables you to permanently remove an AI agent and its configuration from the Vectara platform, supporting agent lifecycle management and resource cleanup in enterprise environments.
+
+        Use this API for decommissioning outdated agents, cleaning up development and testing environments, removing agents that are no longer needed, and maintaining organized agent inventories as your AI deployments evolve. The permanent nature of deletion makes this API critical for environments where data governance and resource management are essential.
 
         Parameters
         ----------
@@ -967,11 +1227,7 @@ class AsyncAgentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -998,15 +1254,22 @@ class AsyncAgentsClient:
         request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[AgentName] = OMIT,
         description: typing.Optional[str] = OMIT,
-        tool_configurations: typing.Optional[typing.Dict[str, AgentToolConfiguration]] = OMIT,
+        tool_configurations: typing.Optional[typing.Dict[str, typing.Optional[AgentToolConfiguration]]] = OMIT,
+        skills: typing.Optional[typing.Dict[str, typing.Optional[AgentSkill]]] = OMIT,
         model: typing.Optional[AgentModel] = OMIT,
-        first_step: typing.Optional[ComponentsSchemasConversationalAgentStep] = OMIT,
-        metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = OMIT,
+        first_step: typing.Optional[UpdateFirstAgentStep] = OMIT,
+        first_step_name: typing.Optional[str] = OMIT,
+        metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
+        compaction: typing.Optional[CompactionConfig] = OMIT,
+        tool_output_offloading: typing.Optional[ToolOutputOffloadingConfiguration] = OMIT,
+        steps: typing.Optional[typing.Dict[str, typing.Optional[UpdateAgentStep]]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Agent:
         """
-        Update an existing agent's configuration, including its corpora, tools, and generation presets.
+        The Update Agent API enables you to modify an existing agent configuration, including tool assignments, behavioral instructions, model parameters, and operational metadata.
+
+        Use this API to evolve agent capabilities over time, adding new tools as they become available, refining behavioral instructions based on user feedback, adjusting model parameters for optimal performance, and updating metadata for better organization across your agent ecosystem.
 
         Parameters
         ----------
@@ -1022,20 +1285,42 @@ class AsyncAgentsClient:
         name : typing.Optional[AgentName]
 
         description : typing.Optional[str]
-            A detailed description of the agent's purpose and capabilities.
+            A detailed description of the agent's purpose and capabilities. Set to null to clear.
 
-        tool_configurations : typing.Optional[typing.Dict[str, AgentToolConfiguration]]
-            A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is an agent tool configuration.
+        tool_configurations : typing.Optional[typing.Dict[str, typing.Optional[AgentToolConfiguration]]]
+            A map of tool configurations available to the agent. Set to null to clear all tools.
+            Individual map values set to null will delete that tool configuration.
+
+        skills : typing.Optional[typing.Dict[str, typing.Optional[AgentSkill]]]
+            A map of skills available to the agent. Set to null to clear all skills.
+            Individual map values set to null will delete that skill.
 
         model : typing.Optional[AgentModel]
 
-        first_step : typing.Optional[ComponentsSchemasConversationalAgentStep]
+        first_step : typing.Optional[UpdateFirstAgentStep]
+            Deprecated: prefer updating steps directly via the steps map.
+            Partial update to the current first step. Can be combined with first_step_name
+            only if first_step_name equals first_step.name.
 
-        metadata : typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]]
-            Arbitrary metadata associated with the agent for customization and configuration.
+        first_step_name : typing.Optional[str]
+            Reassign the entry point to an existing step by name. This is the preferred way
+            to change the entry point. The named step must exist in the steps map.
+
+        metadata : typing.Optional[typing.Dict[str, typing.Any]]
+            Arbitrary metadata associated with the agent. Set to null to clear.
 
         enabled : typing.Optional[bool]
-            Whether the agent is enabled.
+            Whether the agent is enabled. Set to null to reset to default (true).
+
+        compaction : typing.Optional[CompactionConfig]
+            Configuration for automatic context compaction. Set to null to clear.
+
+        tool_output_offloading : typing.Optional[ToolOutputOffloadingConfiguration]
+
+        steps : typing.Optional[typing.Dict[str, typing.Optional[UpdateAgentStep]]]
+            A map of additional named steps keyed by step name for partial update.
+            Only provided keys are modified; missing keys are preserved.
+            Set a key's value to null to delete that step.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1043,7 +1328,8 @@ class AsyncAgentsClient:
         Returns
         -------
         Agent
-            The agent has been updated successfully.
+            The response includes the complete updated agent configuration with the new
+            `updated_at` timestamp reflecting when the changes were applied.
 
         Examples
         --------
@@ -1051,11 +1337,7 @@ class AsyncAgentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -1073,10 +1355,152 @@ class AsyncAgentsClient:
             name=name,
             description=description,
             tool_configurations=tool_configurations,
+            skills=skills,
             model=model,
             first_step=first_step,
+            first_step_name=first_step_name,
             metadata=metadata,
             enabled=enabled,
+            compaction=compaction,
+            tool_output_offloading=tool_output_offloading,
+            steps=steps,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def get_identity(
+        self,
+        agent_key: AgentKey,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AgentIdentity:
+        """
+        Retrieve the identity associated with an agent. The identity is the service account the agent uses when executing tools.
+
+        In `auto` mode (the default), the platform keeps the identity's roles in sync with the agent's tool configuration.
+
+        In `manual` mode, the roles are frozen and the platform will not modify them when the agent is updated.
+
+        Parameters
+        ----------
+        agent_key : AgentKey
+            The unique key of the agent.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AgentIdentity
+            The agent's identity details.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara()
+
+
+        async def main() -> None:
+            await client.agents.get_identity(
+                agent_key="customer_support",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.get_identity(
+            agent_key,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def update_identity(
+        self,
+        agent_key: AgentKey,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        mode: typing.Optional[AgentIdentityMode] = OMIT,
+        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AgentIdentity:
+        """
+        Update the agent's identity role management mode and/or roles.
+
+        Setting mode to `manual` freezes the current roles. The platform will no longer recompute roles when the agent's tool configuration changes. This is useful when you need to grant the agent additional permissions beyond what its tools require.
+
+        Setting mode to `auto` resumes platform-managed roles. The platform will immediately resync the roles to match the current tool configuration.
+
+        Parameters
+        ----------
+        agent_key : AgentKey
+            The unique key of the agent.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        mode : typing.Optional[AgentIdentityMode]
+
+        api_roles : typing.Optional[typing.Sequence[ApiRole]]
+            Customer-level roles to assign. Only applied in `manual` mode.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            Corpus-specific roles to assign. Only applied in `manual` mode.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            Agent-specific roles to assign. Only applied in `manual` mode.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AgentIdentity
+            The updated agent identity.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara()
+
+
+        async def main() -> None:
+            await client.agents.update_identity(
+                agent_key="customer_support",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.update_identity(
+            agent_key,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            mode=mode,
+            api_roles=api_roles,
+            corpus_roles=corpus_roles,
+            agent_roles=agent_roles,
             request_options=request_options,
         )
         return _response.data

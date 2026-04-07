@@ -6,6 +6,7 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
+from ..types.list_query_histories_response import ListQueryHistoriesResponse
 from ..types.query_history import QueryHistory
 from ..types.query_history_summary import QueryHistorySummary
 from .raw_client import AsyncRawQueryHistoryClient, RawQueryHistoryClient
@@ -35,7 +36,9 @@ class QueryHistoryClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> QueryHistory:
         """
-        Retrieve a detailed history of previously executed query.
+        The Get Query History API allows you to retrieve detailed history about a specific query that was made against a corpus. The response includes detailed information about the query, such as latency, the time it was executed, and the various stages in the query pipeline.
+
+        You specify the `query_id` and the response includes the `id` of the query, the `query` object, the `chat_id`, the time information about the query, and the `spans` object.
 
         Parameters
         ----------
@@ -54,17 +57,13 @@ class QueryHistoryClient:
         Returns
         -------
         QueryHistory
-            The query history.
+            The `spans` object provides information about the ordered parts of the query pipeline and you get information about what happens during each stage of the pipeline.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.query_history.get(
             query_id="qry_123456789",
         )
@@ -90,9 +89,11 @@ class QueryHistoryClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[QueryHistorySummary]:
+    ) -> SyncPager[QueryHistorySummary, ListQueryHistoriesResponse]:
         """
-        Retrieve query histories.
+        The List Query Histories API allows you to retrieve, update, and manage query history for a specific corpus. This API is particularly useful for tracking query performance, debugging individual queries, and retrieving detailed information such as the call stack of a query execution.
+
+        You can specify the `corpus_key`, `chat_id`, and the `limit` which is the maximum number of historical queries to list.
 
         Parameters
         ----------
@@ -128,18 +129,14 @@ class QueryHistoryClient:
 
         Returns
         -------
-        SyncPager[QueryHistorySummary]
-            An array of Query Histories.
+        SyncPager[QueryHistorySummary, ListQueryHistoriesResponse]
+            The response includes an array of previous query histories.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.query_history.list(
             corpus_key="my_corpus_key",
             chat_id="cht_123456789",
@@ -188,7 +185,9 @@ class AsyncQueryHistoryClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> QueryHistory:
         """
-        Retrieve a detailed history of previously executed query.
+        The Get Query History API allows you to retrieve detailed history about a specific query that was made against a corpus. The response includes detailed information about the query, such as latency, the time it was executed, and the various stages in the query pipeline.
+
+        You specify the `query_id` and the response includes the `id` of the query, the `query` object, the `chat_id`, the time information about the query, and the `spans` object.
 
         Parameters
         ----------
@@ -207,7 +206,7 @@ class AsyncQueryHistoryClient:
         Returns
         -------
         QueryHistory
-            The query history.
+            The `spans` object provides information about the ordered parts of the query pipeline and you get information about what happens during each stage of the pipeline.
 
         Examples
         --------
@@ -215,11 +214,7 @@ class AsyncQueryHistoryClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -251,9 +246,11 @@ class AsyncQueryHistoryClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[QueryHistorySummary]:
+    ) -> AsyncPager[QueryHistorySummary, ListQueryHistoriesResponse]:
         """
-        Retrieve query histories.
+        The List Query Histories API allows you to retrieve, update, and manage query history for a specific corpus. This API is particularly useful for tracking query performance, debugging individual queries, and retrieving detailed information such as the call stack of a query execution.
+
+        You can specify the `corpus_key`, `chat_id`, and the `limit` which is the maximum number of historical queries to list.
 
         Parameters
         ----------
@@ -289,8 +286,8 @@ class AsyncQueryHistoryClient:
 
         Returns
         -------
-        AsyncPager[QueryHistorySummary]
-            An array of Query Histories.
+        AsyncPager[QueryHistorySummary, ListQueryHistoriesResponse]
+            The response includes an array of previous query histories.
 
         Examples
         --------
@@ -298,11 +295,7 @@ class AsyncQueryHistoryClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:

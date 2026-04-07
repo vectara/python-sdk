@@ -12,7 +12,6 @@ class FactualConsistencyScoreSpan(UniversalBaseModel):
     The factual consistency of the generation.
     """
 
-    type: typing.Literal["fcs"] = "fcs"
     latency_millis: typing.Optional[int] = pydantic.Field(default=None)
     """
     Time taken in milliseconds.

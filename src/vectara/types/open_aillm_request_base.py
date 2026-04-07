@@ -4,6 +4,7 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .llm_capabilities import LlmCapabilities
 from .remote_auth import RemoteAuth
 
 
@@ -38,10 +39,12 @@ class OpenAillmRequestBase(UniversalBaseModel):
     Additional HTTP headers to include with requests to the LLM API.
     """
 
-    test_model_parameters: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    test_model_parameters: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     Any additional parameters that are required for the LLM during the test call.
     """
+
+    capabilities: typing.Optional[LlmCapabilities] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

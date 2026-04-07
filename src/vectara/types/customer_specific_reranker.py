@@ -11,7 +11,6 @@ class CustomerSpecificReranker(UniversalBaseModel):
     Reranker that is specific to the customer.
     """
 
-    type: typing.Literal["customer_reranker"] = "customer_reranker"
     reranker_id: typing.Optional[str] = pydantic.Field(default=None)
     """
     The ID of the reranker. The multilingual reranker that may be specified is rnk_272725719. Do not specify the MMR reranker ID here, and instead, use the MMR reranker object type. **Deprecated**: Use `reranker_name` instead.
@@ -42,6 +41,11 @@ class CustomerSpecificReranker(UniversalBaseModel):
     include_context: typing.Optional[bool] = pydantic.Field(default=None)
     """
     If true, the reranker will use text with context (see "context_configuration") for scoring.
+    """
+
+    instructions: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    Instructions for instruction-following rerankers that guide relevance scoring behavior. Only applicable to rerankers that support custom instructions.
     """
 
     if IS_PYDANTIC_V2:

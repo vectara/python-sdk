@@ -5,6 +5,7 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
+from ..types.list_rerankers_response import ListRerankersResponse
 from ..types.reranker import Reranker
 from .raw_client import AsyncRawRerankersClient, RawRerankersClient
 
@@ -33,9 +34,11 @@ class RerankersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Reranker]:
+    ) -> SyncPager[Reranker, ListRerankersResponse]:
         """
-        Rerankers are used to improve the ranking (ordering) of search results.
+        The List Rerankers API retrieves a list of available rerankers used to improve the ranking and ordering of search results.
+
+        For more information about the available rerankers, see [Reranking overview](https://docs.vectara.com/docs/search-and-retrieval/rerankers/reranking-overview).
 
         Parameters
         ----------
@@ -59,18 +62,14 @@ class RerankersClient:
 
         Returns
         -------
-        SyncPager[Reranker]
+        SyncPager[Reranker, ListRerankersResponse]
             List of rerankers.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.rerankers.list(
             filter="vectara.*",
         )
@@ -114,9 +113,11 @@ class AsyncRerankersClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Reranker]:
+    ) -> AsyncPager[Reranker, ListRerankersResponse]:
         """
-        Rerankers are used to improve the ranking (ordering) of search results.
+        The List Rerankers API retrieves a list of available rerankers used to improve the ranking and ordering of search results.
+
+        For more information about the available rerankers, see [Reranking overview](https://docs.vectara.com/docs/search-and-retrieval/rerankers/reranking-overview).
 
         Parameters
         ----------
@@ -140,7 +141,7 @@ class AsyncRerankersClient:
 
         Returns
         -------
-        AsyncPager[Reranker]
+        AsyncPager[Reranker, ListRerankersResponse]
             List of rerankers.
 
         Examples
@@ -149,11 +150,7 @@ class AsyncRerankersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:

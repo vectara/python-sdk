@@ -23,12 +23,12 @@ class IndividualSearchResult(UniversalBaseModel):
     The score of the individual result.
     """
 
-    part_metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    part_metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     The metadata for the document part.
     """
 
-    document_metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    document_metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     The metadata for the document that contains the document part.
     """
@@ -51,6 +51,11 @@ class IndividualSearchResult(UniversalBaseModel):
     request_corpora_index: typing.Optional[int] = pydantic.Field(default=None)
     """
     A query request can search over multiple corpora at a time. This property is set to the index in the list of corpora in the original search request that this search result originated from. If the query request is only over one corpus, this property is 0.
+    """
+
+    corpus_key: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The corpus key that this search result originated from. For queries across multiple corpora, this identifies which corpus the result came from.
     """
 
     if IS_PYDANTIC_V2:

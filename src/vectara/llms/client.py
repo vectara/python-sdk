@@ -6,7 +6,9 @@ from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
 from ..types.create_llm_request import CreateLlmRequest
+from ..types.list_ll_ms_response import ListLlMsResponse
 from ..types.llm import Llm
+from ..types.update_llm_request import UpdateLlmRequest
 from .raw_client import AsyncRawLlmsClient, RawLlmsClient
 
 # this is used as the default value for optional parameters
@@ -37,7 +39,7 @@ class LlmsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Llm]:
+    ) -> SyncPager[Llm, ListLlMsResponse]:
         """
         List LLMs that can be used with query and chat endpoints. The LLM is not directly specified in a query, but instead a `generation_preset_name` is used. The `generation_preset_name` property in generation parameters can be found as the `name` property on the Generations Presets retrieved from `/v2/generation_presets`.
 
@@ -63,18 +65,14 @@ class LlmsClient:
 
         Returns
         -------
-        SyncPager[Llm]
+        SyncPager[Llm, ListLlMsResponse]
             List of LLMs.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.llms.list()
         for item in response:
             yield item
@@ -100,7 +98,154 @@ class LlmsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Llm:
         """
-        Create a new LLM for use with query and chat endpoints
+        Integrate external Large Language Models (LLMs) into Vectara for Retrieval Augmented Generation (RAG) and chat. Connect OpenAI API-compatible models from providers like Anthropic, Azure, Google, or custom-hosted endpoints. Once created, reference your custom LLM by name in query generation parameters.
+        - Connect external LLMs using OpenAI-compatible API format
+        - Configure multiple LLM providers for different use cases
+        - Override Vectara's built-in LLMs with your own models
+        - Use custom models for RAG, chat, and document summarization
+
+        **Example providers:**
+
+        ### OpenAI
+
+        **Type:** `openai-compatible`
+        **Models:** GPT-4o, GPT-5
+        **Auth:** Bearer token
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-gpt5",
+          "model": "gpt-5",
+          "uri": "https://api.openai.com/v1/chat/completions",
+          "auth": {
+            "type": "bearer",
+            "token": "sk-..."
+          }
+        }
+        ```
+
+        ### OpenAI Responses API
+
+        **Type**: openai-responses
+        **Models**: o1-preview, o1-mini, o3-mini (reasoning models)
+        **Auth**: Bearer token
+        **Note**: For reasoning models that don't support streaming
+
+        ```json
+        {
+          "type": "openai-responses",
+          "name": "my-o1",
+          "model": "o1-preview",
+          "uri": "https://api.openai.com/v1/chat/completions",
+          "auth": {
+            "type": "bearer",
+            "token": "sk-..."
+          }
+        }
+        ```
+
+        ### Anthropic Claude
+
+        **Type:** `openai-compatible`
+        **Models:** claude-4-opus, claude-4-5-haiku, claude-4-5-sonnet
+        **Auth:** Bearer token with header
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-claude",
+          "model": "claude-sonnet-4-5-20250929",
+          "uri": "https://api.anthropic.com/v1/messages",
+          "auth": {
+            "type": "bearer",
+            "token": "sk-ant-..."
+          },
+          "headers": {
+            "anthropic-version": "2023-06-01"
+          }
+        }
+        ```
+
+        ### Azure OpenAI
+
+        **Type:** `openai-compatible`
+        **Models:** GPT-3.5, GPT-4 (Azure-deployed versions)
+        **Auth:** Custom header (api-key)
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-azure-gpt4",
+          "model": "gpt-4",
+          "uri": "https://YOUR-RESOURCE.openai.azure.com/openai/deployments/YOUR-DEPLOYMENT/chat/completions?api-version=2024-02-15-preview",
+          "auth": {
+            "type": "header",
+            "header": "api-key",
+            "value": "your-azure-key"
+          }
+        }
+        ```
+
+        ### Google Vertex AI (Gemini) — Service Account
+
+        **Type:** `vertex-ai`
+        **Models:** gemini-2.5-pro, gemini-2.5-flash
+        **Auth:** Service account
+
+        ```json
+        {
+          "type": "vertex-ai",
+          "name": "my-gemini",
+          "model": "gemini-2.5-flash",
+          "uri": "https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR-PROJECT/locations/us-central1",
+          "auth": {
+            "type": "service_account",
+            "key_json": "{...service account JSON...}"
+          }
+        }
+        ```
+
+        ### Google AI Studio (Gemini) — API Key
+
+        **Type:** `vertex-ai`
+        **Models:** gemini-2.5-pro, gemini-2.5-flash
+        **Auth:** API key
+
+        ```json
+        {
+          "type": "vertex-ai",
+          "name": "my-gemini",
+          "model": "gemini-2.5-flash",
+          "uri": "https://generativelanguage.googleapis.com/v1beta",
+          "auth": {
+            "type": "api_key",
+            "api_key": "your-google-api-key"
+          }
+        }
+        ```
+
+        The `uri` field is flexible — you can provide a base URI or a full URL copied from Google docs
+        (including model path and `:generateContent` suffix). The system normalizes it automatically.
+
+        ### Custom OpenAI-Compatible
+
+        **Type:** `openai-compatible`
+        **Models:** Any self-hosted or custom LLM, such as OpenRouter.
+        **Auth:** Bearer or custom header
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-custom-llm",
+          "model": "llama-3-70b",
+          "uri": "https://my-llm-endpoint.com/v1/chat/completions",
+          "auth": {
+            "type": "bearer",
+            "token": "custom-token"
+          }
+        }
+        ```
 
         Parameters
         ----------
@@ -122,17 +267,13 @@ class LlmsClient:
 
         Examples
         --------
-        from vectara import CreateOpenAillmRequest, Vectara
+        from vectara import CreateLlmRequest_OpenaiCompatible, Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.llms.create(
-            request=CreateOpenAillmRequest(
+            request=CreateLlmRequest_OpenaiCompatible(
                 name="Claude 3.7 Sonnet",
-                model="model",
+                model="claude-3-7-sonnet-20250219",
                 uri="https://api.anthropic.com/v1/chat/completions",
             ),
         )
@@ -154,7 +295,12 @@ class LlmsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Llm:
         """
-        Get details about a specific LLM.
+        The Get LLM API allows users to retrieve details about a specific Large Language Model (LLM) that has been configured within the Vectara platform. This API provides metadata about the LLM, including its name, description, model type, API endpoint, and authentication method.
+
+        Use this API to verify model configurations, confirm connectivity details, and ensure that the correct LLM is being utilized within their workflows.
+
+        ## Authentication methods
+        The request requires authentication details, and you can provide them either as a Bearer token or custom header-based authentication.
 
         Parameters
         ----------
@@ -179,11 +325,7 @@ class LlmsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.llms.get(
             llm_id="llm_id",
         )
@@ -205,7 +347,11 @@ class LlmsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Delete a custom LLM connection. Built-in LLMs cannot be deleted.
+        The Delete LLM API enables users to remove a previously configured custom Large Language Model (LLM) from their Vectara account. This functionality is essential for managing active LLM configurations and ensuring that only relevant models are available for use. Built-in LLMs cannot be deleted, ensuring that core system models remain accessible.
+
+        By providing an LLM identifier, users can permanently delete a model configuration, freeing up resources and maintaining an organized list of available LLMs.
+
+        If successful, the API responds with `HTTP 204 No Content` status, confirming the LLM deletion.
 
         Parameters
         ----------
@@ -229,17 +375,83 @@ class LlmsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.llms.delete(
             llm_id="llm_id",
         )
         """
         _response = self._raw_client.delete(
             llm_id,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def update(
+        self,
+        llm_id: str,
+        *,
+        request: UpdateLlmRequest,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Llm:
+        """
+        Update an existing LLM's configuration. This endpoint allows partial updates - only provide fields you want to change. Only the name field is immutable.
+
+        The updated LLM will be tested before saving to ensure credentials are valid.
+
+        **Updatable fields:**
+        - `description` - LLM description
+        - `type` - LLM type (openai-compatible, vertex-ai, etc.)
+        - `model` - Model identifier
+        - `uri` - API endpoint
+        - `auth` - Authentication credentials (including service account key_json)
+        - `headers` - Additional HTTP headers (for openai-compatible and anthropic types)
+        - `enabled` - Whether the LLM is enabled
+        - `capabilities` - Model capabilities (image support, context limit, tool calling)
+
+        **Immutable fields:**
+        - `id` - System-generated identifier
+        - `name` - LLM name
+
+        Built-in LLMs (system-provided models) cannot be updated.
+
+        Parameters
+        ----------
+        llm_id : str
+            The ID of the LLM to update.
+
+        request : UpdateLlmRequest
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Llm
+            The LLM has been updated
+
+        Examples
+        --------
+        from vectara import UpdateLlmRequest_OpenaiCompatible, Vectara
+
+        client = Vectara()
+        client.llms.update(
+            llm_id="llm_id",
+            request=UpdateLlmRequest_OpenaiCompatible(),
+        )
+        """
+        _response = self._raw_client.update(
+            llm_id,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
@@ -271,7 +483,7 @@ class AsyncLlmsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Llm]:
+    ) -> AsyncPager[Llm, ListLlMsResponse]:
         """
         List LLMs that can be used with query and chat endpoints. The LLM is not directly specified in a query, but instead a `generation_preset_name` is used. The `generation_preset_name` property in generation parameters can be found as the `name` property on the Generations Presets retrieved from `/v2/generation_presets`.
 
@@ -297,7 +509,7 @@ class AsyncLlmsClient:
 
         Returns
         -------
-        AsyncPager[Llm]
+        AsyncPager[Llm, ListLlMsResponse]
             List of LLMs.
 
         Examples
@@ -306,11 +518,7 @@ class AsyncLlmsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -343,7 +551,154 @@ class AsyncLlmsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Llm:
         """
-        Create a new LLM for use with query and chat endpoints
+        Integrate external Large Language Models (LLMs) into Vectara for Retrieval Augmented Generation (RAG) and chat. Connect OpenAI API-compatible models from providers like Anthropic, Azure, Google, or custom-hosted endpoints. Once created, reference your custom LLM by name in query generation parameters.
+        - Connect external LLMs using OpenAI-compatible API format
+        - Configure multiple LLM providers for different use cases
+        - Override Vectara's built-in LLMs with your own models
+        - Use custom models for RAG, chat, and document summarization
+
+        **Example providers:**
+
+        ### OpenAI
+
+        **Type:** `openai-compatible`
+        **Models:** GPT-4o, GPT-5
+        **Auth:** Bearer token
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-gpt5",
+          "model": "gpt-5",
+          "uri": "https://api.openai.com/v1/chat/completions",
+          "auth": {
+            "type": "bearer",
+            "token": "sk-..."
+          }
+        }
+        ```
+
+        ### OpenAI Responses API
+
+        **Type**: openai-responses
+        **Models**: o1-preview, o1-mini, o3-mini (reasoning models)
+        **Auth**: Bearer token
+        **Note**: For reasoning models that don't support streaming
+
+        ```json
+        {
+          "type": "openai-responses",
+          "name": "my-o1",
+          "model": "o1-preview",
+          "uri": "https://api.openai.com/v1/chat/completions",
+          "auth": {
+            "type": "bearer",
+            "token": "sk-..."
+          }
+        }
+        ```
+
+        ### Anthropic Claude
+
+        **Type:** `openai-compatible`
+        **Models:** claude-4-opus, claude-4-5-haiku, claude-4-5-sonnet
+        **Auth:** Bearer token with header
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-claude",
+          "model": "claude-sonnet-4-5-20250929",
+          "uri": "https://api.anthropic.com/v1/messages",
+          "auth": {
+            "type": "bearer",
+            "token": "sk-ant-..."
+          },
+          "headers": {
+            "anthropic-version": "2023-06-01"
+          }
+        }
+        ```
+
+        ### Azure OpenAI
+
+        **Type:** `openai-compatible`
+        **Models:** GPT-3.5, GPT-4 (Azure-deployed versions)
+        **Auth:** Custom header (api-key)
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-azure-gpt4",
+          "model": "gpt-4",
+          "uri": "https://YOUR-RESOURCE.openai.azure.com/openai/deployments/YOUR-DEPLOYMENT/chat/completions?api-version=2024-02-15-preview",
+          "auth": {
+            "type": "header",
+            "header": "api-key",
+            "value": "your-azure-key"
+          }
+        }
+        ```
+
+        ### Google Vertex AI (Gemini) — Service Account
+
+        **Type:** `vertex-ai`
+        **Models:** gemini-2.5-pro, gemini-2.5-flash
+        **Auth:** Service account
+
+        ```json
+        {
+          "type": "vertex-ai",
+          "name": "my-gemini",
+          "model": "gemini-2.5-flash",
+          "uri": "https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR-PROJECT/locations/us-central1",
+          "auth": {
+            "type": "service_account",
+            "key_json": "{...service account JSON...}"
+          }
+        }
+        ```
+
+        ### Google AI Studio (Gemini) — API Key
+
+        **Type:** `vertex-ai`
+        **Models:** gemini-2.5-pro, gemini-2.5-flash
+        **Auth:** API key
+
+        ```json
+        {
+          "type": "vertex-ai",
+          "name": "my-gemini",
+          "model": "gemini-2.5-flash",
+          "uri": "https://generativelanguage.googleapis.com/v1beta",
+          "auth": {
+            "type": "api_key",
+            "api_key": "your-google-api-key"
+          }
+        }
+        ```
+
+        The `uri` field is flexible — you can provide a base URI or a full URL copied from Google docs
+        (including model path and `:generateContent` suffix). The system normalizes it automatically.
+
+        ### Custom OpenAI-Compatible
+
+        **Type:** `openai-compatible`
+        **Models:** Any self-hosted or custom LLM, such as OpenRouter.
+        **Auth:** Bearer or custom header
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-custom-llm",
+          "model": "llama-3-70b",
+          "uri": "https://my-llm-endpoint.com/v1/chat/completions",
+          "auth": {
+            "type": "bearer",
+            "token": "custom-token"
+          }
+        }
+        ```
 
         Parameters
         ----------
@@ -367,20 +722,16 @@ class AsyncLlmsClient:
         --------
         import asyncio
 
-        from vectara import AsyncVectara, CreateOpenAillmRequest
+        from vectara import AsyncVectara, CreateLlmRequest_OpenaiCompatible
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
             await client.llms.create(
-                request=CreateOpenAillmRequest(
+                request=CreateLlmRequest_OpenaiCompatible(
                     name="Claude 3.7 Sonnet",
-                    model="model",
+                    model="claude-3-7-sonnet-20250219",
                     uri="https://api.anthropic.com/v1/chat/completions",
                 ),
             )
@@ -405,7 +756,12 @@ class AsyncLlmsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Llm:
         """
-        Get details about a specific LLM.
+        The Get LLM API allows users to retrieve details about a specific Large Language Model (LLM) that has been configured within the Vectara platform. This API provides metadata about the LLM, including its name, description, model type, API endpoint, and authentication method.
+
+        Use this API to verify model configurations, confirm connectivity details, and ensure that the correct LLM is being utilized within their workflows.
+
+        ## Authentication methods
+        The request requires authentication details, and you can provide them either as a Bearer token or custom header-based authentication.
 
         Parameters
         ----------
@@ -432,11 +788,7 @@ class AsyncLlmsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -464,7 +816,11 @@ class AsyncLlmsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Delete a custom LLM connection. Built-in LLMs cannot be deleted.
+        The Delete LLM API enables users to remove a previously configured custom Large Language Model (LLM) from their Vectara account. This functionality is essential for managing active LLM configurations and ensuring that only relevant models are available for use. Built-in LLMs cannot be deleted, ensuring that core system models remain accessible.
+
+        By providing an LLM identifier, users can permanently delete a model configuration, freeing up resources and maintaining an organized list of available LLMs.
+
+        If successful, the API responds with `HTTP 204 No Content` status, confirming the LLM deletion.
 
         Parameters
         ----------
@@ -490,11 +846,7 @@ class AsyncLlmsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -507,6 +859,84 @@ class AsyncLlmsClient:
         """
         _response = await self._raw_client.delete(
             llm_id,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def update(
+        self,
+        llm_id: str,
+        *,
+        request: UpdateLlmRequest,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> Llm:
+        """
+        Update an existing LLM's configuration. This endpoint allows partial updates - only provide fields you want to change. Only the name field is immutable.
+
+        The updated LLM will be tested before saving to ensure credentials are valid.
+
+        **Updatable fields:**
+        - `description` - LLM description
+        - `type` - LLM type (openai-compatible, vertex-ai, etc.)
+        - `model` - Model identifier
+        - `uri` - API endpoint
+        - `auth` - Authentication credentials (including service account key_json)
+        - `headers` - Additional HTTP headers (for openai-compatible and anthropic types)
+        - `enabled` - Whether the LLM is enabled
+        - `capabilities` - Model capabilities (image support, context limit, tool calling)
+
+        **Immutable fields:**
+        - `id` - System-generated identifier
+        - `name` - LLM name
+
+        Built-in LLMs (system-provided models) cannot be updated.
+
+        Parameters
+        ----------
+        llm_id : str
+            The ID of the LLM to update.
+
+        request : UpdateLlmRequest
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        Llm
+            The LLM has been updated
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara, UpdateLlmRequest_OpenaiCompatible
+
+        client = AsyncVectara()
+
+
+        async def main() -> None:
+            await client.llms.update(
+                llm_id="llm_id",
+                request=UpdateLlmRequest_OpenaiCompatible(),
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.update(
+            llm_id,
+            request=request,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,

@@ -9,7 +9,8 @@ from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.datetime_utils import serialize_datetime
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
+from ..core.pagination import AsyncPager, SyncPager
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..errors.bad_request_error import BadRequestError
@@ -21,6 +22,7 @@ from ..types.list_query_histories_response import ListQueryHistoriesResponse
 from ..types.not_found_error_body import NotFoundErrorBody
 from ..types.query_history import QueryHistory
 from ..types.query_history_summary import QueryHistorySummary
+from pydantic import ValidationError
 
 
 class RawQueryHistoryClient:
@@ -36,7 +38,9 @@ class RawQueryHistoryClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[QueryHistory]:
         """
-        Retrieve a detailed history of previously executed query.
+        The Get Query History API allows you to retrieve detailed history about a specific query that was made against a corpus. The response includes detailed information about the query, such as latency, the time it was executed, and the various stages in the query pipeline.
+
+        You specify the `query_id` and the response includes the `id` of the query, the `query` object, the `chat_id`, the time information about the query, and the `spans` object.
 
         Parameters
         ----------
@@ -55,7 +59,7 @@ class RawQueryHistoryClient:
         Returns
         -------
         HttpResponse[QueryHistory]
-            The query history.
+            The `spans` object provides information about the ordered parts of the query pipeline and you get information about what happens during each stage of the pipeline.
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/queries/{jsonable_encoder(query_id)}",
@@ -102,6 +106,10 @@ class RawQueryHistoryClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def list(
@@ -117,9 +125,11 @@ class RawQueryHistoryClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[QueryHistorySummary]:
+    ) -> SyncPager[QueryHistorySummary, ListQueryHistoriesResponse]:
         """
-        Retrieve query histories.
+        The List Query Histories API allows you to retrieve, update, and manage query history for a specific corpus. This API is particularly useful for tracking query performance, debugging individual queries, and retrieving detailed information such as the call stack of a query execution.
+
+        You can specify the `corpus_key`, `chat_id`, and the `limit` which is the maximum number of historical queries to list.
 
         Parameters
         ----------
@@ -155,8 +165,8 @@ class RawQueryHistoryClient:
 
         Returns
         -------
-        SyncPager[QueryHistorySummary]
-            An array of Query Histories.
+        SyncPager[QueryHistorySummary, ListQueryHistoriesResponse]
+            The response includes an array of previous query histories.
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/queries",
@@ -204,9 +214,7 @@ class RawQueryHistoryClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                return SyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 400:
                 raise BadRequestError(
                     headers=dict(_response.headers),
@@ -232,6 +240,10 @@ class RawQueryHistoryClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -248,7 +260,9 @@ class AsyncRawQueryHistoryClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[QueryHistory]:
         """
-        Retrieve a detailed history of previously executed query.
+        The Get Query History API allows you to retrieve detailed history about a specific query that was made against a corpus. The response includes detailed information about the query, such as latency, the time it was executed, and the various stages in the query pipeline.
+
+        You specify the `query_id` and the response includes the `id` of the query, the `query` object, the `chat_id`, the time information about the query, and the `spans` object.
 
         Parameters
         ----------
@@ -267,7 +281,7 @@ class AsyncRawQueryHistoryClient:
         Returns
         -------
         AsyncHttpResponse[QueryHistory]
-            The query history.
+            The `spans` object provides information about the ordered parts of the query pipeline and you get information about what happens during each stage of the pipeline.
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/queries/{jsonable_encoder(query_id)}",
@@ -314,6 +328,10 @@ class AsyncRawQueryHistoryClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def list(
@@ -329,9 +347,11 @@ class AsyncRawQueryHistoryClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[QueryHistorySummary]:
+    ) -> AsyncPager[QueryHistorySummary, ListQueryHistoriesResponse]:
         """
-        Retrieve query histories.
+        The List Query Histories API allows you to retrieve, update, and manage query history for a specific corpus. This API is particularly useful for tracking query performance, debugging individual queries, and retrieving detailed information such as the call stack of a query execution.
+
+        You can specify the `corpus_key`, `chat_id`, and the `limit` which is the maximum number of historical queries to list.
 
         Parameters
         ----------
@@ -367,8 +387,8 @@ class AsyncRawQueryHistoryClient:
 
         Returns
         -------
-        AsyncPager[QueryHistorySummary]
-            An array of Query Histories.
+        AsyncPager[QueryHistorySummary, ListQueryHistoriesResponse]
+            The response includes an array of previous query histories.
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/queries",
@@ -419,9 +439,7 @@ class AsyncRawQueryHistoryClient:
                             request_options=request_options,
                         )
 
-                return AsyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 400:
                 raise BadRequestError(
                     headers=dict(_response.headers),
@@ -447,4 +465,8 @@ class AsyncRawQueryHistoryClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

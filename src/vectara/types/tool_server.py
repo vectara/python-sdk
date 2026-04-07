@@ -18,7 +18,7 @@ class ToolServer(UniversalBaseModel):
 
     id: typing.Optional[ToolServerId] = None
     name: ToolServerName
-    type: ToolServerType = "mcp"
+    type: ToolServerType
     description: typing.Optional[str] = pydantic.Field(default=None)
     """
     A detailed description of what this tool server does.
@@ -40,7 +40,7 @@ class ToolServer(UniversalBaseModel):
     Whether the tool server is currently enabled and available for use.
     """
 
-    metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     Arbitrary metadata associated with the tool server.
     """

@@ -26,6 +26,16 @@ class FieldQuery(UniversalBaseModel):
     Weight to apply to this field during scoring (higher values increase importance of this field).
     """
 
+    fuzzy: typing.Optional[bool] = pydantic.Field(default=None)
+    """
+    Whether to apply fuzzy matching for typo tolerance.
+    """
+
+    prefix: typing.Optional[int] = pydantic.Field(default=None)
+    """
+    Minimum query length to enable prefix matching. Set to null to disable prefix matching. Prefix matching allows finding documents where the field value starts with the query text.
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

@@ -11,7 +11,6 @@ class BearerAuth(UniversalBaseModel):
     Bearer token authentication
     """
 
-    type: typing.Literal["bearer"] = "bearer"
     token: str = pydantic.Field()
     """
     The bearer token to use for authentication

@@ -4,10 +4,10 @@ import typing
 
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2
-from .create_initial_instruction_request import CreateInitialInstructionRequest
+from .instruction_request_base import InstructionRequestBase
 
 
-class InlineInstruction(CreateInitialInstructionRequest):
+class InlineInstruction(InstructionRequestBase):
     """
     An instruction defined inline in the request.
     """

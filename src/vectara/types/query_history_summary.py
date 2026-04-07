@@ -52,6 +52,16 @@ class QueryHistorySummary(UniversalBaseModel):
     The factual consistency score of the generation.
     """
 
+    agent_key: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The agent key if this query was made through an agent.
+    """
+
+    session_key: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The session key if this query was made through an agent session.
+    """
+
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

@@ -32,6 +32,4 @@ class ListAgentsResponse(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
-from .chain_reranker import ChainReranker  # noqa: E402, F401, I001
-
 update_forward_refs(ListAgentsResponse)

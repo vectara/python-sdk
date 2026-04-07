@@ -13,7 +13,7 @@ class KeyedSearchCorpus(SearchCorpus):
     A corpus with its identifying key for use in search operations within a customer account.
     """
 
-    corpus_key: typing.Optional[CorpusKey] = None
+    corpus_key: CorpusKey
     query: typing.Optional[str] = pydantic.Field(default=None)
     """
     Query for a particular corpus that will override the overall query if present.

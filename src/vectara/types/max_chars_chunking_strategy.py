@@ -11,7 +11,6 @@ class MaxCharsChunkingStrategy(UniversalBaseModel):
     Sets a chunking strategy that limits the number of maximum characters per chunk. The chunks do not cross section boundaries.
     """
 
-    type: typing.Literal["max_chars_chunking_strategy"] = "max_chars_chunking_strategy"
     max_chars_per_chunk: int = pydantic.Field()
     """
     Specifies the maximum number of characters per chunk. The platform adds sentences to a chunk until the total number of characters exceeds the limit. If a single sentence exceeds the limit, it splits the sentence across chunks. Note: This is the only case where the chunk may not contain a complete sentence.

@@ -7,6 +7,7 @@ import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .instruction_id import InstructionId
 from .instruction_name import InstructionName
+from .instruction_template import InstructionTemplate
 from .template_type import TemplateType
 
 
@@ -16,25 +17,20 @@ class InitialInstruction(UniversalBaseModel):
     """
 
     id: InstructionId
-    type: typing.Literal["initial"] = "initial"
     name: InstructionName
     description: typing.Optional[str] = pydantic.Field(default=None)
     """
     A detailed description of what this instruction does.
     """
 
-    template_type: TemplateType = "velocity"
-    template: str = pydantic.Field()
-    """
-    The instruction template content using the specified template engine.
-    """
-
+    template_type: TemplateType
+    template: InstructionTemplate
     version: int = pydantic.Field()
     """
     The version identifier for this instruction. This is automatically incremented when the instruction is updated.
     """
 
-    metadata: typing.Optional[typing.Dict[str, typing.Optional[typing.Any]]] = pydantic.Field(default=None)
+    metadata: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
     """
     Arbitrary metadata associated with the instruction.
     """

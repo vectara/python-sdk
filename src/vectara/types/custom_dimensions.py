@@ -2,4 +2,4 @@
 
 import typing
 
-CustomDimensions = typing.Dict[str, float]
+CustomDimensions = typing.Optional[typing.Dict[str, typing.Optional[float]]]

@@ -7,7 +7,8 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
+from ..core.pagination import AsyncPager, SyncPager
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..core.serialization import convert_and_respect_annotation_metadata
@@ -17,14 +18,18 @@ from ..errors.forbidden_error import ForbiddenError
 from ..errors.internal_server_error import InternalServerError
 from ..errors.not_found_error import NotFoundError
 from ..types.bad_request_error_body import BadRequestErrorBody
+from ..types.create_tool_request import CreateToolRequest
 from ..types.error import Error
 from ..types.execution_configuration import ExecutionConfiguration
 from ..types.list_tools_response import ListToolsResponse
 from ..types.not_found_error_body import NotFoundErrorBody
+from ..types.test_lambda_tool_response import TestLambdaToolResponse
 from ..types.test_tool_response import TestToolResponse
 from ..types.tool import Tool
 from ..types.update_tool_request import UpdateToolRequest
-from .types.tools_list_request_type import ToolsListRequestType
+from .types.list_tools_request_type import ListToolsRequestType
+from .types.test_lambda_tool_request_language import TestLambdaToolRequestLanguage
+from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -38,28 +43,32 @@ class RawToolsClient:
         self,
         *,
         filter: typing.Optional[str] = None,
-        type: typing.Optional[ToolsListRequestType] = None,
+        type: typing.Optional[ListToolsRequestType] = None,
         enabled: typing.Optional[bool] = None,
+        category: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
         tool_server_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Tool]:
+    ) -> SyncPager[Tool, ListToolsResponse]:
         """
-        List all tools available to the authenticated user, with optional filtering and pagination.
+        List all tools available to the authenticated user, with optional filtering and pagination. Tools represent capabilities that agents can invoke during conversation, including built-in system tools and user-defined Lambda tools. Use filters to locate tools by name, type, status, or tool server.
 
         Parameters
         ----------
         filter : typing.Optional[str]
             A regular expression against tool names and descriptions to filter the results.
 
-        type : typing.Optional[ToolsListRequestType]
+        type : typing.Optional[ListToolsRequestType]
             Filter tools by type.
 
         enabled : typing.Optional[bool]
             Filter tools by enabled status.
+
+        category : typing.Optional[typing.Union[str, typing.Sequence[str]]]
+            Filter tools by category. Pass one or more category values to include only those categories. When omitted, tools in the "experimental" category are excluded by default. To include experimental tools, explicitly pass `category=experimental`.
 
         tool_server_id : typing.Optional[str]
             Filter tools by the tool server they belong to.
@@ -81,7 +90,7 @@ class RawToolsClient:
 
         Returns
         -------
-        SyncPager[Tool]
+        SyncPager[Tool, ListToolsResponse]
             List of available tools.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -92,6 +101,7 @@ class RawToolsClient:
                 "filter": filter,
                 "type": type,
                 "enabled": enabled,
+                "category": category,
                 "tool_server_id": tool_server_id,
                 "limit": limit,
                 "page_key": page_key,
@@ -121,6 +131,7 @@ class RawToolsClient:
                         filter=filter,
                         type=type,
                         enabled=enabled,
+                        category=category,
                         tool_server_id=tool_server_id,
                         limit=limit,
                         page_key=_parsed_next,
@@ -128,9 +139,7 @@ class RawToolsClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                return SyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -145,99 +154,47 @@ class RawToolsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
         self,
         *,
-        name: str,
-        title: str,
-        description: str,
-        code: str,
+        request: CreateToolRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        language: typing.Optional[typing.Literal["python"]] = OMIT,
-        execution_configuration: typing.Optional[ExecutionConfiguration] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Tool]:
         """
-        Create a new tool that agents can use. Currently supports Lambda tools for user-defined functions.
-        Lambda tools allow you to write custom code that agents can execute in a secure sandbox.
+        Create a new tool that agents can use during conversation. Tools give agents capabilities to interact with external systems, process data, query corpora, or run custom logic. Agents select and invoke tools dynamically based on their instructions and the conversational context.
+
+        Vectara provides several built-in tools, but you can also create your own. This endpoint currently supports creating **Lambda tools**, which run user-defined Python functions in a secure sandbox.
+
+        Each tool is defined by:
+        - A unique tool ID
+        - A description of its purpose
+        - An input schema describing accepted parameters
+        - Optional metadata
+        - Enabled/disabled runtime availability
+
+         ## Artifact-based tools
+        Some built-in tools work with artifacts stored in a session:
+        - **Document conversion tool**: Converts file artifacts (PDF, Word, PowerPoint, images with OCR support) to markdown and produces new artifacts containing the extracted content.
+
+        These built-in tools operate on artifact references rather than file content, supporting multi-step workflows where agents process or index user-uploaded documents.
 
         Parameters
         ----------
-        name : str
-            The unique name of the tool (used as the function identifier).
-
-        title : str
-            Human-readable title of the tool displayed in the UI.
-
-        description : str
-            A detailed description of what the function does, when to use it, and what it returns.
-
-        code : str
-            The Python 3.12 code for the function.
-
-            **Required**: Must define a `process()` entry point function. Use type annotations on parameters for automatic schema discovery.
-
-            **Parameters**: Passed as keyword arguments matched to the function signature.
-
-            **Return types**: Can return any JSON-serializable type (strings, numbers, booleans, lists, or objects).
-
-            **Example: Returning a number**
-            ```python
-            def process(x: int, y: int) -> int:
-                return x + y
-            ```
-
-            **Example: Returning a string**
-            ```python
-            def process(name: str) -> str:
-                return f"Hello, {name}!"
-            ```
-
-            **Example: Returning a boolean**
-            ```python
-            def process(value: int, threshold: int) -> bool:
-                return value > threshold
-            ```
-
-            **Example: Returning a list**
-            ```python
-            from typing import List
-
-            def process(items: List[str]) -> List[str]:
-                return sorted(items)
-            ```
-
-            **Example: Returning an object (dict)**
-            ```python
-            def process(order_count: int, total_revenue: float, days_active: int = 1) -> dict:
-                score = (order_count * 10 + total_revenue * 0.1) / days_active
-                return {'score': round(score, 2), 'rating': 'high' if score > 100 else 'low'}
-            ```
-
-            For complex types, use the `typing` module:
-
-            ```python
-            from typing import List, Dict
-
-            def process(items: List[str], config: Dict[str, float]) -> dict:
-                count = len(items)
-                multiplier = config.get('multiplier', 1.0)
-                return {'count': count, 'adjusted': count * multiplier}
-            ```
+        request : CreateToolRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        language : typing.Optional[typing.Literal["python"]]
-            The programming language. Currently only 'python' (Python 3.12) is supported.
-
-        execution_configuration : typing.Optional[ExecutionConfiguration]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -251,17 +208,9 @@ class RawToolsClient:
             "v2/tools",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            json={
-                "name": name,
-                "title": title,
-                "description": description,
-                "language": language,
-                "code": code,
-                "execution_configuration": convert_and_respect_annotation_metadata(
-                    object_=execution_configuration, annotation=ExecutionConfiguration, direction="write"
-                ),
-                "type": "lambda",
-            },
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=CreateToolRequest, direction="write"
+            ),
             headers={
                 "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -316,6 +265,127 @@ class RawToolsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def test_without_creation(
+        self,
+        *,
+        code: str,
+        test_input: typing.Dict[str, typing.Any],
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        language: typing.Optional[TestLambdaToolRequestLanguage] = OMIT,
+        execution_configuration: typing.Optional[ExecutionConfiguration] = OMIT,
+        timeout_seconds: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[TestLambdaToolResponse]:
+        """
+        Test a Lambda tool without creating it first. This endpoint allows you to validate code, discover schemas, and test execution before committing to tool creation.
+
+        Use this to:
+        - Validate Python code syntax and security constraints
+        - Discover input/output schemas from type annotations
+        - Test execution with sample input
+        - Verify schema compatibility
+
+        The function is executed in the same secure sandbox environment as production tools.
+
+        Parameters
+        ----------
+        code : str
+            The Python 3.12 code for the function. Must define a `process()` entry point.
+            Object parameters must use `TypedDict`; bare `dict` and `Dict[K, V]` parameters are rejected.
+            See the `code` field on `CreateLambdaToolRequest` for full details and examples.
+
+        test_input : typing.Dict[str, typing.Any]
+            The input parameters to test the function with. Will be validated against the discovered input schema.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        language : typing.Optional[TestLambdaToolRequestLanguage]
+            The programming language. Currently only 'python' (Python 3.12) is supported.
+
+        execution_configuration : typing.Optional[ExecutionConfiguration]
+
+        timeout_seconds : typing.Optional[int]
+            Maximum execution time in seconds for this test. Overrides execution_configuration if specified.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[TestLambdaToolResponse]
+            Test validation and execution completed.
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v2/tools/test",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            json={
+                "language": language,
+                "code": code,
+                "execution_configuration": convert_and_respect_annotation_metadata(
+                    object_=execution_configuration, annotation=ExecutionConfiguration, direction="write"
+                ),
+                "test_input": test_input,
+                "timeout_seconds": timeout_seconds,
+            },
+            headers={
+                "content-type": "application/json",
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    TestLambdaToolResponse,
+                    parse_obj_as(
+                        type_=TestLambdaToolResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
@@ -327,7 +397,7 @@ class RawToolsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Tool]:
         """
-        Retrieve the details of a specific tool by its ID, including its configuration and capabilities.
+        Retrieve the full details of a specific tool, including its description, input schema, metadata, and capabilities. Tools may represent structured search functions, document-processing workflows, or user-defined Lambda functions. Some tools work with artifacts stored in a session, while others operate on structured inputs defined by their JSON schema.
 
         Parameters
         ----------
@@ -393,6 +463,10 @@ class RawToolsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
@@ -404,7 +478,7 @@ class RawToolsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[None]:
         """
-        Permanently delete a tool and all its associated configuration. This action cannot be undone.
+        Permanently delete a tool and its configuration. This action cannot be undone. Agents attempting to use a deleted tool will fail, so ensure that agent configurations are updated before removing a tool.
 
         Parameters
         ----------
@@ -462,6 +536,10 @@ class RawToolsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def update(
@@ -474,7 +552,7 @@ class RawToolsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Tool]:
         """
-        Update an existing tool's configuration.
+        Update an existing tool’s configuration, including its metadata, enabled status, or other properties. Updating a tool modifies how agents can invoke it during conversation.
 
         Parameters
         ----------
@@ -558,13 +636,17 @@ class RawToolsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def test(
         self,
         tool_id: str,
         *,
-        input: typing.Dict[str, typing.Optional[typing.Any]],
+        input: typing.Dict[str, typing.Any],
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         timeout_seconds: typing.Optional[int] = OMIT,
@@ -580,7 +662,7 @@ class RawToolsClient:
         tool_id : str
             The unique identifier of the Lambda tool to test.
 
-        input : typing.Dict[str, typing.Optional[typing.Any]]
+        input : typing.Dict[str, typing.Any]
             The input parameters to pass to the function. Must match the tool's input schema.
 
         request_timeout : typing.Optional[int]
@@ -673,6 +755,10 @@ class RawToolsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -684,28 +770,32 @@ class AsyncRawToolsClient:
         self,
         *,
         filter: typing.Optional[str] = None,
-        type: typing.Optional[ToolsListRequestType] = None,
+        type: typing.Optional[ListToolsRequestType] = None,
         enabled: typing.Optional[bool] = None,
+        category: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
         tool_server_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Tool]:
+    ) -> AsyncPager[Tool, ListToolsResponse]:
         """
-        List all tools available to the authenticated user, with optional filtering and pagination.
+        List all tools available to the authenticated user, with optional filtering and pagination. Tools represent capabilities that agents can invoke during conversation, including built-in system tools and user-defined Lambda tools. Use filters to locate tools by name, type, status, or tool server.
 
         Parameters
         ----------
         filter : typing.Optional[str]
             A regular expression against tool names and descriptions to filter the results.
 
-        type : typing.Optional[ToolsListRequestType]
+        type : typing.Optional[ListToolsRequestType]
             Filter tools by type.
 
         enabled : typing.Optional[bool]
             Filter tools by enabled status.
+
+        category : typing.Optional[typing.Union[str, typing.Sequence[str]]]
+            Filter tools by category. Pass one or more category values to include only those categories. When omitted, tools in the "experimental" category are excluded by default. To include experimental tools, explicitly pass `category=experimental`.
 
         tool_server_id : typing.Optional[str]
             Filter tools by the tool server they belong to.
@@ -727,7 +817,7 @@ class AsyncRawToolsClient:
 
         Returns
         -------
-        AsyncPager[Tool]
+        AsyncPager[Tool, ListToolsResponse]
             List of available tools.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -738,6 +828,7 @@ class AsyncRawToolsClient:
                 "filter": filter,
                 "type": type,
                 "enabled": enabled,
+                "category": category,
                 "tool_server_id": tool_server_id,
                 "limit": limit,
                 "page_key": page_key,
@@ -769,6 +860,7 @@ class AsyncRawToolsClient:
                             filter=filter,
                             type=type,
                             enabled=enabled,
+                            category=category,
                             tool_server_id=tool_server_id,
                             limit=limit,
                             page_key=_parsed_next,
@@ -777,9 +869,7 @@ class AsyncRawToolsClient:
                             request_options=request_options,
                         )
 
-                return AsyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -794,99 +884,47 @@ class AsyncRawToolsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
         self,
         *,
-        name: str,
-        title: str,
-        description: str,
-        code: str,
+        request: CreateToolRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        language: typing.Optional[typing.Literal["python"]] = OMIT,
-        execution_configuration: typing.Optional[ExecutionConfiguration] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Tool]:
         """
-        Create a new tool that agents can use. Currently supports Lambda tools for user-defined functions.
-        Lambda tools allow you to write custom code that agents can execute in a secure sandbox.
+        Create a new tool that agents can use during conversation. Tools give agents capabilities to interact with external systems, process data, query corpora, or run custom logic. Agents select and invoke tools dynamically based on their instructions and the conversational context.
+
+        Vectara provides several built-in tools, but you can also create your own. This endpoint currently supports creating **Lambda tools**, which run user-defined Python functions in a secure sandbox.
+
+        Each tool is defined by:
+        - A unique tool ID
+        - A description of its purpose
+        - An input schema describing accepted parameters
+        - Optional metadata
+        - Enabled/disabled runtime availability
+
+         ## Artifact-based tools
+        Some built-in tools work with artifacts stored in a session:
+        - **Document conversion tool**: Converts file artifacts (PDF, Word, PowerPoint, images with OCR support) to markdown and produces new artifacts containing the extracted content.
+
+        These built-in tools operate on artifact references rather than file content, supporting multi-step workflows where agents process or index user-uploaded documents.
 
         Parameters
         ----------
-        name : str
-            The unique name of the tool (used as the function identifier).
-
-        title : str
-            Human-readable title of the tool displayed in the UI.
-
-        description : str
-            A detailed description of what the function does, when to use it, and what it returns.
-
-        code : str
-            The Python 3.12 code for the function.
-
-            **Required**: Must define a `process()` entry point function. Use type annotations on parameters for automatic schema discovery.
-
-            **Parameters**: Passed as keyword arguments matched to the function signature.
-
-            **Return types**: Can return any JSON-serializable type (strings, numbers, booleans, lists, or objects).
-
-            **Example: Returning a number**
-            ```python
-            def process(x: int, y: int) -> int:
-                return x + y
-            ```
-
-            **Example: Returning a string**
-            ```python
-            def process(name: str) -> str:
-                return f"Hello, {name}!"
-            ```
-
-            **Example: Returning a boolean**
-            ```python
-            def process(value: int, threshold: int) -> bool:
-                return value > threshold
-            ```
-
-            **Example: Returning a list**
-            ```python
-            from typing import List
-
-            def process(items: List[str]) -> List[str]:
-                return sorted(items)
-            ```
-
-            **Example: Returning an object (dict)**
-            ```python
-            def process(order_count: int, total_revenue: float, days_active: int = 1) -> dict:
-                score = (order_count * 10 + total_revenue * 0.1) / days_active
-                return {'score': round(score, 2), 'rating': 'high' if score > 100 else 'low'}
-            ```
-
-            For complex types, use the `typing` module:
-
-            ```python
-            from typing import List, Dict
-
-            def process(items: List[str], config: Dict[str, float]) -> dict:
-                count = len(items)
-                multiplier = config.get('multiplier', 1.0)
-                return {'count': count, 'adjusted': count * multiplier}
-            ```
+        request : CreateToolRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        language : typing.Optional[typing.Literal["python"]]
-            The programming language. Currently only 'python' (Python 3.12) is supported.
-
-        execution_configuration : typing.Optional[ExecutionConfiguration]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -900,17 +938,9 @@ class AsyncRawToolsClient:
             "v2/tools",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            json={
-                "name": name,
-                "title": title,
-                "description": description,
-                "language": language,
-                "code": code,
-                "execution_configuration": convert_and_respect_annotation_metadata(
-                    object_=execution_configuration, annotation=ExecutionConfiguration, direction="write"
-                ),
-                "type": "lambda",
-            },
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=CreateToolRequest, direction="write"
+            ),
             headers={
                 "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -965,6 +995,127 @@ class AsyncRawToolsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def test_without_creation(
+        self,
+        *,
+        code: str,
+        test_input: typing.Dict[str, typing.Any],
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        language: typing.Optional[TestLambdaToolRequestLanguage] = OMIT,
+        execution_configuration: typing.Optional[ExecutionConfiguration] = OMIT,
+        timeout_seconds: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[TestLambdaToolResponse]:
+        """
+        Test a Lambda tool without creating it first. This endpoint allows you to validate code, discover schemas, and test execution before committing to tool creation.
+
+        Use this to:
+        - Validate Python code syntax and security constraints
+        - Discover input/output schemas from type annotations
+        - Test execution with sample input
+        - Verify schema compatibility
+
+        The function is executed in the same secure sandbox environment as production tools.
+
+        Parameters
+        ----------
+        code : str
+            The Python 3.12 code for the function. Must define a `process()` entry point.
+            Object parameters must use `TypedDict`; bare `dict` and `Dict[K, V]` parameters are rejected.
+            See the `code` field on `CreateLambdaToolRequest` for full details and examples.
+
+        test_input : typing.Dict[str, typing.Any]
+            The input parameters to test the function with. Will be validated against the discovered input schema.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        language : typing.Optional[TestLambdaToolRequestLanguage]
+            The programming language. Currently only 'python' (Python 3.12) is supported.
+
+        execution_configuration : typing.Optional[ExecutionConfiguration]
+
+        timeout_seconds : typing.Optional[int]
+            Maximum execution time in seconds for this test. Overrides execution_configuration if specified.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[TestLambdaToolResponse]
+            Test validation and execution completed.
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v2/tools/test",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            json={
+                "language": language,
+                "code": code,
+                "execution_configuration": convert_and_respect_annotation_metadata(
+                    object_=execution_configuration, annotation=ExecutionConfiguration, direction="write"
+                ),
+                "test_input": test_input,
+                "timeout_seconds": timeout_seconds,
+            },
+            headers={
+                "content-type": "application/json",
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    TestLambdaToolResponse,
+                    parse_obj_as(
+                        type_=TestLambdaToolResponse,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
@@ -976,7 +1127,7 @@ class AsyncRawToolsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Tool]:
         """
-        Retrieve the details of a specific tool by its ID, including its configuration and capabilities.
+        Retrieve the full details of a specific tool, including its description, input schema, metadata, and capabilities. Tools may represent structured search functions, document-processing workflows, or user-defined Lambda functions. Some tools work with artifacts stored in a session, while others operate on structured inputs defined by their JSON schema.
 
         Parameters
         ----------
@@ -1042,6 +1193,10 @@ class AsyncRawToolsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
@@ -1053,7 +1208,7 @@ class AsyncRawToolsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[None]:
         """
-        Permanently delete a tool and all its associated configuration. This action cannot be undone.
+        Permanently delete a tool and its configuration. This action cannot be undone. Agents attempting to use a deleted tool will fail, so ensure that agent configurations are updated before removing a tool.
 
         Parameters
         ----------
@@ -1111,6 +1266,10 @@ class AsyncRawToolsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def update(
@@ -1123,7 +1282,7 @@ class AsyncRawToolsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Tool]:
         """
-        Update an existing tool's configuration.
+        Update an existing tool’s configuration, including its metadata, enabled status, or other properties. Updating a tool modifies how agents can invoke it during conversation.
 
         Parameters
         ----------
@@ -1207,13 +1366,17 @@ class AsyncRawToolsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def test(
         self,
         tool_id: str,
         *,
-        input: typing.Dict[str, typing.Optional[typing.Any]],
+        input: typing.Dict[str, typing.Any],
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         timeout_seconds: typing.Optional[int] = OMIT,
@@ -1229,7 +1392,7 @@ class AsyncRawToolsClient:
         tool_id : str
             The unique identifier of the Lambda tool to test.
 
-        input : typing.Dict[str, typing.Optional[typing.Any]]
+        input : typing.Dict[str, typing.Any]
             The input parameters to pass to the function. Must match the tool's input schema.
 
         request_timeout : typing.Optional[int]
@@ -1322,4 +1485,8 @@ class AsyncRawToolsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

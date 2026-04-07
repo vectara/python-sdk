@@ -12,8 +12,6 @@ class CreateOpenAiResponsesLlmRequest(OpenAillmRequestBase):
     Request to create an OpenAI Responses API Large Language Model connection for reasoning models like o1, o3.
     """
 
-    type: typing.Literal["openai-responses"] = "openai-responses"
-
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
     else:

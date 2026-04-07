@@ -2,270 +2,1196 @@
 
 # isort: skip_file
 
-from .agent import Agent
-from .agent_event import AgentEvent
-from .agent_key import AgentKey
-from .agent_model import AgentModel
-from .agent_name import AgentName
-from .agent_output_event import AgentOutputEvent
-from .agent_response import AgentResponse
-from .agent_role import AgentRole
-from .agent_role_role import AgentRoleRole
-from .agent_session import AgentSession
-from .agent_session_key import AgentSessionKey
-from .agent_step_instruction import AgentStepInstruction
-from .agent_streamed_response import AgentStreamedResponse
-from .agent_text_input import AgentTextInput
-from .agent_tool_configuration import AgentToolConfiguration
-from .api_key import ApiKey
-from .api_key_role import ApiKeyRole
-from .api_operation_policy import ApiOperationPolicy
-from .api_policy import ApiPolicy
-from .api_role import ApiRole
-from .app_client import AppClient
-from .artifact_reference import ArtifactReference
-from .artifact_upload_event import ArtifactUploadEvent
-from .bad_request_error_body import BadRequestErrorBody
-from .bearer_auth import BearerAuth
-from .cell import Cell
-from .chain_reranker import ChainReranker
-from .chat import Chat
-from .chat_completion_request_message import ChatCompletionRequestMessage
-from .chat_completion_response_choice import ChatCompletionResponseChoice
-from .chat_completion_response_message import ChatCompletionResponseMessage
-from .chat_completion_stream_response_choice import ChatCompletionStreamResponseChoice
-from .chat_completion_stream_response_delta import ChatCompletionStreamResponseDelta
-from .chat_full_response import ChatFullResponse
-from .chat_info_response import ChatInfoResponse
-from .chat_parameters import ChatParameters
-from .chat_streamed_response import ChatStreamedResponse
-from .chunking_strategy import ChunkingStrategy
-from .citation_parameters import CitationParameters
-from .citation_parameters_style import CitationParametersStyle
-from .components_schemas_agent_text_input import ComponentsSchemasAgentTextInput
-from .components_schemas_conversational_agent_step import ComponentsSchemasConversationalAgentStep
-from .components_schemas_create_client_credentials_request import ComponentsSchemasCreateClientCredentialsRequest
-from .components_schemas_create_initial_instruction_request import ComponentsSchemasCreateInitialInstructionRequest
-from .components_schemas_create_lambda_tool_request import ComponentsSchemasCreateLambdaToolRequest
-from .components_schemas_create_open_ai_encoder_request import ComponentsSchemasCreateOpenAiEncoderRequest
-from .components_schemas_default_output_parser import ComponentsSchemasDefaultOutputParser
-from .components_schemas_initial_instruction import ComponentsSchemasInitialInstruction
-from .components_schemas_update_initial_instruction_request import ComponentsSchemasUpdateInitialInstructionRequest
-from .compute_corpus_size_response import ComputeCorpusSizeResponse
-from .context_configuration import ContextConfiguration
-from .context_limit_exceeded_event import ContextLimitExceededEvent
-from .conversational_agent_step import ConversationalAgentStep
-from .core_document import CoreDocument
-from .core_document_part import CoreDocumentPart
-from .corpora_search_query_configuration import CorporaSearchQueryConfiguration
-from .corpora_search_tool import CorporaSearchTool
-from .corpora_search_tool_parameters import CorporaSearchToolParameters
-from .corpus import Corpus
-from .corpus_custom_dimension import CorpusCustomDimension
-from .corpus_key import CorpusKey
-from .corpus_limits import CorpusLimits
-from .corpus_role import CorpusRole
-from .corpus_role_role import CorpusRoleRole
-from .correction_item import CorrectionItem
-from .create_chat_completion_response import CreateChatCompletionResponse
-from .create_chat_completion_stream_response import CreateChatCompletionStreamResponse
-from .create_client_credentials_request import CreateClientCredentialsRequest
-from .create_document_request import CreateDocumentRequest
-from .create_initial_instruction_request import CreateInitialInstructionRequest
-from .create_lambda_tool_request import CreateLambdaToolRequest
-from .create_llm_request import CreateLlmRequest
-from .create_open_ai_encoder_request import CreateOpenAiEncoderRequest
-from .create_open_ai_responses_llm_request import CreateOpenAiResponsesLlmRequest
-from .create_open_aillm_request import CreateOpenAillmRequest
-from .create_vertex_aillm_request import CreateVertexAillmRequest
-from .custom_dimensions import CustomDimensions
-from .customer_specific_reranker import CustomerSpecificReranker
-from .data import Data
-from .default_output_parser import DefaultOutputParser
-from .document import Document
-from .document_part import DocumentPart
-from .document_storage_usage import DocumentStorageUsage
-from .encoder import Encoder
-from .error import Error
-from .evaluate_factual_consistency_response import EvaluateFactualConsistencyResponse
-from .execution_configuration import ExecutionConfiguration
-from .extraction_usage import ExtractionUsage
-from .factual_consistency_score import FactualConsistencyScore
-from .factual_consistency_score_span import FactualConsistencyScoreSpan
-from .field_query import FieldQuery
-from .filter_attribute import FilterAttribute
-from .filter_attribute_level import FilterAttributeLevel
-from .filter_attribute_type import FilterAttributeType
-from .filter_extraction import FilterExtraction
-from .function_definition import FunctionDefinition
-from .function_definition_validation_status import FunctionDefinitionValidationStatus
-from .generation_info import GenerationInfo
-from .generation_parameters import GenerationParameters
-from .generation_preset import GenerationPreset
-from .generation_span import GenerationSpan
-from .hallucination_correction_response import HallucinationCorrectionResponse
-from .hallucination_corrector import HallucinationCorrector
-from .hcm_source_document import HcmSourceDocument
-from .header import Header
-from .header_auth import HeaderAuth
-from .image import Image
-from .image_data import ImageData
-from .image_metadata import ImageMetadata
-from .individual_search_result import IndividualSearchResult
-from .initial_instruction import InitialInstruction
-from .inline_corpora_search_tool_configuration import InlineCorporaSearchToolConfiguration
-from .inline_instruction import InlineInstruction
-from .inline_lambda_tool_configuration import InlineLambdaToolConfiguration
-from .inline_mcp_tool_configuration import InlineMcpToolConfiguration
-from .inline_structured_indexing_tool_configuration import InlineStructuredIndexingToolConfiguration
-from .inline_web_search_tool_configuration import InlineWebSearchToolConfiguration
-from .input_message_event import InputMessageEvent
-from .instruction_id import InstructionId
-from .instruction_name import InstructionName
-from .instruction_reference import InstructionReference
-from .job import Job
-from .job_state import JobState
-from .job_type import JobType
-from .keyed_search_corpus import KeyedSearchCorpus
-from .lambda_tool import LambdaTool
-from .language import Language
-from .list_agent_events_response import ListAgentEventsResponse
-from .list_agent_sessions_response import ListAgentSessionsResponse
-from .list_agents_response import ListAgentsResponse
-from .list_api_keys_response import ListApiKeysResponse
-from .list_app_clients_response import ListAppClientsResponse
-from .list_chat_turns_response import ListChatTurnsResponse
-from .list_chats_response import ListChatsResponse
-from .list_corpora_response import ListCorporaResponse
-from .list_documents_response import ListDocumentsResponse
-from .list_encoders_response import ListEncodersResponse
-from .list_generation_presets_response import ListGenerationPresetsResponse
-from .list_hallucination_correctors_response import ListHallucinationCorrectorsResponse
-from .list_instructions_response import ListInstructionsResponse
-from .list_jobs_response import ListJobsResponse
-from .list_ll_ms_response import ListLlMsResponse
-from .list_metadata import ListMetadata
-from .list_query_histories_response import ListQueryHistoriesResponse
-from .list_query_histories_response_metadata import ListQueryHistoriesResponseMetadata
-from .list_rerankers_response import ListRerankersResponse
-from .list_table_extractors_response import ListTableExtractorsResponse
-from .list_tool_servers_response import ListToolServersResponse
-from .list_tools_response import ListToolsResponse
-from .list_users_response import ListUsersResponse
-from .llm import Llm
-from .max_chars_chunking_strategy import MaxCharsChunkingStrategy
-from .mcp_tool import McpTool
-from .mcp_tool_annotations import McpToolAnnotations
-from .metadata_query_response import MetadataQueryResponse
-from .mmr_reranker import MmrReranker
-from .model_parameters import ModelParameters
-from .none_reranker import NoneReranker
-from .not_found_error_body import NotFoundErrorBody
-from .open_aillm_request_base import OpenAillmRequestBase
-from .prompt import Prompt
-from .query_full_response import QueryFullResponse
-from .query_history import QueryHistory
-from .query_history_span import QueryHistorySpan
-from .query_history_summary import QueryHistorySummary
-from .query_streamed_response import QueryStreamedResponse
-from .query_warning import QueryWarning
-from .reference_instruction import ReferenceInstruction
-from .remote_auth import RemoteAuth
-from .rephrase_span import RephraseSpan
-from .replace_filter_attributes_response import ReplaceFilterAttributesResponse
-from .rerank_span import RerankSpan
-from .reranked_search_result import RerankedSearchResult
-from .reranker import Reranker
-from .retry_configuration import RetryConfiguration
-from .rewritten_query import RewrittenQuery
-from .rewritten_query_span import RewrittenQuerySpan
-from .rewritten_query_warning import RewrittenQueryWarning
-from .row import Row
-from .scored_document import ScoredDocument
-from .search_corpora_parameters import SearchCorporaParameters
-from .search_corpus import SearchCorpus
-from .search_parameters import SearchParameters
-from .search_reranker import SearchReranker
-from .search_semantics import SearchSemantics
-from .search_span import SearchSpan
-from .sentence_chunking_strategy import SentenceChunkingStrategy
-from .stream_error import StreamError
-from .stream_generation_chunk import StreamGenerationChunk
-from .stream_generation_end import StreamGenerationEnd
-from .stream_response_end import StreamResponseEnd
-from .stream_search_response import StreamSearchResponse
-from .streaming_agent_output import StreamingAgentOutput
-from .streaming_agent_output_end import StreamingAgentOutputEnd
-from .streaming_thinking import StreamingThinking
-from .streaming_thinking_end import StreamingThinkingEnd
-from .structured_document import StructuredDocument
-from .structured_document_section import StructuredDocumentSection
-from .structured_indexing_tool import StructuredIndexingTool
-from .structured_indexing_tool_parameters import StructuredIndexingToolParameters
-from .summarize_document_response import SummarizeDocumentResponse
-from .summarize_document_streamed_response import SummarizeDocumentStreamedResponse
-from .table import Table
-from .table_extraction_config import TableExtractionConfig
-from .table_extractor import TableExtractor
-from .table_extractor_spec import TableExtractorSpec
-from .table_generation_spec import TableGenerationSpec
-from .template_type import TemplateType
-from .test_instruction_response import TestInstructionResponse
-from .test_tool_error_response import TestToolErrorResponse
-from .test_tool_error_response_error import TestToolErrorResponseError
-from .test_tool_response import TestToolResponse
-from .test_tool_success_response import TestToolSuccessResponse
-from .test_tool_success_response_validation_results import TestToolSuccessResponseValidationResults
-from .thinking_event import ThinkingEvent
-from .tool import Tool
-from .tool_id import ToolId
-from .tool_input_event import ToolInputEvent
-from .tool_output_event import ToolOutputEvent
-from .tool_server import ToolServer
-from .tool_server_id import ToolServerId
-from .tool_server_name import ToolServerName
-from .tool_server_transport import ToolServerTransport
-from .tool_server_type import ToolServerType
-from .turn import Turn
-from .update_document_request import UpdateDocumentRequest
-from .update_initial_instruction_request import UpdateInitialInstructionRequest
-from .update_lambda_tool_request import UpdateLambdaToolRequest
-from .update_mcp_tool_request import UpdateMcpToolRequest
-from .update_tool_request import UpdateToolRequest
-from .user import User
-from .user_function_reranker import UserFunctionReranker
-from .vertex_ai_api_key_auth import VertexAiApiKeyAuth
-from .vertex_ai_auth import VertexAiAuth
-from .vertex_ai_service_account_auth import VertexAiServiceAccountAuth
-from .web_search_tool import WebSearchTool
-from .web_search_tool_parameters import WebSearchToolParameters
+import typing
+from importlib import import_module
+
+if typing.TYPE_CHECKING:
+    from .agent import Agent
+    from .agent_corpora_search_query_configuration import AgentCorporaSearchQueryConfiguration
+    from .agent_event import (
+        AgentEvent,
+        AgentEvent_AgentOutput,
+        AgentEvent_ArtifactUpload,
+        AgentEvent_Compaction,
+        AgentEvent_ContextLimitExceeded,
+        AgentEvent_ImageRead,
+        AgentEvent_InputMessage,
+        AgentEvent_SessionInterrupted,
+        AgentEvent_SkillLoad,
+        AgentEvent_StepTransition,
+        AgentEvent_StepTransitionLimitExceeded,
+        AgentEvent_StructuredOutput,
+        AgentEvent_Thinking,
+        AgentEvent_ToolInput,
+        AgentEvent_ToolOutput,
+    )
+    from .agent_event_base import AgentEventBase
+    from .agent_identity import AgentIdentity
+    from .agent_identity_mode import AgentIdentityMode
+    from .agent_input import AgentInput, AgentInput_Skill, AgentInput_Text
+    from .agent_key import AgentKey
+    from .agent_keyed_search_corpus import AgentKeyedSearchCorpus
+    from .agent_keyed_search_corpus_corpus_key import AgentKeyedSearchCorpusCorpusKey
+    from .agent_keyed_search_corpus_metadata_filter import AgentKeyedSearchCorpusMetadataFilter
+    from .agent_model import AgentModel
+    from .agent_name import AgentName
+    from .agent_output_event import AgentOutputEvent
+    from .agent_output_parser import AgentOutputParser, AgentOutputParser_Default, AgentOutputParser_Structured
+    from .agent_response import AgentResponse
+    from .agent_role import AgentRole
+    from .agent_role_role import AgentRoleRole
+    from .agent_schedule import AgentSchedule
+    from .agent_schedule_execution import AgentScheduleExecution
+    from .agent_schedule_execution_status import AgentScheduleExecutionStatus
+    from .agent_schedule_key import AgentScheduleKey
+    from .agent_schedule_name import AgentScheduleName
+    from .agent_search_corpora_parameters import AgentSearchCorporaParameters
+    from .agent_session import AgentSession
+    from .agent_session_key import AgentSessionKey
+    from .agent_skill import AgentSkill
+    from .agent_skill_input import AgentSkillInput
+    from .agent_step import AgentStep
+    from .agent_step_instruction import (
+        AgentStepInstruction,
+        AgentStepInstruction_Inline,
+        AgentStepInstruction_Reference,
+    )
+    from .agent_step_reminder import AgentStepReminder, AgentStepReminder_Templated
+    from .agent_streamed_response import (
+        AgentStreamedResponse,
+        AgentStreamedResponse_ArtifactUpload,
+        AgentStreamedResponse_Compaction,
+        AgentStreamedResponse_CompactionStarted,
+        AgentStreamedResponse_ContextConsumed,
+        AgentStreamedResponse_ContextLimitExceeded,
+        AgentStreamedResponse_End,
+        AgentStreamedResponse_Error,
+        AgentStreamedResponse_ImageRead,
+        AgentStreamedResponse_InputMessage,
+        AgentStreamedResponse_SessionInterrupted,
+        AgentStreamedResponse_SkillLoad,
+        AgentStreamedResponse_StepTransition,
+        AgentStreamedResponse_StepTransitionLimitExceeded,
+        AgentStreamedResponse_StreamingAgentOutput,
+        AgentStreamedResponse_StreamingAgentOutputEnd,
+        AgentStreamedResponse_StreamingThinking,
+        AgentStreamedResponse_StreamingThinkingEnd,
+        AgentStreamedResponse_StructuredOutput,
+        AgentStreamedResponse_Thinking,
+        AgentStreamedResponse_ToolInput,
+        AgentStreamedResponse_ToolOutput,
+    )
+    from .agent_text_input import AgentTextInput
+    from .agent_tool_configuration import (
+        AgentToolConfiguration,
+        AgentToolConfiguration_ArtifactGrep,
+        AgentToolConfiguration_ArtifactRead,
+        AgentToolConfiguration_CorporaSearch,
+        AgentToolConfiguration_DocumentConversion,
+        AgentToolConfiguration_DynamicVectara,
+        AgentToolConfiguration_GetDocumentText,
+        AgentToolConfiguration_ImageRead,
+        AgentToolConfiguration_Lambda,
+        AgentToolConfiguration_Mcp,
+        AgentToolConfiguration_SubAgent,
+        AgentToolConfiguration_WebGet,
+        AgentToolConfiguration_WebSearch,
+    )
+    from .anthropic_auth import (
+        AnthropicAuth,
+        AnthropicAuth_Bearer,
+        AnthropicAuth_BedrockApiKey,
+        AnthropicAuth_BedrockStaticIam,
+        AnthropicAuth_Header,
+        AnthropicAuth_VertexAccessToken,
+        AnthropicAuth_VertexServiceAccount,
+    )
+    from .api_key import ApiKey
+    from .api_key_role import ApiKeyRole
+    from .api_operation_policy import ApiOperationPolicy
+    from .api_policy import ApiPolicy
+    from .api_role import ApiRole
+    from .app_client import AppClient
+    from .artifact_create_tool import ArtifactCreateTool
+    from .artifact_grep_tool import ArtifactGrepTool
+    from .artifact_grep_tool_parameters import ArtifactGrepToolParameters
+    from .artifact_read_configuration import ArtifactReadConfiguration
+    from .artifact_read_tool import ArtifactReadTool
+    from .artifact_read_tool_parameters import ArtifactReadToolParameters
+    from .artifact_read_tool_parameters_encoding import ArtifactReadToolParametersEncoding
+    from .artifact_reference import ArtifactReference
+    from .artifact_upload_event import ArtifactUploadEvent
+    from .bad_request_error_body import BadRequestErrorBody
+    from .bearer_auth import BearerAuth
+    from .bedrock_api_key_auth import BedrockApiKeyAuth
+    from .bedrock_static_iam_auth import BedrockStaticIamAuth
+    from .bulk_delete_async_response import BulkDeleteAsyncResponse
+    from .bulk_delete_documents_response import (
+        BulkDeleteDocumentsResponse,
+        BulkDeleteDocumentsResponse_Async,
+        BulkDeleteDocumentsResponse_Success,
+    )
+    from .bulk_delete_sync_success_response import BulkDeleteSyncSuccessResponse
+    from .cell import Cell
+    from .chain_reranker import ChainReranker
+    from .chat import Chat
+    from .chat_completion_request_message import ChatCompletionRequestMessage
+    from .chat_completion_response_choice import ChatCompletionResponseChoice
+    from .chat_completion_response_message import ChatCompletionResponseMessage
+    from .chat_completion_stream_response_choice import ChatCompletionStreamResponseChoice
+    from .chat_completion_stream_response_delta import ChatCompletionStreamResponseDelta
+    from .chat_full_response import ChatFullResponse
+    from .chat_info_response import ChatInfoResponse
+    from .chat_parameters import ChatParameters
+    from .chat_request import ChatRequest
+    from .chat_streamed_response import (
+        ChatStreamedResponse,
+        ChatStreamedResponse_ChatInfo,
+        ChatStreamedResponse_End,
+        ChatStreamedResponse_Error,
+        ChatStreamedResponse_FactualConsistencyScore,
+        ChatStreamedResponse_GenerationChunk,
+        ChatStreamedResponse_GenerationEnd,
+        ChatStreamedResponse_GenerationInfo,
+        ChatStreamedResponse_SearchResults,
+    )
+    from .chunking_strategy import (
+        ChunkingStrategy,
+        ChunkingStrategy_MaxCharsChunkingStrategy,
+        ChunkingStrategy_SentenceChunkingStrategy,
+    )
+    from .citation_parameters import CitationParameters
+    from .citation_parameters_style import CitationParametersStyle
+    from .compaction_config import CompactionConfig
+    from .compaction_config_tool_event_policy import CompactionConfigToolEventPolicy
+    from .compaction_event import CompactionEvent
+    from .compaction_started_event import CompactionStartedEvent
+    from .compute_corpus_size_response import ComputeCorpusSizeResponse
+    from .context_configuration import ContextConfiguration
+    from .context_consumed_event import ContextConsumedEvent
+    from .context_limit_exceeded_event import ContextLimitExceededEvent
+    from .core_document import CoreDocument
+    from .core_document_part import CoreDocumentPart
+    from .corpora_search_tool import CorporaSearchTool
+    from .corpora_search_tool_parameters import CorporaSearchToolParameters
+    from .corpus import Corpus
+    from .corpus_custom_dimension import CorpusCustomDimension
+    from .corpus_key import CorpusKey
+    from .corpus_limits import CorpusLimits
+    from .corpus_role import CorpusRole
+    from .corpus_role_role import CorpusRoleRole
+    from .correction_item import CorrectionItem
+    from .create_agent_request import CreateAgentRequest
+    from .create_anthropic_llm_request import CreateAnthropicLlmRequest
+    from .create_app_client_request import CreateAppClientRequest, CreateAppClientRequest_ClientCredentials
+    from .create_chat_completion_response import CreateChatCompletionResponse
+    from .create_chat_completion_response_object import CreateChatCompletionResponseObject
+    from .create_chat_completion_stream_response import CreateChatCompletionStreamResponse
+    from .create_chat_completion_stream_response_object import CreateChatCompletionStreamResponseObject
+    from .create_client_credentials_request import CreateClientCredentialsRequest
+    from .create_compact_request import CreateCompactRequest
+    from .create_document_request import (
+        CreateDocumentRequest,
+        CreateDocumentRequest_Core,
+        CreateDocumentRequest_Structured,
+    )
+    from .create_encoder_request import CreateEncoderRequest, CreateEncoderRequest_OpenaiCompatible
+    from .create_initial_instruction_request import CreateInitialInstructionRequest
+    from .create_input_message_request import CreateInputMessageRequest
+    from .create_input_request import (
+        CreateInputRequest,
+        CreateInputRequest_Compact,
+        CreateInputRequest_InputMessage,
+        CreateInputRequest_Interrupt,
+    )
+    from .create_input_request_base import CreateInputRequestBase
+    from .create_instruction_request import CreateInstructionRequest, CreateInstructionRequest_Initial
+    from .create_interrupt_request import CreateInterruptRequest
+    from .create_lambda_tool_request import CreateLambdaToolRequest
+    from .create_lambda_tool_request_language import CreateLambdaToolRequestLanguage
+    from .create_llm_request import (
+        CreateLlmRequest,
+        CreateLlmRequest_Anthropic,
+        CreateLlmRequest_OpenaiCompatible,
+        CreateLlmRequest_OpenaiResponses,
+        CreateLlmRequest_VertexAi,
+    )
+    from .create_open_ai_encoder_request import CreateOpenAiEncoderRequest
+    from .create_open_ai_responses_llm_request import CreateOpenAiResponsesLlmRequest
+    from .create_open_aillm_request import CreateOpenAillmRequest
+    from .create_tool_request import CreateToolRequest, CreateToolRequest_Lambda
+    from .create_vertex_aillm_request import CreateVertexAillmRequest
+    from .cron_schedule_configuration import CronScheduleConfiguration
+    from .custom_dimensions import CustomDimensions
+    from .customer_specific_reranker import CustomerSpecificReranker
+    from .data import Data
+    from .default_output_parser import DefaultOutputParser
+    from .document import Document
+    from .document_conversion_tool import DocumentConversionTool
+    from .document_conversion_tool_parameters import DocumentConversionToolParameters
+    from .document_conversion_tool_parameters_output_format import DocumentConversionToolParametersOutputFormat
+    from .document_part import DocumentPart
+    from .document_storage_usage import DocumentStorageUsage
+    from .dynamic_vectara_tool import DynamicVectaraTool
+    from .eager_reference import EagerReference
+    from .encoder import Encoder
+    from .error import Error
+    from .evaluate_factual_consistency_response import EvaluateFactualConsistencyResponse
+    from .execution_configuration import ExecutionConfiguration
+    from .extraction_usage import ExtractionUsage
+    from .factual_consistency_score import FactualConsistencyScore
+    from .factual_consistency_score_span import FactualConsistencyScoreSpan
+    from .field_query import FieldQuery
+    from .filter_attribute import FilterAttribute
+    from .filter_attribute_level import FilterAttributeLevel
+    from .filter_attribute_numeric_stats import FilterAttributeNumericStats
+    from .filter_attribute_stat import FilterAttributeStat
+    from .filter_attribute_stat_type import FilterAttributeStatType
+    from .filter_attribute_type import FilterAttributeType
+    from .filter_attribute_value import FilterAttributeValue
+    from .filter_extraction import FilterExtraction
+    from .first_agent_step import FirstAgentStep
+    from .function_definition import FunctionDefinition
+    from .function_definition_language import FunctionDefinitionLanguage
+    from .function_definition_validation_status import FunctionDefinitionValidationStatus
+    from .generation_info import GenerationInfo
+    from .generation_parameters import GenerationParameters
+    from .generation_parameters_model_parameters import GenerationParametersModelParameters
+    from .generation_preset import GenerationPreset
+    from .generation_span import GenerationSpan
+    from .get_document_text_configuration import GetDocumentTextConfiguration
+    from .get_document_text_configuration_metadata import GetDocumentTextConfigurationMetadata
+    from .get_document_text_parameters import GetDocumentTextParameters
+    from .get_document_text_tool import GetDocumentTextTool
+    from .get_filter_attribute_stats_response import GetFilterAttributeStatsResponse
+    from .hallucination_correction_response import HallucinationCorrectionResponse
+    from .hallucination_corrector import HallucinationCorrector
+    from .hcm_source_document import HcmSourceDocument
+    from .header import Header
+    from .header_auth import HeaderAuth
+    from .image import Image
+    from .image_data import ImageData
+    from .image_metadata import ImageMetadata
+    from .image_read_event import ImageReadEvent
+    from .image_read_event_detail import ImageReadEventDetail
+    from .image_read_tool import ImageReadTool
+    from .image_read_tool_parameters import ImageReadToolParameters
+    from .image_read_tool_parameters_detail import ImageReadToolParametersDetail
+    from .individual_search_result import IndividualSearchResult
+    from .initial_instruction import InitialInstruction
+    from .inline_artifact_grep_tool_configuration import InlineArtifactGrepToolConfiguration
+    from .inline_artifact_read_tool_configuration import InlineArtifactReadToolConfiguration
+    from .inline_corpora_search_tool_configuration import InlineCorporaSearchToolConfiguration
+    from .inline_document_conversion_tool_configuration import InlineDocumentConversionToolConfiguration
+    from .inline_dynamic_vectara_tool_configuration import InlineDynamicVectaraToolConfiguration
+    from .inline_get_document_text_tool_configuration import InlineGetDocumentTextToolConfiguration
+    from .inline_image_read_tool_configuration import InlineImageReadToolConfiguration
+    from .inline_instruction import InlineInstruction
+    from .inline_lambda_tool_configuration import InlineLambdaToolConfiguration
+    from .inline_mcp_tool_configuration import InlineMcpToolConfiguration
+    from .inline_sub_agent_tool_configuration import InlineSubAgentToolConfiguration
+    from .inline_web_get_tool_configuration import InlineWebGetToolConfiguration
+    from .inline_web_search_tool_configuration import InlineWebSearchToolConfiguration
+    from .input_behavior import InputBehavior
+    from .input_message_event import InputMessageEvent
+    from .input_tokens import InputTokens
+    from .instruction import Instruction, Instruction_Initial
+    from .instruction_id import InstructionId
+    from .instruction_name import InstructionName
+    from .instruction_reference import InstructionReference
+    from .instruction_request_base import InstructionRequestBase
+    from .instruction_template import InstructionTemplate
+    from .interval_schedule_configuration import IntervalScheduleConfiguration
+    from .job import Job
+    from .job_state import JobState
+    from .job_type import JobType
+    from .json_schema_definition import JsonSchemaDefinition
+    from .json_schema_definition_type import JsonSchemaDefinitionType
+    from .json_schema_spec import JsonSchemaSpec
+    from .keyed_search_corpus import KeyedSearchCorpus
+    from .lambda_tool import LambdaTool
+    from .lambda_tool_language import LambdaToolLanguage
+    from .language import Language
+    from .list_agent_events_response import ListAgentEventsResponse
+    from .list_agent_schedule_executions_response import ListAgentScheduleExecutionsResponse
+    from .list_agent_schedules_response import ListAgentSchedulesResponse
+    from .list_agent_sessions_response import ListAgentSessionsResponse
+    from .list_agents_response import ListAgentsResponse
+    from .list_api_keys_response import ListApiKeysResponse
+    from .list_app_clients_response import ListAppClientsResponse
+    from .list_chat_turns_response import ListChatTurnsResponse
+    from .list_chats_response import ListChatsResponse
+    from .list_corpora_response import ListCorporaResponse
+    from .list_documents_response import ListDocumentsResponse
+    from .list_encoders_response import ListEncodersResponse
+    from .list_generation_presets_response import ListGenerationPresetsResponse
+    from .list_hallucination_correctors_response import ListHallucinationCorrectorsResponse
+    from .list_instructions_response import ListInstructionsResponse
+    from .list_jobs_response import ListJobsResponse
+    from .list_ll_ms_response import ListLlMsResponse
+    from .list_metadata import ListMetadata
+    from .list_query_histories_response import ListQueryHistoriesResponse
+    from .list_query_histories_response_metadata import ListQueryHistoriesResponseMetadata
+    from .list_rerankers_response import ListRerankersResponse
+    from .list_session_artifacts_response import ListSessionArtifactsResponse
+    from .list_table_extractors_response import ListTableExtractorsResponse
+    from .list_tool_servers_response import ListToolServersResponse
+    from .list_tools_response import ListToolsResponse
+    from .list_users_response import ListUsersResponse
+    from .llm import Llm
+    from .llm_capabilities import LlmCapabilities
+    from .llm_ownership import LlmOwnership
+    from .max_chars_chunking_strategy import MaxCharsChunkingStrategy
+    from .mcp_tool import McpTool
+    from .mcp_tool_annotations import McpToolAnnotations
+    from .metadata_query_response import MetadataQueryResponse
+    from .mmr_reranker import MmrReranker
+    from .next_step import NextStep
+    from .none_reranker import NoneReranker
+    from .not_found_error_body import NotFoundErrorBody
+    from .open_aillm_request_base import OpenAillmRequestBase
+    from .open_aillm_update_base import OpenAillmUpdateBase
+    from .output_tokens import OutputTokens
+    from .prompt import Prompt
+    from .query_corpus_request import QueryCorpusRequest
+    from .query_corpus_request_search import QueryCorpusRequestSearch
+    from .query_full_response import QueryFullResponse
+    from .query_history import QueryHistory
+    from .query_history_span import (
+        QueryHistorySpan,
+        QueryHistorySpan_Fcs,
+        QueryHistorySpan_Generation,
+        QueryHistorySpan_Rephrase,
+        QueryHistorySpan_Rerank,
+        QueryHistorySpan_RewrittenQuery,
+        QueryHistorySpan_Search,
+    )
+    from .query_history_summary import QueryHistorySummary
+    from .query_request import QueryRequest
+    from .query_streamed_response import (
+        QueryStreamedResponse,
+        QueryStreamedResponse_End,
+        QueryStreamedResponse_Error,
+        QueryStreamedResponse_FactualConsistencyScore,
+        QueryStreamedResponse_GenerationChunk,
+        QueryStreamedResponse_GenerationEnd,
+        QueryStreamedResponse_GenerationInfo,
+        QueryStreamedResponse_SearchResults,
+    )
+    from .query_warning import QueryWarning
+    from .reference_instruction import ReferenceInstruction
+    from .remote_auth import RemoteAuth, RemoteAuth_Bearer, RemoteAuth_Header
+    from .rephrase_span import RephraseSpan
+    from .replace_filter_attributes_response import ReplaceFilterAttributesResponse
+    from .rerank_span import RerankSpan
+    from .reranked_search_result import RerankedSearchResult
+    from .reranker import Reranker
+    from .response_format import ResponseFormat
+    from .response_format_type import ResponseFormatType
+    from .retry_configuration import RetryConfiguration
+    from .rewritten_query import RewrittenQuery
+    from .rewritten_query_span import RewrittenQuerySpan
+    from .rewritten_query_warning import RewrittenQueryWarning
+    from .row import Row
+    from .schedule_configuration import (
+        ScheduleConfiguration,
+        ScheduleConfiguration_Cron,
+        ScheduleConfiguration_Interval,
+    )
+    from .scored_document import ScoredDocument
+    from .search_corpora_parameters import SearchCorporaParameters
+    from .search_corpus import SearchCorpus
+    from .search_parameters import SearchParameters
+    from .search_reranker import (
+        SearchReranker,
+        SearchReranker_Chain,
+        SearchReranker_CustomerReranker,
+        SearchReranker_Mmr,
+        SearchReranker_None,
+        SearchReranker_Userfn,
+    )
+    from .search_semantics import SearchSemantics
+    from .search_span import SearchSpan
+    from .sentence_chunking_strategy import SentenceChunkingStrategy
+    from .session_artifact import SessionArtifact
+    from .session_context_usage import SessionContextUsage
+    from .session_interrupted_event import SessionInterruptedEvent
+    from .skill_load_event import SkillLoadEvent
+    from .step_transition_event import StepTransitionEvent
+    from .step_transition_limit_exceeded_event import StepTransitionLimitExceededEvent
+    from .stream_error import StreamError
+    from .stream_generation_chunk import StreamGenerationChunk
+    from .stream_generation_end import StreamGenerationEnd
+    from .stream_response_end import StreamResponseEnd
+    from .stream_search_response import StreamSearchResponse
+    from .streaming_agent_output import StreamingAgentOutput
+    from .streaming_agent_output_end import StreamingAgentOutputEnd
+    from .streaming_thinking import StreamingThinking
+    from .streaming_thinking_end import StreamingThinkingEnd
+    from .structured_document import StructuredDocument
+    from .structured_document_section import StructuredDocumentSection
+    from .structured_output_event import StructuredOutputEvent
+    from .structured_output_parser import StructuredOutputParser
+    from .sub_agent_configuration import SubAgentConfiguration
+    from .sub_agent_session_mode import SubAgentSessionMode
+    from .sub_agent_tool import SubAgentTool
+    from .sub_agent_tool_parameters import SubAgentToolParameters
+    from .summarize_document_response import SummarizeDocumentResponse
+    from .summarize_document_streamed_response import (
+        SummarizeDocumentStreamedResponse,
+        SummarizeDocumentStreamedResponse_End,
+        SummarizeDocumentStreamedResponse_Error,
+        SummarizeDocumentStreamedResponse_GenerationChunk,
+        SummarizeDocumentStreamedResponse_GenerationEnd,
+        SummarizeDocumentStreamedResponse_GenerationInfo,
+    )
+    from .table import Table
+    from .table_extraction_config import TableExtractionConfig
+    from .table_extractor import TableExtractor
+    from .table_extractor_spec import TableExtractorSpec
+    from .table_generation_spec import TableGenerationSpec
+    from .template_type import TemplateType
+    from .templated_reminder import TemplatedReminder
+    from .templated_reminder_hooks_item import TemplatedReminderHooksItem
+    from .test_instruction_response import TestInstructionResponse
+    from .test_lambda_tool_response import TestLambdaToolResponse
+    from .test_lambda_tool_response_execution import TestLambdaToolResponseExecution
+    from .test_lambda_tool_response_execution_error import TestLambdaToolResponseExecutionError
+    from .test_lambda_tool_response_execution_validation_results import TestLambdaToolResponseExecutionValidationResults
+    from .test_lambda_tool_response_validation import TestLambdaToolResponseValidation
+    from .test_lambda_tool_response_validation_status import TestLambdaToolResponseValidationStatus
+    from .test_tool_error_response import TestToolErrorResponse
+    from .test_tool_error_response_error import TestToolErrorResponseError
+    from .test_tool_response import TestToolResponse, TestToolResponse_Error, TestToolResponse_Success
+    from .test_tool_success_response import TestToolSuccessResponse
+    from .test_tool_success_response_validation_results import TestToolSuccessResponseValidationResults
+    from .thinking_event import ThinkingEvent
+    from .tool import (
+        Tool,
+        Tool_ArtifactCreate,
+        Tool_ArtifactGrep,
+        Tool_ArtifactRead,
+        Tool_CorporaSearch,
+        Tool_DocumentConversion,
+        Tool_DynamicVectara,
+        Tool_GetDocumentText,
+        Tool_ImageRead,
+        Tool_Lambda,
+        Tool_Mcp,
+        Tool_SubAgent,
+        Tool_WebGet,
+        Tool_WebSearch,
+    )
+    from .tool_base import ToolBase
+    from .tool_description_template import ToolDescriptionTemplate
+    from .tool_id import ToolId
+    from .tool_input_event import ToolInputEvent
+    from .tool_output_event import ToolOutputEvent
+    from .tool_output_offloading_configuration import ToolOutputOffloadingConfiguration
+    from .tool_server import ToolServer
+    from .tool_server_id import ToolServerId
+    from .tool_server_name import ToolServerName
+    from .tool_server_transport import ToolServerTransport
+    from .tool_server_type import ToolServerType
+    from .turn import Turn
+    from .update_agent_step import UpdateAgentStep
+    from .update_anthropic_llm_request import UpdateAnthropicLlmRequest
+    from .update_document_request import UpdateDocumentRequest
+    from .update_first_agent_step import UpdateFirstAgentStep
+    from .update_initial_instruction_request import UpdateInitialInstructionRequest
+    from .update_instruction_request import UpdateInstructionRequest, UpdateInstructionRequest_Initial
+    from .update_lambda_tool_request import UpdateLambdaToolRequest
+    from .update_llm_request import (
+        UpdateLlmRequest,
+        UpdateLlmRequest_Anthropic,
+        UpdateLlmRequest_OpenaiCompatible,
+        UpdateLlmRequest_OpenaiResponses,
+        UpdateLlmRequest_VertexAi,
+    )
+    from .update_mcp_tool_request import UpdateMcpToolRequest
+    from .update_open_ai_responses_llm_request import UpdateOpenAiResponsesLlmRequest
+    from .update_open_aillm_request import UpdateOpenAillmRequest
+    from .update_tool_request import UpdateToolRequest, UpdateToolRequest_Lambda, UpdateToolRequest_Mcp
+    from .update_vertex_aillm_request import UpdateVertexAillmRequest
+    from .user import User
+    from .user_function_reranker import UserFunctionReranker
+    from .vertex_access_token_auth import VertexAccessTokenAuth
+    from .vertex_ai_api_key_auth import VertexAiApiKeyAuth
+    from .vertex_ai_auth import VertexAiAuth, VertexAiAuth_ApiKey, VertexAiAuth_ServiceAccount
+    from .vertex_ai_service_account_auth import VertexAiServiceAccountAuth
+    from .vertex_service_account_auth import VertexServiceAccountAuth
+    from .web_get_tool import WebGetTool
+    from .web_get_tool_parameters import WebGetToolParameters
+    from .web_get_tool_parameters_body import WebGetToolParametersBody
+    from .web_get_tool_parameters_follow_redirects import WebGetToolParametersFollowRedirects
+    from .web_get_tool_parameters_head_lines import WebGetToolParametersHeadLines
+    from .web_get_tool_parameters_headers import WebGetToolParametersHeaders
+    from .web_get_tool_parameters_max_content_bytes import WebGetToolParametersMaxContentBytes
+    from .web_get_tool_parameters_method import WebGetToolParametersMethod
+    from .web_get_tool_parameters_ssl_verify import WebGetToolParametersSslVerify
+    from .web_get_tool_parameters_tail_lines import WebGetToolParametersTailLines
+    from .web_get_tool_parameters_timeout_seconds import WebGetToolParametersTimeoutSeconds
+    from .web_get_tool_parameters_url import WebGetToolParametersUrl
+    from .web_search_tool import WebSearchTool
+    from .web_search_tool_parameters import WebSearchToolParameters
+    from .web_search_tool_parameters_provider import WebSearchToolParametersProvider
+_dynamic_imports: typing.Dict[str, str] = {
+    "Agent": ".agent",
+    "AgentCorporaSearchQueryConfiguration": ".agent_corpora_search_query_configuration",
+    "AgentEvent": ".agent_event",
+    "AgentEventBase": ".agent_event_base",
+    "AgentEvent_AgentOutput": ".agent_event",
+    "AgentEvent_ArtifactUpload": ".agent_event",
+    "AgentEvent_Compaction": ".agent_event",
+    "AgentEvent_ContextLimitExceeded": ".agent_event",
+    "AgentEvent_ImageRead": ".agent_event",
+    "AgentEvent_InputMessage": ".agent_event",
+    "AgentEvent_SessionInterrupted": ".agent_event",
+    "AgentEvent_SkillLoad": ".agent_event",
+    "AgentEvent_StepTransition": ".agent_event",
+    "AgentEvent_StepTransitionLimitExceeded": ".agent_event",
+    "AgentEvent_StructuredOutput": ".agent_event",
+    "AgentEvent_Thinking": ".agent_event",
+    "AgentEvent_ToolInput": ".agent_event",
+    "AgentEvent_ToolOutput": ".agent_event",
+    "AgentIdentity": ".agent_identity",
+    "AgentIdentityMode": ".agent_identity_mode",
+    "AgentInput": ".agent_input",
+    "AgentInput_Skill": ".agent_input",
+    "AgentInput_Text": ".agent_input",
+    "AgentKey": ".agent_key",
+    "AgentKeyedSearchCorpus": ".agent_keyed_search_corpus",
+    "AgentKeyedSearchCorpusCorpusKey": ".agent_keyed_search_corpus_corpus_key",
+    "AgentKeyedSearchCorpusMetadataFilter": ".agent_keyed_search_corpus_metadata_filter",
+    "AgentModel": ".agent_model",
+    "AgentName": ".agent_name",
+    "AgentOutputEvent": ".agent_output_event",
+    "AgentOutputParser": ".agent_output_parser",
+    "AgentOutputParser_Default": ".agent_output_parser",
+    "AgentOutputParser_Structured": ".agent_output_parser",
+    "AgentResponse": ".agent_response",
+    "AgentRole": ".agent_role",
+    "AgentRoleRole": ".agent_role_role",
+    "AgentSchedule": ".agent_schedule",
+    "AgentScheduleExecution": ".agent_schedule_execution",
+    "AgentScheduleExecutionStatus": ".agent_schedule_execution_status",
+    "AgentScheduleKey": ".agent_schedule_key",
+    "AgentScheduleName": ".agent_schedule_name",
+    "AgentSearchCorporaParameters": ".agent_search_corpora_parameters",
+    "AgentSession": ".agent_session",
+    "AgentSessionKey": ".agent_session_key",
+    "AgentSkill": ".agent_skill",
+    "AgentSkillInput": ".agent_skill_input",
+    "AgentStep": ".agent_step",
+    "AgentStepInstruction": ".agent_step_instruction",
+    "AgentStepInstruction_Inline": ".agent_step_instruction",
+    "AgentStepInstruction_Reference": ".agent_step_instruction",
+    "AgentStepReminder": ".agent_step_reminder",
+    "AgentStepReminder_Templated": ".agent_step_reminder",
+    "AgentStreamedResponse": ".agent_streamed_response",
+    "AgentStreamedResponse_ArtifactUpload": ".agent_streamed_response",
+    "AgentStreamedResponse_Compaction": ".agent_streamed_response",
+    "AgentStreamedResponse_CompactionStarted": ".agent_streamed_response",
+    "AgentStreamedResponse_ContextConsumed": ".agent_streamed_response",
+    "AgentStreamedResponse_ContextLimitExceeded": ".agent_streamed_response",
+    "AgentStreamedResponse_End": ".agent_streamed_response",
+    "AgentStreamedResponse_Error": ".agent_streamed_response",
+    "AgentStreamedResponse_ImageRead": ".agent_streamed_response",
+    "AgentStreamedResponse_InputMessage": ".agent_streamed_response",
+    "AgentStreamedResponse_SessionInterrupted": ".agent_streamed_response",
+    "AgentStreamedResponse_SkillLoad": ".agent_streamed_response",
+    "AgentStreamedResponse_StepTransition": ".agent_streamed_response",
+    "AgentStreamedResponse_StepTransitionLimitExceeded": ".agent_streamed_response",
+    "AgentStreamedResponse_StreamingAgentOutput": ".agent_streamed_response",
+    "AgentStreamedResponse_StreamingAgentOutputEnd": ".agent_streamed_response",
+    "AgentStreamedResponse_StreamingThinking": ".agent_streamed_response",
+    "AgentStreamedResponse_StreamingThinkingEnd": ".agent_streamed_response",
+    "AgentStreamedResponse_StructuredOutput": ".agent_streamed_response",
+    "AgentStreamedResponse_Thinking": ".agent_streamed_response",
+    "AgentStreamedResponse_ToolInput": ".agent_streamed_response",
+    "AgentStreamedResponse_ToolOutput": ".agent_streamed_response",
+    "AgentTextInput": ".agent_text_input",
+    "AgentToolConfiguration": ".agent_tool_configuration",
+    "AgentToolConfiguration_ArtifactGrep": ".agent_tool_configuration",
+    "AgentToolConfiguration_ArtifactRead": ".agent_tool_configuration",
+    "AgentToolConfiguration_CorporaSearch": ".agent_tool_configuration",
+    "AgentToolConfiguration_DocumentConversion": ".agent_tool_configuration",
+    "AgentToolConfiguration_DynamicVectara": ".agent_tool_configuration",
+    "AgentToolConfiguration_GetDocumentText": ".agent_tool_configuration",
+    "AgentToolConfiguration_ImageRead": ".agent_tool_configuration",
+    "AgentToolConfiguration_Lambda": ".agent_tool_configuration",
+    "AgentToolConfiguration_Mcp": ".agent_tool_configuration",
+    "AgentToolConfiguration_SubAgent": ".agent_tool_configuration",
+    "AgentToolConfiguration_WebGet": ".agent_tool_configuration",
+    "AgentToolConfiguration_WebSearch": ".agent_tool_configuration",
+    "AnthropicAuth": ".anthropic_auth",
+    "AnthropicAuth_Bearer": ".anthropic_auth",
+    "AnthropicAuth_BedrockApiKey": ".anthropic_auth",
+    "AnthropicAuth_BedrockStaticIam": ".anthropic_auth",
+    "AnthropicAuth_Header": ".anthropic_auth",
+    "AnthropicAuth_VertexAccessToken": ".anthropic_auth",
+    "AnthropicAuth_VertexServiceAccount": ".anthropic_auth",
+    "ApiKey": ".api_key",
+    "ApiKeyRole": ".api_key_role",
+    "ApiOperationPolicy": ".api_operation_policy",
+    "ApiPolicy": ".api_policy",
+    "ApiRole": ".api_role",
+    "AppClient": ".app_client",
+    "ArtifactCreateTool": ".artifact_create_tool",
+    "ArtifactGrepTool": ".artifact_grep_tool",
+    "ArtifactGrepToolParameters": ".artifact_grep_tool_parameters",
+    "ArtifactReadConfiguration": ".artifact_read_configuration",
+    "ArtifactReadTool": ".artifact_read_tool",
+    "ArtifactReadToolParameters": ".artifact_read_tool_parameters",
+    "ArtifactReadToolParametersEncoding": ".artifact_read_tool_parameters_encoding",
+    "ArtifactReference": ".artifact_reference",
+    "ArtifactUploadEvent": ".artifact_upload_event",
+    "BadRequestErrorBody": ".bad_request_error_body",
+    "BearerAuth": ".bearer_auth",
+    "BedrockApiKeyAuth": ".bedrock_api_key_auth",
+    "BedrockStaticIamAuth": ".bedrock_static_iam_auth",
+    "BulkDeleteAsyncResponse": ".bulk_delete_async_response",
+    "BulkDeleteDocumentsResponse": ".bulk_delete_documents_response",
+    "BulkDeleteDocumentsResponse_Async": ".bulk_delete_documents_response",
+    "BulkDeleteDocumentsResponse_Success": ".bulk_delete_documents_response",
+    "BulkDeleteSyncSuccessResponse": ".bulk_delete_sync_success_response",
+    "Cell": ".cell",
+    "ChainReranker": ".chain_reranker",
+    "Chat": ".chat",
+    "ChatCompletionRequestMessage": ".chat_completion_request_message",
+    "ChatCompletionResponseChoice": ".chat_completion_response_choice",
+    "ChatCompletionResponseMessage": ".chat_completion_response_message",
+    "ChatCompletionStreamResponseChoice": ".chat_completion_stream_response_choice",
+    "ChatCompletionStreamResponseDelta": ".chat_completion_stream_response_delta",
+    "ChatFullResponse": ".chat_full_response",
+    "ChatInfoResponse": ".chat_info_response",
+    "ChatParameters": ".chat_parameters",
+    "ChatRequest": ".chat_request",
+    "ChatStreamedResponse": ".chat_streamed_response",
+    "ChatStreamedResponse_ChatInfo": ".chat_streamed_response",
+    "ChatStreamedResponse_End": ".chat_streamed_response",
+    "ChatStreamedResponse_Error": ".chat_streamed_response",
+    "ChatStreamedResponse_FactualConsistencyScore": ".chat_streamed_response",
+    "ChatStreamedResponse_GenerationChunk": ".chat_streamed_response",
+    "ChatStreamedResponse_GenerationEnd": ".chat_streamed_response",
+    "ChatStreamedResponse_GenerationInfo": ".chat_streamed_response",
+    "ChatStreamedResponse_SearchResults": ".chat_streamed_response",
+    "ChunkingStrategy": ".chunking_strategy",
+    "ChunkingStrategy_MaxCharsChunkingStrategy": ".chunking_strategy",
+    "ChunkingStrategy_SentenceChunkingStrategy": ".chunking_strategy",
+    "CitationParameters": ".citation_parameters",
+    "CitationParametersStyle": ".citation_parameters_style",
+    "CompactionConfig": ".compaction_config",
+    "CompactionConfigToolEventPolicy": ".compaction_config_tool_event_policy",
+    "CompactionEvent": ".compaction_event",
+    "CompactionStartedEvent": ".compaction_started_event",
+    "ComputeCorpusSizeResponse": ".compute_corpus_size_response",
+    "ContextConfiguration": ".context_configuration",
+    "ContextConsumedEvent": ".context_consumed_event",
+    "ContextLimitExceededEvent": ".context_limit_exceeded_event",
+    "CoreDocument": ".core_document",
+    "CoreDocumentPart": ".core_document_part",
+    "CorporaSearchTool": ".corpora_search_tool",
+    "CorporaSearchToolParameters": ".corpora_search_tool_parameters",
+    "Corpus": ".corpus",
+    "CorpusCustomDimension": ".corpus_custom_dimension",
+    "CorpusKey": ".corpus_key",
+    "CorpusLimits": ".corpus_limits",
+    "CorpusRole": ".corpus_role",
+    "CorpusRoleRole": ".corpus_role_role",
+    "CorrectionItem": ".correction_item",
+    "CreateAgentRequest": ".create_agent_request",
+    "CreateAnthropicLlmRequest": ".create_anthropic_llm_request",
+    "CreateAppClientRequest": ".create_app_client_request",
+    "CreateAppClientRequest_ClientCredentials": ".create_app_client_request",
+    "CreateChatCompletionResponse": ".create_chat_completion_response",
+    "CreateChatCompletionResponseObject": ".create_chat_completion_response_object",
+    "CreateChatCompletionStreamResponse": ".create_chat_completion_stream_response",
+    "CreateChatCompletionStreamResponseObject": ".create_chat_completion_stream_response_object",
+    "CreateClientCredentialsRequest": ".create_client_credentials_request",
+    "CreateCompactRequest": ".create_compact_request",
+    "CreateDocumentRequest": ".create_document_request",
+    "CreateDocumentRequest_Core": ".create_document_request",
+    "CreateDocumentRequest_Structured": ".create_document_request",
+    "CreateEncoderRequest": ".create_encoder_request",
+    "CreateEncoderRequest_OpenaiCompatible": ".create_encoder_request",
+    "CreateInitialInstructionRequest": ".create_initial_instruction_request",
+    "CreateInputMessageRequest": ".create_input_message_request",
+    "CreateInputRequest": ".create_input_request",
+    "CreateInputRequestBase": ".create_input_request_base",
+    "CreateInputRequest_Compact": ".create_input_request",
+    "CreateInputRequest_InputMessage": ".create_input_request",
+    "CreateInputRequest_Interrupt": ".create_input_request",
+    "CreateInstructionRequest": ".create_instruction_request",
+    "CreateInstructionRequest_Initial": ".create_instruction_request",
+    "CreateInterruptRequest": ".create_interrupt_request",
+    "CreateLambdaToolRequest": ".create_lambda_tool_request",
+    "CreateLambdaToolRequestLanguage": ".create_lambda_tool_request_language",
+    "CreateLlmRequest": ".create_llm_request",
+    "CreateLlmRequest_Anthropic": ".create_llm_request",
+    "CreateLlmRequest_OpenaiCompatible": ".create_llm_request",
+    "CreateLlmRequest_OpenaiResponses": ".create_llm_request",
+    "CreateLlmRequest_VertexAi": ".create_llm_request",
+    "CreateOpenAiEncoderRequest": ".create_open_ai_encoder_request",
+    "CreateOpenAiResponsesLlmRequest": ".create_open_ai_responses_llm_request",
+    "CreateOpenAillmRequest": ".create_open_aillm_request",
+    "CreateToolRequest": ".create_tool_request",
+    "CreateToolRequest_Lambda": ".create_tool_request",
+    "CreateVertexAillmRequest": ".create_vertex_aillm_request",
+    "CronScheduleConfiguration": ".cron_schedule_configuration",
+    "CustomDimensions": ".custom_dimensions",
+    "CustomerSpecificReranker": ".customer_specific_reranker",
+    "Data": ".data",
+    "DefaultOutputParser": ".default_output_parser",
+    "Document": ".document",
+    "DocumentConversionTool": ".document_conversion_tool",
+    "DocumentConversionToolParameters": ".document_conversion_tool_parameters",
+    "DocumentConversionToolParametersOutputFormat": ".document_conversion_tool_parameters_output_format",
+    "DocumentPart": ".document_part",
+    "DocumentStorageUsage": ".document_storage_usage",
+    "DynamicVectaraTool": ".dynamic_vectara_tool",
+    "EagerReference": ".eager_reference",
+    "Encoder": ".encoder",
+    "Error": ".error",
+    "EvaluateFactualConsistencyResponse": ".evaluate_factual_consistency_response",
+    "ExecutionConfiguration": ".execution_configuration",
+    "ExtractionUsage": ".extraction_usage",
+    "FactualConsistencyScore": ".factual_consistency_score",
+    "FactualConsistencyScoreSpan": ".factual_consistency_score_span",
+    "FieldQuery": ".field_query",
+    "FilterAttribute": ".filter_attribute",
+    "FilterAttributeLevel": ".filter_attribute_level",
+    "FilterAttributeNumericStats": ".filter_attribute_numeric_stats",
+    "FilterAttributeStat": ".filter_attribute_stat",
+    "FilterAttributeStatType": ".filter_attribute_stat_type",
+    "FilterAttributeType": ".filter_attribute_type",
+    "FilterAttributeValue": ".filter_attribute_value",
+    "FilterExtraction": ".filter_extraction",
+    "FirstAgentStep": ".first_agent_step",
+    "FunctionDefinition": ".function_definition",
+    "FunctionDefinitionLanguage": ".function_definition_language",
+    "FunctionDefinitionValidationStatus": ".function_definition_validation_status",
+    "GenerationInfo": ".generation_info",
+    "GenerationParameters": ".generation_parameters",
+    "GenerationParametersModelParameters": ".generation_parameters_model_parameters",
+    "GenerationPreset": ".generation_preset",
+    "GenerationSpan": ".generation_span",
+    "GetDocumentTextConfiguration": ".get_document_text_configuration",
+    "GetDocumentTextConfigurationMetadata": ".get_document_text_configuration_metadata",
+    "GetDocumentTextParameters": ".get_document_text_parameters",
+    "GetDocumentTextTool": ".get_document_text_tool",
+    "GetFilterAttributeStatsResponse": ".get_filter_attribute_stats_response",
+    "HallucinationCorrectionResponse": ".hallucination_correction_response",
+    "HallucinationCorrector": ".hallucination_corrector",
+    "HcmSourceDocument": ".hcm_source_document",
+    "Header": ".header",
+    "HeaderAuth": ".header_auth",
+    "Image": ".image",
+    "ImageData": ".image_data",
+    "ImageMetadata": ".image_metadata",
+    "ImageReadEvent": ".image_read_event",
+    "ImageReadEventDetail": ".image_read_event_detail",
+    "ImageReadTool": ".image_read_tool",
+    "ImageReadToolParameters": ".image_read_tool_parameters",
+    "ImageReadToolParametersDetail": ".image_read_tool_parameters_detail",
+    "IndividualSearchResult": ".individual_search_result",
+    "InitialInstruction": ".initial_instruction",
+    "InlineArtifactGrepToolConfiguration": ".inline_artifact_grep_tool_configuration",
+    "InlineArtifactReadToolConfiguration": ".inline_artifact_read_tool_configuration",
+    "InlineCorporaSearchToolConfiguration": ".inline_corpora_search_tool_configuration",
+    "InlineDocumentConversionToolConfiguration": ".inline_document_conversion_tool_configuration",
+    "InlineDynamicVectaraToolConfiguration": ".inline_dynamic_vectara_tool_configuration",
+    "InlineGetDocumentTextToolConfiguration": ".inline_get_document_text_tool_configuration",
+    "InlineImageReadToolConfiguration": ".inline_image_read_tool_configuration",
+    "InlineInstruction": ".inline_instruction",
+    "InlineLambdaToolConfiguration": ".inline_lambda_tool_configuration",
+    "InlineMcpToolConfiguration": ".inline_mcp_tool_configuration",
+    "InlineSubAgentToolConfiguration": ".inline_sub_agent_tool_configuration",
+    "InlineWebGetToolConfiguration": ".inline_web_get_tool_configuration",
+    "InlineWebSearchToolConfiguration": ".inline_web_search_tool_configuration",
+    "InputBehavior": ".input_behavior",
+    "InputMessageEvent": ".input_message_event",
+    "InputTokens": ".input_tokens",
+    "Instruction": ".instruction",
+    "InstructionId": ".instruction_id",
+    "InstructionName": ".instruction_name",
+    "InstructionReference": ".instruction_reference",
+    "InstructionRequestBase": ".instruction_request_base",
+    "InstructionTemplate": ".instruction_template",
+    "Instruction_Initial": ".instruction",
+    "IntervalScheduleConfiguration": ".interval_schedule_configuration",
+    "Job": ".job",
+    "JobState": ".job_state",
+    "JobType": ".job_type",
+    "JsonSchemaDefinition": ".json_schema_definition",
+    "JsonSchemaDefinitionType": ".json_schema_definition_type",
+    "JsonSchemaSpec": ".json_schema_spec",
+    "KeyedSearchCorpus": ".keyed_search_corpus",
+    "LambdaTool": ".lambda_tool",
+    "LambdaToolLanguage": ".lambda_tool_language",
+    "Language": ".language",
+    "ListAgentEventsResponse": ".list_agent_events_response",
+    "ListAgentScheduleExecutionsResponse": ".list_agent_schedule_executions_response",
+    "ListAgentSchedulesResponse": ".list_agent_schedules_response",
+    "ListAgentSessionsResponse": ".list_agent_sessions_response",
+    "ListAgentsResponse": ".list_agents_response",
+    "ListApiKeysResponse": ".list_api_keys_response",
+    "ListAppClientsResponse": ".list_app_clients_response",
+    "ListChatTurnsResponse": ".list_chat_turns_response",
+    "ListChatsResponse": ".list_chats_response",
+    "ListCorporaResponse": ".list_corpora_response",
+    "ListDocumentsResponse": ".list_documents_response",
+    "ListEncodersResponse": ".list_encoders_response",
+    "ListGenerationPresetsResponse": ".list_generation_presets_response",
+    "ListHallucinationCorrectorsResponse": ".list_hallucination_correctors_response",
+    "ListInstructionsResponse": ".list_instructions_response",
+    "ListJobsResponse": ".list_jobs_response",
+    "ListLlMsResponse": ".list_ll_ms_response",
+    "ListMetadata": ".list_metadata",
+    "ListQueryHistoriesResponse": ".list_query_histories_response",
+    "ListQueryHistoriesResponseMetadata": ".list_query_histories_response_metadata",
+    "ListRerankersResponse": ".list_rerankers_response",
+    "ListSessionArtifactsResponse": ".list_session_artifacts_response",
+    "ListTableExtractorsResponse": ".list_table_extractors_response",
+    "ListToolServersResponse": ".list_tool_servers_response",
+    "ListToolsResponse": ".list_tools_response",
+    "ListUsersResponse": ".list_users_response",
+    "Llm": ".llm",
+    "LlmCapabilities": ".llm_capabilities",
+    "LlmOwnership": ".llm_ownership",
+    "MaxCharsChunkingStrategy": ".max_chars_chunking_strategy",
+    "McpTool": ".mcp_tool",
+    "McpToolAnnotations": ".mcp_tool_annotations",
+    "MetadataQueryResponse": ".metadata_query_response",
+    "MmrReranker": ".mmr_reranker",
+    "NextStep": ".next_step",
+    "NoneReranker": ".none_reranker",
+    "NotFoundErrorBody": ".not_found_error_body",
+    "OpenAillmRequestBase": ".open_aillm_request_base",
+    "OpenAillmUpdateBase": ".open_aillm_update_base",
+    "OutputTokens": ".output_tokens",
+    "Prompt": ".prompt",
+    "QueryCorpusRequest": ".query_corpus_request",
+    "QueryCorpusRequestSearch": ".query_corpus_request_search",
+    "QueryFullResponse": ".query_full_response",
+    "QueryHistory": ".query_history",
+    "QueryHistorySpan": ".query_history_span",
+    "QueryHistorySpan_Fcs": ".query_history_span",
+    "QueryHistorySpan_Generation": ".query_history_span",
+    "QueryHistorySpan_Rephrase": ".query_history_span",
+    "QueryHistorySpan_Rerank": ".query_history_span",
+    "QueryHistorySpan_RewrittenQuery": ".query_history_span",
+    "QueryHistorySpan_Search": ".query_history_span",
+    "QueryHistorySummary": ".query_history_summary",
+    "QueryRequest": ".query_request",
+    "QueryStreamedResponse": ".query_streamed_response",
+    "QueryStreamedResponse_End": ".query_streamed_response",
+    "QueryStreamedResponse_Error": ".query_streamed_response",
+    "QueryStreamedResponse_FactualConsistencyScore": ".query_streamed_response",
+    "QueryStreamedResponse_GenerationChunk": ".query_streamed_response",
+    "QueryStreamedResponse_GenerationEnd": ".query_streamed_response",
+    "QueryStreamedResponse_GenerationInfo": ".query_streamed_response",
+    "QueryStreamedResponse_SearchResults": ".query_streamed_response",
+    "QueryWarning": ".query_warning",
+    "ReferenceInstruction": ".reference_instruction",
+    "RemoteAuth": ".remote_auth",
+    "RemoteAuth_Bearer": ".remote_auth",
+    "RemoteAuth_Header": ".remote_auth",
+    "RephraseSpan": ".rephrase_span",
+    "ReplaceFilterAttributesResponse": ".replace_filter_attributes_response",
+    "RerankSpan": ".rerank_span",
+    "RerankedSearchResult": ".reranked_search_result",
+    "Reranker": ".reranker",
+    "ResponseFormat": ".response_format",
+    "ResponseFormatType": ".response_format_type",
+    "RetryConfiguration": ".retry_configuration",
+    "RewrittenQuery": ".rewritten_query",
+    "RewrittenQuerySpan": ".rewritten_query_span",
+    "RewrittenQueryWarning": ".rewritten_query_warning",
+    "Row": ".row",
+    "ScheduleConfiguration": ".schedule_configuration",
+    "ScheduleConfiguration_Cron": ".schedule_configuration",
+    "ScheduleConfiguration_Interval": ".schedule_configuration",
+    "ScoredDocument": ".scored_document",
+    "SearchCorporaParameters": ".search_corpora_parameters",
+    "SearchCorpus": ".search_corpus",
+    "SearchParameters": ".search_parameters",
+    "SearchReranker": ".search_reranker",
+    "SearchReranker_Chain": ".search_reranker",
+    "SearchReranker_CustomerReranker": ".search_reranker",
+    "SearchReranker_Mmr": ".search_reranker",
+    "SearchReranker_None": ".search_reranker",
+    "SearchReranker_Userfn": ".search_reranker",
+    "SearchSemantics": ".search_semantics",
+    "SearchSpan": ".search_span",
+    "SentenceChunkingStrategy": ".sentence_chunking_strategy",
+    "SessionArtifact": ".session_artifact",
+    "SessionContextUsage": ".session_context_usage",
+    "SessionInterruptedEvent": ".session_interrupted_event",
+    "SkillLoadEvent": ".skill_load_event",
+    "StepTransitionEvent": ".step_transition_event",
+    "StepTransitionLimitExceededEvent": ".step_transition_limit_exceeded_event",
+    "StreamError": ".stream_error",
+    "StreamGenerationChunk": ".stream_generation_chunk",
+    "StreamGenerationEnd": ".stream_generation_end",
+    "StreamResponseEnd": ".stream_response_end",
+    "StreamSearchResponse": ".stream_search_response",
+    "StreamingAgentOutput": ".streaming_agent_output",
+    "StreamingAgentOutputEnd": ".streaming_agent_output_end",
+    "StreamingThinking": ".streaming_thinking",
+    "StreamingThinkingEnd": ".streaming_thinking_end",
+    "StructuredDocument": ".structured_document",
+    "StructuredDocumentSection": ".structured_document_section",
+    "StructuredOutputEvent": ".structured_output_event",
+    "StructuredOutputParser": ".structured_output_parser",
+    "SubAgentConfiguration": ".sub_agent_configuration",
+    "SubAgentSessionMode": ".sub_agent_session_mode",
+    "SubAgentTool": ".sub_agent_tool",
+    "SubAgentToolParameters": ".sub_agent_tool_parameters",
+    "SummarizeDocumentResponse": ".summarize_document_response",
+    "SummarizeDocumentStreamedResponse": ".summarize_document_streamed_response",
+    "SummarizeDocumentStreamedResponse_End": ".summarize_document_streamed_response",
+    "SummarizeDocumentStreamedResponse_Error": ".summarize_document_streamed_response",
+    "SummarizeDocumentStreamedResponse_GenerationChunk": ".summarize_document_streamed_response",
+    "SummarizeDocumentStreamedResponse_GenerationEnd": ".summarize_document_streamed_response",
+    "SummarizeDocumentStreamedResponse_GenerationInfo": ".summarize_document_streamed_response",
+    "Table": ".table",
+    "TableExtractionConfig": ".table_extraction_config",
+    "TableExtractor": ".table_extractor",
+    "TableExtractorSpec": ".table_extractor_spec",
+    "TableGenerationSpec": ".table_generation_spec",
+    "TemplateType": ".template_type",
+    "TemplatedReminder": ".templated_reminder",
+    "TemplatedReminderHooksItem": ".templated_reminder_hooks_item",
+    "TestInstructionResponse": ".test_instruction_response",
+    "TestLambdaToolResponse": ".test_lambda_tool_response",
+    "TestLambdaToolResponseExecution": ".test_lambda_tool_response_execution",
+    "TestLambdaToolResponseExecutionError": ".test_lambda_tool_response_execution_error",
+    "TestLambdaToolResponseExecutionValidationResults": ".test_lambda_tool_response_execution_validation_results",
+    "TestLambdaToolResponseValidation": ".test_lambda_tool_response_validation",
+    "TestLambdaToolResponseValidationStatus": ".test_lambda_tool_response_validation_status",
+    "TestToolErrorResponse": ".test_tool_error_response",
+    "TestToolErrorResponseError": ".test_tool_error_response_error",
+    "TestToolResponse": ".test_tool_response",
+    "TestToolResponse_Error": ".test_tool_response",
+    "TestToolResponse_Success": ".test_tool_response",
+    "TestToolSuccessResponse": ".test_tool_success_response",
+    "TestToolSuccessResponseValidationResults": ".test_tool_success_response_validation_results",
+    "ThinkingEvent": ".thinking_event",
+    "Tool": ".tool",
+    "ToolBase": ".tool_base",
+    "ToolDescriptionTemplate": ".tool_description_template",
+    "ToolId": ".tool_id",
+    "ToolInputEvent": ".tool_input_event",
+    "ToolOutputEvent": ".tool_output_event",
+    "ToolOutputOffloadingConfiguration": ".tool_output_offloading_configuration",
+    "ToolServer": ".tool_server",
+    "ToolServerId": ".tool_server_id",
+    "ToolServerName": ".tool_server_name",
+    "ToolServerTransport": ".tool_server_transport",
+    "ToolServerType": ".tool_server_type",
+    "Tool_ArtifactCreate": ".tool",
+    "Tool_ArtifactGrep": ".tool",
+    "Tool_ArtifactRead": ".tool",
+    "Tool_CorporaSearch": ".tool",
+    "Tool_DocumentConversion": ".tool",
+    "Tool_DynamicVectara": ".tool",
+    "Tool_GetDocumentText": ".tool",
+    "Tool_ImageRead": ".tool",
+    "Tool_Lambda": ".tool",
+    "Tool_Mcp": ".tool",
+    "Tool_SubAgent": ".tool",
+    "Tool_WebGet": ".tool",
+    "Tool_WebSearch": ".tool",
+    "Turn": ".turn",
+    "UpdateAgentStep": ".update_agent_step",
+    "UpdateAnthropicLlmRequest": ".update_anthropic_llm_request",
+    "UpdateDocumentRequest": ".update_document_request",
+    "UpdateFirstAgentStep": ".update_first_agent_step",
+    "UpdateInitialInstructionRequest": ".update_initial_instruction_request",
+    "UpdateInstructionRequest": ".update_instruction_request",
+    "UpdateInstructionRequest_Initial": ".update_instruction_request",
+    "UpdateLambdaToolRequest": ".update_lambda_tool_request",
+    "UpdateLlmRequest": ".update_llm_request",
+    "UpdateLlmRequest_Anthropic": ".update_llm_request",
+    "UpdateLlmRequest_OpenaiCompatible": ".update_llm_request",
+    "UpdateLlmRequest_OpenaiResponses": ".update_llm_request",
+    "UpdateLlmRequest_VertexAi": ".update_llm_request",
+    "UpdateMcpToolRequest": ".update_mcp_tool_request",
+    "UpdateOpenAiResponsesLlmRequest": ".update_open_ai_responses_llm_request",
+    "UpdateOpenAillmRequest": ".update_open_aillm_request",
+    "UpdateToolRequest": ".update_tool_request",
+    "UpdateToolRequest_Lambda": ".update_tool_request",
+    "UpdateToolRequest_Mcp": ".update_tool_request",
+    "UpdateVertexAillmRequest": ".update_vertex_aillm_request",
+    "User": ".user",
+    "UserFunctionReranker": ".user_function_reranker",
+    "VertexAccessTokenAuth": ".vertex_access_token_auth",
+    "VertexAiApiKeyAuth": ".vertex_ai_api_key_auth",
+    "VertexAiAuth": ".vertex_ai_auth",
+    "VertexAiAuth_ApiKey": ".vertex_ai_auth",
+    "VertexAiAuth_ServiceAccount": ".vertex_ai_auth",
+    "VertexAiServiceAccountAuth": ".vertex_ai_service_account_auth",
+    "VertexServiceAccountAuth": ".vertex_service_account_auth",
+    "WebGetTool": ".web_get_tool",
+    "WebGetToolParameters": ".web_get_tool_parameters",
+    "WebGetToolParametersBody": ".web_get_tool_parameters_body",
+    "WebGetToolParametersFollowRedirects": ".web_get_tool_parameters_follow_redirects",
+    "WebGetToolParametersHeadLines": ".web_get_tool_parameters_head_lines",
+    "WebGetToolParametersHeaders": ".web_get_tool_parameters_headers",
+    "WebGetToolParametersMaxContentBytes": ".web_get_tool_parameters_max_content_bytes",
+    "WebGetToolParametersMethod": ".web_get_tool_parameters_method",
+    "WebGetToolParametersSslVerify": ".web_get_tool_parameters_ssl_verify",
+    "WebGetToolParametersTailLines": ".web_get_tool_parameters_tail_lines",
+    "WebGetToolParametersTimeoutSeconds": ".web_get_tool_parameters_timeout_seconds",
+    "WebGetToolParametersUrl": ".web_get_tool_parameters_url",
+    "WebSearchTool": ".web_search_tool",
+    "WebSearchToolParameters": ".web_search_tool_parameters",
+    "WebSearchToolParametersProvider": ".web_search_tool_parameters_provider",
+}
+
+
+def __getattr__(attr_name: str) -> typing.Any:
+    module_name = _dynamic_imports.get(attr_name)
+    if module_name is None:
+        raise AttributeError(f"No {attr_name} found in _dynamic_imports for module name -> {__name__}")
+    try:
+        module = import_module(module_name, __package__)
+        if module_name == f".{attr_name}":
+            return module
+        else:
+            return getattr(module, attr_name)
+    except ImportError as e:
+        raise ImportError(f"Failed to import {attr_name} from {module_name}: {e}") from e
+    except AttributeError as e:
+        raise AttributeError(f"Failed to get {attr_name} from {module_name}: {e}") from e
+
+
+def __dir__():
+    lazy_attrs = list(_dynamic_imports.keys())
+    return sorted(lazy_attrs)
+
 
 __all__ = [
     "Agent",
+    "AgentCorporaSearchQueryConfiguration",
     "AgentEvent",
+    "AgentEventBase",
+    "AgentEvent_AgentOutput",
+    "AgentEvent_ArtifactUpload",
+    "AgentEvent_Compaction",
+    "AgentEvent_ContextLimitExceeded",
+    "AgentEvent_ImageRead",
+    "AgentEvent_InputMessage",
+    "AgentEvent_SessionInterrupted",
+    "AgentEvent_SkillLoad",
+    "AgentEvent_StepTransition",
+    "AgentEvent_StepTransitionLimitExceeded",
+    "AgentEvent_StructuredOutput",
+    "AgentEvent_Thinking",
+    "AgentEvent_ToolInput",
+    "AgentEvent_ToolOutput",
+    "AgentIdentity",
+    "AgentIdentityMode",
+    "AgentInput",
+    "AgentInput_Skill",
+    "AgentInput_Text",
     "AgentKey",
+    "AgentKeyedSearchCorpus",
+    "AgentKeyedSearchCorpusCorpusKey",
+    "AgentKeyedSearchCorpusMetadataFilter",
     "AgentModel",
     "AgentName",
     "AgentOutputEvent",
+    "AgentOutputParser",
+    "AgentOutputParser_Default",
+    "AgentOutputParser_Structured",
     "AgentResponse",
     "AgentRole",
     "AgentRoleRole",
+    "AgentSchedule",
+    "AgentScheduleExecution",
+    "AgentScheduleExecutionStatus",
+    "AgentScheduleKey",
+    "AgentScheduleName",
+    "AgentSearchCorporaParameters",
     "AgentSession",
     "AgentSessionKey",
+    "AgentSkill",
+    "AgentSkillInput",
+    "AgentStep",
     "AgentStepInstruction",
+    "AgentStepInstruction_Inline",
+    "AgentStepInstruction_Reference",
+    "AgentStepReminder",
+    "AgentStepReminder_Templated",
     "AgentStreamedResponse",
+    "AgentStreamedResponse_ArtifactUpload",
+    "AgentStreamedResponse_Compaction",
+    "AgentStreamedResponse_CompactionStarted",
+    "AgentStreamedResponse_ContextConsumed",
+    "AgentStreamedResponse_ContextLimitExceeded",
+    "AgentStreamedResponse_End",
+    "AgentStreamedResponse_Error",
+    "AgentStreamedResponse_ImageRead",
+    "AgentStreamedResponse_InputMessage",
+    "AgentStreamedResponse_SessionInterrupted",
+    "AgentStreamedResponse_SkillLoad",
+    "AgentStreamedResponse_StepTransition",
+    "AgentStreamedResponse_StepTransitionLimitExceeded",
+    "AgentStreamedResponse_StreamingAgentOutput",
+    "AgentStreamedResponse_StreamingAgentOutputEnd",
+    "AgentStreamedResponse_StreamingThinking",
+    "AgentStreamedResponse_StreamingThinkingEnd",
+    "AgentStreamedResponse_StructuredOutput",
+    "AgentStreamedResponse_Thinking",
+    "AgentStreamedResponse_ToolInput",
+    "AgentStreamedResponse_ToolOutput",
     "AgentTextInput",
     "AgentToolConfiguration",
+    "AgentToolConfiguration_ArtifactGrep",
+    "AgentToolConfiguration_ArtifactRead",
+    "AgentToolConfiguration_CorporaSearch",
+    "AgentToolConfiguration_DocumentConversion",
+    "AgentToolConfiguration_DynamicVectara",
+    "AgentToolConfiguration_GetDocumentText",
+    "AgentToolConfiguration_ImageRead",
+    "AgentToolConfiguration_Lambda",
+    "AgentToolConfiguration_Mcp",
+    "AgentToolConfiguration_SubAgent",
+    "AgentToolConfiguration_WebGet",
+    "AgentToolConfiguration_WebSearch",
+    "AnthropicAuth",
+    "AnthropicAuth_Bearer",
+    "AnthropicAuth_BedrockApiKey",
+    "AnthropicAuth_BedrockStaticIam",
+    "AnthropicAuth_Header",
+    "AnthropicAuth_VertexAccessToken",
+    "AnthropicAuth_VertexServiceAccount",
     "ApiKey",
     "ApiKeyRole",
     "ApiOperationPolicy",
     "ApiPolicy",
     "ApiRole",
     "AppClient",
+    "ArtifactCreateTool",
+    "ArtifactGrepTool",
+    "ArtifactGrepToolParameters",
+    "ArtifactReadConfiguration",
+    "ArtifactReadTool",
+    "ArtifactReadToolParameters",
+    "ArtifactReadToolParametersEncoding",
     "ArtifactReference",
     "ArtifactUploadEvent",
     "BadRequestErrorBody",
     "BearerAuth",
+    "BedrockApiKeyAuth",
+    "BedrockStaticIamAuth",
+    "BulkDeleteAsyncResponse",
+    "BulkDeleteDocumentsResponse",
+    "BulkDeleteDocumentsResponse_Async",
+    "BulkDeleteDocumentsResponse_Success",
+    "BulkDeleteSyncSuccessResponse",
     "Cell",
     "ChainReranker",
     "Chat",
@@ -277,26 +1203,31 @@ __all__ = [
     "ChatFullResponse",
     "ChatInfoResponse",
     "ChatParameters",
+    "ChatRequest",
     "ChatStreamedResponse",
+    "ChatStreamedResponse_ChatInfo",
+    "ChatStreamedResponse_End",
+    "ChatStreamedResponse_Error",
+    "ChatStreamedResponse_FactualConsistencyScore",
+    "ChatStreamedResponse_GenerationChunk",
+    "ChatStreamedResponse_GenerationEnd",
+    "ChatStreamedResponse_GenerationInfo",
+    "ChatStreamedResponse_SearchResults",
     "ChunkingStrategy",
+    "ChunkingStrategy_MaxCharsChunkingStrategy",
+    "ChunkingStrategy_SentenceChunkingStrategy",
     "CitationParameters",
     "CitationParametersStyle",
-    "ComponentsSchemasAgentTextInput",
-    "ComponentsSchemasConversationalAgentStep",
-    "ComponentsSchemasCreateClientCredentialsRequest",
-    "ComponentsSchemasCreateInitialInstructionRequest",
-    "ComponentsSchemasCreateLambdaToolRequest",
-    "ComponentsSchemasCreateOpenAiEncoderRequest",
-    "ComponentsSchemasDefaultOutputParser",
-    "ComponentsSchemasInitialInstruction",
-    "ComponentsSchemasUpdateInitialInstructionRequest",
+    "CompactionConfig",
+    "CompactionConfigToolEventPolicy",
+    "CompactionEvent",
+    "CompactionStartedEvent",
     "ComputeCorpusSizeResponse",
     "ContextConfiguration",
+    "ContextConsumedEvent",
     "ContextLimitExceededEvent",
-    "ConversationalAgentStep",
     "CoreDocument",
     "CoreDocumentPart",
-    "CorporaSearchQueryConfiguration",
     "CorporaSearchTool",
     "CorporaSearchToolParameters",
     "Corpus",
@@ -306,24 +1237,57 @@ __all__ = [
     "CorpusRole",
     "CorpusRoleRole",
     "CorrectionItem",
+    "CreateAgentRequest",
+    "CreateAnthropicLlmRequest",
+    "CreateAppClientRequest",
+    "CreateAppClientRequest_ClientCredentials",
     "CreateChatCompletionResponse",
+    "CreateChatCompletionResponseObject",
     "CreateChatCompletionStreamResponse",
+    "CreateChatCompletionStreamResponseObject",
     "CreateClientCredentialsRequest",
+    "CreateCompactRequest",
     "CreateDocumentRequest",
+    "CreateDocumentRequest_Core",
+    "CreateDocumentRequest_Structured",
+    "CreateEncoderRequest",
+    "CreateEncoderRequest_OpenaiCompatible",
     "CreateInitialInstructionRequest",
+    "CreateInputMessageRequest",
+    "CreateInputRequest",
+    "CreateInputRequestBase",
+    "CreateInputRequest_Compact",
+    "CreateInputRequest_InputMessage",
+    "CreateInputRequest_Interrupt",
+    "CreateInstructionRequest",
+    "CreateInstructionRequest_Initial",
+    "CreateInterruptRequest",
     "CreateLambdaToolRequest",
+    "CreateLambdaToolRequestLanguage",
     "CreateLlmRequest",
+    "CreateLlmRequest_Anthropic",
+    "CreateLlmRequest_OpenaiCompatible",
+    "CreateLlmRequest_OpenaiResponses",
+    "CreateLlmRequest_VertexAi",
     "CreateOpenAiEncoderRequest",
     "CreateOpenAiResponsesLlmRequest",
     "CreateOpenAillmRequest",
+    "CreateToolRequest",
+    "CreateToolRequest_Lambda",
     "CreateVertexAillmRequest",
+    "CronScheduleConfiguration",
     "CustomDimensions",
     "CustomerSpecificReranker",
     "Data",
     "DefaultOutputParser",
     "Document",
+    "DocumentConversionTool",
+    "DocumentConversionToolParameters",
+    "DocumentConversionToolParametersOutputFormat",
     "DocumentPart",
     "DocumentStorageUsage",
+    "DynamicVectaraTool",
+    "EagerReference",
     "Encoder",
     "Error",
     "EvaluateFactualConsistencyResponse",
@@ -334,14 +1298,26 @@ __all__ = [
     "FieldQuery",
     "FilterAttribute",
     "FilterAttributeLevel",
+    "FilterAttributeNumericStats",
+    "FilterAttributeStat",
+    "FilterAttributeStatType",
     "FilterAttributeType",
+    "FilterAttributeValue",
     "FilterExtraction",
+    "FirstAgentStep",
     "FunctionDefinition",
+    "FunctionDefinitionLanguage",
     "FunctionDefinitionValidationStatus",
     "GenerationInfo",
     "GenerationParameters",
+    "GenerationParametersModelParameters",
     "GenerationPreset",
     "GenerationSpan",
+    "GetDocumentTextConfiguration",
+    "GetDocumentTextConfigurationMetadata",
+    "GetDocumentTextParameters",
+    "GetDocumentTextTool",
+    "GetFilterAttributeStatsResponse",
     "HallucinationCorrectionResponse",
     "HallucinationCorrector",
     "HcmSourceDocument",
@@ -350,25 +1326,50 @@ __all__ = [
     "Image",
     "ImageData",
     "ImageMetadata",
+    "ImageReadEvent",
+    "ImageReadEventDetail",
+    "ImageReadTool",
+    "ImageReadToolParameters",
+    "ImageReadToolParametersDetail",
     "IndividualSearchResult",
     "InitialInstruction",
+    "InlineArtifactGrepToolConfiguration",
+    "InlineArtifactReadToolConfiguration",
     "InlineCorporaSearchToolConfiguration",
+    "InlineDocumentConversionToolConfiguration",
+    "InlineDynamicVectaraToolConfiguration",
+    "InlineGetDocumentTextToolConfiguration",
+    "InlineImageReadToolConfiguration",
     "InlineInstruction",
     "InlineLambdaToolConfiguration",
     "InlineMcpToolConfiguration",
-    "InlineStructuredIndexingToolConfiguration",
+    "InlineSubAgentToolConfiguration",
+    "InlineWebGetToolConfiguration",
     "InlineWebSearchToolConfiguration",
+    "InputBehavior",
     "InputMessageEvent",
+    "InputTokens",
+    "Instruction",
     "InstructionId",
     "InstructionName",
     "InstructionReference",
+    "InstructionRequestBase",
+    "InstructionTemplate",
+    "Instruction_Initial",
+    "IntervalScheduleConfiguration",
     "Job",
     "JobState",
     "JobType",
+    "JsonSchemaDefinition",
+    "JsonSchemaDefinitionType",
+    "JsonSchemaSpec",
     "KeyedSearchCorpus",
     "LambdaTool",
+    "LambdaToolLanguage",
     "Language",
     "ListAgentEventsResponse",
+    "ListAgentScheduleExecutionsResponse",
+    "ListAgentSchedulesResponse",
     "ListAgentSessionsResponse",
     "ListAgentsResponse",
     "ListApiKeysResponse",
@@ -387,47 +1388,86 @@ __all__ = [
     "ListQueryHistoriesResponse",
     "ListQueryHistoriesResponseMetadata",
     "ListRerankersResponse",
+    "ListSessionArtifactsResponse",
     "ListTableExtractorsResponse",
     "ListToolServersResponse",
     "ListToolsResponse",
     "ListUsersResponse",
     "Llm",
+    "LlmCapabilities",
+    "LlmOwnership",
     "MaxCharsChunkingStrategy",
     "McpTool",
     "McpToolAnnotations",
     "MetadataQueryResponse",
     "MmrReranker",
-    "ModelParameters",
+    "NextStep",
     "NoneReranker",
     "NotFoundErrorBody",
     "OpenAillmRequestBase",
+    "OpenAillmUpdateBase",
+    "OutputTokens",
     "Prompt",
+    "QueryCorpusRequest",
+    "QueryCorpusRequestSearch",
     "QueryFullResponse",
     "QueryHistory",
     "QueryHistorySpan",
+    "QueryHistorySpan_Fcs",
+    "QueryHistorySpan_Generation",
+    "QueryHistorySpan_Rephrase",
+    "QueryHistorySpan_Rerank",
+    "QueryHistorySpan_RewrittenQuery",
+    "QueryHistorySpan_Search",
     "QueryHistorySummary",
+    "QueryRequest",
     "QueryStreamedResponse",
+    "QueryStreamedResponse_End",
+    "QueryStreamedResponse_Error",
+    "QueryStreamedResponse_FactualConsistencyScore",
+    "QueryStreamedResponse_GenerationChunk",
+    "QueryStreamedResponse_GenerationEnd",
+    "QueryStreamedResponse_GenerationInfo",
+    "QueryStreamedResponse_SearchResults",
     "QueryWarning",
     "ReferenceInstruction",
     "RemoteAuth",
+    "RemoteAuth_Bearer",
+    "RemoteAuth_Header",
     "RephraseSpan",
     "ReplaceFilterAttributesResponse",
     "RerankSpan",
     "RerankedSearchResult",
     "Reranker",
+    "ResponseFormat",
+    "ResponseFormatType",
     "RetryConfiguration",
     "RewrittenQuery",
     "RewrittenQuerySpan",
     "RewrittenQueryWarning",
     "Row",
+    "ScheduleConfiguration",
+    "ScheduleConfiguration_Cron",
+    "ScheduleConfiguration_Interval",
     "ScoredDocument",
     "SearchCorporaParameters",
     "SearchCorpus",
     "SearchParameters",
     "SearchReranker",
+    "SearchReranker_Chain",
+    "SearchReranker_CustomerReranker",
+    "SearchReranker_Mmr",
+    "SearchReranker_None",
+    "SearchReranker_Userfn",
     "SearchSemantics",
     "SearchSpan",
     "SentenceChunkingStrategy",
+    "SessionArtifact",
+    "SessionContextUsage",
+    "SessionInterruptedEvent",
+    "SkillLoadEvent",
+    "StepTransitionEvent",
+    "StepTransitionLimitExceededEvent",
     "StreamError",
     "StreamGenerationChunk",
     "StreamGenerationEnd",
@@ -439,43 +1479,110 @@ __all__ = [
     "StreamingThinkingEnd",
     "StructuredDocument",
     "StructuredDocumentSection",
-    "StructuredIndexingTool",
-    "StructuredIndexingToolParameters",
+    "StructuredOutputEvent",
+    "StructuredOutputParser",
+    "SubAgentConfiguration",
+    "SubAgentSessionMode",
+    "SubAgentTool",
+    "SubAgentToolParameters",
     "SummarizeDocumentResponse",
     "SummarizeDocumentStreamedResponse",
+    "SummarizeDocumentStreamedResponse_End",
+    "SummarizeDocumentStreamedResponse_Error",
+    "SummarizeDocumentStreamedResponse_GenerationChunk",
+    "SummarizeDocumentStreamedResponse_GenerationEnd",
+    "SummarizeDocumentStreamedResponse_GenerationInfo",
     "Table",
     "TableExtractionConfig",
     "TableExtractor",
     "TableExtractorSpec",
     "TableGenerationSpec",
     "TemplateType",
+    "TemplatedReminder",
+    "TemplatedReminderHooksItem",
     "TestInstructionResponse",
+    "TestLambdaToolResponse",
+    "TestLambdaToolResponseExecution",
+    "TestLambdaToolResponseExecutionError",
+    "TestLambdaToolResponseExecutionValidationResults",
+    "TestLambdaToolResponseValidation",
+    "TestLambdaToolResponseValidationStatus",
     "TestToolErrorResponse",
     "TestToolErrorResponseError",
     "TestToolResponse",
+    "TestToolResponse_Error",
+    "TestToolResponse_Success",
     "TestToolSuccessResponse",
     "TestToolSuccessResponseValidationResults",
     "ThinkingEvent",
     "Tool",
+    "ToolBase",
+    "ToolDescriptionTemplate",
     "ToolId",
     "ToolInputEvent",
     "ToolOutputEvent",
+    "ToolOutputOffloadingConfiguration",
     "ToolServer",
     "ToolServerId",
     "ToolServerName",
     "ToolServerTransport",
     "ToolServerType",
+    "Tool_ArtifactCreate",
+    "Tool_ArtifactGrep",
+    "Tool_ArtifactRead",
+    "Tool_CorporaSearch",
+    "Tool_DocumentConversion",
+    "Tool_DynamicVectara",
+    "Tool_GetDocumentText",
+    "Tool_ImageRead",
+    "Tool_Lambda",
+    "Tool_Mcp",
+    "Tool_SubAgent",
+    "Tool_WebGet",
+    "Tool_WebSearch",
     "Turn",
+    "UpdateAgentStep",
+    "UpdateAnthropicLlmRequest",
     "UpdateDocumentRequest",
+    "UpdateFirstAgentStep",
     "UpdateInitialInstructionRequest",
+    "UpdateInstructionRequest",
+    "UpdateInstructionRequest_Initial",
     "UpdateLambdaToolRequest",
+    "UpdateLlmRequest",
+    "UpdateLlmRequest_Anthropic",
+    "UpdateLlmRequest_OpenaiCompatible",
+    "UpdateLlmRequest_OpenaiResponses",
+    "UpdateLlmRequest_VertexAi",
     "UpdateMcpToolRequest",
+    "UpdateOpenAiResponsesLlmRequest",
+    "UpdateOpenAillmRequest",
     "UpdateToolRequest",
+    "UpdateToolRequest_Lambda",
+    "UpdateToolRequest_Mcp",
+    "UpdateVertexAillmRequest",
     "User",
     "UserFunctionReranker",
+    "VertexAccessTokenAuth",
     "VertexAiApiKeyAuth",
     "VertexAiAuth",
+    "VertexAiAuth_ApiKey",
+    "VertexAiAuth_ServiceAccount",
     "VertexAiServiceAccountAuth",
+    "VertexServiceAccountAuth",
+    "WebGetTool",
+    "WebGetToolParameters",
+    "WebGetToolParametersBody",
+    "WebGetToolParametersFollowRedirects",
+    "WebGetToolParametersHeadLines",
+    "WebGetToolParametersHeaders",
+    "WebGetToolParametersMaxContentBytes",
+    "WebGetToolParametersMethod",
+    "WebGetToolParametersSslVerify",
+    "WebGetToolParametersTailLines",
+    "WebGetToolParametersTimeoutSeconds",
+    "WebGetToolParametersUrl",
     "WebSearchTool",
     "WebSearchToolParameters",
+    "WebSearchToolParametersProvider",
 ]

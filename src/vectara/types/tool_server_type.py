@@ -2,4 +2,4 @@
 
 import typing
 
-ToolServerType = typing.Literal["mcp"]
+ToolServerType = typing.Union[typing.Literal["mcp"], typing.Any]

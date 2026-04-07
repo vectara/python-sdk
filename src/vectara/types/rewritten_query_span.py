@@ -13,7 +13,6 @@ class RewrittenQuerySpan(UniversalBaseModel):
     Provides detailed information about a rewritten query generated for a specific corpus when intelligent query rewriting is enabled.
     """
 
-    type: typing.Literal["rewritten_query"] = "rewritten_query"
     corpus_key: typing.Optional[str] = pydantic.Field(default=None)
     """
     The corpus key that the query was made on.
@@ -29,7 +28,11 @@ class RewrittenQuerySpan(UniversalBaseModel):
     ISO date time that indicates when the span started.
     """
 
-    warnings: typing.Optional[typing.Optional[typing.Any]] = None
+    warnings: typing.Optional[typing.Any] = pydantic.Field(default=None)
+    """
+    Warnings that occurred during query rewriting.
+    """
+
     filter_extraction: typing.Optional[FilterExtraction] = None
 
     if IS_PYDANTIC_V2:

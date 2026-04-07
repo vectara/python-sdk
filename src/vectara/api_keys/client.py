@@ -5,9 +5,13 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
+from ..types.agent_role import AgentRole
 from ..types.api_key import ApiKey
 from ..types.api_key_role import ApiKeyRole
+from ..types.api_role import ApiRole
 from ..types.corpus_key import CorpusKey
+from ..types.corpus_role import CorpusRole
+from ..types.list_api_keys_response import ListApiKeysResponse
 from .raw_client import AsyncRawApiKeysClient, RawApiKeysClient
 
 # this is used as the default value for optional parameters
@@ -39,9 +43,9 @@ class ApiKeysClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[ApiKey]:
+    ) -> SyncPager[ApiKey, ListApiKeysResponse]:
         """
-        Retrieve a list of API keys for the customer account with optional filtering.
+        The List API Keys API lists all existing API keys for a customer ID. It also shows what corpora are accessed by these keys and with what permissions. This capability can provide insights into key usage and status and help you manage the lifecycle and security of your API keys.
 
         Parameters
         ----------
@@ -68,18 +72,15 @@ class ApiKeysClient:
 
         Returns
         -------
-        SyncPager[ApiKey]
-            An array of API keys.
+        SyncPager[ApiKey, ListApiKeysResponse]
+            The response includes an api_keys array field that contains information about the
+            API keys, and a metadata field containing information such as pagination key.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.api_keys.list(
             corpus_key="my-corpus",
         )
@@ -103,21 +104,28 @@ class ApiKeysClient:
         self,
         *,
         name: str,
-        api_key_role: ApiKeyRole,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
+        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        api_key_role: typing.Optional[ApiKeyRole] = OMIT,
         corpus_keys: typing.Optional[typing.Sequence[CorpusKey]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ApiKey:
         """
-        An API key is to authenticate when calling Vectara APIs.
+        The Create API Key API lets you create new API keys, which you can bind to one or multiple corpora. You can also decide whether to designate each key for specific access like personal API keys, only querying (read-only) or both querying and indexing (read-write).
+
+        This capability is useful in scenarios where you have applications that require different levels of access to corpora data. For example, you might create a read-only API key for an application that only needs to query data.
+
+        :::note
+        For more information about the different types of API keys, see [API Key Management](/docs/deploy-and-scale/authentication/api-key-management).
+        :::
 
         Parameters
         ----------
         name : str
             The human-readable name of the API key.
-
-        api_key_role : ApiKeyRole
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -125,8 +133,20 @@ class ApiKeysClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
+        api_roles : typing.Optional[typing.Sequence[ApiRole]]
+            Customer-level roles for this API key.
+
+        api_key_role : typing.Optional[ApiKeyRole]
+            Deprecated: Use api_roles instead. Legacy role of the API key.
+
         corpus_keys : typing.Optional[typing.Sequence[CorpusKey]]
-            Corpora this API key has roles on if it is not a Personal API key. This property should be null or missing if this `api_key_role` is `personal`.
+            Deprecated: Use corpus_roles instead. Corpora this API key has roles on.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            Corpus-specific role assignments for this API key.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            Agent-specific role assignments for this API key.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -134,28 +154,26 @@ class ApiKeysClient:
         Returns
         -------
         ApiKey
-            An API key object, used to query the Vectara API with the assigned roles.
+            The response includes the assigned API key ID, name, secret key, enabled status, API key role, and API policy.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.api_keys.create(
             name="name",
-            api_key_role="serving",
         )
         """
         _response = self._raw_client.create(
             name=name,
-            api_key_role=api_key_role,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
+            api_roles=api_roles,
+            api_key_role=api_key_role,
             corpus_keys=corpus_keys,
+            corpus_roles=corpus_roles,
+            agent_roles=agent_roles,
             request_options=request_options,
         )
         return _response.data
@@ -169,7 +187,9 @@ class ApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ApiKey:
         """
-        Retrieve details of a specific API key by its ID.
+        The Get API Key API lists all existing API keys for a customer ID. It also shows what corpora are accessed by these keys and with what permissions.
+
+        This capability can provide insights into key usage and status and help you manage the lifecycle and security of your API keys.
 
         Parameters
         ----------
@@ -188,17 +208,13 @@ class ApiKeysClient:
         Returns
         -------
         ApiKey
-            The API key.
+            The response includes the API name, enabled status, API key role, and API policy.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.api_keys.get(
             api_key_id="api_key_id",
         )
@@ -220,7 +236,9 @@ class ApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Delete API keys to help you manage the security and lifecycle of API keys in your application.
+        The Delete API Key API lets you delete one or more existing API keys.
+        This capability is useful for managing the lifecycle and security of
+        API keys such as when they are no longer needed or when a key is compromised.
 
         Parameters
         ----------
@@ -244,11 +262,7 @@ class ApiKeysClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.api_keys.delete(
             api_key_id="api_key_id",
         )
@@ -271,7 +285,9 @@ class ApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ApiKey:
         """
-        Update an API key such as the roles attached to the key.
+        The Update API Key API lets you enable or disable specific API keys. You can use this endpoint to temporarily disable access without deleting the key.
+
+        This capability is useful for scenarios like maintenance windows, or when your team no longer requires access to a specific corpus.
 
         Parameters
         ----------
@@ -299,11 +315,7 @@ class ApiKeysClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.api_keys.update(
             api_key_id="api_key_id",
         )
@@ -343,9 +355,9 @@ class AsyncApiKeysClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[ApiKey]:
+    ) -> AsyncPager[ApiKey, ListApiKeysResponse]:
         """
-        Retrieve a list of API keys for the customer account with optional filtering.
+        The List API Keys API lists all existing API keys for a customer ID. It also shows what corpora are accessed by these keys and with what permissions. This capability can provide insights into key usage and status and help you manage the lifecycle and security of your API keys.
 
         Parameters
         ----------
@@ -372,8 +384,9 @@ class AsyncApiKeysClient:
 
         Returns
         -------
-        AsyncPager[ApiKey]
-            An array of API keys.
+        AsyncPager[ApiKey, ListApiKeysResponse]
+            The response includes an api_keys array field that contains information about the
+            API keys, and a metadata field containing information such as pagination key.
 
         Examples
         --------
@@ -381,11 +394,7 @@ class AsyncApiKeysClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -416,21 +425,28 @@ class AsyncApiKeysClient:
         self,
         *,
         name: str,
-        api_key_role: ApiKeyRole,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
+        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        api_key_role: typing.Optional[ApiKeyRole] = OMIT,
         corpus_keys: typing.Optional[typing.Sequence[CorpusKey]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ApiKey:
         """
-        An API key is to authenticate when calling Vectara APIs.
+        The Create API Key API lets you create new API keys, which you can bind to one or multiple corpora. You can also decide whether to designate each key for specific access like personal API keys, only querying (read-only) or both querying and indexing (read-write).
+
+        This capability is useful in scenarios where you have applications that require different levels of access to corpora data. For example, you might create a read-only API key for an application that only needs to query data.
+
+        :::note
+        For more information about the different types of API keys, see [API Key Management](/docs/deploy-and-scale/authentication/api-key-management).
+        :::
 
         Parameters
         ----------
         name : str
             The human-readable name of the API key.
-
-        api_key_role : ApiKeyRole
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -438,8 +454,20 @@ class AsyncApiKeysClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
+        api_roles : typing.Optional[typing.Sequence[ApiRole]]
+            Customer-level roles for this API key.
+
+        api_key_role : typing.Optional[ApiKeyRole]
+            Deprecated: Use api_roles instead. Legacy role of the API key.
+
         corpus_keys : typing.Optional[typing.Sequence[CorpusKey]]
-            Corpora this API key has roles on if it is not a Personal API key. This property should be null or missing if this `api_key_role` is `personal`.
+            Deprecated: Use corpus_roles instead. Corpora this API key has roles on.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            Corpus-specific role assignments for this API key.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            Agent-specific role assignments for this API key.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -447,7 +475,7 @@ class AsyncApiKeysClient:
         Returns
         -------
         ApiKey
-            An API key object, used to query the Vectara API with the assigned roles.
+            The response includes the assigned API key ID, name, secret key, enabled status, API key role, and API policy.
 
         Examples
         --------
@@ -455,17 +483,12 @@ class AsyncApiKeysClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
             await client.api_keys.create(
                 name="name",
-                api_key_role="serving",
             )
 
 
@@ -473,10 +496,13 @@ class AsyncApiKeysClient:
         """
         _response = await self._raw_client.create(
             name=name,
-            api_key_role=api_key_role,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
+            api_roles=api_roles,
+            api_key_role=api_key_role,
             corpus_keys=corpus_keys,
+            corpus_roles=corpus_roles,
+            agent_roles=agent_roles,
             request_options=request_options,
         )
         return _response.data
@@ -490,7 +516,9 @@ class AsyncApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ApiKey:
         """
-        Retrieve details of a specific API key by its ID.
+        The Get API Key API lists all existing API keys for a customer ID. It also shows what corpora are accessed by these keys and with what permissions.
+
+        This capability can provide insights into key usage and status and help you manage the lifecycle and security of your API keys.
 
         Parameters
         ----------
@@ -509,7 +537,7 @@ class AsyncApiKeysClient:
         Returns
         -------
         ApiKey
-            The API key.
+            The response includes the API name, enabled status, API key role, and API policy.
 
         Examples
         --------
@@ -517,11 +545,7 @@ class AsyncApiKeysClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -549,7 +573,9 @@ class AsyncApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Delete API keys to help you manage the security and lifecycle of API keys in your application.
+        The Delete API Key API lets you delete one or more existing API keys.
+        This capability is useful for managing the lifecycle and security of
+        API keys such as when they are no longer needed or when a key is compromised.
 
         Parameters
         ----------
@@ -575,11 +601,7 @@ class AsyncApiKeysClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -608,7 +630,9 @@ class AsyncApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ApiKey:
         """
-        Update an API key such as the roles attached to the key.
+        The Update API Key API lets you enable or disable specific API keys. You can use this endpoint to temporarily disable access without deleting the key.
+
+        This capability is useful for scenarios like maintenance windows, or when your team no longer requires access to a specific corpus.
 
         Parameters
         ----------
@@ -638,11 +662,7 @@ class AsyncApiKeysClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:

@@ -5,12 +5,16 @@ import typing
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
+from ..types.create_tool_request import CreateToolRequest
 from ..types.execution_configuration import ExecutionConfiguration
+from ..types.list_tools_response import ListToolsResponse
+from ..types.test_lambda_tool_response import TestLambdaToolResponse
 from ..types.test_tool_response import TestToolResponse
 from ..types.tool import Tool
 from ..types.update_tool_request import UpdateToolRequest
 from .raw_client import AsyncRawToolsClient, RawToolsClient
-from .types.tools_list_request_type import ToolsListRequestType
+from .types.list_tools_request_type import ListToolsRequestType
+from .types.test_lambda_tool_request_language import TestLambdaToolRequestLanguage
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -35,28 +39,32 @@ class ToolsClient:
         self,
         *,
         filter: typing.Optional[str] = None,
-        type: typing.Optional[ToolsListRequestType] = None,
+        type: typing.Optional[ListToolsRequestType] = None,
         enabled: typing.Optional[bool] = None,
+        category: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
         tool_server_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Tool]:
+    ) -> SyncPager[Tool, ListToolsResponse]:
         """
-        List all tools available to the authenticated user, with optional filtering and pagination.
+        List all tools available to the authenticated user, with optional filtering and pagination. Tools represent capabilities that agents can invoke during conversation, including built-in system tools and user-defined Lambda tools. Use filters to locate tools by name, type, status, or tool server.
 
         Parameters
         ----------
         filter : typing.Optional[str]
             A regular expression against tool names and descriptions to filter the results.
 
-        type : typing.Optional[ToolsListRequestType]
+        type : typing.Optional[ListToolsRequestType]
             Filter tools by type.
 
         enabled : typing.Optional[bool]
             Filter tools by enabled status.
+
+        category : typing.Optional[typing.Union[str, typing.Sequence[str]]]
+            Filter tools by category. Pass one or more category values to include only those categories. When omitted, tools in the "experimental" category are excluded by default. To include experimental tools, explicitly pass `category=experimental`.
 
         tool_server_id : typing.Optional[str]
             Filter tools by the tool server they belong to.
@@ -78,18 +86,14 @@ class ToolsClient:
 
         Returns
         -------
-        SyncPager[Tool]
+        SyncPager[Tool, ListToolsResponse]
             List of available tools.
 
         Examples
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         response = client.tools.list(
             filter="rag.*",
             enabled=True,
@@ -105,6 +109,7 @@ class ToolsClient:
             filter=filter,
             type=type,
             enabled=enabled,
+            category=category,
             tool_server_id=tool_server_id,
             limit=limit,
             page_key=page_key,
@@ -116,94 +121,38 @@ class ToolsClient:
     def create(
         self,
         *,
-        name: str,
-        title: str,
-        description: str,
-        code: str,
+        request: CreateToolRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        language: typing.Optional[typing.Literal["python"]] = OMIT,
-        execution_configuration: typing.Optional[ExecutionConfiguration] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Tool:
         """
-        Create a new tool that agents can use. Currently supports Lambda tools for user-defined functions.
-        Lambda tools allow you to write custom code that agents can execute in a secure sandbox.
+        Create a new tool that agents can use during conversation. Tools give agents capabilities to interact with external systems, process data, query corpora, or run custom logic. Agents select and invoke tools dynamically based on their instructions and the conversational context.
+
+        Vectara provides several built-in tools, but you can also create your own. This endpoint currently supports creating **Lambda tools**, which run user-defined Python functions in a secure sandbox.
+
+        Each tool is defined by:
+        - A unique tool ID
+        - A description of its purpose
+        - An input schema describing accepted parameters
+        - Optional metadata
+        - Enabled/disabled runtime availability
+
+         ## Artifact-based tools
+        Some built-in tools work with artifacts stored in a session:
+        - **Document conversion tool**: Converts file artifacts (PDF, Word, PowerPoint, images with OCR support) to markdown and produces new artifacts containing the extracted content.
+
+        These built-in tools operate on artifact references rather than file content, supporting multi-step workflows where agents process or index user-uploaded documents.
 
         Parameters
         ----------
-        name : str
-            The unique name of the tool (used as the function identifier).
-
-        title : str
-            Human-readable title of the tool displayed in the UI.
-
-        description : str
-            A detailed description of what the function does, when to use it, and what it returns.
-
-        code : str
-            The Python 3.12 code for the function.
-
-            **Required**: Must define a `process()` entry point function. Use type annotations on parameters for automatic schema discovery.
-
-            **Parameters**: Passed as keyword arguments matched to the function signature.
-
-            **Return types**: Can return any JSON-serializable type (strings, numbers, booleans, lists, or objects).
-
-            **Example: Returning a number**
-            ```python
-            def process(x: int, y: int) -> int:
-                return x + y
-            ```
-
-            **Example: Returning a string**
-            ```python
-            def process(name: str) -> str:
-                return f"Hello, {name}!"
-            ```
-
-            **Example: Returning a boolean**
-            ```python
-            def process(value: int, threshold: int) -> bool:
-                return value > threshold
-            ```
-
-            **Example: Returning a list**
-            ```python
-            from typing import List
-
-            def process(items: List[str]) -> List[str]:
-                return sorted(items)
-            ```
-
-            **Example: Returning an object (dict)**
-            ```python
-            def process(order_count: int, total_revenue: float, days_active: int = 1) -> dict:
-                score = (order_count * 10 + total_revenue * 0.1) / days_active
-                return {'score': round(score, 2), 'rating': 'high' if score > 100 else 'low'}
-            ```
-
-            For complex types, use the `typing` module:
-
-            ```python
-            from typing import List, Dict
-
-            def process(items: List[str], config: Dict[str, float]) -> dict:
-                count = len(items)
-                multiplier = config.get('multiplier', 1.0)
-                return {'count': count, 'adjusted': count * multiplier}
-            ```
+        request : CreateToolRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        language : typing.Optional[typing.Literal["python"]]
-            The programming language. Currently only 'python' (Python 3.12) is supported.
-
-        execution_configuration : typing.Optional[ExecutionConfiguration]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -215,29 +164,99 @@ class ToolsClient:
 
         Examples
         --------
-        from vectara import Vectara
+        from vectara import CreateToolRequest_Lambda, Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.tools.create(
-            name="calculate_customer_score",
-            title="Customer Score Calculator",
-            description="Calculate a customer score based on order history and revenue. Returns a score between 0-100.",
-            code="def process(order_count: int, total_revenue: float, days_active: int = 1) -> dict:\n    score = (order_count * 10 + total_revenue * 0.1) / days_active\n    return {'score': round(score, 2)}\n",
+            request=CreateToolRequest_Lambda(
+                name="calculate_customer_score",
+                title="Customer Score Calculator",
+                description="Calculate a customer score based on order history and revenue. Returns a score between 0-100.",
+                code="def process(order_count: int, total_revenue: float, days_active: int = 1) -> dict:\n    score = (order_count * 10 + total_revenue * 0.1) / days_active\n    return {'score': round(score, 2)}\n",
+            ),
         )
         """
         _response = self._raw_client.create(
-            name=name,
-            title=title,
-            description=description,
+            request=request,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def test_without_creation(
+        self,
+        *,
+        code: str,
+        test_input: typing.Dict[str, typing.Any],
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        language: typing.Optional[TestLambdaToolRequestLanguage] = OMIT,
+        execution_configuration: typing.Optional[ExecutionConfiguration] = OMIT,
+        timeout_seconds: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> TestLambdaToolResponse:
+        """
+        Test a Lambda tool without creating it first. This endpoint allows you to validate code, discover schemas, and test execution before committing to tool creation.
+
+        Use this to:
+        - Validate Python code syntax and security constraints
+        - Discover input/output schemas from type annotations
+        - Test execution with sample input
+        - Verify schema compatibility
+
+        The function is executed in the same secure sandbox environment as production tools.
+
+        Parameters
+        ----------
+        code : str
+            The Python 3.12 code for the function. Must define a `process()` entry point.
+            Object parameters must use `TypedDict`; bare `dict` and `Dict[K, V]` parameters are rejected.
+            See the `code` field on `CreateLambdaToolRequest` for full details and examples.
+
+        test_input : typing.Dict[str, typing.Any]
+            The input parameters to test the function with. Will be validated against the discovered input schema.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        language : typing.Optional[TestLambdaToolRequestLanguage]
+            The programming language. Currently only 'python' (Python 3.12) is supported.
+
+        execution_configuration : typing.Optional[ExecutionConfiguration]
+
+        timeout_seconds : typing.Optional[int]
+            Maximum execution time in seconds for this test. Overrides execution_configuration if specified.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        TestLambdaToolResponse
+            Test validation and execution completed.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara()
+        client.tools.test_without_creation(
+            code="def process(order_count: int, total_revenue: float) -> dict:\n    score = order_count * 10 + total_revenue * 0.1\n    return {'score': round(score, 2)}\n",
+            test_input={"order_count": 10, "total_revenue": 500},
+        )
+        """
+        _response = self._raw_client.test_without_creation(
             code=code,
+            test_input=test_input,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             language=language,
             execution_configuration=execution_configuration,
+            timeout_seconds=timeout_seconds,
             request_options=request_options,
         )
         return _response.data
@@ -251,7 +270,7 @@ class ToolsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Tool:
         """
-        Retrieve the details of a specific tool by its ID, including its configuration and capabilities.
+        Retrieve the full details of a specific tool, including its description, input schema, metadata, and capabilities. Tools may represent structured search functions, document-processing workflows, or user-defined Lambda functions. Some tools work with artifacts stored in a session, while others operate on structured inputs defined by their JSON schema.
 
         Parameters
         ----------
@@ -276,11 +295,7 @@ class ToolsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.tools.get(
             tool_id="tol_rag_search",
         )
@@ -302,7 +317,7 @@ class ToolsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Permanently delete a tool and all its associated configuration. This action cannot be undone.
+        Permanently delete a tool and its configuration. This action cannot be undone. Agents attempting to use a deleted tool will fail, so ensure that agent configurations are updated before removing a tool.
 
         Parameters
         ----------
@@ -326,11 +341,7 @@ class ToolsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.tools.delete(
             tool_id="tol_rag_search",
         )
@@ -353,7 +364,7 @@ class ToolsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Tool:
         """
-        Update an existing tool's configuration.
+        Update an existing tool’s configuration, including its metadata, enabled status, or other properties. Updating a tool modifies how agents can invoke it during conversation.
 
         Parameters
         ----------
@@ -378,16 +389,12 @@ class ToolsClient:
 
         Examples
         --------
-        from vectara import UpdateMcpToolRequest, Vectara
+        from vectara import UpdateToolRequest_Mcp, Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.tools.update(
             tool_id="tol_rag_search",
-            request=UpdateMcpToolRequest(),
+            request=UpdateToolRequest_Mcp(),
         )
         """
         _response = self._raw_client.update(
@@ -403,7 +410,7 @@ class ToolsClient:
         self,
         tool_id: str,
         *,
-        input: typing.Dict[str, typing.Optional[typing.Any]],
+        input: typing.Dict[str, typing.Any],
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         timeout_seconds: typing.Optional[int] = OMIT,
@@ -419,7 +426,7 @@ class ToolsClient:
         tool_id : str
             The unique identifier of the Lambda tool to test.
 
-        input : typing.Dict[str, typing.Optional[typing.Any]]
+        input : typing.Dict[str, typing.Any]
             The input parameters to pass to the function. Must match the tool's input schema.
 
         request_timeout : typing.Optional[int]
@@ -443,11 +450,7 @@ class ToolsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.tools.test(
             tool_id="tol_python_function_123",
             input={"number": 42, "text": "Hello, world!"},
@@ -483,28 +486,32 @@ class AsyncToolsClient:
         self,
         *,
         filter: typing.Optional[str] = None,
-        type: typing.Optional[ToolsListRequestType] = None,
+        type: typing.Optional[ListToolsRequestType] = None,
         enabled: typing.Optional[bool] = None,
+        category: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
         tool_server_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Tool]:
+    ) -> AsyncPager[Tool, ListToolsResponse]:
         """
-        List all tools available to the authenticated user, with optional filtering and pagination.
+        List all tools available to the authenticated user, with optional filtering and pagination. Tools represent capabilities that agents can invoke during conversation, including built-in system tools and user-defined Lambda tools. Use filters to locate tools by name, type, status, or tool server.
 
         Parameters
         ----------
         filter : typing.Optional[str]
             A regular expression against tool names and descriptions to filter the results.
 
-        type : typing.Optional[ToolsListRequestType]
+        type : typing.Optional[ListToolsRequestType]
             Filter tools by type.
 
         enabled : typing.Optional[bool]
             Filter tools by enabled status.
+
+        category : typing.Optional[typing.Union[str, typing.Sequence[str]]]
+            Filter tools by category. Pass one or more category values to include only those categories. When omitted, tools in the "experimental" category are excluded by default. To include experimental tools, explicitly pass `category=experimental`.
 
         tool_server_id : typing.Optional[str]
             Filter tools by the tool server they belong to.
@@ -526,7 +533,7 @@ class AsyncToolsClient:
 
         Returns
         -------
-        AsyncPager[Tool]
+        AsyncPager[Tool, ListToolsResponse]
             List of available tools.
 
         Examples
@@ -535,11 +542,7 @@ class AsyncToolsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -562,6 +565,7 @@ class AsyncToolsClient:
             filter=filter,
             type=type,
             enabled=enabled,
+            category=category,
             tool_server_id=tool_server_id,
             limit=limit,
             page_key=page_key,
@@ -573,94 +577,38 @@ class AsyncToolsClient:
     async def create(
         self,
         *,
-        name: str,
-        title: str,
-        description: str,
-        code: str,
+        request: CreateToolRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        language: typing.Optional[typing.Literal["python"]] = OMIT,
-        execution_configuration: typing.Optional[ExecutionConfiguration] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Tool:
         """
-        Create a new tool that agents can use. Currently supports Lambda tools for user-defined functions.
-        Lambda tools allow you to write custom code that agents can execute in a secure sandbox.
+        Create a new tool that agents can use during conversation. Tools give agents capabilities to interact with external systems, process data, query corpora, or run custom logic. Agents select and invoke tools dynamically based on their instructions and the conversational context.
+
+        Vectara provides several built-in tools, but you can also create your own. This endpoint currently supports creating **Lambda tools**, which run user-defined Python functions in a secure sandbox.
+
+        Each tool is defined by:
+        - A unique tool ID
+        - A description of its purpose
+        - An input schema describing accepted parameters
+        - Optional metadata
+        - Enabled/disabled runtime availability
+
+         ## Artifact-based tools
+        Some built-in tools work with artifacts stored in a session:
+        - **Document conversion tool**: Converts file artifacts (PDF, Word, PowerPoint, images with OCR support) to markdown and produces new artifacts containing the extracted content.
+
+        These built-in tools operate on artifact references rather than file content, supporting multi-step workflows where agents process or index user-uploaded documents.
 
         Parameters
         ----------
-        name : str
-            The unique name of the tool (used as the function identifier).
-
-        title : str
-            Human-readable title of the tool displayed in the UI.
-
-        description : str
-            A detailed description of what the function does, when to use it, and what it returns.
-
-        code : str
-            The Python 3.12 code for the function.
-
-            **Required**: Must define a `process()` entry point function. Use type annotations on parameters for automatic schema discovery.
-
-            **Parameters**: Passed as keyword arguments matched to the function signature.
-
-            **Return types**: Can return any JSON-serializable type (strings, numbers, booleans, lists, or objects).
-
-            **Example: Returning a number**
-            ```python
-            def process(x: int, y: int) -> int:
-                return x + y
-            ```
-
-            **Example: Returning a string**
-            ```python
-            def process(name: str) -> str:
-                return f"Hello, {name}!"
-            ```
-
-            **Example: Returning a boolean**
-            ```python
-            def process(value: int, threshold: int) -> bool:
-                return value > threshold
-            ```
-
-            **Example: Returning a list**
-            ```python
-            from typing import List
-
-            def process(items: List[str]) -> List[str]:
-                return sorted(items)
-            ```
-
-            **Example: Returning an object (dict)**
-            ```python
-            def process(order_count: int, total_revenue: float, days_active: int = 1) -> dict:
-                score = (order_count * 10 + total_revenue * 0.1) / days_active
-                return {'score': round(score, 2), 'rating': 'high' if score > 100 else 'low'}
-            ```
-
-            For complex types, use the `typing` module:
-
-            ```python
-            from typing import List, Dict
-
-            def process(items: List[str], config: Dict[str, float]) -> dict:
-                count = len(items)
-                multiplier = config.get('multiplier', 1.0)
-                return {'count': count, 'adjusted': count * multiplier}
-            ```
+        request : CreateToolRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        language : typing.Optional[typing.Literal["python"]]
-            The programming language. Currently only 'python' (Python 3.12) is supported.
-
-        execution_configuration : typing.Optional[ExecutionConfiguration]
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -674,35 +622,113 @@ class AsyncToolsClient:
         --------
         import asyncio
 
-        from vectara import AsyncVectara
+        from vectara import AsyncVectara, CreateToolRequest_Lambda
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
             await client.tools.create(
-                name="calculate_customer_score",
-                title="Customer Score Calculator",
-                description="Calculate a customer score based on order history and revenue. Returns a score between 0-100.",
-                code="def process(order_count: int, total_revenue: float, days_active: int = 1) -> dict:\n    score = (order_count * 10 + total_revenue * 0.1) / days_active\n    return {'score': round(score, 2)}\n",
+                request=CreateToolRequest_Lambda(
+                    name="calculate_customer_score",
+                    title="Customer Score Calculator",
+                    description="Calculate a customer score based on order history and revenue. Returns a score between 0-100.",
+                    code="def process(order_count: int, total_revenue: float, days_active: int = 1) -> dict:\n    score = (order_count * 10 + total_revenue * 0.1) / days_active\n    return {'score': round(score, 2)}\n",
+                ),
             )
 
 
         asyncio.run(main())
         """
         _response = await self._raw_client.create(
-            name=name,
-            title=title,
-            description=description,
+            request=request,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def test_without_creation(
+        self,
+        *,
+        code: str,
+        test_input: typing.Dict[str, typing.Any],
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        language: typing.Optional[TestLambdaToolRequestLanguage] = OMIT,
+        execution_configuration: typing.Optional[ExecutionConfiguration] = OMIT,
+        timeout_seconds: typing.Optional[int] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> TestLambdaToolResponse:
+        """
+        Test a Lambda tool without creating it first. This endpoint allows you to validate code, discover schemas, and test execution before committing to tool creation.
+
+        Use this to:
+        - Validate Python code syntax and security constraints
+        - Discover input/output schemas from type annotations
+        - Test execution with sample input
+        - Verify schema compatibility
+
+        The function is executed in the same secure sandbox environment as production tools.
+
+        Parameters
+        ----------
+        code : str
+            The Python 3.12 code for the function. Must define a `process()` entry point.
+            Object parameters must use `TypedDict`; bare `dict` and `Dict[K, V]` parameters are rejected.
+            See the `code` field on `CreateLambdaToolRequest` for full details and examples.
+
+        test_input : typing.Dict[str, typing.Any]
+            The input parameters to test the function with. Will be validated against the discovered input schema.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        language : typing.Optional[TestLambdaToolRequestLanguage]
+            The programming language. Currently only 'python' (Python 3.12) is supported.
+
+        execution_configuration : typing.Optional[ExecutionConfiguration]
+
+        timeout_seconds : typing.Optional[int]
+            Maximum execution time in seconds for this test. Overrides execution_configuration if specified.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        TestLambdaToolResponse
+            Test validation and execution completed.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara()
+
+
+        async def main() -> None:
+            await client.tools.test_without_creation(
+                code="def process(order_count: int, total_revenue: float) -> dict:\n    score = order_count * 10 + total_revenue * 0.1\n    return {'score': round(score, 2)}\n",
+                test_input={"order_count": 10, "total_revenue": 500},
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.test_without_creation(
             code=code,
+            test_input=test_input,
             request_timeout=request_timeout,
             request_timeout_millis=request_timeout_millis,
             language=language,
             execution_configuration=execution_configuration,
+            timeout_seconds=timeout_seconds,
             request_options=request_options,
         )
         return _response.data
@@ -716,7 +742,7 @@ class AsyncToolsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Tool:
         """
-        Retrieve the details of a specific tool by its ID, including its configuration and capabilities.
+        Retrieve the full details of a specific tool, including its description, input schema, metadata, and capabilities. Tools may represent structured search functions, document-processing workflows, or user-defined Lambda functions. Some tools work with artifacts stored in a session, while others operate on structured inputs defined by their JSON schema.
 
         Parameters
         ----------
@@ -743,11 +769,7 @@ class AsyncToolsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -775,7 +797,7 @@ class AsyncToolsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
-        Permanently delete a tool and all its associated configuration. This action cannot be undone.
+        Permanently delete a tool and its configuration. This action cannot be undone. Agents attempting to use a deleted tool will fail, so ensure that agent configurations are updated before removing a tool.
 
         Parameters
         ----------
@@ -801,11 +823,7 @@ class AsyncToolsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
@@ -834,7 +852,7 @@ class AsyncToolsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Tool:
         """
-        Update an existing tool's configuration.
+        Update an existing tool’s configuration, including its metadata, enabled status, or other properties. Updating a tool modifies how agents can invoke it during conversation.
 
         Parameters
         ----------
@@ -861,19 +879,15 @@ class AsyncToolsClient:
         --------
         import asyncio
 
-        from vectara import AsyncVectara, UpdateMcpToolRequest
+        from vectara import AsyncVectara, UpdateToolRequest_Mcp
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:
             await client.tools.update(
                 tool_id="tol_rag_search",
-                request=UpdateMcpToolRequest(),
+                request=UpdateToolRequest_Mcp(),
             )
 
 
@@ -892,7 +906,7 @@ class AsyncToolsClient:
         self,
         tool_id: str,
         *,
-        input: typing.Dict[str, typing.Optional[typing.Any]],
+        input: typing.Dict[str, typing.Any],
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         timeout_seconds: typing.Optional[int] = OMIT,
@@ -908,7 +922,7 @@ class AsyncToolsClient:
         tool_id : str
             The unique identifier of the Lambda tool to test.
 
-        input : typing.Dict[str, typing.Optional[typing.Any]]
+        input : typing.Dict[str, typing.Any]
             The input parameters to pass to the function. Must match the tool's input schema.
 
         request_timeout : typing.Optional[int]
@@ -934,11 +948,7 @@ class AsyncToolsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:

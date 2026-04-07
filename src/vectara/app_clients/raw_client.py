@@ -7,16 +7,22 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
+from ..core.pagination import AsyncPager, SyncPager
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
+from ..core.serialization import convert_and_respect_annotation_metadata
 from ..errors.bad_request_error import BadRequestError
 from ..errors.forbidden_error import ForbiddenError
+from ..types.agent_role import AgentRole
 from ..types.api_role import ApiRole
 from ..types.app_client import AppClient
 from ..types.bad_request_error_body import BadRequestErrorBody
+from ..types.corpus_role import CorpusRole
+from ..types.create_app_client_request import CreateAppClientRequest
 from ..types.error import Error
 from ..types.list_app_clients_response import ListAppClientsResponse
+from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -35,7 +41,7 @@ class RawAppClientsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[AppClient]:
+    ) -> SyncPager[AppClient, ListAppClientsResponse]:
         """
         Retrieve a list of application clients configured for the customer account.
 
@@ -61,7 +67,7 @@ class RawAppClientsClient:
 
         Returns
         -------
-        SyncPager[AppClient]
+        SyncPager[AppClient, ListAppClientsResponse]
             An array of App Clients.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -102,9 +108,7 @@ class RawAppClientsClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                return SyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 400:
                 raise BadRequestError(
                     headers=dict(_response.headers),
@@ -130,16 +134,18 @@ class RawAppClientsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
         self,
         *,
-        name: str,
+        request: CreateAppClientRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        description: typing.Optional[str] = OMIT,
-        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[AppClient]:
         """
@@ -147,20 +153,13 @@ class RawAppClientsClient:
 
         Parameters
         ----------
-        name : str
-            Name of the client credentials.
+        request : CreateAppClientRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        description : typing.Optional[str]
-            Description of the client credentials.
-
-        api_roles : typing.Optional[typing.Sequence[ApiRole]]
-            API roles that the client credentials will have.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -174,12 +173,9 @@ class RawAppClientsClient:
             "v2/app_clients",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            json={
-                "name": name,
-                "description": description,
-                "api_roles": api_roles,
-                "type": "client_credentials",
-            },
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=CreateAppClientRequest, direction="write"
+            ),
             headers={
                 "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -223,6 +219,10 @@ class RawAppClientsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
@@ -289,6 +289,10 @@ class RawAppClientsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
@@ -347,6 +351,10 @@ class RawAppClientsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def update(
@@ -357,6 +365,8 @@ class RawAppClientsClient:
         request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[AppClient]:
         """
@@ -379,6 +389,12 @@ class RawAppClientsClient:
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
             The new roles attached to the App Client. These roles will replace the current roles.
 
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            The new corpus role assignments. These will replace the current corpus roles.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            The new agent role assignments. These will replace the current agent roles.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -394,6 +410,12 @@ class RawAppClientsClient:
             json={
                 "description": description,
                 "api_roles": api_roles,
+                "corpus_roles": convert_and_respect_annotation_metadata(
+                    object_=corpus_roles, annotation=typing.Sequence[CorpusRole], direction="write"
+                ),
+                "agent_roles": convert_and_respect_annotation_metadata(
+                    object_=agent_roles, annotation=typing.Sequence[AgentRole], direction="write"
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -427,6 +449,10 @@ class RawAppClientsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -443,7 +469,7 @@ class AsyncRawAppClientsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[AppClient]:
+    ) -> AsyncPager[AppClient, ListAppClientsResponse]:
         """
         Retrieve a list of application clients configured for the customer account.
 
@@ -469,7 +495,7 @@ class AsyncRawAppClientsClient:
 
         Returns
         -------
-        AsyncPager[AppClient]
+        AsyncPager[AppClient, ListAppClientsResponse]
             An array of App Clients.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -513,9 +539,7 @@ class AsyncRawAppClientsClient:
                             request_options=request_options,
                         )
 
-                return AsyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 400:
                 raise BadRequestError(
                     headers=dict(_response.headers),
@@ -541,16 +565,18 @@ class AsyncRawAppClientsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
         self,
         *,
-        name: str,
+        request: CreateAppClientRequest,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
-        description: typing.Optional[str] = OMIT,
-        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[AppClient]:
         """
@@ -558,20 +584,13 @@ class AsyncRawAppClientsClient:
 
         Parameters
         ----------
-        name : str
-            Name of the client credentials.
+        request : CreateAppClientRequest
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
 
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
-
-        description : typing.Optional[str]
-            Description of the client credentials.
-
-        api_roles : typing.Optional[typing.Sequence[ApiRole]]
-            API roles that the client credentials will have.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -585,12 +604,9 @@ class AsyncRawAppClientsClient:
             "v2/app_clients",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            json={
-                "name": name,
-                "description": description,
-                "api_roles": api_roles,
-                "type": "client_credentials",
-            },
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=CreateAppClientRequest, direction="write"
+            ),
             headers={
                 "content-type": "application/json",
                 "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
@@ -634,6 +650,10 @@ class AsyncRawAppClientsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
@@ -700,6 +720,10 @@ class AsyncRawAppClientsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
@@ -758,6 +782,10 @@ class AsyncRawAppClientsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def update(
@@ -768,6 +796,8 @@ class AsyncRawAppClientsClient:
         request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[AppClient]:
         """
@@ -790,6 +820,12 @@ class AsyncRawAppClientsClient:
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
             The new roles attached to the App Client. These roles will replace the current roles.
 
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            The new corpus role assignments. These will replace the current corpus roles.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            The new agent role assignments. These will replace the current agent roles.
+
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -805,6 +841,12 @@ class AsyncRawAppClientsClient:
             json={
                 "description": description,
                 "api_roles": api_roles,
+                "corpus_roles": convert_and_respect_annotation_metadata(
+                    object_=corpus_roles, annotation=typing.Sequence[CorpusRole], direction="write"
+                ),
+                "agent_roles": convert_and_respect_annotation_metadata(
+                    object_=agent_roles, annotation=typing.Sequence[AgentRole], direction="write"
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -838,4 +880,8 @@ class AsyncRawAppClientsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

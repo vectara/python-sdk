@@ -12,7 +12,6 @@ class CreateOpenAiEncoderRequest(UniversalBaseModel):
     Configuration for an OpenAI-compatible encoder
     """
 
-    type: typing.Literal["openai-compatible"] = "openai-compatible"
     name: str = pydantic.Field()
     """
     A unique name for the encoder

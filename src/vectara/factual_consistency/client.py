@@ -42,6 +42,43 @@ class FactualConsistencyClient:
         """
         Evaluate the factual consistency of a generated text (like a summary) against source documents. This determines how accurately the generated text reflects the information in the source documents, helping identify potential hallucinations or misrepresentations.
 
+        Use this API to programmatically validate generated content against trusted source materials—an essential capability for applications in high-integrity environments such as legal, healthcare, scientific publishing, and enterprise knowledge systems.
+
+        The request body must include the following parameters:
+        * `model_parameters:` Optionally specifies the evaluation model to use. Default is `hhem_v2.2`.
+        * `generated_text`: The output text you want to evaluate, such as a model-generated summary, answer, or response.
+        * `source_texts`: An array of source documents or passages used to verify the accuracy of the generated text.
+        * `language`: The ISO 639-3 code representing the language of the provided texts (`eng` for English, `fra` for French).
+
+        ### Example request
+
+        This example evaluates whether a generated statement about the Eiffel Tower is factually accurate based on two reference documents.
+
+        ```json
+        {
+          "generated_text": "The Eiffel Tower is located in Berlin.",
+          "source_texts": [
+            "The Eiffel Tower is a famous landmark located in Paris, France.",
+            "It was built in 1889 and remains one of the most visited monuments in the world."
+          ],
+          "language": "eng"
+        }
+        ```
+        ### Example response
+
+        The response includes a factual consistency score and probability estimates.
+
+        ```json
+        {
+          "score": 0.23,
+          "p_consistent": 0.12,
+          "p_inconsistent": 0.88
+        }
+        ```
+        * `score`: A normalized value between `0.0` and `1.0` that reflects the overall factual alignment between the generated text and the source texts. Higher scores indicate stronger consistency.
+        * `p_consistent`: The estimated probability that the generated text is factually consistent with the sources.
+        * `p_inconsistent`: The estimated probability that the generated text contains factual inaccuracies relative to the source documents.
+
         Parameters
         ----------
         generated_text : str
@@ -71,11 +108,7 @@ class FactualConsistencyClient:
         --------
         from vectara import Vectara
 
-        client = Vectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = Vectara()
         client.factual_consistency.evaluate(
             generated_text="generated_text",
             source_texts=["source_texts"],
@@ -120,6 +153,43 @@ class AsyncFactualConsistencyClient:
         """
         Evaluate the factual consistency of a generated text (like a summary) against source documents. This determines how accurately the generated text reflects the information in the source documents, helping identify potential hallucinations or misrepresentations.
 
+        Use this API to programmatically validate generated content against trusted source materials—an essential capability for applications in high-integrity environments such as legal, healthcare, scientific publishing, and enterprise knowledge systems.
+
+        The request body must include the following parameters:
+        * `model_parameters:` Optionally specifies the evaluation model to use. Default is `hhem_v2.2`.
+        * `generated_text`: The output text you want to evaluate, such as a model-generated summary, answer, or response.
+        * `source_texts`: An array of source documents or passages used to verify the accuracy of the generated text.
+        * `language`: The ISO 639-3 code representing the language of the provided texts (`eng` for English, `fra` for French).
+
+        ### Example request
+
+        This example evaluates whether a generated statement about the Eiffel Tower is factually accurate based on two reference documents.
+
+        ```json
+        {
+          "generated_text": "The Eiffel Tower is located in Berlin.",
+          "source_texts": [
+            "The Eiffel Tower is a famous landmark located in Paris, France.",
+            "It was built in 1889 and remains one of the most visited monuments in the world."
+          ],
+          "language": "eng"
+        }
+        ```
+        ### Example response
+
+        The response includes a factual consistency score and probability estimates.
+
+        ```json
+        {
+          "score": 0.23,
+          "p_consistent": 0.12,
+          "p_inconsistent": 0.88
+        }
+        ```
+        * `score`: A normalized value between `0.0` and `1.0` that reflects the overall factual alignment between the generated text and the source texts. Higher scores indicate stronger consistency.
+        * `p_consistent`: The estimated probability that the generated text is factually consistent with the sources.
+        * `p_inconsistent`: The estimated probability that the generated text contains factual inaccuracies relative to the source documents.
+
         Parameters
         ----------
         generated_text : str
@@ -151,11 +221,7 @@ class AsyncFactualConsistencyClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara(
-            api_key="YOUR_API_KEY",
-            client_id="YOUR_CLIENT_ID",
-            client_secret="YOUR_CLIENT_SECRET",
-        )
+        client = AsyncVectara()
 
 
         async def main() -> None:

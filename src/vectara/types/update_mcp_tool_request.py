@@ -11,7 +11,6 @@ class UpdateMcpToolRequest(UniversalBaseModel):
     Request object for updating an existing MCP tool.
     """
 
-    type: typing.Literal["mcp"] = "mcp"
     enabled: typing.Optional[bool] = pydantic.Field(default=None)
     """
     Whether the tool is enabled.

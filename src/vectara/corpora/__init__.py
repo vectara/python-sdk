@@ -2,6 +2,69 @@
 
 # isort: skip_file
 
-from .types import CorporaQueryResponse, CorporaQueryStreamResponse, SearchCorpusParameters
+import typing
+from importlib import import_module
 
-__all__ = ["CorporaQueryResponse", "CorporaQueryStreamResponse", "SearchCorpusParameters"]
+if typing.TYPE_CHECKING:
+    from .types import (
+        QueryCorporaRequestSearch,
+        QueryCorporaResponse,
+        QueryCorporaStreamRequestSearch,
+        QueryCorporaStreamResponse,
+        QueryCorporaStreamResponse_End,
+        QueryCorporaStreamResponse_Error,
+        QueryCorporaStreamResponse_FactualConsistencyScore,
+        QueryCorporaStreamResponse_GenerationChunk,
+        QueryCorporaStreamResponse_GenerationEnd,
+        QueryCorporaStreamResponse_GenerationInfo,
+        QueryCorporaStreamResponse_SearchResults,
+    )
+_dynamic_imports: typing.Dict[str, str] = {
+    "QueryCorporaRequestSearch": ".types",
+    "QueryCorporaResponse": ".types",
+    "QueryCorporaStreamRequestSearch": ".types",
+    "QueryCorporaStreamResponse": ".types",
+    "QueryCorporaStreamResponse_End": ".types",
+    "QueryCorporaStreamResponse_Error": ".types",
+    "QueryCorporaStreamResponse_FactualConsistencyScore": ".types",
+    "QueryCorporaStreamResponse_GenerationChunk": ".types",
+    "QueryCorporaStreamResponse_GenerationEnd": ".types",
+    "QueryCorporaStreamResponse_GenerationInfo": ".types",
+    "QueryCorporaStreamResponse_SearchResults": ".types",
+}
+
+
+def __getattr__(attr_name: str) -> typing.Any:
+    module_name = _dynamic_imports.get(attr_name)
+    if module_name is None:
+        raise AttributeError(f"No {attr_name} found in _dynamic_imports for module name -> {__name__}")
+    try:
+        module = import_module(module_name, __package__)
+        if module_name == f".{attr_name}":
+            return module
+        else:
+            return getattr(module, attr_name)
+    except ImportError as e:
+        raise ImportError(f"Failed to import {attr_name} from {module_name}: {e}") from e
+    except AttributeError as e:
+        raise AttributeError(f"Failed to get {attr_name} from {module_name}: {e}") from e
+
+
+def __dir__():
+    lazy_attrs = list(_dynamic_imports.keys())
+    return sorted(lazy_attrs)
+
+
+__all__ = [
+    "QueryCorporaRequestSearch",
+    "QueryCorporaResponse",
+    "QueryCorporaStreamRequestSearch",
+    "QueryCorporaStreamResponse",
+    "QueryCorporaStreamResponse_End",
+    "QueryCorporaStreamResponse_Error",
+    "QueryCorporaStreamResponse_FactualConsistencyScore",
+    "QueryCorporaStreamResponse_GenerationChunk",
+    "QueryCorporaStreamResponse_GenerationEnd",
+    "QueryCorporaStreamResponse_GenerationInfo",
+    "QueryCorporaStreamResponse_SearchResults",
+]

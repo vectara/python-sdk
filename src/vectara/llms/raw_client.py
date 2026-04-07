@@ -7,7 +7,8 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
+from ..core.pagination import AsyncPager, SyncPager
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
 from ..core.serialization import convert_and_respect_annotation_metadata
@@ -20,6 +21,8 @@ from ..types.error import Error
 from ..types.list_ll_ms_response import ListLlMsResponse
 from ..types.llm import Llm
 from ..types.not_found_error_body import NotFoundErrorBody
+from ..types.update_llm_request import UpdateLlmRequest
+from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -38,7 +41,7 @@ class RawLlmsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[Llm]:
+    ) -> SyncPager[Llm, ListLlMsResponse]:
         """
         List LLMs that can be used with query and chat endpoints. The LLM is not directly specified in a query, but instead a `generation_preset_name` is used. The `generation_preset_name` property in generation parameters can be found as the `name` property on the Generations Presets retrieved from `/v2/generation_presets`.
 
@@ -64,7 +67,7 @@ class RawLlmsClient:
 
         Returns
         -------
-        SyncPager[Llm]
+        SyncPager[Llm, ListLlMsResponse]
             List of LLMs.
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -105,9 +108,7 @@ class RawLlmsClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                return SyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -122,6 +123,10 @@ class RawLlmsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
@@ -133,7 +138,154 @@ class RawLlmsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Llm]:
         """
-        Create a new LLM for use with query and chat endpoints
+        Integrate external Large Language Models (LLMs) into Vectara for Retrieval Augmented Generation (RAG) and chat. Connect OpenAI API-compatible models from providers like Anthropic, Azure, Google, or custom-hosted endpoints. Once created, reference your custom LLM by name in query generation parameters.
+        - Connect external LLMs using OpenAI-compatible API format
+        - Configure multiple LLM providers for different use cases
+        - Override Vectara's built-in LLMs with your own models
+        - Use custom models for RAG, chat, and document summarization
+
+        **Example providers:**
+
+        ### OpenAI
+
+        **Type:** `openai-compatible`
+        **Models:** GPT-4o, GPT-5
+        **Auth:** Bearer token
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-gpt5",
+          "model": "gpt-5",
+          "uri": "https://api.openai.com/v1/chat/completions",
+          "auth": {
+            "type": "bearer",
+            "token": "sk-..."
+          }
+        }
+        ```
+
+        ### OpenAI Responses API
+
+        **Type**: openai-responses
+        **Models**: o1-preview, o1-mini, o3-mini (reasoning models)
+        **Auth**: Bearer token
+        **Note**: For reasoning models that don't support streaming
+
+        ```json
+        {
+          "type": "openai-responses",
+          "name": "my-o1",
+          "model": "o1-preview",
+          "uri": "https://api.openai.com/v1/chat/completions",
+          "auth": {
+            "type": "bearer",
+            "token": "sk-..."
+          }
+        }
+        ```
+
+        ### Anthropic Claude
+
+        **Type:** `openai-compatible`
+        **Models:** claude-4-opus, claude-4-5-haiku, claude-4-5-sonnet
+        **Auth:** Bearer token with header
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-claude",
+          "model": "claude-sonnet-4-5-20250929",
+          "uri": "https://api.anthropic.com/v1/messages",
+          "auth": {
+            "type": "bearer",
+            "token": "sk-ant-..."
+          },
+          "headers": {
+            "anthropic-version": "2023-06-01"
+          }
+        }
+        ```
+
+        ### Azure OpenAI
+
+        **Type:** `openai-compatible`
+        **Models:** GPT-3.5, GPT-4 (Azure-deployed versions)
+        **Auth:** Custom header (api-key)
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-azure-gpt4",
+          "model": "gpt-4",
+          "uri": "https://YOUR-RESOURCE.openai.azure.com/openai/deployments/YOUR-DEPLOYMENT/chat/completions?api-version=2024-02-15-preview",
+          "auth": {
+            "type": "header",
+            "header": "api-key",
+            "value": "your-azure-key"
+          }
+        }
+        ```
+
+        ### Google Vertex AI (Gemini) — Service Account
+
+        **Type:** `vertex-ai`
+        **Models:** gemini-2.5-pro, gemini-2.5-flash
+        **Auth:** Service account
+
+        ```json
+        {
+          "type": "vertex-ai",
+          "name": "my-gemini",
+          "model": "gemini-2.5-flash",
+          "uri": "https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR-PROJECT/locations/us-central1",
+          "auth": {
+            "type": "service_account",
+            "key_json": "{...service account JSON...}"
+          }
+        }
+        ```
+
+        ### Google AI Studio (Gemini) — API Key
+
+        **Type:** `vertex-ai`
+        **Models:** gemini-2.5-pro, gemini-2.5-flash
+        **Auth:** API key
+
+        ```json
+        {
+          "type": "vertex-ai",
+          "name": "my-gemini",
+          "model": "gemini-2.5-flash",
+          "uri": "https://generativelanguage.googleapis.com/v1beta",
+          "auth": {
+            "type": "api_key",
+            "api_key": "your-google-api-key"
+          }
+        }
+        ```
+
+        The `uri` field is flexible — you can provide a base URI or a full URL copied from Google docs
+        (including model path and `:generateContent` suffix). The system normalizes it automatically.
+
+        ### Custom OpenAI-Compatible
+
+        **Type:** `openai-compatible`
+        **Models:** Any self-hosted or custom LLM, such as OpenRouter.
+        **Auth:** Bearer or custom header
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-custom-llm",
+          "model": "llama-3-70b",
+          "uri": "https://my-llm-endpoint.com/v1/chat/completions",
+          "auth": {
+            "type": "bearer",
+            "token": "custom-token"
+          }
+        }
+        ```
 
         Parameters
         ----------
@@ -203,6 +355,10 @@ class RawLlmsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
@@ -214,7 +370,12 @@ class RawLlmsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Llm]:
         """
-        Get details about a specific LLM.
+        The Get LLM API allows users to retrieve details about a specific Large Language Model (LLM) that has been configured within the Vectara platform. This API provides metadata about the LLM, including its name, description, model type, API endpoint, and authentication method.
+
+        Use this API to verify model configurations, confirm connectivity details, and ensure that the correct LLM is being utilized within their workflows.
+
+        ## Authentication methods
+        The request requires authentication details, and you can provide them either as a Bearer token or custom header-based authentication.
 
         Parameters
         ----------
@@ -280,6 +441,10 @@ class RawLlmsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
@@ -291,7 +456,11 @@ class RawLlmsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[None]:
         """
-        Delete a custom LLM connection. Built-in LLMs cannot be deleted.
+        The Delete LLM API enables users to remove a previously configured custom Large Language Model (LLM) from their Vectara account. This functionality is essential for managing active LLM configurations and ensuring that only relevant models are available for use. Built-in LLMs cannot be deleted, ensuring that core system models remain accessible.
+
+        By providing an LLM identifier, users can permanently delete a model configuration, freeing up resources and maintaining an organized list of available LLMs.
+
+        If successful, the API responds with `HTTP 204 No Content` status, confirming the LLM deletion.
 
         Parameters
         ----------
@@ -349,6 +518,128 @@ class RawLlmsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def update(
+        self,
+        llm_id: str,
+        *,
+        request: UpdateLlmRequest,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[Llm]:
+        """
+        Update an existing LLM's configuration. This endpoint allows partial updates - only provide fields you want to change. Only the name field is immutable.
+
+        The updated LLM will be tested before saving to ensure credentials are valid.
+
+        **Updatable fields:**
+        - `description` - LLM description
+        - `type` - LLM type (openai-compatible, vertex-ai, etc.)
+        - `model` - Model identifier
+        - `uri` - API endpoint
+        - `auth` - Authentication credentials (including service account key_json)
+        - `headers` - Additional HTTP headers (for openai-compatible and anthropic types)
+        - `enabled` - Whether the LLM is enabled
+        - `capabilities` - Model capabilities (image support, context limit, tool calling)
+
+        **Immutable fields:**
+        - `id` - System-generated identifier
+        - `name` - LLM name
+
+        Built-in LLMs (system-provided models) cannot be updated.
+
+        Parameters
+        ----------
+        llm_id : str
+            The ID of the LLM to update.
+
+        request : UpdateLlmRequest
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[Llm]
+            The LLM has been updated
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/llms/{jsonable_encoder(llm_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="PATCH",
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=UpdateLlmRequest, direction="write"
+            ),
+            headers={
+                "content-type": "application/json",
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    Llm,
+                    parse_obj_as(
+                        type_=Llm,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -365,7 +656,7 @@ class AsyncRawLlmsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[Llm]:
+    ) -> AsyncPager[Llm, ListLlMsResponse]:
         """
         List LLMs that can be used with query and chat endpoints. The LLM is not directly specified in a query, but instead a `generation_preset_name` is used. The `generation_preset_name` property in generation parameters can be found as the `name` property on the Generations Presets retrieved from `/v2/generation_presets`.
 
@@ -391,7 +682,7 @@ class AsyncRawLlmsClient:
 
         Returns
         -------
-        AsyncPager[Llm]
+        AsyncPager[Llm, ListLlMsResponse]
             List of LLMs.
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -435,9 +726,7 @@ class AsyncRawLlmsClient:
                             request_options=request_options,
                         )
 
-                return AsyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 403:
                 raise ForbiddenError(
                     headers=dict(_response.headers),
@@ -452,6 +741,10 @@ class AsyncRawLlmsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
@@ -463,7 +756,154 @@ class AsyncRawLlmsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Llm]:
         """
-        Create a new LLM for use with query and chat endpoints
+        Integrate external Large Language Models (LLMs) into Vectara for Retrieval Augmented Generation (RAG) and chat. Connect OpenAI API-compatible models from providers like Anthropic, Azure, Google, or custom-hosted endpoints. Once created, reference your custom LLM by name in query generation parameters.
+        - Connect external LLMs using OpenAI-compatible API format
+        - Configure multiple LLM providers for different use cases
+        - Override Vectara's built-in LLMs with your own models
+        - Use custom models for RAG, chat, and document summarization
+
+        **Example providers:**
+
+        ### OpenAI
+
+        **Type:** `openai-compatible`
+        **Models:** GPT-4o, GPT-5
+        **Auth:** Bearer token
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-gpt5",
+          "model": "gpt-5",
+          "uri": "https://api.openai.com/v1/chat/completions",
+          "auth": {
+            "type": "bearer",
+            "token": "sk-..."
+          }
+        }
+        ```
+
+        ### OpenAI Responses API
+
+        **Type**: openai-responses
+        **Models**: o1-preview, o1-mini, o3-mini (reasoning models)
+        **Auth**: Bearer token
+        **Note**: For reasoning models that don't support streaming
+
+        ```json
+        {
+          "type": "openai-responses",
+          "name": "my-o1",
+          "model": "o1-preview",
+          "uri": "https://api.openai.com/v1/chat/completions",
+          "auth": {
+            "type": "bearer",
+            "token": "sk-..."
+          }
+        }
+        ```
+
+        ### Anthropic Claude
+
+        **Type:** `openai-compatible`
+        **Models:** claude-4-opus, claude-4-5-haiku, claude-4-5-sonnet
+        **Auth:** Bearer token with header
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-claude",
+          "model": "claude-sonnet-4-5-20250929",
+          "uri": "https://api.anthropic.com/v1/messages",
+          "auth": {
+            "type": "bearer",
+            "token": "sk-ant-..."
+          },
+          "headers": {
+            "anthropic-version": "2023-06-01"
+          }
+        }
+        ```
+
+        ### Azure OpenAI
+
+        **Type:** `openai-compatible`
+        **Models:** GPT-3.5, GPT-4 (Azure-deployed versions)
+        **Auth:** Custom header (api-key)
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-azure-gpt4",
+          "model": "gpt-4",
+          "uri": "https://YOUR-RESOURCE.openai.azure.com/openai/deployments/YOUR-DEPLOYMENT/chat/completions?api-version=2024-02-15-preview",
+          "auth": {
+            "type": "header",
+            "header": "api-key",
+            "value": "your-azure-key"
+          }
+        }
+        ```
+
+        ### Google Vertex AI (Gemini) — Service Account
+
+        **Type:** `vertex-ai`
+        **Models:** gemini-2.5-pro, gemini-2.5-flash
+        **Auth:** Service account
+
+        ```json
+        {
+          "type": "vertex-ai",
+          "name": "my-gemini",
+          "model": "gemini-2.5-flash",
+          "uri": "https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR-PROJECT/locations/us-central1",
+          "auth": {
+            "type": "service_account",
+            "key_json": "{...service account JSON...}"
+          }
+        }
+        ```
+
+        ### Google AI Studio (Gemini) — API Key
+
+        **Type:** `vertex-ai`
+        **Models:** gemini-2.5-pro, gemini-2.5-flash
+        **Auth:** API key
+
+        ```json
+        {
+          "type": "vertex-ai",
+          "name": "my-gemini",
+          "model": "gemini-2.5-flash",
+          "uri": "https://generativelanguage.googleapis.com/v1beta",
+          "auth": {
+            "type": "api_key",
+            "api_key": "your-google-api-key"
+          }
+        }
+        ```
+
+        The `uri` field is flexible — you can provide a base URI or a full URL copied from Google docs
+        (including model path and `:generateContent` suffix). The system normalizes it automatically.
+
+        ### Custom OpenAI-Compatible
+
+        **Type:** `openai-compatible`
+        **Models:** Any self-hosted or custom LLM, such as OpenRouter.
+        **Auth:** Bearer or custom header
+
+        ```json
+        {
+          "type": "openai-compatible",
+          "name": "my-custom-llm",
+          "model": "llama-3-70b",
+          "uri": "https://my-llm-endpoint.com/v1/chat/completions",
+          "auth": {
+            "type": "bearer",
+            "token": "custom-token"
+          }
+        }
+        ```
 
         Parameters
         ----------
@@ -533,6 +973,10 @@ class AsyncRawLlmsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
@@ -544,7 +988,12 @@ class AsyncRawLlmsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Llm]:
         """
-        Get details about a specific LLM.
+        The Get LLM API allows users to retrieve details about a specific Large Language Model (LLM) that has been configured within the Vectara platform. This API provides metadata about the LLM, including its name, description, model type, API endpoint, and authentication method.
+
+        Use this API to verify model configurations, confirm connectivity details, and ensure that the correct LLM is being utilized within their workflows.
+
+        ## Authentication methods
+        The request requires authentication details, and you can provide them either as a Bearer token or custom header-based authentication.
 
         Parameters
         ----------
@@ -610,6 +1059,10 @@ class AsyncRawLlmsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
@@ -621,7 +1074,11 @@ class AsyncRawLlmsClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[None]:
         """
-        Delete a custom LLM connection. Built-in LLMs cannot be deleted.
+        The Delete LLM API enables users to remove a previously configured custom Large Language Model (LLM) from their Vectara account. This functionality is essential for managing active LLM configurations and ensuring that only relevant models are available for use. Built-in LLMs cannot be deleted, ensuring that core system models remain accessible.
+
+        By providing an LLM identifier, users can permanently delete a model configuration, freeing up resources and maintaining an organized list of available LLMs.
+
+        If successful, the API responds with `HTTP 204 No Content` status, confirming the LLM deletion.
 
         Parameters
         ----------
@@ -679,4 +1136,126 @@ class AsyncRawLlmsClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def update(
+        self,
+        llm_id: str,
+        *,
+        request: UpdateLlmRequest,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[Llm]:
+        """
+        Update an existing LLM's configuration. This endpoint allows partial updates - only provide fields you want to change. Only the name field is immutable.
+
+        The updated LLM will be tested before saving to ensure credentials are valid.
+
+        **Updatable fields:**
+        - `description` - LLM description
+        - `type` - LLM type (openai-compatible, vertex-ai, etc.)
+        - `model` - Model identifier
+        - `uri` - API endpoint
+        - `auth` - Authentication credentials (including service account key_json)
+        - `headers` - Additional HTTP headers (for openai-compatible and anthropic types)
+        - `enabled` - Whether the LLM is enabled
+        - `capabilities` - Model capabilities (image support, context limit, tool calling)
+
+        **Immutable fields:**
+        - `id` - System-generated identifier
+        - `name` - LLM name
+
+        Built-in LLMs (system-provided models) cannot be updated.
+
+        Parameters
+        ----------
+        llm_id : str
+            The ID of the LLM to update.
+
+        request : UpdateLlmRequest
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[Llm]
+            The LLM has been updated
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/llms/{jsonable_encoder(llm_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="PATCH",
+            json=convert_and_respect_annotation_metadata(
+                object_=request, annotation=UpdateLlmRequest, direction="write"
+            ),
+            headers={
+                "content-type": "application/json",
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    Llm,
+                    parse_obj_as(
+                        type_=Llm,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        BadRequestErrorBody,
+                        parse_obj_as(
+                            type_=BadRequestErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        NotFoundErrorBody,
+                        parse_obj_as(
+                            type_=NotFoundErrorBody,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)

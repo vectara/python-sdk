@@ -4,13 +4,118 @@ from __future__ import annotations
 
 import typing
 
-from .customer_specific_reranker import CustomerSpecificReranker
-from .mmr_reranker import MmrReranker
-from .none_reranker import NoneReranker
-from .user_function_reranker import UserFunctionReranker
+import pydantic
+import typing_extensions
+from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel, update_forward_refs
 
-if typing.TYPE_CHECKING:
-    from .chain_reranker import ChainReranker
-SearchReranker = typing.Union[
-    CustomerSpecificReranker, UserFunctionReranker, MmrReranker, "ChainReranker", NoneReranker
+
+class SearchReranker_CustomerReranker(UniversalBaseModel):
+    """
+    Rerank results of the search. Rerankers are very powerful tools to improve the order of search results. By default the search will use the most powerful reranker available to the customer's plan. To disable reranking, set the reranker `type` to `"none"`.
+    """
+
+    type: typing.Literal["customer_reranker"] = "customer_reranker"
+    reranker_id: typing.Optional[str] = None
+    reranker_name: typing.Optional[str] = None
+    limit: typing.Optional[int] = None
+    cutoff: typing.Optional[float] = None
+    include_context: typing.Optional[bool] = None
+    instructions: typing.Optional[str] = None
+
+    if IS_PYDANTIC_V2:
+        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+    else:
+
+        class Config:
+            frozen = True
+            smart_union = True
+            extra = pydantic.Extra.allow
+
+
+class SearchReranker_Userfn(UniversalBaseModel):
+    """
+    Rerank results of the search. Rerankers are very powerful tools to improve the order of search results. By default the search will use the most powerful reranker available to the customer's plan. To disable reranking, set the reranker `type` to `"none"`.
+    """
+
+    type: typing.Literal["userfn"] = "userfn"
+    user_function: typing.Optional[str] = None
+    limit: typing.Optional[int] = None
+    cutoff: typing.Optional[float] = None
+
+    if IS_PYDANTIC_V2:
+        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+    else:
+
+        class Config:
+            frozen = True
+            smart_union = True
+            extra = pydantic.Extra.allow
+
+
+class SearchReranker_Mmr(UniversalBaseModel):
+    """
+    Rerank results of the search. Rerankers are very powerful tools to improve the order of search results. By default the search will use the most powerful reranker available to the customer's plan. To disable reranking, set the reranker `type` to `"none"`.
+    """
+
+    type: typing.Literal["mmr"] = "mmr"
+    diversity_bias: typing.Optional[float] = None
+    limit: typing.Optional[int] = None
+    cutoff: typing.Optional[float] = None
+
+    if IS_PYDANTIC_V2:
+        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+    else:
+
+        class Config:
+            frozen = True
+            smart_union = True
+            extra = pydantic.Extra.allow
+
+
+class SearchReranker_Chain(UniversalBaseModel):
+    """
+    Rerank results of the search. Rerankers are very powerful tools to improve the order of search results. By default the search will use the most powerful reranker available to the customer's plan. To disable reranking, set the reranker `type` to `"none"`.
+    """
+
+    type: typing.Literal["chain"] = "chain"
+    rerankers: typing.List["SearchReranker"]
+
+    if IS_PYDANTIC_V2:
+        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+    else:
+
+        class Config:
+            frozen = True
+            smart_union = True
+            extra = pydantic.Extra.allow
+
+
+class SearchReranker_None(UniversalBaseModel):
+    """
+    Rerank results of the search. Rerankers are very powerful tools to improve the order of search results. By default the search will use the most powerful reranker available to the customer's plan. To disable reranking, set the reranker `type` to `"none"`.
+    """
+
+    type: typing.Literal["none"] = "none"
+    limit: typing.Optional[int] = None
+
+    if IS_PYDANTIC_V2:
+        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+    else:
+
+        class Config:
+            frozen = True
+            smart_union = True
+            extra = pydantic.Extra.allow
+
+
+SearchReranker = typing_extensions.Annotated[
+    typing.Union[
+        SearchReranker_CustomerReranker,
+        SearchReranker_Userfn,
+        SearchReranker_Mmr,
+        SearchReranker_Chain,
+        SearchReranker_None,
+    ],
+    pydantic.Field(discriminator="type"),
 ]
+update_forward_refs(SearchReranker_Chain, SearchReranker=SearchReranker)

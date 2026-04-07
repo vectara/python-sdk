@@ -5,6 +5,7 @@ import typing
 import pydantic
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 from .execution_configuration import ExecutionConfiguration
+from .function_definition_language import FunctionDefinitionLanguage
 from .function_definition_validation_status import FunctionDefinitionValidationStatus
 
 
@@ -24,11 +25,16 @@ class FunctionDefinition(UniversalBaseModel):
 
     **Type Annotations:**
     - Use type annotations for automatic input/output schema discovery
-    - Supported typing constructs: `List`, `Dict`, `Optional`, `Union`
+    - Supported typing constructs: `List`, `Dict`, `Optional`, `Union`, `Literal`
     - Import from `typing` module when using complex types
+
+    **Docstring Parameter Descriptions:**
+    - Use docstrings to provide descriptions for parameters (Google, NumPy, ReST, and Epydoc styles are supported)
+    - Parameter descriptions are extracted and included in the input schema
+    - This gives agents better context about how to use each parameter
     """
 
-    language: typing.Literal["python"] = pydantic.Field(default="python")
+    language: FunctionDefinitionLanguage = pydantic.Field()
     """
     The programming language of the function. Currently only Python 3.12 is supported.
     """

@@ -7,17 +7,23 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.jsonable_encoder import jsonable_encoder
-from ..core.pagination import AsyncPager, BaseHttpResponse, SyncPager
+from ..core.pagination import AsyncPager, SyncPager
+from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
+from ..core.serialization import convert_and_respect_annotation_metadata
 from ..errors.bad_request_error import BadRequestError
 from ..errors.forbidden_error import ForbiddenError
+from ..types.agent_role import AgentRole
 from ..types.api_key import ApiKey
 from ..types.api_key_role import ApiKeyRole
+from ..types.api_role import ApiRole
 from ..types.bad_request_error_body import BadRequestErrorBody
 from ..types.corpus_key import CorpusKey
+from ..types.corpus_role import CorpusRole
 from ..types.error import Error
 from ..types.list_api_keys_response import ListApiKeysResponse
+from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -37,9 +43,9 @@ class RawApiKeysClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> SyncPager[ApiKey]:
+    ) -> SyncPager[ApiKey, ListApiKeysResponse]:
         """
-        Retrieve a list of API keys for the customer account with optional filtering.
+        The List API Keys API lists all existing API keys for a customer ID. It also shows what corpora are accessed by these keys and with what permissions. This capability can provide insights into key usage and status and help you manage the lifecycle and security of your API keys.
 
         Parameters
         ----------
@@ -66,8 +72,9 @@ class RawApiKeysClient:
 
         Returns
         -------
-        SyncPager[ApiKey]
-            An array of API keys.
+        SyncPager[ApiKey, ListApiKeysResponse]
+            The response includes an api_keys array field that contains information about the
+            API keys, and a metadata field containing information such as pagination key.
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/api_keys",
@@ -109,9 +116,7 @@ class RawApiKeysClient:
                         request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
-                return SyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 400:
                 raise BadRequestError(
                     headers=dict(_response.headers),
@@ -137,27 +142,38 @@ class RawApiKeysClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
         self,
         *,
         name: str,
-        api_key_role: ApiKeyRole,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
+        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        api_key_role: typing.Optional[ApiKeyRole] = OMIT,
         corpus_keys: typing.Optional[typing.Sequence[CorpusKey]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ApiKey]:
         """
-        An API key is to authenticate when calling Vectara APIs.
+        The Create API Key API lets you create new API keys, which you can bind to one or multiple corpora. You can also decide whether to designate each key for specific access like personal API keys, only querying (read-only) or both querying and indexing (read-write).
+
+        This capability is useful in scenarios where you have applications that require different levels of access to corpora data. For example, you might create a read-only API key for an application that only needs to query data.
+
+        :::note
+        For more information about the different types of API keys, see [API Key Management](/docs/deploy-and-scale/authentication/api-key-management).
+        :::
 
         Parameters
         ----------
         name : str
             The human-readable name of the API key.
-
-        api_key_role : ApiKeyRole
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -165,8 +181,20 @@ class RawApiKeysClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
+        api_roles : typing.Optional[typing.Sequence[ApiRole]]
+            Customer-level roles for this API key.
+
+        api_key_role : typing.Optional[ApiKeyRole]
+            Deprecated: Use api_roles instead. Legacy role of the API key.
+
         corpus_keys : typing.Optional[typing.Sequence[CorpusKey]]
-            Corpora this API key has roles on if it is not a Personal API key. This property should be null or missing if this `api_key_role` is `personal`.
+            Deprecated: Use corpus_roles instead. Corpora this API key has roles on.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            Corpus-specific role assignments for this API key.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            Agent-specific role assignments for this API key.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -174,7 +202,7 @@ class RawApiKeysClient:
         Returns
         -------
         HttpResponse[ApiKey]
-            An API key object, used to query the Vectara API with the assigned roles.
+            The response includes the assigned API key ID, name, secret key, enabled status, API key role, and API policy.
         """
         _response = self._client_wrapper.httpx_client.request(
             "v2/api_keys",
@@ -182,8 +210,15 @@ class RawApiKeysClient:
             method="POST",
             json={
                 "name": name,
+                "api_roles": api_roles,
                 "api_key_role": api_key_role,
                 "corpus_keys": corpus_keys,
+                "corpus_roles": convert_and_respect_annotation_metadata(
+                    object_=corpus_roles, annotation=typing.Sequence[CorpusRole], direction="write"
+                ),
+                "agent_roles": convert_and_respect_annotation_metadata(
+                    object_=agent_roles, annotation=typing.Sequence[AgentRole], direction="write"
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -228,6 +263,10 @@ class RawApiKeysClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
@@ -239,7 +278,9 @@ class RawApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ApiKey]:
         """
-        Retrieve details of a specific API key by its ID.
+        The Get API Key API lists all existing API keys for a customer ID. It also shows what corpora are accessed by these keys and with what permissions.
+
+        This capability can provide insights into key usage and status and help you manage the lifecycle and security of your API keys.
 
         Parameters
         ----------
@@ -258,7 +299,7 @@ class RawApiKeysClient:
         Returns
         -------
         HttpResponse[ApiKey]
-            The API key.
+            The response includes the API name, enabled status, API key role, and API policy.
         """
         _response = self._client_wrapper.httpx_client.request(
             f"v2/api_keys/{jsonable_encoder(api_key_id)}",
@@ -294,6 +335,10 @@ class RawApiKeysClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
@@ -305,7 +350,9 @@ class RawApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[None]:
         """
-        Delete API keys to help you manage the security and lifecycle of API keys in your application.
+        The Delete API Key API lets you delete one or more existing API keys.
+        This capability is useful for managing the lifecycle and security of
+        API keys such as when they are no longer needed or when a key is compromised.
 
         Parameters
         ----------
@@ -352,6 +399,10 @@ class RawApiKeysClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def update(
@@ -364,7 +415,9 @@ class RawApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ApiKey]:
         """
-        Update an API key such as the roles attached to the key.
+        The Update API Key API lets you enable or disable specific API keys. You can use this endpoint to temporarily disable access without deleting the key.
+
+        This capability is useful for scenarios like maintenance windows, or when your team no longer requires access to a specific corpus.
 
         Parameters
         ----------
@@ -427,6 +480,10 @@ class RawApiKeysClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
 
@@ -444,9 +501,9 @@ class AsyncRawApiKeysClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncPager[ApiKey]:
+    ) -> AsyncPager[ApiKey, ListApiKeysResponse]:
         """
-        Retrieve a list of API keys for the customer account with optional filtering.
+        The List API Keys API lists all existing API keys for a customer ID. It also shows what corpora are accessed by these keys and with what permissions. This capability can provide insights into key usage and status and help you manage the lifecycle and security of your API keys.
 
         Parameters
         ----------
@@ -473,8 +530,9 @@ class AsyncRawApiKeysClient:
 
         Returns
         -------
-        AsyncPager[ApiKey]
-            An array of API keys.
+        AsyncPager[ApiKey, ListApiKeysResponse]
+            The response includes an api_keys array field that contains information about the
+            API keys, and a metadata field containing information such as pagination key.
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/api_keys",
@@ -519,9 +577,7 @@ class AsyncRawApiKeysClient:
                             request_options=request_options,
                         )
 
-                return AsyncPager(
-                    has_next=_has_next, items=_items, get_next=_get_next, response=BaseHttpResponse(response=_response)
-                )
+                return AsyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
             if _response.status_code == 400:
                 raise BadRequestError(
                     headers=dict(_response.headers),
@@ -547,27 +603,38 @@ class AsyncRawApiKeysClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
         self,
         *,
         name: str,
-        api_key_role: ApiKeyRole,
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
+        api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
+        api_key_role: typing.Optional[ApiKeyRole] = OMIT,
         corpus_keys: typing.Optional[typing.Sequence[CorpusKey]] = OMIT,
+        corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
+        agent_roles: typing.Optional[typing.Sequence[AgentRole]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ApiKey]:
         """
-        An API key is to authenticate when calling Vectara APIs.
+        The Create API Key API lets you create new API keys, which you can bind to one or multiple corpora. You can also decide whether to designate each key for specific access like personal API keys, only querying (read-only) or both querying and indexing (read-write).
+
+        This capability is useful in scenarios where you have applications that require different levels of access to corpora data. For example, you might create a read-only API key for an application that only needs to query data.
+
+        :::note
+        For more information about the different types of API keys, see [API Key Management](/docs/deploy-and-scale/authentication/api-key-management).
+        :::
 
         Parameters
         ----------
         name : str
             The human-readable name of the API key.
-
-        api_key_role : ApiKeyRole
 
         request_timeout : typing.Optional[int]
             The API will make a best effort to complete the request in the specified seconds or time out.
@@ -575,8 +642,20 @@ class AsyncRawApiKeysClient:
         request_timeout_millis : typing.Optional[int]
             The API will make a best effort to complete the request in the specified milliseconds or time out.
 
+        api_roles : typing.Optional[typing.Sequence[ApiRole]]
+            Customer-level roles for this API key.
+
+        api_key_role : typing.Optional[ApiKeyRole]
+            Deprecated: Use api_roles instead. Legacy role of the API key.
+
         corpus_keys : typing.Optional[typing.Sequence[CorpusKey]]
-            Corpora this API key has roles on if it is not a Personal API key. This property should be null or missing if this `api_key_role` is `personal`.
+            Deprecated: Use corpus_roles instead. Corpora this API key has roles on.
+
+        corpus_roles : typing.Optional[typing.Sequence[CorpusRole]]
+            Corpus-specific role assignments for this API key.
+
+        agent_roles : typing.Optional[typing.Sequence[AgentRole]]
+            Agent-specific role assignments for this API key.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -584,7 +663,7 @@ class AsyncRawApiKeysClient:
         Returns
         -------
         AsyncHttpResponse[ApiKey]
-            An API key object, used to query the Vectara API with the assigned roles.
+            The response includes the assigned API key ID, name, secret key, enabled status, API key role, and API policy.
         """
         _response = await self._client_wrapper.httpx_client.request(
             "v2/api_keys",
@@ -592,8 +671,15 @@ class AsyncRawApiKeysClient:
             method="POST",
             json={
                 "name": name,
+                "api_roles": api_roles,
                 "api_key_role": api_key_role,
                 "corpus_keys": corpus_keys,
+                "corpus_roles": convert_and_respect_annotation_metadata(
+                    object_=corpus_roles, annotation=typing.Sequence[CorpusRole], direction="write"
+                ),
+                "agent_roles": convert_and_respect_annotation_metadata(
+                    object_=agent_roles, annotation=typing.Sequence[AgentRole], direction="write"
+                ),
             },
             headers={
                 "content-type": "application/json",
@@ -638,6 +724,10 @@ class AsyncRawApiKeysClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
@@ -649,7 +739,9 @@ class AsyncRawApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ApiKey]:
         """
-        Retrieve details of a specific API key by its ID.
+        The Get API Key API lists all existing API keys for a customer ID. It also shows what corpora are accessed by these keys and with what permissions.
+
+        This capability can provide insights into key usage and status and help you manage the lifecycle and security of your API keys.
 
         Parameters
         ----------
@@ -668,7 +760,7 @@ class AsyncRawApiKeysClient:
         Returns
         -------
         AsyncHttpResponse[ApiKey]
-            The API key.
+            The response includes the API name, enabled status, API key role, and API policy.
         """
         _response = await self._client_wrapper.httpx_client.request(
             f"v2/api_keys/{jsonable_encoder(api_key_id)}",
@@ -704,6 +796,10 @@ class AsyncRawApiKeysClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
@@ -715,7 +811,9 @@ class AsyncRawApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[None]:
         """
-        Delete API keys to help you manage the security and lifecycle of API keys in your application.
+        The Delete API Key API lets you delete one or more existing API keys.
+        This capability is useful for managing the lifecycle and security of
+        API keys such as when they are no longer needed or when a key is compromised.
 
         Parameters
         ----------
@@ -762,6 +860,10 @@ class AsyncRawApiKeysClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def update(
@@ -774,7 +876,9 @@ class AsyncRawApiKeysClient:
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ApiKey]:
         """
-        Update an API key such as the roles attached to the key.
+        The Update API Key API lets you enable or disable specific API keys. You can use this endpoint to temporarily disable access without deleting the key.
+
+        This capability is useful for scenarios like maintenance windows, or when your team no longer requires access to a specific corpus.
 
         Parameters
         ----------
@@ -837,4 +941,8 @@ class AsyncRawApiKeysClient:
             _response_json = _response.json()
         except JSONDecodeError:
             raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
