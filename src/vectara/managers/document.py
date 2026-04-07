@@ -1,5 +1,5 @@
 from vectara.documents.client import DocumentsClient
-from vectara.types import Document, CoreDocument, StructuredDocument
+from vectara.types import Document, CreateDocumentRequest_Core, CreateDocumentRequest_Structured
 from vectara.utils.hash import calculate_sha256
 from typing import Optional, Dict, Any, Union, Tuple
 from enum import Enum
@@ -90,7 +90,7 @@ class DocumentManager:
             return True, True
 
 
-    def index_doc(self, corpus_key: str, doc: Union[CoreDocument, StructuredDocument]) -> DocOpEnum:
+    def index_doc(self, corpus_key: str, doc: Union[CreateDocumentRequest_Core, CreateDocumentRequest_Structured]) -> DocOpEnum:
 
         # Remove the sha256 hash from metadata.
         if doc.metadata and HASH_FIELD in doc.metadata:
