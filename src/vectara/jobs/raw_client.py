@@ -20,7 +20,6 @@ from ..types.error import Error
 from ..types.job import Job
 from ..types.job_state import JobState
 from ..types.list_jobs_response import ListJobsResponse
-from ..types.not_found_error_body import NotFoundErrorBody
 from pydantic import ValidationError
 
 
@@ -202,9 +201,9 @@ class RawJobsClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -400,9 +399,9 @@ class AsyncRawJobsClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),

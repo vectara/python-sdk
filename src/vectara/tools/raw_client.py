@@ -17,12 +17,10 @@ from ..errors.conflict_error import ConflictError
 from ..errors.forbidden_error import ForbiddenError
 from ..errors.internal_server_error import InternalServerError
 from ..errors.not_found_error import NotFoundError
-from ..types.bad_request_error_body import BadRequestErrorBody
 from ..types.create_tool_request import CreateToolRequest
 from ..types.error import Error
 from ..types.execution_configuration import ExecutionConfiguration
 from ..types.list_tools_response import ListToolsResponse
-from ..types.not_found_error_body import NotFoundErrorBody
 from ..types.test_lambda_tool_response import TestLambdaToolResponse
 from ..types.test_tool_response import TestToolResponse
 from ..types.tool import Tool
@@ -233,9 +231,9 @@ class RawToolsClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -361,9 +359,9 @@ class RawToolsClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -453,9 +451,9 @@ class RawToolsClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -526,9 +524,9 @@ class RawToolsClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -604,9 +602,9 @@ class RawToolsClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -626,9 +624,9 @@ class RawToolsClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -712,9 +710,9 @@ class RawToolsClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -734,9 +732,9 @@ class RawToolsClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -963,9 +961,9 @@ class AsyncRawToolsClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -1091,9 +1089,9 @@ class AsyncRawToolsClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -1183,9 +1181,9 @@ class AsyncRawToolsClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -1256,9 +1254,9 @@ class AsyncRawToolsClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -1334,9 +1332,9 @@ class AsyncRawToolsClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -1356,9 +1354,9 @@ class AsyncRawToolsClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -1442,9 +1440,9 @@ class AsyncRawToolsClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -1464,9 +1462,9 @@ class AsyncRawToolsClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),

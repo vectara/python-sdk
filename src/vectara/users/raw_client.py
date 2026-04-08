@@ -17,12 +17,10 @@ from ..errors.forbidden_error import ForbiddenError
 from ..errors.not_found_error import NotFoundError
 from ..types.agent_role import AgentRole
 from ..types.api_role import ApiRole
-from ..types.bad_request_error_body import BadRequestErrorBody
 from ..types.corpus_key import CorpusKey
 from ..types.corpus_role import CorpusRole
 from ..types.error import Error
 from ..types.list_users_response import ListUsersResponse
-from ..types.not_found_error_body import NotFoundErrorBody
 from ..types.user import User
 from .types.create_users_response import CreateUsersResponse
 from .types.reset_password_users_response import ResetPasswordUsersResponse
@@ -223,9 +221,9 @@ class RawUsersClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -315,9 +313,9 @@ class RawUsersClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -388,9 +386,9 @@ class RawUsersClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -502,9 +500,9 @@ class RawUsersClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -583,9 +581,9 @@ class RawUsersClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -794,9 +792,9 @@ class AsyncRawUsersClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -886,9 +884,9 @@ class AsyncRawUsersClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -959,9 +957,9 @@ class AsyncRawUsersClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -1073,9 +1071,9 @@ class AsyncRawUsersClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -1154,9 +1152,9 @@ class AsyncRawUsersClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),

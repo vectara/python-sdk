@@ -17,7 +17,6 @@ from ..errors.forbidden_error import ForbiddenError
 from ..types.agent_role import AgentRole
 from ..types.api_role import ApiRole
 from ..types.app_client import AppClient
-from ..types.bad_request_error_body import BadRequestErrorBody
 from ..types.corpus_role import CorpusRole
 from ..types.create_app_client_request import CreateAppClientRequest
 from ..types.error import Error
@@ -113,9 +112,9 @@ class RawAppClientsClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -198,9 +197,9 @@ class RawAppClientsClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -544,9 +543,9 @@ class AsyncRawAppClientsClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -629,9 +628,9 @@ class AsyncRawAppClientsClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),

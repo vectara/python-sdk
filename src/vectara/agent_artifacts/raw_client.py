@@ -17,7 +17,6 @@ from ..types.agent_key import AgentKey
 from ..types.agent_session_key import AgentSessionKey
 from ..types.error import Error
 from ..types.list_session_artifacts_response import ListSessionArtifactsResponse
-from ..types.not_found_error_body import NotFoundErrorBody
 from ..types.session_artifact import SessionArtifact
 from .types.list_agent_artifacts_request_order_by import ListAgentArtifactsRequestOrderBy
 from .types.list_agent_artifacts_request_sort_by import ListAgentArtifactsRequestSortBy
@@ -136,9 +135,9 @@ class RawAgentArtifactsClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -225,9 +224,9 @@ class RawAgentArtifactsClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -357,9 +356,9 @@ class AsyncRawAgentArtifactsClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -446,9 +445,9 @@ class AsyncRawAgentArtifactsClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),

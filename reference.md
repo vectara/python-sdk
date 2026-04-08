@@ -6179,6 +6179,286 @@ client.generation_presets.list(
 </dl>
 </details>
 
+<details><summary><code>client.generation_presets.<a href="src/vectara/generation_presets/client.py">create</a>(...) -> GenerationPreset</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a custom generation preset for use in query and chat requests. A generation preset bundles a prompt template, an LLM, and model parameters into a reusable configuration.
+
+The created preset can be referenced by name using the `generation_preset_name` field in query or chat requests.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.generation_presets.create()
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `CreateGenerationPresetRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.generation_presets.<a href="src/vectara/generation_presets/client.py">replace</a>(...) -> GenerationPreset</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Replace an existing custom generation preset. This performs a full replacement of the preset configuration.
+The preset must have been created by the customer (platform presets cannot be replaced).
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.generation_presets.replace(
+    generation_preset_id="generation_preset_id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**generation_preset_id:** `str` — The ID of the generation preset to replace.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `CreateGenerationPresetRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.generation_presets.<a href="src/vectara/generation_presets/client.py">delete</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Delete an existing custom generation preset.
+The preset must have been created by the customer (platform presets cannot be deleted).
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.generation_presets.delete(
+    generation_preset_id="generation_preset_id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**generation_preset_id:** `str` — The ID of the generation preset to delete.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## FactualConsistency
 <details><summary><code>client.factual_consistency.<a href="src/vectara/factual_consistency/client.py">evaluate</a>(...) -> EvaluateFactualConsistencyResponse</code></summary>
 <dl>

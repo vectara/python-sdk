@@ -18,7 +18,6 @@ from ..types.agent_role import AgentRole
 from ..types.api_key import ApiKey
 from ..types.api_key_role import ApiKeyRole
 from ..types.api_role import ApiRole
-from ..types.bad_request_error_body import BadRequestErrorBody
 from ..types.corpus_key import CorpusKey
 from ..types.corpus_role import CorpusRole
 from ..types.error import Error
@@ -121,9 +120,9 @@ class RawApiKeysClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -242,9 +241,9 @@ class RawApiKeysClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -582,9 +581,9 @@ class AsyncRawApiKeysClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -703,9 +702,9 @@ class AsyncRawApiKeysClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),

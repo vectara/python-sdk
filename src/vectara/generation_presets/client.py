@@ -9,6 +9,9 @@ from ..types.generation_preset import GenerationPreset
 from ..types.list_generation_presets_response import ListGenerationPresetsResponse
 from .raw_client import AsyncRawGenerationPresetsClient, RawGenerationPresetsClient
 
+# this is used as the default value for optional parameters
+OMIT = typing.cast(typing.Any, ...)
+
 
 class GenerationPresetsClient:
     def __init__(self, *, client_wrapper: SyncClientWrapper):
@@ -95,6 +98,273 @@ class GenerationPresetsClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
+
+    def create(
+        self,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        id: typing.Optional[str] = OMIT,
+        name: typing.Optional[str] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        llm_name: typing.Optional[str] = OMIT,
+        prompt_template: typing.Optional[str] = OMIT,
+        max_used_search_results: typing.Optional[int] = OMIT,
+        max_tokens: typing.Optional[int] = OMIT,
+        temperature: typing.Optional[float] = OMIT,
+        frequency_penalty: typing.Optional[float] = OMIT,
+        presence_penalty: typing.Optional[float] = OMIT,
+        additional_model_params: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        enabled: typing.Optional[bool] = OMIT,
+        default: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> GenerationPreset:
+        """
+        Create a custom generation preset for use in query and chat requests. A generation preset bundles a prompt template, an LLM, and model parameters into a reusable configuration.
+
+        The created preset can be referenced by name using the `generation_preset_name` field in query or chat requests.
+
+        Parameters
+        ----------
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        id : typing.Optional[str]
+            The ID of the generation preset.
+
+        name : typing.Optional[str]
+            Name of the generation preset to be used with configuring generation.
+
+        description : typing.Optional[str]
+            Description of the generation preset.
+
+        llm_name : typing.Optional[str]
+            Name of the model that these presets are used with. The list of available names can be fetched by the `GET /v2/llms` endpoint.
+
+        prompt_template : typing.Optional[str]
+            Preset template used to render the prompt sent to generation.
+
+        max_used_search_results : typing.Optional[int]
+            Preset maximum number of search results that will be available to the prompt.
+
+        max_tokens : typing.Optional[int]
+            Preset maximum number of tokens to be returned by the generation.
+
+        temperature : typing.Optional[float]
+            The sampling temperature to use. Higher values make the output more random, while lower values make it more focused and deterministic.
+
+        frequency_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on their existing frequency in the generation so far, decreasing the model's likelihood to repeat the same line verbatim.
+
+        presence_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on whether they appear in the generation so far, increasing the model's likelihood to talk about new topics.
+
+        additional_model_params : typing.Optional[typing.Dict[str, typing.Any]]
+            Additional model parameters beyond the standard fields above.
+
+        enabled : typing.Optional[bool]
+            Indicates whether the prompt is enabled.
+
+        default : typing.Optional[bool]
+            Indicates if this prompt is the default prompt used with the LLM.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        GenerationPreset
+            The created generation preset.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara()
+        client.generation_presets.create()
+        """
+        _response = self._raw_client.create(
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            id=id,
+            name=name,
+            description=description,
+            llm_name=llm_name,
+            prompt_template=prompt_template,
+            max_used_search_results=max_used_search_results,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            additional_model_params=additional_model_params,
+            enabled=enabled,
+            default=default,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def replace(
+        self,
+        generation_preset_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        id: typing.Optional[str] = OMIT,
+        name: typing.Optional[str] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        llm_name: typing.Optional[str] = OMIT,
+        prompt_template: typing.Optional[str] = OMIT,
+        max_used_search_results: typing.Optional[int] = OMIT,
+        max_tokens: typing.Optional[int] = OMIT,
+        temperature: typing.Optional[float] = OMIT,
+        frequency_penalty: typing.Optional[float] = OMIT,
+        presence_penalty: typing.Optional[float] = OMIT,
+        additional_model_params: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        enabled: typing.Optional[bool] = OMIT,
+        default: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> GenerationPreset:
+        """
+        Replace an existing custom generation preset. This performs a full replacement of the preset configuration.
+        The preset must have been created by the customer (platform presets cannot be replaced).
+
+        Parameters
+        ----------
+        generation_preset_id : str
+            The ID of the generation preset to replace.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        id : typing.Optional[str]
+            The ID of the generation preset.
+
+        name : typing.Optional[str]
+            Name of the generation preset to be used with configuring generation.
+
+        description : typing.Optional[str]
+            Description of the generation preset.
+
+        llm_name : typing.Optional[str]
+            Name of the model that these presets are used with. The list of available names can be fetched by the `GET /v2/llms` endpoint.
+
+        prompt_template : typing.Optional[str]
+            Preset template used to render the prompt sent to generation.
+
+        max_used_search_results : typing.Optional[int]
+            Preset maximum number of search results that will be available to the prompt.
+
+        max_tokens : typing.Optional[int]
+            Preset maximum number of tokens to be returned by the generation.
+
+        temperature : typing.Optional[float]
+            The sampling temperature to use. Higher values make the output more random, while lower values make it more focused and deterministic.
+
+        frequency_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on their existing frequency in the generation so far, decreasing the model's likelihood to repeat the same line verbatim.
+
+        presence_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on whether they appear in the generation so far, increasing the model's likelihood to talk about new topics.
+
+        additional_model_params : typing.Optional[typing.Dict[str, typing.Any]]
+            Additional model parameters beyond the standard fields above.
+
+        enabled : typing.Optional[bool]
+            Indicates whether the prompt is enabled.
+
+        default : typing.Optional[bool]
+            Indicates if this prompt is the default prompt used with the LLM.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        GenerationPreset
+            The replaced generation preset.
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara()
+        client.generation_presets.replace(
+            generation_preset_id="generation_preset_id",
+        )
+        """
+        _response = self._raw_client.replace(
+            generation_preset_id,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            id=id,
+            name=name,
+            description=description,
+            llm_name=llm_name,
+            prompt_template=prompt_template,
+            max_used_search_results=max_used_search_results,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            additional_model_params=additional_model_params,
+            enabled=enabled,
+            default=default,
+            request_options=request_options,
+        )
+        return _response.data
+
+    def delete(
+        self,
+        generation_preset_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> None:
+        """
+        Delete an existing custom generation preset.
+        The preset must have been created by the customer (platform presets cannot be deleted).
+
+        Parameters
+        ----------
+        generation_preset_id : str
+            The ID of the generation preset to delete.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        from vectara import Vectara
+
+        client = Vectara()
+        client.generation_presets.delete(
+            generation_preset_id="generation_preset_id",
+        )
+        """
+        _response = self._raw_client.delete(
+            generation_preset_id,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data
 
 
 class AsyncGenerationPresetsClient:
@@ -191,3 +461,294 @@ class AsyncGenerationPresetsClient:
             request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
+
+    async def create(
+        self,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        id: typing.Optional[str] = OMIT,
+        name: typing.Optional[str] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        llm_name: typing.Optional[str] = OMIT,
+        prompt_template: typing.Optional[str] = OMIT,
+        max_used_search_results: typing.Optional[int] = OMIT,
+        max_tokens: typing.Optional[int] = OMIT,
+        temperature: typing.Optional[float] = OMIT,
+        frequency_penalty: typing.Optional[float] = OMIT,
+        presence_penalty: typing.Optional[float] = OMIT,
+        additional_model_params: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        enabled: typing.Optional[bool] = OMIT,
+        default: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> GenerationPreset:
+        """
+        Create a custom generation preset for use in query and chat requests. A generation preset bundles a prompt template, an LLM, and model parameters into a reusable configuration.
+
+        The created preset can be referenced by name using the `generation_preset_name` field in query or chat requests.
+
+        Parameters
+        ----------
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        id : typing.Optional[str]
+            The ID of the generation preset.
+
+        name : typing.Optional[str]
+            Name of the generation preset to be used with configuring generation.
+
+        description : typing.Optional[str]
+            Description of the generation preset.
+
+        llm_name : typing.Optional[str]
+            Name of the model that these presets are used with. The list of available names can be fetched by the `GET /v2/llms` endpoint.
+
+        prompt_template : typing.Optional[str]
+            Preset template used to render the prompt sent to generation.
+
+        max_used_search_results : typing.Optional[int]
+            Preset maximum number of search results that will be available to the prompt.
+
+        max_tokens : typing.Optional[int]
+            Preset maximum number of tokens to be returned by the generation.
+
+        temperature : typing.Optional[float]
+            The sampling temperature to use. Higher values make the output more random, while lower values make it more focused and deterministic.
+
+        frequency_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on their existing frequency in the generation so far, decreasing the model's likelihood to repeat the same line verbatim.
+
+        presence_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on whether they appear in the generation so far, increasing the model's likelihood to talk about new topics.
+
+        additional_model_params : typing.Optional[typing.Dict[str, typing.Any]]
+            Additional model parameters beyond the standard fields above.
+
+        enabled : typing.Optional[bool]
+            Indicates whether the prompt is enabled.
+
+        default : typing.Optional[bool]
+            Indicates if this prompt is the default prompt used with the LLM.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        GenerationPreset
+            The created generation preset.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara()
+
+
+        async def main() -> None:
+            await client.generation_presets.create()
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.create(
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            id=id,
+            name=name,
+            description=description,
+            llm_name=llm_name,
+            prompt_template=prompt_template,
+            max_used_search_results=max_used_search_results,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            additional_model_params=additional_model_params,
+            enabled=enabled,
+            default=default,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def replace(
+        self,
+        generation_preset_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        id: typing.Optional[str] = OMIT,
+        name: typing.Optional[str] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        llm_name: typing.Optional[str] = OMIT,
+        prompt_template: typing.Optional[str] = OMIT,
+        max_used_search_results: typing.Optional[int] = OMIT,
+        max_tokens: typing.Optional[int] = OMIT,
+        temperature: typing.Optional[float] = OMIT,
+        frequency_penalty: typing.Optional[float] = OMIT,
+        presence_penalty: typing.Optional[float] = OMIT,
+        additional_model_params: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        enabled: typing.Optional[bool] = OMIT,
+        default: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> GenerationPreset:
+        """
+        Replace an existing custom generation preset. This performs a full replacement of the preset configuration.
+        The preset must have been created by the customer (platform presets cannot be replaced).
+
+        Parameters
+        ----------
+        generation_preset_id : str
+            The ID of the generation preset to replace.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        id : typing.Optional[str]
+            The ID of the generation preset.
+
+        name : typing.Optional[str]
+            Name of the generation preset to be used with configuring generation.
+
+        description : typing.Optional[str]
+            Description of the generation preset.
+
+        llm_name : typing.Optional[str]
+            Name of the model that these presets are used with. The list of available names can be fetched by the `GET /v2/llms` endpoint.
+
+        prompt_template : typing.Optional[str]
+            Preset template used to render the prompt sent to generation.
+
+        max_used_search_results : typing.Optional[int]
+            Preset maximum number of search results that will be available to the prompt.
+
+        max_tokens : typing.Optional[int]
+            Preset maximum number of tokens to be returned by the generation.
+
+        temperature : typing.Optional[float]
+            The sampling temperature to use. Higher values make the output more random, while lower values make it more focused and deterministic.
+
+        frequency_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on their existing frequency in the generation so far, decreasing the model's likelihood to repeat the same line verbatim.
+
+        presence_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on whether they appear in the generation so far, increasing the model's likelihood to talk about new topics.
+
+        additional_model_params : typing.Optional[typing.Dict[str, typing.Any]]
+            Additional model parameters beyond the standard fields above.
+
+        enabled : typing.Optional[bool]
+            Indicates whether the prompt is enabled.
+
+        default : typing.Optional[bool]
+            Indicates if this prompt is the default prompt used with the LLM.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        GenerationPreset
+            The replaced generation preset.
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara()
+
+
+        async def main() -> None:
+            await client.generation_presets.replace(
+                generation_preset_id="generation_preset_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.replace(
+            generation_preset_id,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            id=id,
+            name=name,
+            description=description,
+            llm_name=llm_name,
+            prompt_template=prompt_template,
+            max_used_search_results=max_used_search_results,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            additional_model_params=additional_model_params,
+            enabled=enabled,
+            default=default,
+            request_options=request_options,
+        )
+        return _response.data
+
+    async def delete(
+        self,
+        generation_preset_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> None:
+        """
+        Delete an existing custom generation preset.
+        The preset must have been created by the customer (platform presets cannot be deleted).
+
+        Parameters
+        ----------
+        generation_preset_id : str
+            The ID of the generation preset to delete.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        import asyncio
+
+        from vectara import AsyncVectara
+
+        client = AsyncVectara()
+
+
+        async def main() -> None:
+            await client.generation_presets.delete(
+                generation_preset_id="generation_preset_id",
+            )
+
+
+        asyncio.run(main())
+        """
+        _response = await self._raw_client.delete(
+            generation_preset_id,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+        return _response.data

@@ -196,6 +196,7 @@ if typing.TYPE_CHECKING:
         CreateDocumentRequest_Structured,
     )
     from .create_encoder_request import CreateEncoderRequest, CreateEncoderRequest_OpenaiCompatible
+    from .create_generation_preset_request import CreateGenerationPresetRequest
     from .create_initial_instruction_request import CreateInitialInstructionRequest
     from .create_input_message_request import CreateInputMessageRequest
     from .create_input_request import (
@@ -715,6 +716,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "CreateDocumentRequest_Structured": ".create_document_request",
     "CreateEncoderRequest": ".create_encoder_request",
     "CreateEncoderRequest_OpenaiCompatible": ".create_encoder_request",
+    "CreateGenerationPresetRequest": ".create_generation_preset_request",
     "CreateInitialInstructionRequest": ".create_initial_instruction_request",
     "CreateInputMessageRequest": ".create_input_message_request",
     "CreateInputRequest": ".create_input_request",
@@ -1252,6 +1254,7 @@ __all__ = [
     "CreateDocumentRequest_Structured",
     "CreateEncoderRequest",
     "CreateEncoderRequest_OpenaiCompatible",
+    "CreateGenerationPresetRequest",
     "CreateInitialInstructionRequest",
     "CreateInputMessageRequest",
     "CreateInputRequest",

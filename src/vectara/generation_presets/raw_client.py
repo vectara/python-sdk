@@ -5,15 +5,22 @@ from json.decoder import JSONDecodeError
 
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
+from ..core.http_response import AsyncHttpResponse, HttpResponse
+from ..core.jsonable_encoder import jsonable_encoder
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
+from ..errors.bad_request_error import BadRequestError
 from ..errors.forbidden_error import ForbiddenError
+from ..errors.not_found_error import NotFoundError
 from ..types.error import Error
 from ..types.generation_preset import GenerationPreset
 from ..types.list_generation_presets_response import ListGenerationPresetsResponse
 from pydantic import ValidationError
+
+# this is used as the default value for optional parameters
+OMIT = typing.cast(typing.Any, ...)
 
 
 class RawGenerationPresetsClient:
@@ -114,6 +121,401 @@ class RawGenerationPresetsClient:
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def create(
+        self,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        id: typing.Optional[str] = OMIT,
+        name: typing.Optional[str] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        llm_name: typing.Optional[str] = OMIT,
+        prompt_template: typing.Optional[str] = OMIT,
+        max_used_search_results: typing.Optional[int] = OMIT,
+        max_tokens: typing.Optional[int] = OMIT,
+        temperature: typing.Optional[float] = OMIT,
+        frequency_penalty: typing.Optional[float] = OMIT,
+        presence_penalty: typing.Optional[float] = OMIT,
+        additional_model_params: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        enabled: typing.Optional[bool] = OMIT,
+        default: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[GenerationPreset]:
+        """
+        Create a custom generation preset for use in query and chat requests. A generation preset bundles a prompt template, an LLM, and model parameters into a reusable configuration.
+
+        The created preset can be referenced by name using the `generation_preset_name` field in query or chat requests.
+
+        Parameters
+        ----------
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        id : typing.Optional[str]
+            The ID of the generation preset.
+
+        name : typing.Optional[str]
+            Name of the generation preset to be used with configuring generation.
+
+        description : typing.Optional[str]
+            Description of the generation preset.
+
+        llm_name : typing.Optional[str]
+            Name of the model that these presets are used with. The list of available names can be fetched by the `GET /v2/llms` endpoint.
+
+        prompt_template : typing.Optional[str]
+            Preset template used to render the prompt sent to generation.
+
+        max_used_search_results : typing.Optional[int]
+            Preset maximum number of search results that will be available to the prompt.
+
+        max_tokens : typing.Optional[int]
+            Preset maximum number of tokens to be returned by the generation.
+
+        temperature : typing.Optional[float]
+            The sampling temperature to use. Higher values make the output more random, while lower values make it more focused and deterministic.
+
+        frequency_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on their existing frequency in the generation so far, decreasing the model's likelihood to repeat the same line verbatim.
+
+        presence_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on whether they appear in the generation so far, increasing the model's likelihood to talk about new topics.
+
+        additional_model_params : typing.Optional[typing.Dict[str, typing.Any]]
+            Additional model parameters beyond the standard fields above.
+
+        enabled : typing.Optional[bool]
+            Indicates whether the prompt is enabled.
+
+        default : typing.Optional[bool]
+            Indicates if this prompt is the default prompt used with the LLM.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[GenerationPreset]
+            The created generation preset.
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            "v2/generation_presets",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            json={
+                "id": id,
+                "name": name,
+                "description": description,
+                "llm_name": llm_name,
+                "prompt_template": prompt_template,
+                "max_used_search_results": max_used_search_results,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "frequency_penalty": frequency_penalty,
+                "presence_penalty": presence_penalty,
+                "additional_model_params": additional_model_params,
+                "enabled": enabled,
+                "default": default,
+            },
+            headers={
+                "content-type": "application/json",
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    GenerationPreset,
+                    parse_obj_as(
+                        type_=GenerationPreset,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def replace(
+        self,
+        generation_preset_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        id: typing.Optional[str] = OMIT,
+        name: typing.Optional[str] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        llm_name: typing.Optional[str] = OMIT,
+        prompt_template: typing.Optional[str] = OMIT,
+        max_used_search_results: typing.Optional[int] = OMIT,
+        max_tokens: typing.Optional[int] = OMIT,
+        temperature: typing.Optional[float] = OMIT,
+        frequency_penalty: typing.Optional[float] = OMIT,
+        presence_penalty: typing.Optional[float] = OMIT,
+        additional_model_params: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        enabled: typing.Optional[bool] = OMIT,
+        default: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[GenerationPreset]:
+        """
+        Replace an existing custom generation preset. This performs a full replacement of the preset configuration.
+        The preset must have been created by the customer (platform presets cannot be replaced).
+
+        Parameters
+        ----------
+        generation_preset_id : str
+            The ID of the generation preset to replace.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        id : typing.Optional[str]
+            The ID of the generation preset.
+
+        name : typing.Optional[str]
+            Name of the generation preset to be used with configuring generation.
+
+        description : typing.Optional[str]
+            Description of the generation preset.
+
+        llm_name : typing.Optional[str]
+            Name of the model that these presets are used with. The list of available names can be fetched by the `GET /v2/llms` endpoint.
+
+        prompt_template : typing.Optional[str]
+            Preset template used to render the prompt sent to generation.
+
+        max_used_search_results : typing.Optional[int]
+            Preset maximum number of search results that will be available to the prompt.
+
+        max_tokens : typing.Optional[int]
+            Preset maximum number of tokens to be returned by the generation.
+
+        temperature : typing.Optional[float]
+            The sampling temperature to use. Higher values make the output more random, while lower values make it more focused and deterministic.
+
+        frequency_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on their existing frequency in the generation so far, decreasing the model's likelihood to repeat the same line verbatim.
+
+        presence_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on whether they appear in the generation so far, increasing the model's likelihood to talk about new topics.
+
+        additional_model_params : typing.Optional[typing.Dict[str, typing.Any]]
+            Additional model parameters beyond the standard fields above.
+
+        enabled : typing.Optional[bool]
+            Indicates whether the prompt is enabled.
+
+        default : typing.Optional[bool]
+            Indicates if this prompt is the default prompt used with the LLM.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[GenerationPreset]
+            The replaced generation preset.
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/generation_presets/{jsonable_encoder(generation_preset_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="PUT",
+            json={
+                "id": id,
+                "name": name,
+                "description": description,
+                "llm_name": llm_name,
+                "prompt_template": prompt_template,
+                "max_used_search_results": max_used_search_results,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "frequency_penalty": frequency_penalty,
+                "presence_penalty": presence_penalty,
+                "additional_model_params": additional_model_params,
+                "enabled": enabled,
+                "default": default,
+            },
+            headers={
+                "content-type": "application/json",
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    GenerationPreset,
+                    parse_obj_as(
+                        type_=GenerationPreset,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return HttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    def delete(
+        self,
+        generation_preset_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> HttpResponse[None]:
+        """
+        Delete an existing custom generation preset.
+        The preset must have been created by the customer (platform presets cannot be deleted).
+
+        Parameters
+        ----------
+        generation_preset_id : str
+            The ID of the generation preset to delete.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        HttpResponse[None]
+        """
+        _response = self._client_wrapper.httpx_client.request(
+            f"v2/generation_presets/{jsonable_encoder(generation_preset_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return HttpResponse(response=_response, data=None)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -229,6 +631,401 @@ class AsyncRawGenerationPresetsClient:
                         Error,
                         parse_obj_as(
                             type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def create(
+        self,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        id: typing.Optional[str] = OMIT,
+        name: typing.Optional[str] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        llm_name: typing.Optional[str] = OMIT,
+        prompt_template: typing.Optional[str] = OMIT,
+        max_used_search_results: typing.Optional[int] = OMIT,
+        max_tokens: typing.Optional[int] = OMIT,
+        temperature: typing.Optional[float] = OMIT,
+        frequency_penalty: typing.Optional[float] = OMIT,
+        presence_penalty: typing.Optional[float] = OMIT,
+        additional_model_params: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        enabled: typing.Optional[bool] = OMIT,
+        default: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[GenerationPreset]:
+        """
+        Create a custom generation preset for use in query and chat requests. A generation preset bundles a prompt template, an LLM, and model parameters into a reusable configuration.
+
+        The created preset can be referenced by name using the `generation_preset_name` field in query or chat requests.
+
+        Parameters
+        ----------
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        id : typing.Optional[str]
+            The ID of the generation preset.
+
+        name : typing.Optional[str]
+            Name of the generation preset to be used with configuring generation.
+
+        description : typing.Optional[str]
+            Description of the generation preset.
+
+        llm_name : typing.Optional[str]
+            Name of the model that these presets are used with. The list of available names can be fetched by the `GET /v2/llms` endpoint.
+
+        prompt_template : typing.Optional[str]
+            Preset template used to render the prompt sent to generation.
+
+        max_used_search_results : typing.Optional[int]
+            Preset maximum number of search results that will be available to the prompt.
+
+        max_tokens : typing.Optional[int]
+            Preset maximum number of tokens to be returned by the generation.
+
+        temperature : typing.Optional[float]
+            The sampling temperature to use. Higher values make the output more random, while lower values make it more focused and deterministic.
+
+        frequency_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on their existing frequency in the generation so far, decreasing the model's likelihood to repeat the same line verbatim.
+
+        presence_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on whether they appear in the generation so far, increasing the model's likelihood to talk about new topics.
+
+        additional_model_params : typing.Optional[typing.Dict[str, typing.Any]]
+            Additional model parameters beyond the standard fields above.
+
+        enabled : typing.Optional[bool]
+            Indicates whether the prompt is enabled.
+
+        default : typing.Optional[bool]
+            Indicates if this prompt is the default prompt used with the LLM.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[GenerationPreset]
+            The created generation preset.
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            "v2/generation_presets",
+            base_url=self._client_wrapper.get_environment().default,
+            method="POST",
+            json={
+                "id": id,
+                "name": name,
+                "description": description,
+                "llm_name": llm_name,
+                "prompt_template": prompt_template,
+                "max_used_search_results": max_used_search_results,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "frequency_penalty": frequency_penalty,
+                "presence_penalty": presence_penalty,
+                "additional_model_params": additional_model_params,
+                "enabled": enabled,
+                "default": default,
+            },
+            headers={
+                "content-type": "application/json",
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    GenerationPreset,
+                    parse_obj_as(
+                        type_=GenerationPreset,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def replace(
+        self,
+        generation_preset_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        id: typing.Optional[str] = OMIT,
+        name: typing.Optional[str] = OMIT,
+        description: typing.Optional[str] = OMIT,
+        llm_name: typing.Optional[str] = OMIT,
+        prompt_template: typing.Optional[str] = OMIT,
+        max_used_search_results: typing.Optional[int] = OMIT,
+        max_tokens: typing.Optional[int] = OMIT,
+        temperature: typing.Optional[float] = OMIT,
+        frequency_penalty: typing.Optional[float] = OMIT,
+        presence_penalty: typing.Optional[float] = OMIT,
+        additional_model_params: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
+        enabled: typing.Optional[bool] = OMIT,
+        default: typing.Optional[bool] = OMIT,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[GenerationPreset]:
+        """
+        Replace an existing custom generation preset. This performs a full replacement of the preset configuration.
+        The preset must have been created by the customer (platform presets cannot be replaced).
+
+        Parameters
+        ----------
+        generation_preset_id : str
+            The ID of the generation preset to replace.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        id : typing.Optional[str]
+            The ID of the generation preset.
+
+        name : typing.Optional[str]
+            Name of the generation preset to be used with configuring generation.
+
+        description : typing.Optional[str]
+            Description of the generation preset.
+
+        llm_name : typing.Optional[str]
+            Name of the model that these presets are used with. The list of available names can be fetched by the `GET /v2/llms` endpoint.
+
+        prompt_template : typing.Optional[str]
+            Preset template used to render the prompt sent to generation.
+
+        max_used_search_results : typing.Optional[int]
+            Preset maximum number of search results that will be available to the prompt.
+
+        max_tokens : typing.Optional[int]
+            Preset maximum number of tokens to be returned by the generation.
+
+        temperature : typing.Optional[float]
+            The sampling temperature to use. Higher values make the output more random, while lower values make it more focused and deterministic.
+
+        frequency_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on their existing frequency in the generation so far, decreasing the model's likelihood to repeat the same line verbatim.
+
+        presence_penalty : typing.Optional[float]
+            Higher values penalize new tokens based on whether they appear in the generation so far, increasing the model's likelihood to talk about new topics.
+
+        additional_model_params : typing.Optional[typing.Dict[str, typing.Any]]
+            Additional model parameters beyond the standard fields above.
+
+        enabled : typing.Optional[bool]
+            Indicates whether the prompt is enabled.
+
+        default : typing.Optional[bool]
+            Indicates if this prompt is the default prompt used with the LLM.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[GenerationPreset]
+            The replaced generation preset.
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/generation_presets/{jsonable_encoder(generation_preset_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="PUT",
+            json={
+                "id": id,
+                "name": name,
+                "description": description,
+                "llm_name": llm_name,
+                "prompt_template": prompt_template,
+                "max_used_search_results": max_used_search_results,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "frequency_penalty": frequency_penalty,
+                "presence_penalty": presence_penalty,
+                "additional_model_params": additional_model_params,
+                "enabled": enabled,
+                "default": default,
+            },
+            headers={
+                "content-type": "application/json",
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+            omit=OMIT,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                _data = typing.cast(
+                    GenerationPreset,
+                    parse_obj_as(
+                        type_=GenerationPreset,  # type: ignore
+                        object_=_response.json(),
+                    ),
+                )
+                return AsyncHttpResponse(response=_response, data=_data)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            _response_json = _response.json()
+        except JSONDecodeError:
+            raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response.text)
+        except ValidationError as e:
+            raise ParsingError(
+                status_code=_response.status_code, headers=dict(_response.headers), body=_response.json(), cause=e
+            )
+        raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
+
+    async def delete(
+        self,
+        generation_preset_id: str,
+        *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
+        request_options: typing.Optional[RequestOptions] = None,
+    ) -> AsyncHttpResponse[None]:
+        """
+        Delete an existing custom generation preset.
+        The preset must have been created by the customer (platform presets cannot be deleted).
+
+        Parameters
+        ----------
+        generation_preset_id : str
+            The ID of the generation preset to delete.
+
+        request_timeout : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified seconds or time out.
+
+        request_timeout_millis : typing.Optional[int]
+            The API will make a best effort to complete the request in the specified milliseconds or time out.
+
+        request_options : typing.Optional[RequestOptions]
+            Request-specific configuration.
+
+        Returns
+        -------
+        AsyncHttpResponse[None]
+        """
+        _response = await self._client_wrapper.httpx_client.request(
+            f"v2/generation_presets/{jsonable_encoder(generation_preset_id)}",
+            base_url=self._client_wrapper.get_environment().default,
+            method="DELETE",
+            headers={
+                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
+                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
+            },
+            request_options=request_options,
+        )
+        try:
+            if 200 <= _response.status_code < 300:
+                return AsyncHttpResponse(response=_response, data=None)
+            if _response.status_code == 400:
+                raise BadRequestError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 403:
+                raise ForbiddenError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        Error,
+                        parse_obj_as(
+                            type_=Error,  # type: ignore
+                            object_=_response.json(),
+                        ),
+                    ),
+                )
+            if _response.status_code == 404:
+                raise NotFoundError(
+                    headers=dict(_response.headers),
+                    body=typing.cast(
+                        typing.Any,
+                        parse_obj_as(
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),

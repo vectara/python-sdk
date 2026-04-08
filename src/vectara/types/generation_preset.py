@@ -11,6 +11,11 @@ class GenerationPreset(UniversalBaseModel):
     Bundle of default values used when calling generation. All values except model name can be overridden at generation time.
     """
 
+    id: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    The ID of the generation preset.
+    """
+
     name: typing.Optional[str] = pydantic.Field(default=None)
     """
     Name of the generation preset to be used with configuring generation.
@@ -54,6 +59,11 @@ class GenerationPreset(UniversalBaseModel):
     presence_penalty: typing.Optional[float] = pydantic.Field(default=None)
     """
     Higher values penalize new tokens based on whether they appear in the generation so far, increasing the model's likelihood to talk about new topics.
+    """
+
+    additional_model_params: typing.Optional[typing.Dict[str, typing.Any]] = pydantic.Field(default=None)
+    """
+    Additional model parameters beyond the standard fields above.
     """
 
     enabled: typing.Optional[bool] = pydantic.Field(default=None)

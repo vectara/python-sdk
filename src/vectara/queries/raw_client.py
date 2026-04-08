@@ -16,10 +16,8 @@ from ..core.serialization import convert_and_respect_annotation_metadata
 from ..errors.bad_request_error import BadRequestError
 from ..errors.forbidden_error import ForbiddenError
 from ..errors.not_found_error import NotFoundError
-from ..types.bad_request_error_body import BadRequestErrorBody
 from ..types.error import Error
 from ..types.generation_parameters import GenerationParameters
-from ..types.not_found_error_body import NotFoundErrorBody
 from ..types.search_corpora_parameters import SearchCorporaParameters
 from .types.query_queries_response import QueryQueriesResponse
 from .types.query_queries_stream_response import QueryQueriesStreamResponse
@@ -145,9 +143,9 @@ class RawQueriesClient:
                         raise BadRequestError(
                             headers=dict(_response.headers),
                             body=typing.cast(
-                                BadRequestErrorBody,
+                                typing.Any,
                                 parse_obj_as(
-                                    type_=BadRequestErrorBody,  # type: ignore
+                                    type_=typing.Any,  # type: ignore
                                     object_=_response.json(),
                                 ),
                             ),
@@ -167,9 +165,9 @@ class RawQueriesClient:
                         raise NotFoundError(
                             headers=dict(_response.headers),
                             body=typing.cast(
-                                NotFoundErrorBody,
+                                typing.Any,
                                 parse_obj_as(
-                                    type_=NotFoundErrorBody,  # type: ignore
+                                    type_=typing.Any,  # type: ignore
                                     object_=_response.json(),
                                 ),
                             ),
@@ -279,9 +277,9 @@ class RawQueriesClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -301,9 +299,9 @@ class RawQueriesClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -434,9 +432,9 @@ class AsyncRawQueriesClient:
                         raise BadRequestError(
                             headers=dict(_response.headers),
                             body=typing.cast(
-                                BadRequestErrorBody,
+                                typing.Any,
                                 parse_obj_as(
-                                    type_=BadRequestErrorBody,  # type: ignore
+                                    type_=typing.Any,  # type: ignore
                                     object_=_response.json(),
                                 ),
                             ),
@@ -456,9 +454,9 @@ class AsyncRawQueriesClient:
                         raise NotFoundError(
                             headers=dict(_response.headers),
                             body=typing.cast(
-                                NotFoundErrorBody,
+                                typing.Any,
                                 parse_obj_as(
-                                    type_=NotFoundErrorBody,  # type: ignore
+                                    type_=typing.Any,  # type: ignore
                                     object_=_response.json(),
                                 ),
                             ),
@@ -568,9 +566,9 @@ class AsyncRawQueriesClient:
                 raise BadRequestError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        BadRequestErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=BadRequestErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
@@ -590,9 +588,9 @@ class AsyncRawQueriesClient:
                 raise NotFoundError(
                     headers=dict(_response.headers),
                     body=typing.cast(
-                        NotFoundErrorBody,
+                        typing.Any,
                         parse_obj_as(
-                            type_=NotFoundErrorBody,  # type: ignore
+                            type_=typing.Any,  # type: ignore
                             object_=_response.json(),
                         ),
                     ),
