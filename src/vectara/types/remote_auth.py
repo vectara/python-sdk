@@ -11,7 +11,7 @@ from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
 
 class RemoteAuth_Bearer(UniversalBaseModel):
     """
-    Authentication configuration for an LLM
+    Authentication configuration for connecting to a remote service.
     """
 
     type: typing.Literal["bearer"] = "bearer"
@@ -29,7 +29,7 @@ class RemoteAuth_Bearer(UniversalBaseModel):
 
 class RemoteAuth_Header(UniversalBaseModel):
     """
-    Authentication configuration for an LLM
+    Authentication configuration for connecting to a remote service.
     """
 
     type: typing.Literal["header"] = "header"
@@ -46,6 +46,28 @@ class RemoteAuth_Header(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
+class RemoteAuth_OauthClientCredentials(UniversalBaseModel):
+    """
+    Authentication configuration for connecting to a remote service.
+    """
+
+    type: typing.Literal["oauth_client_credentials"] = "oauth_client_credentials"
+    client_id: str
+    client_secret: str
+    token_endpoint: str
+    scopes: typing.Optional[typing.List[str]] = None
+
+    if IS_PYDANTIC_V2:
+        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+    else:
+
+        class Config:
+            frozen = True
+            smart_union = True
+            extra = pydantic.Extra.allow
+
+
 RemoteAuth = typing_extensions.Annotated[
-    typing.Union[RemoteAuth_Bearer, RemoteAuth_Header], pydantic.Field(discriminator="type")
+    typing.Union[RemoteAuth_Bearer, RemoteAuth_Header, RemoteAuth_OauthClientCredentials],
+    pydantic.Field(discriminator="type"),
 ]

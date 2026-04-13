@@ -350,6 +350,7 @@ if typing.TYPE_CHECKING:
     from .next_step import NextStep
     from .none_reranker import NoneReranker
     from .not_found_error_body import NotFoundErrorBody
+    from .o_auth_client_credentials_auth import OAuthClientCredentialsAuth
     from .open_aillm_request_base import OpenAillmRequestBase
     from .open_aillm_update_base import OpenAillmUpdateBase
     from .output_tokens import OutputTokens
@@ -381,7 +382,7 @@ if typing.TYPE_CHECKING:
     )
     from .query_warning import QueryWarning
     from .reference_instruction import ReferenceInstruction
-    from .remote_auth import RemoteAuth, RemoteAuth_Bearer, RemoteAuth_Header
+    from .remote_auth import RemoteAuth, RemoteAuth_Bearer, RemoteAuth_Header, RemoteAuth_OauthClientCredentials
     from .rephrase_span import RephraseSpan
     from .replace_filter_attributes_response import ReplaceFilterAttributesResponse
     from .rerank_span import RerankSpan
@@ -869,6 +870,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "NextStep": ".next_step",
     "NoneReranker": ".none_reranker",
     "NotFoundErrorBody": ".not_found_error_body",
+    "OAuthClientCredentialsAuth": ".o_auth_client_credentials_auth",
     "OpenAillmRequestBase": ".open_aillm_request_base",
     "OpenAillmUpdateBase": ".open_aillm_update_base",
     "OutputTokens": ".output_tokens",
@@ -899,6 +901,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "RemoteAuth": ".remote_auth",
     "RemoteAuth_Bearer": ".remote_auth",
     "RemoteAuth_Header": ".remote_auth",
+    "RemoteAuth_OauthClientCredentials": ".remote_auth",
     "RephraseSpan": ".rephrase_span",
     "ReplaceFilterAttributesResponse": ".replace_filter_attributes_response",
     "RerankSpan": ".rerank_span",
@@ -1407,6 +1410,7 @@ __all__ = [
     "NextStep",
     "NoneReranker",
     "NotFoundErrorBody",
+    "OAuthClientCredentialsAuth",
     "OpenAillmRequestBase",
     "OpenAillmUpdateBase",
     "OutputTokens",
@@ -1437,6 +1441,7 @@ __all__ = [
     "RemoteAuth",
     "RemoteAuth_Bearer",
     "RemoteAuth_Header",
+    "RemoteAuth_OauthClientCredentials",
     "RephraseSpan",
     "ReplaceFilterAttributesResponse",
     "RerankSpan",
