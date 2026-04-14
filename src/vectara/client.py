@@ -1,4 +1,5 @@
 import logging
+import typing
 from typing import Union, Iterator, Optional
 
 from vectara.managers.corpus import CorpusManager
@@ -6,9 +7,12 @@ from vectara.managers.upload import UploadManager
 from vectara.managers.document import DocumentManager
 from vectara.utils import LabHelper
 
-from . import SearchCorporaParameters, GenerationParameters, ChatParameters, ChatStreamedResponse
-from .base_client import BaseVectara, AsyncBaseVectara, OMIT
+from . import SearchCorporaParameters, GenerationParameters, ChatParameters, ChatStreamedResponse, QueryStreamedResponse, QueryFullResponse, ChatFullResponse
+from .base_client import BaseVectara, AsyncBaseVectara
 from .core import RequestOptions
+
+# Sentinel for optional parameters (matches Fern's convention)
+OMIT = typing.cast(typing.Any, ...)
 
 
 class ChatSession:
@@ -94,13 +98,9 @@ class Vectara(BaseVectara):
     We extend the Vectara client, adding additional helper services. Due to the methodology used in the
     Vectara constructor, hard-coding dependencies and using an internal wrapper, we use lazy initialization
     for the helper classes like the CorpusManager.
-
-    TODO Change Client to build dependencies inside constructor (harder to decouple, but removes optionality)
-
     """
 
-    def __init__(self, *args,
-                 **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.logger = logging.getLogger(self.__class__.__name__)
         self.corpus_manager: Union[None, CorpusManager] = None
@@ -119,6 +119,98 @@ class Vectara(BaseVectara):
 
     def set_lab_helper(self, lab_helper: LabHelper) -> None:
         self.lab_helper = lab_helper
+
+    def query(
+            self,
+            *,
+            query: str,
+            search: SearchCorporaParameters,
+            generation: Optional[GenerationParameters] = OMIT,
+            save_history: Optional[bool] = OMIT,
+            request_timeout: Optional[int] = None,
+            request_timeout_millis: Optional[int] = None,
+            request_options: Optional[RequestOptions] = None,
+    ) -> QueryFullResponse:
+        """Convenience method for querying across corpora."""
+        return self.queries.query(
+            query=query,
+            search=search,
+            generation=generation,
+            save_history=save_history,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+
+    def query_stream(
+            self,
+            *,
+            query: str,
+            search: SearchCorporaParameters,
+            generation: Optional[GenerationParameters] = OMIT,
+            save_history: Optional[bool] = OMIT,
+            request_timeout: Optional[int] = None,
+            request_timeout_millis: Optional[int] = None,
+            request_options: Optional[RequestOptions] = None,
+    ) -> Iterator[QueryStreamedResponse]:
+        """Convenience method for streaming query across corpora."""
+        return self.queries.query_stream(
+            query=query,
+            search=search,
+            generation=generation,
+            save_history=save_history,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+
+    def chat(
+            self,
+            *,
+            query: str,
+            search: SearchCorporaParameters,
+            generation: Optional[GenerationParameters] = OMIT,
+            chat: Optional[ChatParameters] = OMIT,
+            save_history: Optional[bool] = OMIT,
+            request_timeout: Optional[int] = None,
+            request_timeout_millis: Optional[int] = None,
+            request_options: Optional[RequestOptions] = None,
+    ) -> ChatFullResponse:
+        """Convenience method for creating a chat."""
+        return self.chats.create(
+            query=query,
+            search=search,
+            generation=generation,
+            chat=chat,
+            save_history=save_history,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
+
+    def chat_stream(
+            self,
+            *,
+            query: str,
+            search: SearchCorporaParameters,
+            generation: Optional[GenerationParameters] = OMIT,
+            chat: Optional[ChatParameters] = OMIT,
+            save_history: Optional[bool] = OMIT,
+            request_timeout: Optional[int] = None,
+            request_timeout_millis: Optional[int] = None,
+            request_options: Optional[RequestOptions] = None,
+    ) -> Iterator[ChatStreamedResponse]:
+        """Convenience method for streaming chat."""
+        return self.chats.create_stream(
+            query=query,
+            search=search,
+            generation=generation,
+            chat=chat,
+            save_history=save_history,
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            request_options=request_options,
+        )
 
     def create_chat_session(
             self,
@@ -145,4 +237,3 @@ class Vectara(BaseVectara):
 
 class AsyncVectara(AsyncBaseVectara):
     pass
-
