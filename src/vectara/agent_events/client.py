@@ -7,13 +7,13 @@ from ..core.pagination import AsyncPager, SyncPager
 from ..core.request_options import RequestOptions
 from ..types.agent_event import AgentEvent
 from ..types.agent_key import AgentKey
+from ..types.agent_response import AgentResponse
 from ..types.agent_session_key import AgentSessionKey
+from ..types.agent_streamed_response import AgentStreamedResponse
 from ..types.list_agent_events_response import ListAgentEventsResponse
 from .raw_client import AsyncRawAgentEventsClient, RawAgentEventsClient
 from .types.create_agent_events_request_body import CreateAgentEventsRequestBody
-from .types.create_agent_events_response import CreateAgentEventsResponse
 from .types.create_agent_events_stream_request_body import CreateAgentEventsStreamRequestBody
-from .types.create_agent_events_stream_response import CreateAgentEventsStreamResponse
 
 # this is used as the default value for optional parameters
 OMIT = typing.cast(typing.Any, ...)
@@ -115,7 +115,7 @@ class AgentEventsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.Iterator[CreateAgentEventsStreamResponse]:
+    ) -> typing.Iterator[AgentStreamedResponse]:
         """
         Create a new input to an agent to interact with it.
 
@@ -140,7 +140,7 @@ class AgentEventsClient:
 
         Yields
         ------
-        typing.Iterator[CreateAgentEventsStreamResponse]
+        typing.Iterator[AgentStreamedResponse]
 
 
         Examples
@@ -183,7 +183,7 @@ class AgentEventsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> CreateAgentEventsResponse:
+    ) -> AgentResponse:
         """
         Create a new input to an agent to interact with it.
 
@@ -208,7 +208,7 @@ class AgentEventsClient:
 
         Returns
         -------
-        CreateAgentEventsResponse
+        AgentResponse
 
 
         Examples
@@ -572,7 +572,7 @@ class AsyncAgentEventsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.AsyncIterator[CreateAgentEventsStreamResponse]:
+    ) -> typing.AsyncIterator[AgentStreamedResponse]:
         """
         Create a new input to an agent to interact with it.
 
@@ -597,7 +597,7 @@ class AsyncAgentEventsClient:
 
         Yields
         ------
-        typing.AsyncIterator[CreateAgentEventsStreamResponse]
+        typing.AsyncIterator[AgentStreamedResponse]
 
 
         Examples
@@ -649,7 +649,7 @@ class AsyncAgentEventsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> CreateAgentEventsResponse:
+    ) -> AgentResponse:
         """
         Create a new input to an agent to interact with it.
 
@@ -674,7 +674,7 @@ class AsyncAgentEventsClient:
 
         Returns
         -------
-        CreateAgentEventsResponse
+        AgentResponse
 
 
         Examples

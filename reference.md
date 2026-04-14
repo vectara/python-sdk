@@ -13321,7 +13321,7 @@ client.agent_events.create_stream(
 </dl>
 </details>
 
-<details><summary><code>client.agent_events.<a href="src/vectara/agent_events/client.py">create</a>(...) -> CreateAgentEventsResponse</code></summary>
+<details><summary><code>client.agent_events.<a href="src/vectara/agent_events/client.py">create</a>(...) -> AgentResponse</code></summary>
 <dl>
 <dd>
 

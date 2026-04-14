@@ -23,13 +23,13 @@ from ..errors.not_found_error import NotFoundError
 from ..errors.unprocessable_entity_error import UnprocessableEntityError
 from ..types.agent_event import AgentEvent
 from ..types.agent_key import AgentKey
+from ..types.agent_response import AgentResponse
 from ..types.agent_session_key import AgentSessionKey
+from ..types.agent_streamed_response import AgentStreamedResponse
 from ..types.error import Error
 from ..types.list_agent_events_response import ListAgentEventsResponse
 from .types.create_agent_events_request_body import CreateAgentEventsRequestBody
-from .types.create_agent_events_response import CreateAgentEventsResponse
 from .types.create_agent_events_stream_request_body import CreateAgentEventsStreamRequestBody
-from .types.create_agent_events_stream_response import CreateAgentEventsStreamResponse
 from pydantic import ValidationError
 
 # this is used as the default value for optional parameters
@@ -168,7 +168,7 @@ class RawAgentEventsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.Iterator[HttpResponse[typing.Iterator[CreateAgentEventsStreamResponse]]]:
+    ) -> typing.Iterator[HttpResponse[typing.Iterator[AgentStreamedResponse]]]:
         """
         Create a new input to an agent to interact with it.
 
@@ -193,7 +193,7 @@ class RawAgentEventsClient:
 
         Yields
         ------
-        typing.Iterator[HttpResponse[typing.Iterator[CreateAgentEventsStreamResponse]]]
+        typing.Iterator[HttpResponse[typing.Iterator[AgentStreamedResponse]]]
 
         """
         with self._client_wrapper.httpx_client.stream(
@@ -212,7 +212,7 @@ class RawAgentEventsClient:
             omit=OMIT,
         ) as _response:
 
-            def _stream() -> HttpResponse[typing.Iterator[CreateAgentEventsStreamResponse]]:
+            def _stream() -> HttpResponse[typing.Iterator[AgentStreamedResponse]]:
                 try:
                     if 200 <= _response.status_code < 300:
 
@@ -223,10 +223,10 @@ class RawAgentEventsClient:
                                     return
                                 try:
                                     yield typing.cast(
-                                        CreateAgentEventsStreamResponse,
+                                        AgentStreamedResponse,
                                         parse_sse_obj(
                                             sse=_sse,
-                                            type_=CreateAgentEventsStreamResponse,  # type: ignore
+                                            type_=AgentStreamedResponse,  # type: ignore
                                         ),
                                     )
                                 except JSONDecodeError as e:
@@ -334,7 +334,7 @@ class RawAgentEventsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[CreateAgentEventsResponse]:
+    ) -> HttpResponse[AgentResponse]:
         """
         Create a new input to an agent to interact with it.
 
@@ -359,7 +359,7 @@ class RawAgentEventsClient:
 
         Returns
         -------
-        HttpResponse[CreateAgentEventsResponse]
+        HttpResponse[AgentResponse]
 
         """
         _response = self._client_wrapper.httpx_client.request(
@@ -380,9 +380,9 @@ class RawAgentEventsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    CreateAgentEventsResponse,
+                    AgentResponse,
                     parse_obj_as(
-                        type_=CreateAgentEventsResponse,  # type: ignore
+                        type_=AgentResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
@@ -904,7 +904,7 @@ class AsyncRawAgentEventsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> typing.AsyncIterator[AsyncHttpResponse[typing.AsyncIterator[CreateAgentEventsStreamResponse]]]:
+    ) -> typing.AsyncIterator[AsyncHttpResponse[typing.AsyncIterator[AgentStreamedResponse]]]:
         """
         Create a new input to an agent to interact with it.
 
@@ -929,7 +929,7 @@ class AsyncRawAgentEventsClient:
 
         Yields
         ------
-        typing.AsyncIterator[AsyncHttpResponse[typing.AsyncIterator[CreateAgentEventsStreamResponse]]]
+        typing.AsyncIterator[AsyncHttpResponse[typing.AsyncIterator[AgentStreamedResponse]]]
 
         """
         async with self._client_wrapper.httpx_client.stream(
@@ -948,7 +948,7 @@ class AsyncRawAgentEventsClient:
             omit=OMIT,
         ) as _response:
 
-            async def _stream() -> AsyncHttpResponse[typing.AsyncIterator[CreateAgentEventsStreamResponse]]:
+            async def _stream() -> AsyncHttpResponse[typing.AsyncIterator[AgentStreamedResponse]]:
                 try:
                     if 200 <= _response.status_code < 300:
 
@@ -959,10 +959,10 @@ class AsyncRawAgentEventsClient:
                                     return
                                 try:
                                     yield typing.cast(
-                                        CreateAgentEventsStreamResponse,
+                                        AgentStreamedResponse,
                                         parse_sse_obj(
                                             sse=_sse,
-                                            type_=CreateAgentEventsStreamResponse,  # type: ignore
+                                            type_=AgentStreamedResponse,  # type: ignore
                                         ),
                                     )
                                 except JSONDecodeError as e:
@@ -1070,7 +1070,7 @@ class AsyncRawAgentEventsClient:
         request_timeout: typing.Optional[int] = None,
         request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
-    ) -> AsyncHttpResponse[CreateAgentEventsResponse]:
+    ) -> AsyncHttpResponse[AgentResponse]:
         """
         Create a new input to an agent to interact with it.
 
@@ -1095,7 +1095,7 @@ class AsyncRawAgentEventsClient:
 
         Returns
         -------
-        AsyncHttpResponse[CreateAgentEventsResponse]
+        AsyncHttpResponse[AgentResponse]
 
         """
         _response = await self._client_wrapper.httpx_client.request(
@@ -1116,9 +1116,9 @@ class AsyncRawAgentEventsClient:
         try:
             if 200 <= _response.status_code < 300:
                 _data = typing.cast(
-                    CreateAgentEventsResponse,
+                    AgentResponse,
                     parse_obj_as(
-                        type_=CreateAgentEventsResponse,  # type: ignore
+                        type_=AgentResponse,  # type: ignore
                         object_=_response.json(),
                     ),
                 )
