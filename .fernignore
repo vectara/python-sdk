@@ -4,7 +4,7 @@
 .github/ISSUE_TEMPLATE/
 
 src/vectara/client.py
-src/vectara/base_client.py # do not remove
+# src/vectara/base_client.py -- removed to let Fern regenerate with new modules (agents, tools, etc.)
 src/vectara/auth/client.py
 
 src/vectara/config/
