@@ -22,8 +22,6 @@ class ChatSession:
             search: SearchCorporaParameters,
             generation: Optional[GenerationParameters] = OMIT,
             chat_id: Optional[str] = None,
-            request_timeout: Optional[int] = None,
-            request_timeout_millis: Optional[int] = None,
             chat_config: Optional[ChatParameters] = OMIT,
             request_options: Optional[RequestOptions] = None,
     ):
@@ -32,8 +30,6 @@ class ChatSession:
         self.search = search
         self.generation = generation
         self.chat_config = chat_config
-        self.request_timeout = request_timeout
-        self.request_timeout_millis = request_timeout_millis
         self.request_options = request_options
 
     def chat(self, query: str):
@@ -46,8 +42,6 @@ class ChatSession:
                 search=self.search,
                 generation=self.generation,
                 chat=self.chat_config,
-                request_timeout=self.request_timeout,
-                request_timeout_millis=self.request_timeout_millis,
                 request_options=self.request_options,
             )
             self.chat_id = getattr(response, "chat_id", None)
@@ -58,8 +52,6 @@ class ChatSession:
                 search=self.search,
                 generation=self.generation,
                 chat=self.chat_config,
-                request_timeout=self.request_timeout,
-                request_timeout_millis=self.request_timeout_millis,
                 request_options=self.request_options,
             )
         return response
@@ -74,8 +66,6 @@ class ChatSession:
                 search=self.search,
                 generation=self.generation,
                 chat=self.chat_config,
-                request_timeout=self.request_timeout,
-                request_timeout_millis=self.request_timeout_millis,
                 request_options=self.request_options,
             )
         else:
@@ -85,8 +75,6 @@ class ChatSession:
                 search=self.search,
                 generation=self.generation,
                 chat=self.chat_config,
-                request_timeout=self.request_timeout,
-                request_timeout_millis=self.request_timeout_millis,
                 request_options=self.request_options,
             )
 
@@ -95,9 +83,7 @@ class ChatSession:
 
 class Vectara(BaseVectara):
     """
-    We extend the Vectara client, adding additional helper services. Due to the methodology used in the
-    Vectara constructor, hard-coding dependencies and using an internal wrapper, we use lazy initialization
-    for the helper classes like the CorpusManager.
+    We extend the Vectara client, adding additional helper services.
     """
 
     def __init__(self, *args, **kwargs):
@@ -127,8 +113,6 @@ class Vectara(BaseVectara):
             search: SearchCorporaParameters,
             generation: Optional[GenerationParameters] = OMIT,
             save_history: Optional[bool] = OMIT,
-            request_timeout: Optional[int] = None,
-            request_timeout_millis: Optional[int] = None,
             request_options: Optional[RequestOptions] = None,
     ) -> QueryFullResponse:
         """Convenience method for querying across corpora."""
@@ -137,8 +121,6 @@ class Vectara(BaseVectara):
             search=search,
             generation=generation,
             save_history=save_history,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
 
@@ -149,8 +131,6 @@ class Vectara(BaseVectara):
             search: SearchCorporaParameters,
             generation: Optional[GenerationParameters] = OMIT,
             save_history: Optional[bool] = OMIT,
-            request_timeout: Optional[int] = None,
-            request_timeout_millis: Optional[int] = None,
             request_options: Optional[RequestOptions] = None,
     ) -> Iterator[QueryStreamedResponse]:
         """Convenience method for streaming query across corpora."""
@@ -159,8 +139,6 @@ class Vectara(BaseVectara):
             search=search,
             generation=generation,
             save_history=save_history,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
 
@@ -172,8 +150,6 @@ class Vectara(BaseVectara):
             generation: Optional[GenerationParameters] = OMIT,
             chat: Optional[ChatParameters] = OMIT,
             save_history: Optional[bool] = OMIT,
-            request_timeout: Optional[int] = None,
-            request_timeout_millis: Optional[int] = None,
             request_options: Optional[RequestOptions] = None,
     ) -> ChatFullResponse:
         """Convenience method for creating a chat."""
@@ -183,8 +159,6 @@ class Vectara(BaseVectara):
             generation=generation,
             chat=chat,
             save_history=save_history,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
 
@@ -196,8 +170,6 @@ class Vectara(BaseVectara):
             generation: Optional[GenerationParameters] = OMIT,
             chat: Optional[ChatParameters] = OMIT,
             save_history: Optional[bool] = OMIT,
-            request_timeout: Optional[int] = None,
-            request_timeout_millis: Optional[int] = None,
             request_options: Optional[RequestOptions] = None,
     ) -> Iterator[ChatStreamedResponse]:
         """Convenience method for streaming chat."""
@@ -207,16 +179,12 @@ class Vectara(BaseVectara):
             generation=generation,
             chat=chat,
             save_history=save_history,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
 
     def create_chat_session(
             self,
             search: SearchCorporaParameters,
-            request_timeout: Optional[int] = None,
-            request_timeout_millis: Optional[int] = None,
             generation: Optional[GenerationParameters] = OMIT,
             chat_config: Optional[ChatParameters] = OMIT,
             request_options: Optional[RequestOptions] = None,
@@ -229,8 +197,6 @@ class Vectara(BaseVectara):
             search=search,
             generation=generation,
             chat_config=chat_config,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
 
