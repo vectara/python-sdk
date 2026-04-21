@@ -40,8 +40,6 @@ class UsersClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         corpus_key: typing.Optional[CorpusKey] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[User, ListUsersResponse]:
         """
@@ -60,12 +58,6 @@ class UsersClient:
         corpus_key : typing.Optional[CorpusKey]
             Filter users by access to this corpus.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -78,7 +70,10 @@ class UsersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.users.list(
             corpus_key="my-corpus",
         )
@@ -89,20 +84,13 @@ class UsersClient:
             yield page
         """
         return self._raw_client.list(
-            limit=limit,
-            page_key=page_key,
-            corpus_key=corpus_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            limit=limit, page_key=page_key, corpus_key=corpus_key, request_options=request_options
         )
 
     def create(
         self,
         *,
         email: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         username: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
@@ -117,12 +105,6 @@ class UsersClient:
         ----------
         email : str
             The email address for the user.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         username : typing.Optional[str]
             The username for the user. The value defaults to the email.
@@ -151,15 +133,16 @@ class UsersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.users.create(
             email="email",
         )
         """
         _response = self._raw_client.create(
             email=email,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             username=username,
             description=description,
             api_roles=api_roles,
@@ -169,14 +152,7 @@ class UsersClient:
         )
         return _response.data
 
-    def get(
-        self,
-        username: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> User:
+    def get(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> User:
         """
         Get a user and view details like the email, username, and associated roles.
 
@@ -184,12 +160,6 @@ class UsersClient:
         ----------
         username : str
             Specifies the user ID that to retrieve. Note that the username must be percent encoded.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -203,27 +173,18 @@ class UsersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.users.get(
             username="username",
         )
         """
-        _response = self._raw_client.get(
-            username,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(username, request_options=request_options)
         return _response.data
 
-    def delete(
-        self,
-        username: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    def delete(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Delete a user from the account.
 
@@ -231,12 +192,6 @@ class UsersClient:
         ----------
         username : str
             Specifies the user ID to delete. Note that the username must be percent encoded.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -249,25 +204,21 @@ class UsersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.users.delete(
             username="username",
         )
         """
-        _response = self._raw_client.delete(
-            username,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete(username, request_options=request_options)
         return _response.data
 
     def update(
         self,
         username: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
@@ -282,12 +233,6 @@ class UsersClient:
         ----------
         username : str
             Specifies the user ID to update. Note that the username must be percent encoded.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Indicates whether to enable or disable the user.
@@ -316,15 +261,16 @@ class UsersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.users.update(
             username="username",
         )
         """
         _response = self._raw_client.update(
             username,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             enabled=enabled,
             api_roles=api_roles,
             corpus_roles=corpus_roles,
@@ -335,12 +281,7 @@ class UsersClient:
         return _response.data
 
     def reset_password(
-        self,
-        username: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, username: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> ResetPasswordUsersResponse:
         """
         Reset the password for a user.
@@ -349,12 +290,6 @@ class UsersClient:
         ----------
         username : str
             Specifies the user ID to update. Note that the username must be percent encoded and URI safe.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -368,17 +303,15 @@ class UsersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.users.reset_password(
             username="username",
         )
         """
-        _response = self._raw_client.reset_password(
-            username,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.reset_password(username, request_options=request_options)
         return _response.data
 
 
@@ -403,8 +336,6 @@ class AsyncUsersClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         corpus_key: typing.Optional[CorpusKey] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[User, ListUsersResponse]:
         """
@@ -423,12 +354,6 @@ class AsyncUsersClient:
         corpus_key : typing.Optional[CorpusKey]
             Filter users by access to this corpus.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -443,7 +368,10 @@ class AsyncUsersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -461,20 +389,13 @@ class AsyncUsersClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
-            limit=limit,
-            page_key=page_key,
-            corpus_key=corpus_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            limit=limit, page_key=page_key, corpus_key=corpus_key, request_options=request_options
         )
 
     async def create(
         self,
         *,
         email: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         username: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
@@ -489,12 +410,6 @@ class AsyncUsersClient:
         ----------
         email : str
             The email address for the user.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         username : typing.Optional[str]
             The username for the user. The value defaults to the email.
@@ -525,7 +440,10 @@ class AsyncUsersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -538,8 +456,6 @@ class AsyncUsersClient:
         """
         _response = await self._raw_client.create(
             email=email,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             username=username,
             description=description,
             api_roles=api_roles,
@@ -549,14 +465,7 @@ class AsyncUsersClient:
         )
         return _response.data
 
-    async def get(
-        self,
-        username: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> User:
+    async def get(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> User:
         """
         Get a user and view details like the email, username, and associated roles.
 
@@ -564,12 +473,6 @@ class AsyncUsersClient:
         ----------
         username : str
             Specifies the user ID that to retrieve. Note that the username must be percent encoded.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -585,7 +488,10 @@ class AsyncUsersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -596,22 +502,10 @@ class AsyncUsersClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            username,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(username, request_options=request_options)
         return _response.data
 
-    async def delete(
-        self,
-        username: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    async def delete(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Delete a user from the account.
 
@@ -619,12 +513,6 @@ class AsyncUsersClient:
         ----------
         username : str
             Specifies the user ID to delete. Note that the username must be percent encoded.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -639,7 +527,10 @@ class AsyncUsersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -650,20 +541,13 @@ class AsyncUsersClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete(
-            username,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete(username, request_options=request_options)
         return _response.data
 
     async def update(
         self,
         username: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
@@ -678,12 +562,6 @@ class AsyncUsersClient:
         ----------
         username : str
             Specifies the user ID to update. Note that the username must be percent encoded.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Indicates whether to enable or disable the user.
@@ -714,7 +592,10 @@ class AsyncUsersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -727,8 +608,6 @@ class AsyncUsersClient:
         """
         _response = await self._raw_client.update(
             username,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             enabled=enabled,
             api_roles=api_roles,
             corpus_roles=corpus_roles,
@@ -739,12 +618,7 @@ class AsyncUsersClient:
         return _response.data
 
     async def reset_password(
-        self,
-        username: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, username: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> ResetPasswordUsersResponse:
         """
         Reset the password for a user.
@@ -753,12 +627,6 @@ class AsyncUsersClient:
         ----------
         username : str
             Specifies the user ID to update. Note that the username must be percent encoded and URI safe.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -774,7 +642,10 @@ class AsyncUsersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -785,10 +656,5 @@ class AsyncUsersClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.reset_password(
-            username,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.reset_password(username, request_options=request_options)
         return _response.data

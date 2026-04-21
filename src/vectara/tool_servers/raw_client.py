@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
@@ -41,8 +41,6 @@ class RawToolServersClient:
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[ToolServer, ListToolServersResponse]:
         """
@@ -65,12 +63,6 @@ class RawToolServersClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of tool servers after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -89,10 +81,6 @@ class RawToolServersClient:
                 "enabled": enabled,
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -117,8 +105,6 @@ class RawToolServersClient:
                         enabled=enabled,
                         limit=limit,
                         page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -149,8 +135,6 @@ class RawToolServersClient:
         type: ToolServerType,
         uri: str,
         transport: ToolServerTransport,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         headers: typing.Optional[typing.Dict[str, str]] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
@@ -171,12 +155,6 @@ class RawToolServersClient:
             The URI of the tool server.
 
         transport : ToolServerTransport
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         description : typing.Optional[str]
             A detailed description of what this tool server does.
@@ -218,8 +196,6 @@ class RawToolServersClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -266,12 +242,7 @@ class RawToolServersClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
-        self,
-        tool_server_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, tool_server_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ToolServer]:
         """
         Retrieve details about a specific tool server by its Id.
@@ -280,12 +251,6 @@ class RawToolServersClient:
         ----------
         tool_server_id : str
             The unique identifier of the tool server to retrieve.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -296,13 +261,9 @@ class RawToolServersClient:
             The requested tool server details.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/tool_servers/{jsonable_encoder(tool_server_id)}",
+            f"v2/tool_servers/{encode_path_param(tool_server_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -347,12 +308,7 @@ class RawToolServersClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
-        self,
-        tool_server_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, tool_server_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[None]:
         """
         Permanently delete a tool server and all its associated configuration and tools. This action cannot be undone.
@@ -362,12 +318,6 @@ class RawToolServersClient:
         tool_server_id : str
             The unique identifier of the tool server to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -376,13 +326,9 @@ class RawToolServersClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/tool_servers/{jsonable_encoder(tool_server_id)}",
+            f"v2/tool_servers/{encode_path_param(tool_server_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -423,8 +369,6 @@ class RawToolServersClient:
         self,
         tool_server_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[ToolServerName] = OMIT,
         description: typing.Optional[str] = OMIT,
         uri: typing.Optional[str] = OMIT,
@@ -442,12 +386,6 @@ class RawToolServersClient:
         ----------
         tool_server_id : str
             The unique identifier of the tool server to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[ToolServerName]
 
@@ -480,7 +418,7 @@ class RawToolServersClient:
             The updated tool server details.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/tool_servers/{jsonable_encoder(tool_server_id)}",
+            f"v2/tool_servers/{encode_path_param(tool_server_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -495,8 +433,6 @@ class RawToolServersClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -554,12 +490,7 @@ class RawToolServersClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def sync(
-        self,
-        tool_server_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, tool_server_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[None]:
         """
         Trigger a synchronization of the tool server to ensure it is up-to-date with the latest tools.
@@ -569,12 +500,6 @@ class RawToolServersClient:
         tool_server_id : str
             The unique identifier of the tool server to synchronize.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -583,13 +508,9 @@ class RawToolServersClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/tool_servers/{jsonable_encoder(tool_server_id)}/sync",
+            f"v2/tool_servers/{encode_path_param(tool_server_id)}/sync",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -639,8 +560,6 @@ class AsyncRawToolServersClient:
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[ToolServer, ListToolServersResponse]:
         """
@@ -663,12 +582,6 @@ class AsyncRawToolServersClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of tool servers after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -687,10 +600,6 @@ class AsyncRawToolServersClient:
                 "enabled": enabled,
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -717,8 +626,6 @@ class AsyncRawToolServersClient:
                             enabled=enabled,
                             limit=limit,
                             page_key=_parsed_next,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 
@@ -750,8 +657,6 @@ class AsyncRawToolServersClient:
         type: ToolServerType,
         uri: str,
         transport: ToolServerTransport,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         headers: typing.Optional[typing.Dict[str, str]] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
@@ -772,12 +677,6 @@ class AsyncRawToolServersClient:
             The URI of the tool server.
 
         transport : ToolServerTransport
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         description : typing.Optional[str]
             A detailed description of what this tool server does.
@@ -819,8 +718,6 @@ class AsyncRawToolServersClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -867,12 +764,7 @@ class AsyncRawToolServersClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
-        self,
-        tool_server_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, tool_server_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ToolServer]:
         """
         Retrieve details about a specific tool server by its Id.
@@ -881,12 +773,6 @@ class AsyncRawToolServersClient:
         ----------
         tool_server_id : str
             The unique identifier of the tool server to retrieve.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -897,13 +783,9 @@ class AsyncRawToolServersClient:
             The requested tool server details.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/tool_servers/{jsonable_encoder(tool_server_id)}",
+            f"v2/tool_servers/{encode_path_param(tool_server_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -948,12 +830,7 @@ class AsyncRawToolServersClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
-        self,
-        tool_server_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, tool_server_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[None]:
         """
         Permanently delete a tool server and all its associated configuration and tools. This action cannot be undone.
@@ -963,12 +840,6 @@ class AsyncRawToolServersClient:
         tool_server_id : str
             The unique identifier of the tool server to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -977,13 +848,9 @@ class AsyncRawToolServersClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/tool_servers/{jsonable_encoder(tool_server_id)}",
+            f"v2/tool_servers/{encode_path_param(tool_server_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1024,8 +891,6 @@ class AsyncRawToolServersClient:
         self,
         tool_server_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[ToolServerName] = OMIT,
         description: typing.Optional[str] = OMIT,
         uri: typing.Optional[str] = OMIT,
@@ -1043,12 +908,6 @@ class AsyncRawToolServersClient:
         ----------
         tool_server_id : str
             The unique identifier of the tool server to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[ToolServerName]
 
@@ -1081,7 +940,7 @@ class AsyncRawToolServersClient:
             The updated tool server details.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/tool_servers/{jsonable_encoder(tool_server_id)}",
+            f"v2/tool_servers/{encode_path_param(tool_server_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -1096,8 +955,6 @@ class AsyncRawToolServersClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1155,12 +1012,7 @@ class AsyncRawToolServersClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def sync(
-        self,
-        tool_server_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, tool_server_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[None]:
         """
         Trigger a synchronization of the tool server to ensure it is up-to-date with the latest tools.
@@ -1170,12 +1022,6 @@ class AsyncRawToolServersClient:
         tool_server_id : str
             The unique identifier of the tool server to synchronize.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1184,13 +1030,9 @@ class AsyncRawToolServersClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/tool_servers/{jsonable_encoder(tool_server_id)}/sync",
+            f"v2/tool_servers/{encode_path_param(tool_server_id)}/sync",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:

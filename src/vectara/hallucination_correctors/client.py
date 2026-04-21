@@ -36,8 +36,6 @@ class HallucinationCorrectorsClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[HallucinationCorrector, ListHallucinationCorrectorsResponse]:
         """
@@ -56,12 +54,6 @@ class HallucinationCorrectorsClient:
         page_key : typing.Optional[str]
             Retrieves the next page of hallucination correctors after reaching the limit.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -74,7 +66,10 @@ class HallucinationCorrectorsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.hallucination_correctors.list()
         for item in response:
             yield item
@@ -82,14 +77,7 @@ class HallucinationCorrectorsClient:
         for page in response.iter_pages():
             yield page
         """
-        return self._raw_client.list(
-            filter=filter,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        return self._raw_client.list(filter=filter, limit=limit, page_key=page_key, request_options=request_options)
 
     def hallucination_correction(
         self,
@@ -97,8 +85,6 @@ class HallucinationCorrectorsClient:
         generated_text: str,
         documents: typing.Sequence[HcmSourceDocument],
         model_name: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         query: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HallucinationCorrectionResponse:
@@ -126,12 +112,6 @@ class HallucinationCorrectorsClient:
         model_name : str
             The name of the LLM model to use for hallucination correction.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         query : typing.Optional[str]
             Optional query that provides context for the expected response format and factual information. When provided, enables query-aware hallucination correction that considers the specific response format and factual context expected for the query.
 
@@ -147,7 +127,10 @@ class HallucinationCorrectorsClient:
         --------
         from vectara import HcmSourceDocument, Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.hallucination_correctors.hallucination_correction(
             generated_text="generated_text",
             documents=[
@@ -162,8 +145,6 @@ class HallucinationCorrectorsClient:
             generated_text=generated_text,
             documents=documents,
             model_name=model_name,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             query=query,
             request_options=request_options,
         )
@@ -191,8 +172,6 @@ class AsyncHallucinationCorrectorsClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[HallucinationCorrector, ListHallucinationCorrectorsResponse]:
         """
@@ -211,12 +190,6 @@ class AsyncHallucinationCorrectorsClient:
         page_key : typing.Optional[str]
             Retrieves the next page of hallucination correctors after reaching the limit.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -231,7 +204,10 @@ class AsyncHallucinationCorrectorsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -247,12 +223,7 @@ class AsyncHallucinationCorrectorsClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
-            filter=filter,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            filter=filter, limit=limit, page_key=page_key, request_options=request_options
         )
 
     async def hallucination_correction(
@@ -261,8 +232,6 @@ class AsyncHallucinationCorrectorsClient:
         generated_text: str,
         documents: typing.Sequence[HcmSourceDocument],
         model_name: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         query: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HallucinationCorrectionResponse:
@@ -290,12 +259,6 @@ class AsyncHallucinationCorrectorsClient:
         model_name : str
             The name of the LLM model to use for hallucination correction.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         query : typing.Optional[str]
             Optional query that provides context for the expected response format and factual information. When provided, enables query-aware hallucination correction that considers the specific response format and factual context expected for the query.
 
@@ -313,7 +276,10 @@ class AsyncHallucinationCorrectorsClient:
 
         from vectara import AsyncVectara, HcmSourceDocument
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -334,8 +300,6 @@ class AsyncHallucinationCorrectorsClient:
             generated_text=generated_text,
             documents=documents,
             model_name=model_name,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             query=query,
             request_options=request_options,
         )

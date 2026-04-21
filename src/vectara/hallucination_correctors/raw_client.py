@@ -34,8 +34,6 @@ class RawHallucinationCorrectorsClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[HallucinationCorrector, ListHallucinationCorrectorsResponse]:
         """
@@ -54,12 +52,6 @@ class RawHallucinationCorrectorsClient:
         page_key : typing.Optional[str]
             Retrieves the next page of hallucination correctors after reaching the limit.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -76,10 +68,6 @@ class RawHallucinationCorrectorsClient:
                 "filter": filter,
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -102,8 +90,6 @@ class RawHallucinationCorrectorsClient:
                         filter=filter,
                         limit=limit,
                         page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -133,8 +119,6 @@ class RawHallucinationCorrectorsClient:
         generated_text: str,
         documents: typing.Sequence[HcmSourceDocument],
         model_name: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         query: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[HallucinationCorrectionResponse]:
@@ -162,12 +146,6 @@ class RawHallucinationCorrectorsClient:
         model_name : str
             The name of the LLM model to use for hallucination correction.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         query : typing.Optional[str]
             Optional query that provides context for the expected response format and factual information. When provided, enables query-aware hallucination correction that considers the specific response format and factual context expected for the query.
 
@@ -193,8 +171,6 @@ class RawHallucinationCorrectorsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -251,8 +227,6 @@ class AsyncRawHallucinationCorrectorsClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[HallucinationCorrector, ListHallucinationCorrectorsResponse]:
         """
@@ -271,12 +245,6 @@ class AsyncRawHallucinationCorrectorsClient:
         page_key : typing.Optional[str]
             Retrieves the next page of hallucination correctors after reaching the limit.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -293,10 +261,6 @@ class AsyncRawHallucinationCorrectorsClient:
                 "filter": filter,
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -321,8 +285,6 @@ class AsyncRawHallucinationCorrectorsClient:
                             filter=filter,
                             limit=limit,
                             page_key=_parsed_next,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 
@@ -353,8 +315,6 @@ class AsyncRawHallucinationCorrectorsClient:
         generated_text: str,
         documents: typing.Sequence[HcmSourceDocument],
         model_name: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         query: typing.Optional[str] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[HallucinationCorrectionResponse]:
@@ -382,12 +342,6 @@ class AsyncRawHallucinationCorrectorsClient:
         model_name : str
             The name of the LLM model to use for hallucination correction.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         query : typing.Optional[str]
             Optional query that provides context for the expected response format and factual information. When provided, enables query-aware hallucination correction that considers the specific response format and factual context expected for the query.
 
@@ -413,8 +367,6 @@ class AsyncRawHallucinationCorrectorsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

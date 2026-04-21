@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
@@ -44,8 +44,6 @@ class RawDocumentsClient:
         limit: typing.Optional[int] = None,
         metadata_filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Document, ListDocumentsResponse]:
         """
@@ -71,12 +69,6 @@ class RawDocumentsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of documents after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -86,17 +78,13 @@ class RawDocumentsClient:
             The response contains an array of document objects with the matching document IDs, metadata, tables, parts, storage usage, and metadata about the pagination.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
                 "metadata_filter": metadata_filter,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -120,8 +108,6 @@ class RawDocumentsClient:
                         limit=limit,
                         metadata_filter=metadata_filter,
                         page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -162,8 +148,6 @@ class RawDocumentsClient:
         *,
         request: CreateDocumentRequest,
         wait_for: typing.Optional[CreateDocumentsRequestWaitFor] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Document]:
         """
@@ -217,12 +201,6 @@ class RawDocumentsClient:
 
             Both modes return a successful response once the specified condition is met.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -232,7 +210,7 @@ class RawDocumentsClient:
             Document added to the corpus.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             params={
@@ -243,8 +221,6 @@ class RawDocumentsClient:
             ),
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -319,8 +295,6 @@ class RawDocumentsClient:
         metadata_filter: typing.Optional[str] = None,
         document_ids: typing.Optional[str] = None,
         async_: typing.Optional[bool] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[BulkDeleteDocumentsResponse]:
         """
@@ -356,12 +330,6 @@ class RawDocumentsClient:
 
             The workflow continues running in the background even if the API wait times out.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -371,17 +339,13 @@ class RawDocumentsClient:
             Bulk delete operation completed successfully (synchronous mode).
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             params={
                 "metadata_filter": metadata_filter,
                 "document_ids": document_ids,
                 "async": async_,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -449,13 +413,7 @@ class RawDocumentsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
-        self,
-        corpus_key: CorpusKey,
-        document_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[Document]:
         """
         The Retrieve Document API enables you to fetch the content and metadata of a specific document from a corpus, identified by its unique `document_id` from a specific corpus. Use this endpoint to view the full details of a document, including its text, metadata, and associated tables, if table extraction is enabled.
@@ -470,12 +428,6 @@ class RawDocumentsClient:
         document_id : str
             The document ID of the document to retrieve. This `document_id` must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -485,13 +437,9 @@ class RawDocumentsClient:
             Successfully retrieved the document.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents/{encode_path_param(document_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -536,13 +484,7 @@ class RawDocumentsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
-        self,
-        corpus_key: CorpusKey,
-        document_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[None]:
         """
         Permanently delete a document identified by its unique `document_id` from a specific corpus. This operation cannot be undone, so use it with caution.
@@ -555,12 +497,6 @@ class RawDocumentsClient:
         document_id : str
             The document ID of the document to delete. This `document_id` must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -569,13 +505,9 @@ class RawDocumentsClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents/{encode_path_param(document_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -617,8 +549,6 @@ class RawDocumentsClient:
         corpus_key: CorpusKey,
         document_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Document]:
@@ -633,12 +563,6 @@ class RawDocumentsClient:
         document_id : str
             The document ID of the document to update. This `document_id` must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         metadata : typing.Optional[typing.Dict[str, typing.Any]]
             The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
@@ -651,7 +575,7 @@ class RawDocumentsClient:
             Successfully updated the document.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents/{encode_path_param(document_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -659,8 +583,6 @@ class RawDocumentsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -722,8 +644,6 @@ class RawDocumentsClient:
         corpus_key: CorpusKey,
         document_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Document]:
@@ -738,12 +658,6 @@ class RawDocumentsClient:
         document_id : str
             The document ID of the document to update. This `document_id` must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         metadata : typing.Optional[typing.Dict[str, typing.Any]]
             The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
@@ -756,7 +670,7 @@ class RawDocumentsClient:
             Successfully updated the document.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}/metadata",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents/{encode_path_param(document_id)}/metadata",
             base_url=self._client_wrapper.get_environment().default,
             method="PUT",
             json={
@@ -764,8 +678,6 @@ class RawDocumentsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -828,8 +740,6 @@ class RawDocumentsClient:
         document_id: str,
         *,
         llm_name: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         prompt_template: typing.Optional[str] = OMIT,
         model_parameters: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         stream_response: typing.Optional[bool] = OMIT,
@@ -907,12 +817,6 @@ class RawDocumentsClient:
         llm_name : str
             The name of the LLM.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         prompt_template : typing.Optional[str]
             The prompt template to use when generating the summary. Vectara manages both system and user roles and prompts for the generative LLM out of the box by default. However, users can override the `prompt_template` via this variable. The `prompt_template` is in the form of an Apache Velocity template. For more details on how to configure the `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
 
@@ -931,7 +835,7 @@ class RawDocumentsClient:
             Document summarization response on success.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}/summarize",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents/{encode_path_param(document_id)}/summarize",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -942,8 +846,6 @@ class RawDocumentsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -995,8 +897,6 @@ class RawDocumentsClient:
         document_id: str,
         image_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Image]:
         """
@@ -1013,12 +913,6 @@ class RawDocumentsClient:
         image_id : str
             The identifier of the image to retrieve from the specified document. Each image within a document has a unique `image_id`. This value must be percent-encoded when passed in the request URL.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1028,13 +922,9 @@ class RawDocumentsClient:
             An image including raw image data and associated metadata.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}/images/{jsonable_encoder(image_id)}",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents/{encode_path_param(document_id)}/images/{encode_path_param(image_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1090,8 +980,6 @@ class AsyncRawDocumentsClient:
         limit: typing.Optional[int] = None,
         metadata_filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Document, ListDocumentsResponse]:
         """
@@ -1117,12 +1005,6 @@ class AsyncRawDocumentsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of documents after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1132,17 +1014,13 @@ class AsyncRawDocumentsClient:
             The response contains an array of document objects with the matching document IDs, metadata, tables, parts, storage usage, and metadata about the pagination.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
                 "metadata_filter": metadata_filter,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -1168,8 +1046,6 @@ class AsyncRawDocumentsClient:
                             limit=limit,
                             metadata_filter=metadata_filter,
                             page_key=_parsed_next,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 
@@ -1211,8 +1087,6 @@ class AsyncRawDocumentsClient:
         *,
         request: CreateDocumentRequest,
         wait_for: typing.Optional[CreateDocumentsRequestWaitFor] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Document]:
         """
@@ -1266,12 +1140,6 @@ class AsyncRawDocumentsClient:
 
             Both modes return a successful response once the specified condition is met.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1281,7 +1149,7 @@ class AsyncRawDocumentsClient:
             Document added to the corpus.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             params={
@@ -1292,8 +1160,6 @@ class AsyncRawDocumentsClient:
             ),
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1368,8 +1234,6 @@ class AsyncRawDocumentsClient:
         metadata_filter: typing.Optional[str] = None,
         document_ids: typing.Optional[str] = None,
         async_: typing.Optional[bool] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[BulkDeleteDocumentsResponse]:
         """
@@ -1405,12 +1269,6 @@ class AsyncRawDocumentsClient:
 
             The workflow continues running in the background even if the API wait times out.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1420,17 +1278,13 @@ class AsyncRawDocumentsClient:
             Bulk delete operation completed successfully (synchronous mode).
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
             params={
                 "metadata_filter": metadata_filter,
                 "document_ids": document_ids,
                 "async": async_,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -1498,13 +1352,7 @@ class AsyncRawDocumentsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
-        self,
-        corpus_key: CorpusKey,
-        document_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[Document]:
         """
         The Retrieve Document API enables you to fetch the content and metadata of a specific document from a corpus, identified by its unique `document_id` from a specific corpus. Use this endpoint to view the full details of a document, including its text, metadata, and associated tables, if table extraction is enabled.
@@ -1519,12 +1367,6 @@ class AsyncRawDocumentsClient:
         document_id : str
             The document ID of the document to retrieve. This `document_id` must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1534,13 +1376,9 @@ class AsyncRawDocumentsClient:
             Successfully retrieved the document.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents/{encode_path_param(document_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1585,13 +1423,7 @@ class AsyncRawDocumentsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
-        self,
-        corpus_key: CorpusKey,
-        document_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[None]:
         """
         Permanently delete a document identified by its unique `document_id` from a specific corpus. This operation cannot be undone, so use it with caution.
@@ -1604,12 +1436,6 @@ class AsyncRawDocumentsClient:
         document_id : str
             The document ID of the document to delete. This `document_id` must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1618,13 +1444,9 @@ class AsyncRawDocumentsClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents/{encode_path_param(document_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1666,8 +1488,6 @@ class AsyncRawDocumentsClient:
         corpus_key: CorpusKey,
         document_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Document]:
@@ -1682,12 +1502,6 @@ class AsyncRawDocumentsClient:
         document_id : str
             The document ID of the document to update. This `document_id` must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         metadata : typing.Optional[typing.Dict[str, typing.Any]]
             The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
@@ -1700,7 +1514,7 @@ class AsyncRawDocumentsClient:
             Successfully updated the document.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents/{encode_path_param(document_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -1708,8 +1522,6 @@ class AsyncRawDocumentsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1771,8 +1583,6 @@ class AsyncRawDocumentsClient:
         corpus_key: CorpusKey,
         document_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Document]:
@@ -1787,12 +1597,6 @@ class AsyncRawDocumentsClient:
         document_id : str
             The document ID of the document to update. This `document_id` must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         metadata : typing.Optional[typing.Dict[str, typing.Any]]
             The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
@@ -1805,7 +1609,7 @@ class AsyncRawDocumentsClient:
             Successfully updated the document.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}/metadata",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents/{encode_path_param(document_id)}/metadata",
             base_url=self._client_wrapper.get_environment().default,
             method="PUT",
             json={
@@ -1813,8 +1617,6 @@ class AsyncRawDocumentsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1877,8 +1679,6 @@ class AsyncRawDocumentsClient:
         document_id: str,
         *,
         llm_name: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         prompt_template: typing.Optional[str] = OMIT,
         model_parameters: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         stream_response: typing.Optional[bool] = OMIT,
@@ -1956,12 +1756,6 @@ class AsyncRawDocumentsClient:
         llm_name : str
             The name of the LLM.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         prompt_template : typing.Optional[str]
             The prompt template to use when generating the summary. Vectara manages both system and user roles and prompts for the generative LLM out of the box by default. However, users can override the `prompt_template` via this variable. The `prompt_template` is in the form of an Apache Velocity template. For more details on how to configure the `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
 
@@ -1980,7 +1774,7 @@ class AsyncRawDocumentsClient:
             Document summarization response on success.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}/summarize",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents/{encode_path_param(document_id)}/summarize",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -1991,8 +1785,6 @@ class AsyncRawDocumentsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -2044,8 +1836,6 @@ class AsyncRawDocumentsClient:
         document_id: str,
         image_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Image]:
         """
@@ -2062,12 +1852,6 @@ class AsyncRawDocumentsClient:
         image_id : str
             The identifier of the image to retrieve from the specified document. Each image within a document has a unique `image_id`. This value must be percent-encoded when passed in the request URL.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -2077,13 +1861,9 @@ class AsyncRawDocumentsClient:
             An image including raw image data and associated metadata.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/documents/{jsonable_encoder(document_id)}/images/{jsonable_encoder(image_id)}",
+            f"v2/corpora/{encode_path_param(corpus_key)}/documents/{encode_path_param(document_id)}/images/{encode_path_param(image_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:

@@ -3,3 +3,6 @@
 import typing
 
 CustomDimensions = typing.Optional[typing.Dict[str, typing.Optional[float]]]
+"""
+The custom dimensions as additional weights.
+"""

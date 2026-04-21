@@ -33,8 +33,6 @@ class LlmClient:
         *,
         model: str,
         messages: typing.Sequence[ChatCompletionRequestMessage],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         stream: typing.Optional[bool] = OMIT,
         response_format: typing.Optional[ResponseFormat] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -98,12 +96,6 @@ class LlmClient:
         messages : typing.Sequence[ChatCompletionRequestMessage]
             An ordered array of messages that represent the full context of the conversation to date. Each message includes a `role` and `content`.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         stream : typing.Optional[bool]
             Optional. When set to `true`, the API streams partial message deltas as they become available, similar to ChatGPT's streaming mode.
 
@@ -122,7 +114,10 @@ class LlmClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.llm.chat_completion(
             model="model",
             messages=[],
@@ -131,8 +126,6 @@ class LlmClient:
         _response = self._raw_client.chat_completion(
             model=model,
             messages=messages,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             stream=stream,
             response_format=response_format,
             request_options=request_options,
@@ -160,8 +153,6 @@ class AsyncLlmClient:
         *,
         model: str,
         messages: typing.Sequence[ChatCompletionRequestMessage],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         stream: typing.Optional[bool] = OMIT,
         response_format: typing.Optional[ResponseFormat] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -225,12 +216,6 @@ class AsyncLlmClient:
         messages : typing.Sequence[ChatCompletionRequestMessage]
             An ordered array of messages that represent the full context of the conversation to date. Each message includes a `role` and `content`.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         stream : typing.Optional[bool]
             Optional. When set to `true`, the API streams partial message deltas as they become available, similar to ChatGPT's streaming mode.
 
@@ -251,7 +236,10 @@ class AsyncLlmClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -266,8 +254,6 @@ class AsyncLlmClient:
         _response = await self._raw_client.chat_completion(
             model=model,
             messages=messages,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             stream=stream,
             response_format=response_format,
             request_options=request_options,

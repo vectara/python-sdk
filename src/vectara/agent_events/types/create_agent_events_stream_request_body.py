@@ -33,7 +33,6 @@ class CreateAgentEventsStreamRequestBody_InputMessage(Base):
     messages: typing.List[AgentInput]
     since: typing.Optional[str] = None
     behavior: typing.Optional[InputBehavior] = None
-    stream_response: typing.Optional[bool] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
@@ -51,7 +50,6 @@ class CreateAgentEventsStreamRequestBody_Interrupt(Base):
     """
 
     type: typing.Literal["interrupt"] = "interrupt"
-    stream_response: typing.Optional[bool] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
@@ -71,7 +69,6 @@ class CreateAgentEventsStreamRequestBody_Compact(Base):
     type: typing.Literal["compact"] = "compact"
     compact_up_to_event_id: typing.Optional[str] = None
     compaction_message: typing.Optional[str] = None
-    stream_response: typing.Optional[bool] = None
 
     if IS_PYDANTIC_V2:
         model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2

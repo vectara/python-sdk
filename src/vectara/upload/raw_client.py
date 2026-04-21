@@ -8,7 +8,7 @@ from .. import core
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param, jsonable_encoder
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
@@ -36,8 +36,6 @@ class RawUploadClient:
         corpus_key: CorpusKey,
         *,
         file: core.File,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         chunking_strategy: typing.Optional[ChunkingStrategy] = OMIT,
         table_extraction_config: typing.Optional[TableExtractionConfig] = OMIT,
@@ -140,12 +138,6 @@ class RawUploadClient:
         file : core.File
             See core.File for more documentation
         
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-        
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-        
         metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary object that will be attached as document metadata to the extracted document.
         
@@ -165,7 +157,7 @@ class RawUploadClient:
             The extracted document has been parsed and added to the corpus.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/upload_file",
+            f"v2/corpora/{encode_path_param(corpus_key)}/upload_file",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             data={},
@@ -193,10 +185,6 @@ class RawUploadClient:
                 ),
                 **({"filename": (None, jsonable_encoder(filename), "text/plain")} if filename is not OMIT else {}),
                 "file": core.with_content_type(file=file, default_content_type="application/octet-stream"),
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -275,8 +263,6 @@ class AsyncRawUploadClient:
         corpus_key: CorpusKey,
         *,
         file: core.File,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         chunking_strategy: typing.Optional[ChunkingStrategy] = OMIT,
         table_extraction_config: typing.Optional[TableExtractionConfig] = OMIT,
@@ -379,12 +365,6 @@ class AsyncRawUploadClient:
         file : core.File
             See core.File for more documentation
         
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-        
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-        
         metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary object that will be attached as document metadata to the extracted document.
         
@@ -404,7 +384,7 @@ class AsyncRawUploadClient:
             The extracted document has been parsed and added to the corpus.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/upload_file",
+            f"v2/corpora/{encode_path_param(corpus_key)}/upload_file",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             data={},
@@ -432,10 +412,6 @@ class AsyncRawUploadClient:
                 ),
                 **({"filename": (None, jsonable_encoder(filename), "text/plain")} if filename is not OMIT else {}),
                 "file": core.with_content_type(file=file, default_content_type="application/octet-stream"),
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

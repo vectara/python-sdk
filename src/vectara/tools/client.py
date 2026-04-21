@@ -45,8 +45,6 @@ class ToolsClient:
         tool_server_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Tool, ListToolsResponse]:
         """
@@ -75,12 +73,6 @@ class ToolsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of tools after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -93,7 +85,10 @@ class ToolsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.tools.list(
             filter="rag.*",
             enabled=True,
@@ -113,19 +108,10 @@ class ToolsClient:
             tool_server_id=tool_server_id,
             limit=limit,
             page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
 
-    def create(
-        self,
-        *,
-        request: CreateToolRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Tool:
+    def create(self, *, request: CreateToolRequest, request_options: typing.Optional[RequestOptions] = None) -> Tool:
         """
         Create a new tool that agents can use during conversation. Tools give agents capabilities to interact with external systems, process data, query corpora, or run custom logic. Agents select and invoke tools dynamically based on their instructions and the conversational context.
 
@@ -148,12 +134,6 @@ class ToolsClient:
         ----------
         request : CreateToolRequest
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -166,7 +146,10 @@ class ToolsClient:
         --------
         from vectara import CreateToolRequest_Lambda, Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.tools.create(
             request=CreateToolRequest_Lambda(
                 name="calculate_customer_score",
@@ -176,12 +159,7 @@ class ToolsClient:
             ),
         )
         """
-        _response = self._raw_client.create(
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.create(request=request, request_options=request_options)
         return _response.data
 
     def test_without_creation(
@@ -189,8 +167,6 @@ class ToolsClient:
         *,
         code: str,
         test_input: typing.Dict[str, typing.Any],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         language: typing.Optional[TestLambdaToolRequestLanguage] = OMIT,
         execution_configuration: typing.Optional[ExecutionConfiguration] = OMIT,
         timeout_seconds: typing.Optional[int] = OMIT,
@@ -217,12 +193,6 @@ class ToolsClient:
         test_input : typing.Dict[str, typing.Any]
             The input parameters to test the function with. Will be validated against the discovered input schema.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         language : typing.Optional[TestLambdaToolRequestLanguage]
             The programming language. Currently only 'python' (Python 3.12) is supported.
 
@@ -243,7 +213,10 @@ class ToolsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.tools.test_without_creation(
             code="def process(order_count: int, total_revenue: float) -> dict:\n    score = order_count * 10 + total_revenue * 0.1\n    return {'score': round(score, 2)}\n",
             test_input={"order_count": 10, "total_revenue": 500},
@@ -252,8 +225,6 @@ class ToolsClient:
         _response = self._raw_client.test_without_creation(
             code=code,
             test_input=test_input,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             language=language,
             execution_configuration=execution_configuration,
             timeout_seconds=timeout_seconds,
@@ -261,14 +232,7 @@ class ToolsClient:
         )
         return _response.data
 
-    def get(
-        self,
-        tool_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Tool:
+    def get(self, tool_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Tool:
         """
         Retrieve the full details of a specific tool, including its description, input schema, metadata, and capabilities. Tools may represent structured search functions, document-processing workflows, or user-defined Lambda functions. Some tools work with artifacts stored in a session, while others operate on structured inputs defined by their JSON schema.
 
@@ -276,12 +240,6 @@ class ToolsClient:
         ----------
         tool_id : str
             The unique identifier of the tool to retrieve.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -295,27 +253,18 @@ class ToolsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.tools.get(
             tool_id="tol_rag_search",
         )
         """
-        _response = self._raw_client.get(
-            tool_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(tool_id, request_options=request_options)
         return _response.data
 
-    def delete(
-        self,
-        tool_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    def delete(self, tool_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Permanently delete a tool and its configuration. This action cannot be undone. Agents attempting to use a deleted tool will fail, so ensure that agent configurations are updated before removing a tool.
 
@@ -323,12 +272,6 @@ class ToolsClient:
         ----------
         tool_id : str
             The unique identifier of the tool to delete.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -341,27 +284,19 @@ class ToolsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.tools.delete(
             tool_id="tol_rag_search",
         )
         """
-        _response = self._raw_client.delete(
-            tool_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete(tool_id, request_options=request_options)
         return _response.data
 
     def update(
-        self,
-        tool_id: str,
-        *,
-        request: UpdateToolRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, tool_id: str, *, request: UpdateToolRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> Tool:
         """
         Update an existing tool’s configuration, including its metadata, enabled status, or other properties. Updating a tool modifies how agents can invoke it during conversation.
@@ -372,12 +307,6 @@ class ToolsClient:
             The unique identifier of the tool to update.
 
         request : UpdateToolRequest
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -391,19 +320,16 @@ class ToolsClient:
         --------
         from vectara import UpdateToolRequest_Mcp, Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.tools.update(
             tool_id="tol_rag_search",
             request=UpdateToolRequest_Mcp(),
         )
         """
-        _response = self._raw_client.update(
-            tool_id,
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.update(tool_id, request=request, request_options=request_options)
         return _response.data
 
     def test(
@@ -411,8 +337,6 @@ class ToolsClient:
         tool_id: str,
         *,
         input: typing.Dict[str, typing.Any],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         timeout_seconds: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> TestToolResponse:
@@ -429,12 +353,6 @@ class ToolsClient:
         input : typing.Dict[str, typing.Any]
             The input parameters to pass to the function. Must match the tool's input schema.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         timeout_seconds : typing.Optional[int]
             Maximum execution time in seconds. If not specified, uses the tool's configured timeout.
 
@@ -450,19 +368,17 @@ class ToolsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.tools.test(
             tool_id="tol_python_function_123",
             input={"number": 42, "text": "Hello, world!"},
         )
         """
         _response = self._raw_client.test(
-            tool_id,
-            input=input,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            timeout_seconds=timeout_seconds,
-            request_options=request_options,
+            tool_id, input=input, timeout_seconds=timeout_seconds, request_options=request_options
         )
         return _response.data
 
@@ -492,8 +408,6 @@ class AsyncToolsClient:
         tool_server_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Tool, ListToolsResponse]:
         """
@@ -522,12 +436,6 @@ class AsyncToolsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of tools after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -542,7 +450,10 @@ class AsyncToolsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -569,18 +480,11 @@ class AsyncToolsClient:
             tool_server_id=tool_server_id,
             limit=limit,
             page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
 
     async def create(
-        self,
-        *,
-        request: CreateToolRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request: CreateToolRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> Tool:
         """
         Create a new tool that agents can use during conversation. Tools give agents capabilities to interact with external systems, process data, query corpora, or run custom logic. Agents select and invoke tools dynamically based on their instructions and the conversational context.
@@ -604,12 +508,6 @@ class AsyncToolsClient:
         ----------
         request : CreateToolRequest
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -624,7 +522,10 @@ class AsyncToolsClient:
 
         from vectara import AsyncVectara, CreateToolRequest_Lambda
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -640,12 +541,7 @@ class AsyncToolsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.create(
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.create(request=request, request_options=request_options)
         return _response.data
 
     async def test_without_creation(
@@ -653,8 +549,6 @@ class AsyncToolsClient:
         *,
         code: str,
         test_input: typing.Dict[str, typing.Any],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         language: typing.Optional[TestLambdaToolRequestLanguage] = OMIT,
         execution_configuration: typing.Optional[ExecutionConfiguration] = OMIT,
         timeout_seconds: typing.Optional[int] = OMIT,
@@ -681,12 +575,6 @@ class AsyncToolsClient:
         test_input : typing.Dict[str, typing.Any]
             The input parameters to test the function with. Will be validated against the discovered input schema.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         language : typing.Optional[TestLambdaToolRequestLanguage]
             The programming language. Currently only 'python' (Python 3.12) is supported.
 
@@ -709,7 +597,10 @@ class AsyncToolsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -724,8 +615,6 @@ class AsyncToolsClient:
         _response = await self._raw_client.test_without_creation(
             code=code,
             test_input=test_input,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             language=language,
             execution_configuration=execution_configuration,
             timeout_seconds=timeout_seconds,
@@ -733,14 +622,7 @@ class AsyncToolsClient:
         )
         return _response.data
 
-    async def get(
-        self,
-        tool_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Tool:
+    async def get(self, tool_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Tool:
         """
         Retrieve the full details of a specific tool, including its description, input schema, metadata, and capabilities. Tools may represent structured search functions, document-processing workflows, or user-defined Lambda functions. Some tools work with artifacts stored in a session, while others operate on structured inputs defined by their JSON schema.
 
@@ -748,12 +630,6 @@ class AsyncToolsClient:
         ----------
         tool_id : str
             The unique identifier of the tool to retrieve.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -769,7 +645,10 @@ class AsyncToolsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -780,22 +659,10 @@ class AsyncToolsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            tool_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(tool_id, request_options=request_options)
         return _response.data
 
-    async def delete(
-        self,
-        tool_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    async def delete(self, tool_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Permanently delete a tool and its configuration. This action cannot be undone. Agents attempting to use a deleted tool will fail, so ensure that agent configurations are updated before removing a tool.
 
@@ -803,12 +670,6 @@ class AsyncToolsClient:
         ----------
         tool_id : str
             The unique identifier of the tool to delete.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -823,7 +684,10 @@ class AsyncToolsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -834,22 +698,11 @@ class AsyncToolsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete(
-            tool_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete(tool_id, request_options=request_options)
         return _response.data
 
     async def update(
-        self,
-        tool_id: str,
-        *,
-        request: UpdateToolRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, tool_id: str, *, request: UpdateToolRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> Tool:
         """
         Update an existing tool’s configuration, including its metadata, enabled status, or other properties. Updating a tool modifies how agents can invoke it during conversation.
@@ -860,12 +713,6 @@ class AsyncToolsClient:
             The unique identifier of the tool to update.
 
         request : UpdateToolRequest
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -881,7 +728,10 @@ class AsyncToolsClient:
 
         from vectara import AsyncVectara, UpdateToolRequest_Mcp
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -893,13 +743,7 @@ class AsyncToolsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.update(
-            tool_id,
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.update(tool_id, request=request, request_options=request_options)
         return _response.data
 
     async def test(
@@ -907,8 +751,6 @@ class AsyncToolsClient:
         tool_id: str,
         *,
         input: typing.Dict[str, typing.Any],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         timeout_seconds: typing.Optional[int] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> TestToolResponse:
@@ -924,12 +766,6 @@ class AsyncToolsClient:
 
         input : typing.Dict[str, typing.Any]
             The input parameters to pass to the function. Must match the tool's input schema.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         timeout_seconds : typing.Optional[int]
             Maximum execution time in seconds. If not specified, uses the tool's configured timeout.
@@ -948,7 +784,10 @@ class AsyncToolsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -961,11 +800,6 @@ class AsyncToolsClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.test(
-            tool_id,
-            input=input,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            timeout_seconds=timeout_seconds,
-            request_options=request_options,
+            tool_id, input=input, timeout_seconds=timeout_seconds, request_options=request_options
         )
         return _response.data

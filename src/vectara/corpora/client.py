@@ -47,8 +47,6 @@ class CorporaClient:
         filter: typing.Optional[str] = None,
         corpus_id: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Corpus, ListCorporaResponse]:
         """
@@ -70,12 +68,6 @@ class CorporaClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of corpora after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -88,7 +80,10 @@ class CorporaClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.corpora.list(
             filter="Vectara Content",
         )
@@ -99,21 +94,13 @@ class CorporaClient:
             yield page
         """
         return self._raw_client.list(
-            limit=limit,
-            filter=filter,
-            corpus_id=corpus_id,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            limit=limit, filter=filter, corpus_id=corpus_id, page_key=page_key, request_options=request_options
         )
 
     def create(
         self,
         *,
         key: CorpusKey,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -161,12 +148,6 @@ class CorporaClient:
         ----------
         key : CorpusKey
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         name : typing.Optional[str]
             The name for the corpus. This value defaults to the key.
 
@@ -206,7 +187,10 @@ class CorporaClient:
         --------
         from vectara import FilterAttribute, Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.corpora.create(
             key="fin_esg_docs",
             name="EU Bank ESG Compliance",
@@ -247,8 +231,6 @@ class CorporaClient:
         """
         _response = self._raw_client.create(
             key=key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             name=name,
             description=description,
             save_history=save_history,
@@ -262,14 +244,7 @@ class CorporaClient:
         )
         return _response.data
 
-    def get(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Corpus:
+    def get(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> Corpus:
         """
         The Get Corpus API lets you view metadata about a specific corpus. This is useful for getting information about a corpus without performing a search. This operation does not search the corpus contents. Specify the `corpus_key` to identify the corpus whose metadata you want to retrieve.
 
@@ -290,12 +265,6 @@ class CorporaClient:
         corpus_key : CorpusKey
             The unique key identifying the corpus to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -308,27 +277,18 @@ class CorporaClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.corpora.get(
             corpus_key="my-corpus",
         )
         """
-        _response = self._raw_client.get(
-            corpus_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(corpus_key, request_options=request_options)
         return _response.data
 
-    def delete(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    def delete(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Permanently delete a corpus and all its associated data. The `corpus_key` uniquely identifies the corpus.
 
@@ -343,12 +303,6 @@ class CorporaClient:
         corpus_key : CorpusKey
             The unique key identifying the corpus to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -360,25 +314,21 @@ class CorporaClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.corpora.delete(
             corpus_key="my-corpus",
         )
         """
-        _response = self._raw_client.delete(
-            corpus_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete(corpus_key, request_options=request_options)
         return _response.data
 
     def update(
         self,
         corpus_key: CorpusKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -394,12 +344,6 @@ class CorporaClient:
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Set whether or not the corpus is enabled. If unset then the corpus will remain in the same state.
@@ -425,15 +369,16 @@ class CorporaClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.corpora.update(
             corpus_key="my-corpus",
         )
         """
         _response = self._raw_client.update(
             corpus_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             enabled=enabled,
             name=name,
             description=description,
@@ -442,14 +387,7 @@ class CorporaClient:
         )
         return _response.data
 
-    def reset(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    def reset(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Resets a corpus, which removes all documents and data from the specified corpus, while keeping the corpus itself. The `corpus_key` uniquely identifies the corpus. For more information, see [Create a corpus](https://docs.vectara.com/docs/rest-api/create-corpus).
 
@@ -457,12 +395,6 @@ class CorporaClient:
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus to reset.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -475,17 +407,15 @@ class CorporaClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.corpora.reset(
             corpus_key="my-corpus",
         )
         """
-        _response = self._raw_client.reset(
-            corpus_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.reset(corpus_key, request_options=request_options)
         return _response.data
 
     def replace_filter_attributes(
@@ -493,8 +423,6 @@ class CorporaClient:
         corpus_key: CorpusKey,
         *,
         filter_attributes: typing.Sequence[FilterAttribute],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ReplaceFilterAttributesResponse:
         """
@@ -510,12 +438,6 @@ class CorporaClient:
         filter_attributes : typing.Sequence[FilterAttribute]
             The new filter attributes.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -528,7 +450,10 @@ class CorporaClient:
         --------
         from vectara import FilterAttribute, Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.corpora.replace_filter_attributes(
             corpus_key="my-corpus",
             filter_attributes=[
@@ -550,21 +475,12 @@ class CorporaClient:
         )
         """
         _response = self._raw_client.replace_filter_attributes(
-            corpus_key,
-            filter_attributes=filter_attributes,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            corpus_key, filter_attributes=filter_attributes, request_options=request_options
         )
         return _response.data
 
     def compute_size(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> ComputeCorpusSizeResponse:
         """
         Compute the current size of a corpus, including number of documents, parts, and characters. The `corpus_key` uniquely identifies the corpus.
@@ -573,12 +489,6 @@ class CorporaClient:
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus to compute size for.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -592,17 +502,15 @@ class CorporaClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.corpora.compute_size(
             corpus_key="my-corpus",
         )
         """
-        _response = self._raw_client.compute_size(
-            corpus_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.compute_size(corpus_key, request_options=request_options)
         return _response.data
 
     def get_filter_attribute_stats(
@@ -612,8 +520,6 @@ class CorporaClient:
         fields: typing.Optional[str] = None,
         metadata_filter: typing.Optional[str] = None,
         max_values: typing.Optional[int] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> GetFilterAttributeStatsResponse:
         """
@@ -646,12 +552,6 @@ class CorporaClient:
         max_values : typing.Optional[int]
             Maximum number of distinct values to return per field in the 'values' array, ordered by occurrence count (descending).
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -664,7 +564,10 @@ class CorporaClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.corpora.get_filter_attribute_stats(
             corpus_key="my-corpus",
             fields="doc.category,doc.year,part.status",
@@ -676,8 +579,6 @@ class CorporaClient:
             fields=fields,
             metadata_filter=metadata_filter,
             max_values=max_values,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
         return _response.data
@@ -691,8 +592,6 @@ class CorporaClient:
         offset: typing.Optional[int] = None,
         save_history: typing.Optional[bool] = None,
         intelligent_query_rewriting: typing.Optional[bool] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> QueryFullResponse:
         """
@@ -728,12 +627,6 @@ class CorporaClient:
         intelligent_query_rewriting : typing.Optional[bool]
             [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -746,7 +639,10 @@ class CorporaClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.corpora.search(
             corpus_key="my-corpus",
             query="Explain changes in VaR metrics over last quarter",
@@ -759,8 +655,6 @@ class CorporaClient:
             offset=offset,
             save_history=save_history,
             intelligent_query_rewriting=intelligent_query_rewriting,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
         return _response.data
@@ -770,8 +664,6 @@ class CorporaClient:
         corpus_key: CorpusKey,
         *,
         query: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         search: typing.Optional[QueryCorporaStreamRequestSearch] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -947,12 +839,6 @@ class CorporaClient:
         query : str
             The search query string, which is the question the user is asking.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         search : typing.Optional[QueryCorporaStreamRequestSearch]
             The parameters to search one corpus.
 
@@ -983,7 +869,10 @@ class CorporaClient:
         )
         from vectara.corpora import QueryCorporaStreamRequestSearch
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.corpora.query_stream(
             corpus_key="my-corpus",
             query="How to configure OAuth2 for microservices in Kubernetes?",
@@ -1017,8 +906,6 @@ class CorporaClient:
         with self._raw_client.query_stream(
             corpus_key,
             query=query,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             search=search,
             generation=generation,
             save_history=save_history,
@@ -1032,8 +919,6 @@ class CorporaClient:
         corpus_key: CorpusKey,
         *,
         query: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         search: typing.Optional[QueryCorporaRequestSearch] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -1209,12 +1094,6 @@ class CorporaClient:
         query : str
             The search query string, which is the question the user is asking.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         search : typing.Optional[QueryCorporaRequestSearch]
             The parameters to search one corpus.
 
@@ -1245,7 +1124,10 @@ class CorporaClient:
         )
         from vectara.corpora import QueryCorporaRequestSearch
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.corpora.query(
             corpus_key="my-corpus",
             query="How to configure OAuth2 for microservices in Kubernetes?",
@@ -1277,8 +1159,6 @@ class CorporaClient:
         _response = self._raw_client.query(
             corpus_key,
             query=query,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             search=search,
             generation=generation,
             save_history=save_history,
@@ -1310,8 +1190,6 @@ class AsyncCorporaClient:
         filter: typing.Optional[str] = None,
         corpus_id: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Corpus, ListCorporaResponse]:
         """
@@ -1333,12 +1211,6 @@ class AsyncCorporaClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of corpora after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1353,7 +1225,10 @@ class AsyncCorporaClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1371,21 +1246,13 @@ class AsyncCorporaClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
-            limit=limit,
-            filter=filter,
-            corpus_id=corpus_id,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            limit=limit, filter=filter, corpus_id=corpus_id, page_key=page_key, request_options=request_options
         )
 
     async def create(
         self,
         *,
         key: CorpusKey,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -1433,12 +1300,6 @@ class AsyncCorporaClient:
         ----------
         key : CorpusKey
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         name : typing.Optional[str]
             The name for the corpus. This value defaults to the key.
 
@@ -1480,7 +1341,10 @@ class AsyncCorporaClient:
 
         from vectara import AsyncVectara, FilterAttribute
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1527,8 +1391,6 @@ class AsyncCorporaClient:
         """
         _response = await self._raw_client.create(
             key=key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             name=name,
             description=description,
             save_history=save_history,
@@ -1542,14 +1404,7 @@ class AsyncCorporaClient:
         )
         return _response.data
 
-    async def get(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Corpus:
+    async def get(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> Corpus:
         """
         The Get Corpus API lets you view metadata about a specific corpus. This is useful for getting information about a corpus without performing a search. This operation does not search the corpus contents. Specify the `corpus_key` to identify the corpus whose metadata you want to retrieve.
 
@@ -1570,12 +1425,6 @@ class AsyncCorporaClient:
         corpus_key : CorpusKey
             The unique key identifying the corpus to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1590,7 +1439,10 @@ class AsyncCorporaClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1601,22 +1453,10 @@ class AsyncCorporaClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            corpus_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(corpus_key, request_options=request_options)
         return _response.data
 
-    async def delete(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    async def delete(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Permanently delete a corpus and all its associated data. The `corpus_key` uniquely identifies the corpus.
 
@@ -1631,12 +1471,6 @@ class AsyncCorporaClient:
         corpus_key : CorpusKey
             The unique key identifying the corpus to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1650,7 +1484,10 @@ class AsyncCorporaClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1661,20 +1498,13 @@ class AsyncCorporaClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete(
-            corpus_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete(corpus_key, request_options=request_options)
         return _response.data
 
     async def update(
         self,
         corpus_key: CorpusKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -1690,12 +1520,6 @@ class AsyncCorporaClient:
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Set whether or not the corpus is enabled. If unset then the corpus will remain in the same state.
@@ -1723,7 +1547,10 @@ class AsyncCorporaClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1736,8 +1563,6 @@ class AsyncCorporaClient:
         """
         _response = await self._raw_client.update(
             corpus_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             enabled=enabled,
             name=name,
             description=description,
@@ -1746,14 +1571,7 @@ class AsyncCorporaClient:
         )
         return _response.data
 
-    async def reset(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    async def reset(self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Resets a corpus, which removes all documents and data from the specified corpus, while keeping the corpus itself. The `corpus_key` uniquely identifies the corpus. For more information, see [Create a corpus](https://docs.vectara.com/docs/rest-api/create-corpus).
 
@@ -1761,12 +1579,6 @@ class AsyncCorporaClient:
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus to reset.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1781,7 +1593,10 @@ class AsyncCorporaClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1792,12 +1607,7 @@ class AsyncCorporaClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.reset(
-            corpus_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.reset(corpus_key, request_options=request_options)
         return _response.data
 
     async def replace_filter_attributes(
@@ -1805,8 +1615,6 @@ class AsyncCorporaClient:
         corpus_key: CorpusKey,
         *,
         filter_attributes: typing.Sequence[FilterAttribute],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ReplaceFilterAttributesResponse:
         """
@@ -1822,12 +1630,6 @@ class AsyncCorporaClient:
         filter_attributes : typing.Sequence[FilterAttribute]
             The new filter attributes.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1842,7 +1644,10 @@ class AsyncCorporaClient:
 
         from vectara import AsyncVectara, FilterAttribute
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1870,21 +1675,12 @@ class AsyncCorporaClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.replace_filter_attributes(
-            corpus_key,
-            filter_attributes=filter_attributes,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            corpus_key, filter_attributes=filter_attributes, request_options=request_options
         )
         return _response.data
 
     async def compute_size(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> ComputeCorpusSizeResponse:
         """
         Compute the current size of a corpus, including number of documents, parts, and characters. The `corpus_key` uniquely identifies the corpus.
@@ -1893,12 +1689,6 @@ class AsyncCorporaClient:
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus to compute size for.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1914,7 +1704,10 @@ class AsyncCorporaClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1925,12 +1718,7 @@ class AsyncCorporaClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.compute_size(
-            corpus_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.compute_size(corpus_key, request_options=request_options)
         return _response.data
 
     async def get_filter_attribute_stats(
@@ -1940,8 +1728,6 @@ class AsyncCorporaClient:
         fields: typing.Optional[str] = None,
         metadata_filter: typing.Optional[str] = None,
         max_values: typing.Optional[int] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> GetFilterAttributeStatsResponse:
         """
@@ -1974,12 +1760,6 @@ class AsyncCorporaClient:
         max_values : typing.Optional[int]
             Maximum number of distinct values to return per field in the 'values' array, ordered by occurrence count (descending).
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1994,7 +1774,10 @@ class AsyncCorporaClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -2012,8 +1795,6 @@ class AsyncCorporaClient:
             fields=fields,
             metadata_filter=metadata_filter,
             max_values=max_values,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
         return _response.data
@@ -2027,8 +1808,6 @@ class AsyncCorporaClient:
         offset: typing.Optional[int] = None,
         save_history: typing.Optional[bool] = None,
         intelligent_query_rewriting: typing.Optional[bool] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> QueryFullResponse:
         """
@@ -2064,12 +1843,6 @@ class AsyncCorporaClient:
         intelligent_query_rewriting : typing.Optional[bool]
             [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -2084,7 +1857,10 @@ class AsyncCorporaClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -2103,8 +1879,6 @@ class AsyncCorporaClient:
             offset=offset,
             save_history=save_history,
             intelligent_query_rewriting=intelligent_query_rewriting,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
         return _response.data
@@ -2114,8 +1888,6 @@ class AsyncCorporaClient:
         corpus_key: CorpusKey,
         *,
         query: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         search: typing.Optional[QueryCorporaStreamRequestSearch] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -2291,12 +2063,6 @@ class AsyncCorporaClient:
         query : str
             The search query string, which is the question the user is asking.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         search : typing.Optional[QueryCorporaStreamRequestSearch]
             The parameters to search one corpus.
 
@@ -2329,7 +2095,10 @@ class AsyncCorporaClient:
         )
         from vectara.corpora import QueryCorporaStreamRequestSearch
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -2369,8 +2138,6 @@ class AsyncCorporaClient:
         async with self._raw_client.query_stream(
             corpus_key,
             query=query,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             search=search,
             generation=generation,
             save_history=save_history,
@@ -2385,8 +2152,6 @@ class AsyncCorporaClient:
         corpus_key: CorpusKey,
         *,
         query: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         search: typing.Optional[QueryCorporaRequestSearch] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -2562,12 +2327,6 @@ class AsyncCorporaClient:
         query : str
             The search query string, which is the question the user is asking.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         search : typing.Optional[QueryCorporaRequestSearch]
             The parameters to search one corpus.
 
@@ -2600,7 +2359,10 @@ class AsyncCorporaClient:
         )
         from vectara.corpora import QueryCorporaRequestSearch
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -2638,8 +2400,6 @@ class AsyncCorporaClient:
         _response = await self._raw_client.query(
             corpus_key,
             query=query,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             search=search,
             generation=generation,
             save_history=save_history,

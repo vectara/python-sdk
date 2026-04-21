@@ -41,8 +41,6 @@ class AgentSchedulesClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[AgentSchedule, ListAgentSchedulesResponse]:
         """
@@ -59,12 +57,6 @@ class AgentSchedulesClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of schedules after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -77,7 +69,10 @@ class AgentSchedulesClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.agent_schedules.list(
             agent_key="customer_support",
         )
@@ -87,14 +82,7 @@ class AgentSchedulesClient:
         for page in response.iter_pages():
             yield page
         """
-        return self._raw_client.list(
-            agent_key,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        return self._raw_client.list(agent_key, limit=limit, page_key=page_key, request_options=request_options)
 
     def create(
         self,
@@ -103,8 +91,6 @@ class AgentSchedulesClient:
         name: AgentScheduleName,
         message: typing.Sequence[AgentInput],
         schedule: ScheduleConfiguration,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentScheduleKey] = OMIT,
         description: typing.Optional[str] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
@@ -150,12 +136,6 @@ class AgentSchedulesClient:
         
         schedule : ScheduleConfiguration
         
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-        
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-        
         key : typing.Optional[AgentScheduleKey]
             Optional unique key for the schedule. If not provided, will be auto-generated.
         
@@ -183,7 +163,10 @@ class AgentSchedulesClient:
         --------
         from vectara import AgentInput_Text, ScheduleConfiguration_Interval, Vectara
         
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agent_schedules.create(
             agent_key="customer_support",
             name="Daily Summary Report",
@@ -202,8 +185,6 @@ class AgentSchedulesClient:
             name=name,
             message=message,
             schedule=schedule,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             key=key,
             description=description,
             enabled=enabled,
@@ -218,8 +199,6 @@ class AgentSchedulesClient:
         agent_key: AgentKey,
         schedule_key: AgentScheduleKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AgentSchedule:
         """
@@ -233,12 +212,6 @@ class AgentSchedulesClient:
         schedule_key : AgentScheduleKey
             The unique key of the schedule.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -251,19 +224,16 @@ class AgentSchedulesClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agent_schedules.get(
             agent_key="customer_support",
             schedule_key="daily-report",
         )
         """
-        _response = self._raw_client.get(
-            agent_key,
-            schedule_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(agent_key, schedule_key, request_options=request_options)
         return _response.data
 
     def delete(
@@ -271,8 +241,6 @@ class AgentSchedulesClient:
         agent_key: AgentKey,
         schedule_key: AgentScheduleKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
@@ -288,12 +256,6 @@ class AgentSchedulesClient:
         schedule_key : AgentScheduleKey
             The unique key of the schedule to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -305,19 +267,16 @@ class AgentSchedulesClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agent_schedules.delete(
             agent_key="customer_support",
             schedule_key="daily-report",
         )
         """
-        _response = self._raw_client.delete(
-            agent_key,
-            schedule_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete(agent_key, schedule_key, request_options=request_options)
         return _response.data
 
     def update(
@@ -325,8 +284,6 @@ class AgentSchedulesClient:
         agent_key: AgentKey,
         schedule_key: AgentScheduleKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[AgentScheduleName] = OMIT,
         description: typing.Optional[str] = OMIT,
         message: typing.Optional[typing.Sequence[AgentInput]] = OMIT,
@@ -348,12 +305,6 @@ class AgentSchedulesClient:
 
         schedule_key : AgentScheduleKey
             The unique key of the schedule to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[AgentScheduleName]
 
@@ -386,7 +337,10 @@ class AgentSchedulesClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agent_schedules.update(
             agent_key="customer_support",
             schedule_key="daily-report",
@@ -395,8 +349,6 @@ class AgentSchedulesClient:
         _response = self._raw_client.update(
             agent_key,
             schedule_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             name=name,
             description=description,
             message=message,
@@ -415,8 +367,6 @@ class AgentSchedulesClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[AgentScheduleExecution, ListAgentScheduleExecutionsResponse]:
         """
@@ -432,12 +382,6 @@ class AgentSchedulesClient:
 
         page_key : typing.Optional[str]
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -450,7 +394,10 @@ class AgentSchedulesClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.agent_schedules.list_executions(
             agent_key="customer_support",
             schedule_key="daily-report",
@@ -462,13 +409,7 @@ class AgentSchedulesClient:
             yield page
         """
         return self._raw_client.list_executions(
-            agent_key,
-            schedule_key,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            agent_key, schedule_key, limit=limit, page_key=page_key, request_options=request_options
         )
 
 
@@ -493,8 +434,6 @@ class AsyncAgentSchedulesClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[AgentSchedule, ListAgentSchedulesResponse]:
         """
@@ -511,12 +450,6 @@ class AsyncAgentSchedulesClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of schedules after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -531,7 +464,10 @@ class AsyncAgentSchedulesClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -548,14 +484,7 @@ class AsyncAgentSchedulesClient:
 
         asyncio.run(main())
         """
-        return await self._raw_client.list(
-            agent_key,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        return await self._raw_client.list(agent_key, limit=limit, page_key=page_key, request_options=request_options)
 
     async def create(
         self,
@@ -564,8 +493,6 @@ class AsyncAgentSchedulesClient:
         name: AgentScheduleName,
         message: typing.Sequence[AgentInput],
         schedule: ScheduleConfiguration,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentScheduleKey] = OMIT,
         description: typing.Optional[str] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
@@ -610,12 +537,6 @@ class AsyncAgentSchedulesClient:
             The input message to send to the agent on each scheduled execution.
         
         schedule : ScheduleConfiguration
-        
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-        
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
         
         key : typing.Optional[AgentScheduleKey]
             Optional unique key for the schedule. If not provided, will be auto-generated.
@@ -650,7 +571,10 @@ class AsyncAgentSchedulesClient:
             ScheduleConfiguration_Interval,
         )
         
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         
         
         async def main() -> None:
@@ -675,8 +599,6 @@ class AsyncAgentSchedulesClient:
             name=name,
             message=message,
             schedule=schedule,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             key=key,
             description=description,
             enabled=enabled,
@@ -691,8 +613,6 @@ class AsyncAgentSchedulesClient:
         agent_key: AgentKey,
         schedule_key: AgentScheduleKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AgentSchedule:
         """
@@ -705,12 +625,6 @@ class AsyncAgentSchedulesClient:
 
         schedule_key : AgentScheduleKey
             The unique key of the schedule.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -726,7 +640,10 @@ class AsyncAgentSchedulesClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -738,13 +655,7 @@ class AsyncAgentSchedulesClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            agent_key,
-            schedule_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(agent_key, schedule_key, request_options=request_options)
         return _response.data
 
     async def delete(
@@ -752,8 +663,6 @@ class AsyncAgentSchedulesClient:
         agent_key: AgentKey,
         schedule_key: AgentScheduleKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
@@ -769,12 +678,6 @@ class AsyncAgentSchedulesClient:
         schedule_key : AgentScheduleKey
             The unique key of the schedule to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -788,7 +691,10 @@ class AsyncAgentSchedulesClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -800,13 +706,7 @@ class AsyncAgentSchedulesClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete(
-            agent_key,
-            schedule_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete(agent_key, schedule_key, request_options=request_options)
         return _response.data
 
     async def update(
@@ -814,8 +714,6 @@ class AsyncAgentSchedulesClient:
         agent_key: AgentKey,
         schedule_key: AgentScheduleKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[AgentScheduleName] = OMIT,
         description: typing.Optional[str] = OMIT,
         message: typing.Optional[typing.Sequence[AgentInput]] = OMIT,
@@ -837,12 +735,6 @@ class AsyncAgentSchedulesClient:
 
         schedule_key : AgentScheduleKey
             The unique key of the schedule to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[AgentScheduleName]
 
@@ -877,7 +769,10 @@ class AsyncAgentSchedulesClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -892,8 +787,6 @@ class AsyncAgentSchedulesClient:
         _response = await self._raw_client.update(
             agent_key,
             schedule_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             name=name,
             description=description,
             message=message,
@@ -912,8 +805,6 @@ class AsyncAgentSchedulesClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[AgentScheduleExecution, ListAgentScheduleExecutionsResponse]:
         """
@@ -929,12 +820,6 @@ class AsyncAgentSchedulesClient:
 
         page_key : typing.Optional[str]
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -949,7 +834,10 @@ class AsyncAgentSchedulesClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -968,11 +856,5 @@ class AsyncAgentSchedulesClient:
         asyncio.run(main())
         """
         return await self._raw_client.list_executions(
-            agent_key,
-            schedule_key,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            agent_key, schedule_key, limit=limit, page_key=page_key, request_options=request_options
         )

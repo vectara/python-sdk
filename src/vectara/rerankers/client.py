@@ -31,8 +31,6 @@ class RerankersClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Reranker, ListRerankersResponse]:
         """
@@ -51,12 +49,6 @@ class RerankersClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of rerankers after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -69,7 +61,10 @@ class RerankersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.rerankers.list(
             filter="vectara.*",
         )
@@ -79,14 +74,7 @@ class RerankersClient:
         for page in response.iter_pages():
             yield page
         """
-        return self._raw_client.list(
-            filter=filter,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        return self._raw_client.list(filter=filter, limit=limit, page_key=page_key, request_options=request_options)
 
 
 class AsyncRerankersClient:
@@ -110,8 +98,6 @@ class AsyncRerankersClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Reranker, ListRerankersResponse]:
         """
@@ -130,12 +116,6 @@ class AsyncRerankersClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of rerankers after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -150,7 +130,10 @@ class AsyncRerankersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -168,10 +151,5 @@ class AsyncRerankersClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
-            filter=filter,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            filter=filter, limit=limit, page_key=page_key, request_options=request_options
         )

@@ -33,8 +33,6 @@ class RawFactualConsistencyClient:
         *,
         generated_text: str,
         source_texts: typing.Sequence[str],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         model_parameters: typing.Optional[EvaluateFactualConsistencyRequestModelParameters] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[EvaluateFactualConsistencyResponse]:
@@ -86,12 +84,6 @@ class RawFactualConsistencyClient:
         source_texts : typing.Sequence[str]
             The source documents or text snippets against which to evaluate factual consistency.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         model_parameters : typing.Optional[EvaluateFactualConsistencyRequestModelParameters]
             The model parameters for the evaluation.
 
@@ -118,8 +110,6 @@ class RawFactualConsistencyClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -186,8 +176,6 @@ class AsyncRawFactualConsistencyClient:
         *,
         generated_text: str,
         source_texts: typing.Sequence[str],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         model_parameters: typing.Optional[EvaluateFactualConsistencyRequestModelParameters] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[EvaluateFactualConsistencyResponse]:
@@ -239,12 +227,6 @@ class AsyncRawFactualConsistencyClient:
         source_texts : typing.Sequence[str]
             The source documents or text snippets against which to evaluate factual consistency.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         model_parameters : typing.Optional[EvaluateFactualConsistencyRequestModelParameters]
             The model parameters for the evaluation.
 
@@ -271,8 +253,6 @@ class AsyncRawFactualConsistencyClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

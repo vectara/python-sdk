@@ -27,10 +27,18 @@ class ToolBase(UniversalBaseModel):
 
     description: str = pydantic.Field()
     """
-    A detailed description of what the tool does and how it can be used.
+    The description provided to the agent (LLM) to guide tool selection during conversations.
+    This is what the agent sees when deciding which tool to use.
     """
 
     description_template: typing.Optional[ToolDescriptionTemplate] = None
+    documentation: typing.Optional[str] = pydantic.Field(default=None)
+    """
+    User-facing documentation describing the tool and how to configure it for an agent.
+    Intended for developers and administrators browsing the tool catalog.
+    Defaults to the agent-facing description if not explicitly set.
+    """
+
     enabled: bool = pydantic.Field()
     """
     Whether the tool is currently enabled and available for use.

@@ -9,7 +9,7 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.http_sse._api import EventSource
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as, parse_sse_obj
@@ -51,8 +51,6 @@ class RawCorporaClient:
         filter: typing.Optional[str] = None,
         corpus_id: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Corpus, ListCorporaResponse]:
         """
@@ -74,12 +72,6 @@ class RawCorporaClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of corpora after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -97,10 +89,6 @@ class RawCorporaClient:
                 "filter": filter,
                 "corpus_id": corpus_id,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -124,8 +112,6 @@ class RawCorporaClient:
                         filter=filter,
                         corpus_id=corpus_id,
                         page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -153,8 +139,6 @@ class RawCorporaClient:
         self,
         *,
         key: CorpusKey,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -201,12 +185,6 @@ class RawCorporaClient:
         Parameters
         ----------
         key : CorpusKey
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[str]
             The name for the corpus. This value defaults to the key.
@@ -265,8 +243,6 @@ class RawCorporaClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -324,12 +300,7 @@ class RawCorporaClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[Corpus]:
         """
         The Get Corpus API lets you view metadata about a specific corpus. This is useful for getting information about a corpus without performing a search. This operation does not search the corpus contents. Specify the `corpus_key` to identify the corpus whose metadata you want to retrieve.
@@ -351,12 +322,6 @@ class RawCorporaClient:
         corpus_key : CorpusKey
             The unique key identifying the corpus to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -366,13 +331,9 @@ class RawCorporaClient:
             The response includes details such as the corpus ID, key, name, description, enabled status, encoder information, filter attributes, custom dimensions, and usage limits.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}",
+            f"v2/corpora/{encode_path_param(corpus_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -417,12 +378,7 @@ class RawCorporaClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[None]:
         """
         Permanently delete a corpus and all its associated data. The `corpus_key` uniquely identifies the corpus.
@@ -438,12 +394,6 @@ class RawCorporaClient:
         corpus_key : CorpusKey
             The unique key identifying the corpus to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -452,13 +402,9 @@ class RawCorporaClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}",
+            f"v2/corpora/{encode_path_param(corpus_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -499,8 +445,6 @@ class RawCorporaClient:
         self,
         corpus_key: CorpusKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -516,12 +460,6 @@ class RawCorporaClient:
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Set whether or not the corpus is enabled. If unset then the corpus will remain in the same state.
@@ -544,7 +482,7 @@ class RawCorporaClient:
             Successfully modified the corpus.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}",
+            f"v2/corpora/{encode_path_param(corpus_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -555,8 +493,6 @@ class RawCorporaClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -603,12 +539,7 @@ class RawCorporaClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def reset(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[None]:
         """
         Resets a corpus, which removes all documents and data from the specified corpus, while keeping the corpus itself. The `corpus_key` uniquely identifies the corpus. For more information, see [Create a corpus](https://docs.vectara.com/docs/rest-api/create-corpus).
@@ -618,12 +549,6 @@ class RawCorporaClient:
         corpus_key : CorpusKey
             The unique key identifying the corpus to reset.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -632,13 +557,9 @@ class RawCorporaClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/reset",
+            f"v2/corpora/{encode_path_param(corpus_key)}/reset",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -680,8 +601,6 @@ class RawCorporaClient:
         corpus_key: CorpusKey,
         *,
         filter_attributes: typing.Sequence[FilterAttribute],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[ReplaceFilterAttributesResponse]:
         """
@@ -697,12 +616,6 @@ class RawCorporaClient:
         filter_attributes : typing.Sequence[FilterAttribute]
             The new filter attributes.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -712,7 +625,7 @@ class RawCorporaClient:
             Successfully created a job that will replace the filter attributes.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/replace_filter_attributes",
+            f"v2/corpora/{encode_path_param(corpus_key)}/replace_filter_attributes",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -722,8 +635,6 @@ class RawCorporaClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -770,12 +681,7 @@ class RawCorporaClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def compute_size(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ComputeCorpusSizeResponse]:
         """
         Compute the current size of a corpus, including number of documents, parts, and characters. The `corpus_key` uniquely identifies the corpus.
@@ -784,12 +690,6 @@ class RawCorporaClient:
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus to compute size for.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -800,13 +700,9 @@ class RawCorporaClient:
             Successfully computed the corpus size.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/compute_size",
+            f"v2/corpora/{encode_path_param(corpus_key)}/compute_size",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -857,8 +753,6 @@ class RawCorporaClient:
         fields: typing.Optional[str] = None,
         metadata_filter: typing.Optional[str] = None,
         max_values: typing.Optional[int] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[GetFilterAttributeStatsResponse]:
         """
@@ -891,12 +785,6 @@ class RawCorporaClient:
         max_values : typing.Optional[int]
             Maximum number of distinct values to return per field in the 'values' array, ordered by occurrence count (descending).
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -906,17 +794,13 @@ class RawCorporaClient:
             Successfully retrieved filter attribute statistics for the corpus.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/filter_attribute_stats",
+            f"v2/corpora/{encode_path_param(corpus_key)}/filter_attribute_stats",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "fields": fields,
                 "metadata_filter": metadata_filter,
                 "max_values": max_values,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -981,8 +865,6 @@ class RawCorporaClient:
         offset: typing.Optional[int] = None,
         save_history: typing.Optional[bool] = None,
         intelligent_query_rewriting: typing.Optional[bool] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[QueryFullResponse]:
         """
@@ -1018,12 +900,6 @@ class RawCorporaClient:
         intelligent_query_rewriting : typing.Optional[bool]
             [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1033,7 +909,7 @@ class RawCorporaClient:
             A response to a query.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            f"v2/corpora/{encode_path_param(corpus_key)}/query",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
@@ -1042,10 +918,6 @@ class RawCorporaClient:
                 "offset": offset,
                 "save_history": save_history,
                 "intelligent_query_rewriting": intelligent_query_rewriting,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -1107,8 +979,6 @@ class RawCorporaClient:
         corpus_key: CorpusKey,
         *,
         query: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         search: typing.Optional[QueryCorporaStreamRequestSearch] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -1284,12 +1154,6 @@ class RawCorporaClient:
         query : str
             The search query string, which is the question the user is asking.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         search : typing.Optional[QueryCorporaStreamRequestSearch]
             The parameters to search one corpus.
 
@@ -1310,7 +1174,7 @@ class RawCorporaClient:
 
         """
         with self._client_wrapper.httpx_client.stream(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            f"v2/corpora/{encode_path_param(corpus_key)}/query",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -1327,8 +1191,6 @@ class RawCorporaClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1419,8 +1281,6 @@ class RawCorporaClient:
         corpus_key: CorpusKey,
         *,
         query: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         search: typing.Optional[QueryCorporaRequestSearch] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -1596,12 +1456,6 @@ class RawCorporaClient:
         query : str
             The search query string, which is the question the user is asking.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         search : typing.Optional[QueryCorporaRequestSearch]
             The parameters to search one corpus.
 
@@ -1622,7 +1476,7 @@ class RawCorporaClient:
 
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            f"v2/corpora/{encode_path_param(corpus_key)}/query",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -1639,8 +1493,6 @@ class RawCorporaClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1709,8 +1561,6 @@ class AsyncRawCorporaClient:
         filter: typing.Optional[str] = None,
         corpus_id: typing.Optional[typing.Union[str, typing.Sequence[str]]] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Corpus, ListCorporaResponse]:
         """
@@ -1732,12 +1582,6 @@ class AsyncRawCorporaClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of corpora after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1755,10 +1599,6 @@ class AsyncRawCorporaClient:
                 "filter": filter,
                 "corpus_id": corpus_id,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -1784,8 +1624,6 @@ class AsyncRawCorporaClient:
                             filter=filter,
                             corpus_id=corpus_id,
                             page_key=_parsed_next,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 
@@ -1814,8 +1652,6 @@ class AsyncRawCorporaClient:
         self,
         *,
         key: CorpusKey,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -1862,12 +1698,6 @@ class AsyncRawCorporaClient:
         Parameters
         ----------
         key : CorpusKey
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[str]
             The name for the corpus. This value defaults to the key.
@@ -1926,8 +1756,6 @@ class AsyncRawCorporaClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1985,12 +1813,7 @@ class AsyncRawCorporaClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[Corpus]:
         """
         The Get Corpus API lets you view metadata about a specific corpus. This is useful for getting information about a corpus without performing a search. This operation does not search the corpus contents. Specify the `corpus_key` to identify the corpus whose metadata you want to retrieve.
@@ -2012,12 +1835,6 @@ class AsyncRawCorporaClient:
         corpus_key : CorpusKey
             The unique key identifying the corpus to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -2027,13 +1844,9 @@ class AsyncRawCorporaClient:
             The response includes details such as the corpus ID, key, name, description, enabled status, encoder information, filter attributes, custom dimensions, and usage limits.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}",
+            f"v2/corpora/{encode_path_param(corpus_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -2078,12 +1891,7 @@ class AsyncRawCorporaClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[None]:
         """
         Permanently delete a corpus and all its associated data. The `corpus_key` uniquely identifies the corpus.
@@ -2099,12 +1907,6 @@ class AsyncRawCorporaClient:
         corpus_key : CorpusKey
             The unique key identifying the corpus to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -2113,13 +1915,9 @@ class AsyncRawCorporaClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}",
+            f"v2/corpora/{encode_path_param(corpus_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -2160,8 +1958,6 @@ class AsyncRawCorporaClient:
         self,
         corpus_key: CorpusKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -2177,12 +1973,6 @@ class AsyncRawCorporaClient:
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Set whether or not the corpus is enabled. If unset then the corpus will remain in the same state.
@@ -2205,7 +1995,7 @@ class AsyncRawCorporaClient:
             Successfully modified the corpus.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}",
+            f"v2/corpora/{encode_path_param(corpus_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -2216,8 +2006,6 @@ class AsyncRawCorporaClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -2264,12 +2052,7 @@ class AsyncRawCorporaClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def reset(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[None]:
         """
         Resets a corpus, which removes all documents and data from the specified corpus, while keeping the corpus itself. The `corpus_key` uniquely identifies the corpus. For more information, see [Create a corpus](https://docs.vectara.com/docs/rest-api/create-corpus).
@@ -2279,12 +2062,6 @@ class AsyncRawCorporaClient:
         corpus_key : CorpusKey
             The unique key identifying the corpus to reset.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -2293,13 +2070,9 @@ class AsyncRawCorporaClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/reset",
+            f"v2/corpora/{encode_path_param(corpus_key)}/reset",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -2341,8 +2114,6 @@ class AsyncRawCorporaClient:
         corpus_key: CorpusKey,
         *,
         filter_attributes: typing.Sequence[FilterAttribute],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[ReplaceFilterAttributesResponse]:
         """
@@ -2358,12 +2129,6 @@ class AsyncRawCorporaClient:
         filter_attributes : typing.Sequence[FilterAttribute]
             The new filter attributes.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -2373,7 +2138,7 @@ class AsyncRawCorporaClient:
             Successfully created a job that will replace the filter attributes.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/replace_filter_attributes",
+            f"v2/corpora/{encode_path_param(corpus_key)}/replace_filter_attributes",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -2383,8 +2148,6 @@ class AsyncRawCorporaClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -2431,12 +2194,7 @@ class AsyncRawCorporaClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def compute_size(
-        self,
-        corpus_key: CorpusKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ComputeCorpusSizeResponse]:
         """
         Compute the current size of a corpus, including number of documents, parts, and characters. The `corpus_key` uniquely identifies the corpus.
@@ -2445,12 +2203,6 @@ class AsyncRawCorporaClient:
         ----------
         corpus_key : CorpusKey
             The unique key identifying the corpus to compute size for.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -2461,13 +2213,9 @@ class AsyncRawCorporaClient:
             Successfully computed the corpus size.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/compute_size",
+            f"v2/corpora/{encode_path_param(corpus_key)}/compute_size",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -2518,8 +2266,6 @@ class AsyncRawCorporaClient:
         fields: typing.Optional[str] = None,
         metadata_filter: typing.Optional[str] = None,
         max_values: typing.Optional[int] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[GetFilterAttributeStatsResponse]:
         """
@@ -2552,12 +2298,6 @@ class AsyncRawCorporaClient:
         max_values : typing.Optional[int]
             Maximum number of distinct values to return per field in the 'values' array, ordered by occurrence count (descending).
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -2567,17 +2307,13 @@ class AsyncRawCorporaClient:
             Successfully retrieved filter attribute statistics for the corpus.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/filter_attribute_stats",
+            f"v2/corpora/{encode_path_param(corpus_key)}/filter_attribute_stats",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "fields": fields,
                 "metadata_filter": metadata_filter,
                 "max_values": max_values,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -2642,8 +2378,6 @@ class AsyncRawCorporaClient:
         offset: typing.Optional[int] = None,
         save_history: typing.Optional[bool] = None,
         intelligent_query_rewriting: typing.Optional[bool] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[QueryFullResponse]:
         """
@@ -2679,12 +2413,6 @@ class AsyncRawCorporaClient:
         intelligent_query_rewriting : typing.Optional[bool]
             [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -2694,7 +2422,7 @@ class AsyncRawCorporaClient:
             A response to a query.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            f"v2/corpora/{encode_path_param(corpus_key)}/query",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
@@ -2703,10 +2431,6 @@ class AsyncRawCorporaClient:
                 "offset": offset,
                 "save_history": save_history,
                 "intelligent_query_rewriting": intelligent_query_rewriting,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -2768,8 +2492,6 @@ class AsyncRawCorporaClient:
         corpus_key: CorpusKey,
         *,
         query: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         search: typing.Optional[QueryCorporaStreamRequestSearch] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -2945,12 +2667,6 @@ class AsyncRawCorporaClient:
         query : str
             The search query string, which is the question the user is asking.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         search : typing.Optional[QueryCorporaStreamRequestSearch]
             The parameters to search one corpus.
 
@@ -2971,7 +2687,7 @@ class AsyncRawCorporaClient:
 
         """
         async with self._client_wrapper.httpx_client.stream(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            f"v2/corpora/{encode_path_param(corpus_key)}/query",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -2988,8 +2704,6 @@ class AsyncRawCorporaClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -3080,8 +2794,6 @@ class AsyncRawCorporaClient:
         corpus_key: CorpusKey,
         *,
         query: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         search: typing.Optional[QueryCorporaRequestSearch] = OMIT,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -3257,12 +2969,6 @@ class AsyncRawCorporaClient:
         query : str
             The search query string, which is the question the user is asking.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         search : typing.Optional[QueryCorporaRequestSearch]
             The parameters to search one corpus.
 
@@ -3283,7 +2989,7 @@ class AsyncRawCorporaClient:
 
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/query",
+            f"v2/corpora/{encode_path_param(corpus_key)}/query",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -3300,8 +3006,6 @@ class AsyncRawCorporaClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

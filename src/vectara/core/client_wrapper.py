@@ -12,6 +12,8 @@ class BaseClientWrapper:
     def __init__(
         self,
         *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         api_key: typing.Optional[str] = None,
         token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         headers: typing.Optional[typing.Dict[str, str]] = None,
@@ -19,7 +21,9 @@ class BaseClientWrapper:
         timeout: typing.Optional[float] = None,
         logging: typing.Optional[typing.Union[LogConfig, Logger]] = None,
     ):
-        self._api_key = api_key
+        self._request_timeout = request_timeout
+        self._request_timeout_millis = request_timeout_millis
+        self.api_key = api_key
         self._token = token
         self._headers = headers
         self._environment = environment
@@ -30,16 +34,20 @@ class BaseClientWrapper:
         import platform
 
         headers: typing.Dict[str, str] = {
-            "User-Agent": "vectara/0.4.2",
+            "User-Agent": "vectara/0.4.3",
             "X-Fern-Language": "Python",
             "X-Fern-Runtime": f"python/{platform.python_version()}",
             "X-Fern-Platform": f"{platform.system().lower()}/{platform.release()}",
             "X-Fern-SDK-Name": "vectara",
-            "X-Fern-SDK-Version": "0.4.2",
+            "X-Fern-SDK-Version": "0.4.3",
             **(self.get_custom_headers() or {}),
         }
-        if self._api_key is not None:
-            headers["x-api-key"] = self._api_key
+        if self._request_timeout is not None:
+            headers["Request-Timeout"] = str(self._request_timeout)
+        if self._request_timeout_millis is not None:
+            headers["Request-Timeout-Millis"] = str(self._request_timeout_millis)
+        if self.api_key is not None:
+            headers["x-api-key"] = self.api_key
         token = self._get_token()
         if token is not None:
             headers["Authorization"] = f"Bearer {token}"
@@ -65,6 +73,8 @@ class SyncClientWrapper(BaseClientWrapper):
     def __init__(
         self,
         *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         api_key: typing.Optional[str] = None,
         token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         headers: typing.Optional[typing.Dict[str, str]] = None,
@@ -74,7 +84,14 @@ class SyncClientWrapper(BaseClientWrapper):
         httpx_client: httpx.Client,
     ):
         super().__init__(
-            api_key=api_key, token=token, headers=headers, environment=environment, timeout=timeout, logging=logging
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            api_key=api_key,
+            token=token,
+            headers=headers,
+            environment=environment,
+            timeout=timeout,
+            logging=logging,
         )
         self.httpx_client = HttpClient(
             httpx_client=httpx_client,
@@ -88,6 +105,8 @@ class AsyncClientWrapper(BaseClientWrapper):
     def __init__(
         self,
         *,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         api_key: typing.Optional[str] = None,
         token: typing.Optional[typing.Union[str, typing.Callable[[], str]]] = None,
         headers: typing.Optional[typing.Dict[str, str]] = None,
@@ -98,7 +117,14 @@ class AsyncClientWrapper(BaseClientWrapper):
         httpx_client: httpx.AsyncClient,
     ):
         super().__init__(
-            api_key=api_key, token=token, headers=headers, environment=environment, timeout=timeout, logging=logging
+            request_timeout=request_timeout,
+            request_timeout_millis=request_timeout_millis,
+            api_key=api_key,
+            token=token,
+            headers=headers,
+            environment=environment,
+            timeout=timeout,
+            logging=logging,
         )
         self._async_token = async_token
         self.httpx_client = AsyncHttpClient(

@@ -34,8 +34,6 @@ class QueriesClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
@@ -57,12 +55,6 @@ class QueriesClient:
             The search query string, which is the question the user is asking.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -91,7 +83,10 @@ class QueriesClient:
             Vectara,
         )
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.queries.query_stream(
             query="What is a hallucination?",
             search=SearchCorporaParameters(
@@ -121,8 +116,6 @@ class QueriesClient:
         with self._raw_client.query_stream(
             query=query,
             search=search,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             generation=generation,
             save_history=save_history,
             intelligent_query_rewriting=intelligent_query_rewriting,
@@ -135,8 +128,6 @@ class QueriesClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
@@ -158,12 +149,6 @@ class QueriesClient:
             The search query string, which is the question the user is asking.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -192,7 +177,10 @@ class QueriesClient:
             Vectara,
         )
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.queries.query(
             query="What is a hallucination?",
             search=SearchCorporaParameters(
@@ -220,8 +208,6 @@ class QueriesClient:
         _response = self._raw_client.query(
             query=query,
             search=search,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             generation=generation,
             save_history=save_history,
             intelligent_query_rewriting=intelligent_query_rewriting,
@@ -250,8 +236,6 @@ class AsyncQueriesClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
@@ -273,12 +257,6 @@ class AsyncQueriesClient:
             The search query string, which is the question the user is asking.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -309,7 +287,10 @@ class AsyncQueriesClient:
             SearchReranker_CustomerReranker,
         )
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -345,8 +326,6 @@ class AsyncQueriesClient:
         async with self._raw_client.query_stream(
             query=query,
             search=search,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             generation=generation,
             save_history=save_history,
             intelligent_query_rewriting=intelligent_query_rewriting,
@@ -360,8 +339,6 @@ class AsyncQueriesClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
@@ -383,12 +360,6 @@ class AsyncQueriesClient:
             The search query string, which is the question the user is asking.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -419,7 +390,10 @@ class AsyncQueriesClient:
             SearchReranker_CustomerReranker,
         )
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -453,8 +427,6 @@ class AsyncQueriesClient:
         _response = await self._raw_client.query(
             query=query,
             search=search,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             generation=generation,
             save_history=save_history,
             intelligent_query_rewriting=intelligent_query_rewriting,

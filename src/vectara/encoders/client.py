@@ -35,8 +35,6 @@ class EncodersClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Encoder, ListEncodersResponse]:
         """
@@ -53,12 +51,6 @@ class EncodersClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of encoders after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -71,7 +63,10 @@ class EncodersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.encoders.list(
             filter="vectara.*",
         )
@@ -81,22 +76,10 @@ class EncodersClient:
         for page in response.iter_pages():
             yield page
         """
-        return self._raw_client.list(
-            filter=filter,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        return self._raw_client.list(filter=filter, limit=limit, page_key=page_key, request_options=request_options)
 
     def create(
-        self,
-        *,
-        request: CreateEncoderRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request: CreateEncoderRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> Encoder:
         """
         Create a new encoder.
@@ -104,12 +87,6 @@ class EncodersClient:
         Parameters
         ----------
         request : CreateEncoderRequest
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -123,7 +100,10 @@ class EncodersClient:
         --------
         from vectara import CreateEncoderRequest_OpenaiCompatible, Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.encoders.create(
             request=CreateEncoderRequest_OpenaiCompatible(
                 name="openai-text-encoder",
@@ -133,12 +113,7 @@ class EncodersClient:
             ),
         )
         """
-        _response = self._raw_client.create(
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.create(request=request, request_options=request_options)
         return _response.data
 
 
@@ -163,8 +138,6 @@ class AsyncEncodersClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Encoder, ListEncodersResponse]:
         """
@@ -181,12 +154,6 @@ class AsyncEncodersClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of encoders after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -201,7 +168,10 @@ class AsyncEncodersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -219,21 +189,11 @@ class AsyncEncodersClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
-            filter=filter,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            filter=filter, limit=limit, page_key=page_key, request_options=request_options
         )
 
     async def create(
-        self,
-        *,
-        request: CreateEncoderRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request: CreateEncoderRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> Encoder:
         """
         Create a new encoder.
@@ -241,12 +201,6 @@ class AsyncEncodersClient:
         Parameters
         ----------
         request : CreateEncoderRequest
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -262,7 +216,10 @@ class AsyncEncodersClient:
 
         from vectara import AsyncVectara, CreateEncoderRequest_OpenaiCompatible
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -278,10 +235,5 @@ class AsyncEncodersClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.create(
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.create(request=request, request_options=request_options)
         return _response.data

@@ -88,22 +88,6 @@ client.corpora.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -234,22 +218,6 @@ client.corpora.create(
 <dd>
 
 **key:** `CorpusKey` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -415,22 +383,6 @@ client.corpora.get(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -511,22 +463,6 @@ client.corpora.delete(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -596,22 +532,6 @@ client.corpora.update(
 <dd>
 
 **corpus_key:** `CorpusKey` — The unique key identifying the corpus to update.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -725,22 +645,6 @@ client.corpora.reset(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -841,22 +745,6 @@ client.corpora.replace_filter_attributes(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -924,22 +812,6 @@ client.corpora.compute_size(
 <dd>
 
 **corpus_key:** `CorpusKey` — The unique key identifying the corpus to compute size for.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -1053,22 +925,6 @@ client.corpora.get_filter_attribute_stats(
 <dd>
 
 **max_values:** `typing.Optional[int]` — Maximum number of distinct values to return per field in the 'values' array, ordered by occurrence count (descending).
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -1194,22 +1050,6 @@ client.corpora.search(
 <dd>
 
 **intelligent_query_rewriting:** `typing.Optional[bool]` — [Tech Preview] Indicates whether to enable intelligent query rewriting. When enabled, the platform will attempt to extract metadata filter and rewrite the query to improve search results. Read [here](https://docs.vectara.com/docs/search-and-retrieval/intelligent-query-rewriting) for more details.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -1414,7 +1254,7 @@ Setting this value too high may prevent the model from generating a response.
 <dd>
 
 ```python
-from vectara import Vectara, ContextConfiguration, GenerationParameters, CitationParameters
+from vectara import Vectara, ContextConfiguration, SearchReranker_CustomerReranker, GenerationParameters, CitationParameters
 from vectara.environment import VectaraEnvironment
 from vectara.corpora import QueryCorporaStreamRequestSearch
 
@@ -1435,9 +1275,7 @@ client.corpora.query_stream(
             start_tag="<em>",
             end_tag="</em>",
         ),
-        reranker={
-            "type": "customer_reranker"
-        },
+        reranker=SearchReranker_CustomerReranker(),
         metadata_filter="doc.topic = \'authentication\' and doc.platform = \'kubernetes\'",
         lexical_interpolation=0.005,
     ),
@@ -1485,22 +1323,6 @@ client.corpora.query_stream(
 <dd>
 
 **stream_response:** `typing.Literal` — Indicates whether the response should be streamed or not.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -1737,7 +1559,7 @@ Setting this value too high may prevent the model from generating a response.
 <dd>
 
 ```python
-from vectara import Vectara, ContextConfiguration, GenerationParameters, CitationParameters
+from vectara import Vectara, ContextConfiguration, SearchReranker_CustomerReranker, GenerationParameters, CitationParameters
 from vectara.environment import VectaraEnvironment
 from vectara.corpora import QueryCorporaStreamRequestSearch
 
@@ -1758,9 +1580,7 @@ client.corpora.query_stream(
             start_tag="<em>",
             end_tag="</em>",
         ),
-        reranker={
-            "type": "customer_reranker"
-        },
+        reranker=SearchReranker_CustomerReranker(),
         metadata_filter="doc.topic = \'authentication\' and doc.platform = \'kubernetes\'",
         lexical_interpolation=0.005,
     ),
@@ -1808,22 +1628,6 @@ client.corpora.query_stream(
 <dd>
 
 **stream_response:** `typing.Literal` — Indicates whether the response should be streamed or not.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -2032,22 +1836,6 @@ client.upload.file(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **metadata:** `typing.Optional[typing.Dict[str, typing.Any]]` — Arbitrary object that will be attached as document metadata to the extracted document.
     
 </dd>
@@ -2185,22 +1973,6 @@ client.documents.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -2274,7 +2046,7 @@ For larger documents or performance-tuned ingestion, you can explicitly set a `c
 <dd>
 
 ```python
-from vectara import Vectara, StructuredDocumentSection
+from vectara import Vectara, CreateDocumentRequest_Structured, StructuredDocumentSection
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -2285,10 +2057,9 @@ client = Vectara(
 
 client.documents.create(
     corpus_key="my-corpus-key",
-    request={
-        "type": "structured",
-        "id": "my-doc-id",
-        "sections": [
+    request=CreateDocumentRequest_Structured(
+        id="my-doc-id",
+        sections=[
             StructuredDocumentSection(
                 id=1,
                 title="A nice title.",
@@ -2306,10 +2077,10 @@ client.documents.create(
                 },
             )
         ],
-        "metadata": {
+        metadata={
             "url": "https://example.com"
-        }
-    },
+        },
+    ),
 )
 
 ```
@@ -2349,22 +2120,6 @@ Controls how long the request waits before returning a response.
 - `indexed`: Waits until the document is durably stored and will be included in future search results. This is faster but the document may not appear in search results for a brief period after the response.
 
 Both modes return a successful response once the specified condition is met.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -2490,22 +2245,6 @@ The workflow continues running in the background even if the API wait times out.
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -2591,22 +2330,6 @@ client.documents.get(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -2683,22 +2406,6 @@ client.documents.delete(
 <dd>
 
 **document_id:** `str` — The document ID of the document to delete. This `document_id` must be percent encoded.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -2797,22 +2504,6 @@ client.documents.update(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -2897,22 +2588,6 @@ client.documents.update_metadata(
 <dd>
 
 **request:** `UpdateDocumentRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -3076,22 +2751,6 @@ client.documents.summarize(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **prompt_template:** `typing.Optional[str]` — The prompt template to use when generating the summary. Vectara manages both system and user roles and prompts for the generative LLM out of the box by default. However, users can override the `prompt_template` via this variable. The `prompt_template` is in the form of an Apache Velocity template. For more details on how to configure the `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
     
 </dd>
@@ -3208,22 +2867,6 @@ client.documents.get_image(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -3319,22 +2962,6 @@ client.metadata.query_metadata(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **level:** `typing.Optional[MetadataQueryRequestLevel]` — Whether to search document-level or part-level metadata. Document-level returns unique documents, part-level can return multiple parts from the same document.
     
 </dd>
@@ -3417,7 +3044,7 @@ Perform a multipurpose query to retrieve relevant information from one or more c
 <dd>
 
 ```python
-from vectara import Vectara, SearchCorporaParameters, KeyedSearchCorpus, ContextConfiguration, GenerationParameters
+from vectara import Vectara, SearchCorporaParameters, KeyedSearchCorpus, ContextConfiguration, SearchReranker_CustomerReranker, GenerationParameters
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -3440,10 +3067,9 @@ client.queries.query_stream(
             sentences_before=2,
             sentences_after=2,
         ),
-        reranker={
-            "type": "customer_reranker",
-            "reranker_id": "rnk_272725719"
-        },
+        reranker=SearchReranker_CustomerReranker(
+            reranker_id="rnk_272725719",
+        ),
     ),
     generation=GenerationParameters(
         response_language="eng",
@@ -3482,22 +3108,6 @@ client.queries.query_stream(
 <dd>
 
 **stream_response:** `typing.Literal` — Indicates whether the response should be streamed or not.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -3575,7 +3185,7 @@ Perform a multipurpose query to retrieve relevant information from one or more c
 <dd>
 
 ```python
-from vectara import Vectara, SearchCorporaParameters, KeyedSearchCorpus, ContextConfiguration, GenerationParameters
+from vectara import Vectara, SearchCorporaParameters, KeyedSearchCorpus, ContextConfiguration, SearchReranker_CustomerReranker, GenerationParameters
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -3598,10 +3208,9 @@ client.queries.query_stream(
             sentences_before=2,
             sentences_after=2,
         ),
-        reranker={
-            "type": "customer_reranker",
-            "reranker_id": "rnk_272725719"
-        },
+        reranker=SearchReranker_CustomerReranker(
+            reranker_id="rnk_272725719",
+        ),
     ),
     generation=GenerationParameters(
         response_language="eng",
@@ -3640,22 +3249,6 @@ client.queries.query_stream(
 <dd>
 
 **stream_response:** `typing.Literal` — Indicates whether the response should be streamed or not.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -3757,22 +3350,6 @@ client.query_history.get(
 <dd>
 
 **query_id:** `str` — The ID of the query history
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -3905,22 +3482,6 @@ client.query_history.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -4002,22 +3563,6 @@ client.chats.list()
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -4057,7 +3602,7 @@ Create a chat while specifying the default retrieval parameters used by the prom
 <dd>
 
 ```python
-from vectara import Vectara, SearchCorporaParameters, KeyedSearchCorpus, ContextConfiguration, GenerationParameters, CitationParameters, ChatParameters
+from vectara import Vectara, SearchCorporaParameters, KeyedSearchCorpus, ContextConfiguration, SearchReranker_CustomerReranker, GenerationParameters, CitationParameters, ChatParameters
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -4080,10 +3625,9 @@ client.chats.create_stream(
             sentences_before=2,
             sentences_after=2,
         ),
-        reranker={
-            "type": "customer_reranker",
-            "reranker_id": "rnk_272725719"
-        },
+        reranker=SearchReranker_CustomerReranker(
+            reranker_id="rnk_272725719",
+        ),
     ),
     generation=GenerationParameters(
         response_language="eng",
@@ -4128,22 +3672,6 @@ client.chats.create_stream(
 <dd>
 
 **stream_response:** `typing.Literal` — Indicates whether the response should be streamed or not.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -4222,7 +3750,7 @@ Create a chat while specifying the default retrieval parameters used by the prom
 <dd>
 
 ```python
-from vectara import Vectara, SearchCorporaParameters, KeyedSearchCorpus, ContextConfiguration, GenerationParameters, CitationParameters, ChatParameters
+from vectara import Vectara, SearchCorporaParameters, KeyedSearchCorpus, ContextConfiguration, SearchReranker_CustomerReranker, GenerationParameters, CitationParameters, ChatParameters
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -4245,10 +3773,9 @@ client.chats.create_stream(
             sentences_before=2,
             sentences_after=2,
         ),
-        reranker={
-            "type": "customer_reranker",
-            "reranker_id": "rnk_272725719"
-        },
+        reranker=SearchReranker_CustomerReranker(
+            reranker_id="rnk_272725719",
+        ),
     ),
     generation=GenerationParameters(
         response_language="eng",
@@ -4293,22 +3820,6 @@ client.chats.create_stream(
 <dd>
 
 **stream_response:** `typing.Literal` — Indicates whether the response should be streamed or not.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -4422,22 +3933,6 @@ client.chats.get(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -4512,22 +4007,6 @@ client.chats.delete(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -4595,22 +4074,6 @@ client.chats.list_turns(
 <dd>
 
 **chat_id:** `str` — The ID of the chat.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -4717,22 +4180,6 @@ client.chats.create_turns_stream(
 <dd>
 
 **stream_response:** `typing.Literal` — Indicates whether the response should be streamed or not.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -4878,22 +4325,6 @@ client.chats.create_turns_stream(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **generation:** `typing.Optional[GenerationParameters]` 
     
 </dd>
@@ -5009,22 +4440,6 @@ client.chats.get_turn(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -5108,22 +4523,6 @@ client.chats.delete_turn(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -5200,22 +4599,6 @@ client.chats.update_turn(
 <dd>
 
 **turn_id:** `str` — The ID of the turn.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -5313,22 +4696,6 @@ client.llms.list()
 <dd>
 
 **page_key:** `typing.Optional[str]` — Used to retrieve the next page of LLMs after the limit has been reached. This parameter is not needed for the first page of results.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -5522,7 +4889,7 @@ The `uri` field is flexible — you can provide a base URI or a full URL copied 
 <dd>
 
 ```python
-from vectara import Vectara
+from vectara import Vectara, CreateLlmRequest_OpenaiCompatible
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -5532,12 +4899,11 @@ client = Vectara(
 )
 
 client.llms.create(
-    request={
-        "type": "openai-compatible",
-        "name": "Claude 3.7 Sonnet",
-        "model": "claude-3-7-sonnet-20250219",
-        "uri": "https://api.anthropic.com/v1/chat/completions"
-    },
+    request=CreateLlmRequest_OpenaiCompatible(
+        name="Claude 3.7 Sonnet",
+        model="claude-3-7-sonnet-20250219",
+        uri="https://api.anthropic.com/v1/chat/completions",
+    ),
 )
 
 ```
@@ -5555,22 +4921,6 @@ client.llms.create(
 <dd>
 
 **request:** `CreateLlmRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -5657,22 +5007,6 @@ client.llms.get(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -5751,22 +5085,6 @@ client.llms.delete(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -5824,7 +5142,7 @@ Built-in LLMs (system-provided models) cannot be updated.
 <dd>
 
 ```python
-from vectara import Vectara
+from vectara import Vectara, UpdateLlmRequest_OpenaiCompatible
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -5835,9 +5153,7 @@ client = Vectara(
 
 client.llms.update(
     llm_id="llm_id",
-    request={
-        "type": "openai-compatible"
-    },
+    request=UpdateLlmRequest_OpenaiCompatible(),
 )
 
 ```
@@ -5863,22 +5179,6 @@ client.llms.update(
 <dd>
 
 **request:** `UpdateLlmRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -6018,22 +5318,6 @@ client.llm.chat_completion(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **stream:** `typing.Optional[bool]` — Optional. When set to `true`, the API streams partial message deltas as they become available, similar to ChatGPT's streaming mode.
     
 </dd>
@@ -6151,22 +5435,6 @@ client.generation_presets.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -6234,22 +5502,6 @@ client.generation_presets.create()
 <dd>
 
 **request:** `CreateGenerationPresetRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -6340,22 +5592,6 @@ client.generation_presets.replace(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -6424,22 +5660,6 @@ client.generation_presets.delete(
 <dd>
 
 **generation_preset_id:** `str` — The ID of the generation preset to delete.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -6570,22 +5790,6 @@ client.factual_consistency.evaluate(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **model_parameters:** `typing.Optional[EvaluateFactualConsistencyRequestModelParameters]` — The model parameters for the evaluation.
     
 </dd>
@@ -6685,22 +5889,6 @@ client.encoders.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -6740,7 +5928,7 @@ Create a new encoder.
 <dd>
 
 ```python
-from vectara import Vectara
+from vectara import Vectara, CreateEncoderRequest_OpenaiCompatible
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -6750,13 +5938,12 @@ client = Vectara(
 )
 
 client.encoders.create(
-    request={
-        "type": "openai-compatible",
-        "name": "openai-text-encoder",
-        "description": "description",
-        "uri": "https://api.openai.com/v1/embeddings",
-        "model": "text-embedding-ada-002"
-    },
+    request=CreateEncoderRequest_OpenaiCompatible(
+        name="openai-text-encoder",
+        description="description",
+        uri="https://api.openai.com/v1/embeddings",
+        model="text-embedding-ada-002",
+    ),
 )
 
 ```
@@ -6774,22 +5961,6 @@ client.encoders.create(
 <dd>
 
 **request:** `CreateEncoderRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -6890,22 +6061,6 @@ client.rerankers.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -6919,7 +6074,7 @@ client.rerankers.list(
 </details>
 
 ## Table Extractors
-<details><summary><code>client.table_extractors.<a href="src/vectara/table_extractors/client.py">list</a>(...) -> ListTableExtractorsResponse</code></summary>
+<details><summary><code>client.table_extractors.<a href="src/vectara/table_extractors/client.py">list</a>() -> ListTableExtractorsResponse</code></summary>
 <dl>
 <dd>
 
@@ -6967,22 +6122,6 @@ client.table_extractors.list()
 
 <dl>
 <dd>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
 
 <dl>
 <dd>
@@ -7071,22 +6210,6 @@ client.hallucination_correctors.list()
 <dd>
 
 **page_key:** `typing.Optional[str]` — Retrieves the next page of hallucination correctors after reaching the limit.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -7200,22 +6323,6 @@ client.hallucination_correctors.hallucination_correction(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **query:** `typing.Optional[str]` — Optional query that provides context for the expected response format and factual information. When provided, enables query-aware hallucination correction that considers the specific response format and factual context expected for the query.
     
 </dd>
@@ -7273,7 +6380,11 @@ client = Vectara(
     environment=VectaraEnvironment.PRODUCTION,
 )
 
-client.jobs.list()
+client.jobs.list(
+    corpus_key=[
+        "my-corpus"
+    ],
+)
 
 ```
 </dd>
@@ -7322,22 +6433,6 @@ client.jobs.list()
 <dd>
 
 **page_key:** `typing.Optional[str]` — Used to retrieve the next page of jobs after the limit has been reached.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -7412,22 +6507,6 @@ client.jobs.get(
 <dd>
 
 **job_id:** `str` — The ID of the job to get.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -7528,22 +6607,6 @@ client.users.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -7611,22 +6674,6 @@ client.users.create(
 <dd>
 
 **email:** `str` — The email address for the user.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -7748,22 +6795,6 @@ client.users.get(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -7838,22 +6869,6 @@ client.users.delete(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -7921,22 +6936,6 @@ client.users.update(
 <dd>
 
 **username:** `str` — Specifies the user ID to update. Note that the username must be percent encoded.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -8058,22 +7057,6 @@ client.users.reset_password(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -8173,22 +7156,6 @@ client.api_keys.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -8262,22 +7229,6 @@ client.api_keys.create(
 <dd>
 
 **name:** `str` — The human-readable name of the API key.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -8401,22 +7352,6 @@ client.api_keys.get(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -8493,22 +7428,6 @@ client.api_keys.delete(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -8578,22 +7497,6 @@ client.api_keys.update(
 <dd>
 
 **api_key_id:** `str` — The ID of the API key.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -8698,22 +7601,6 @@ client.app_clients.list()
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -8753,7 +7640,7 @@ An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
 <dd>
 
 ```python
-from vectara import Vectara
+from vectara import Vectara, CreateAppClientRequest_ClientCredentials
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -8763,10 +7650,9 @@ client = Vectara(
 )
 
 client.app_clients.create(
-    request={
-        "type": "client_credentials",
-        "name": "name"
-    },
+    request=CreateAppClientRequest_ClientCredentials(
+        name="name",
+    ),
 )
 
 ```
@@ -8784,22 +7670,6 @@ client.app_clients.create(
 <dd>
 
 **request:** `CreateAppClientRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -8881,22 +7751,6 @@ client.app_clients.get(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -8971,22 +7825,6 @@ client.app_clients.delete(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -9054,22 +7892,6 @@ client.app_clients.update(
 <dd>
 
 **app_client_id:** `str` — The name of App Client.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -9309,22 +8131,6 @@ client.tool_servers.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -9419,22 +8225,6 @@ client.tool_servers.create(
 <dd>
 
 **transport:** `ToolServerTransport` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -9556,22 +8346,6 @@ client.tool_servers.get(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -9646,22 +8420,6 @@ client.tool_servers.delete(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -9729,22 +8487,6 @@ client.tool_servers.update(
 <dd>
 
 **tool_server_id:** `str` — The unique identifier of the tool server to update.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -9890,22 +8632,6 @@ client.tool_servers.sync(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -10031,22 +8757,6 @@ client.tools.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -10101,7 +8811,7 @@ These built-in tools operate on artifact references rather than file content, su
 <dd>
 
 ```python
-from vectara import Vectara
+from vectara import Vectara, CreateToolRequest_Lambda
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -10111,13 +8821,12 @@ client = Vectara(
 )
 
 client.tools.create(
-    request={
-        "type": "lambda",
-        "name": "calculate_customer_score",
-        "title": "Customer Score Calculator",
-        "description": "Calculate a customer score based on order history and revenue. Returns a score between 0-100.",
-        "code": "def process(order_count: int, total_revenue: float, days_active: int = 1) -> dict:\n    score = (order_count * 10 + total_revenue * 0.1) / days_active\n    return {\'score\': round(score, 2)}\n"
-    },
+    request=CreateToolRequest_Lambda(
+        name="calculate_customer_score",
+        title="Customer Score Calculator",
+        description="Calculate a customer score based on order history and revenue. Returns a score between 0-100.",
+        code="def process(order_count: int, total_revenue: float, days_active: int = 1) -> dict:\n    score = (order_count * 10 + total_revenue * 0.1) / days_active\n    return {\'score\': round(score, 2)}\n",
+    ),
 )
 
 ```
@@ -10135,22 +8844,6 @@ client.tools.create(
 <dd>
 
 **request:** `CreateToolRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -10256,22 +8949,6 @@ See the `code` field on `CreateLambdaToolRequest` for full details and examples.
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **language:** `typing.Optional[TestLambdaToolRequestLanguage]` — The programming language. Currently only 'python' (Python 3.12) is supported.
     
 </dd>
@@ -10370,22 +9047,6 @@ client.tools.get(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -10460,22 +9121,6 @@ client.tools.delete(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -10515,7 +9160,7 @@ Update an existing tool’s configuration, including its metadata, enabled statu
 <dd>
 
 ```python
-from vectara import Vectara
+from vectara import Vectara, UpdateToolRequest_Mcp
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -10526,9 +9171,7 @@ client = Vectara(
 
 client.tools.update(
     tool_id="tol_rag_search",
-    request={
-        "type": "mcp"
-    },
+    request=UpdateToolRequest_Mcp(),
 )
 
 ```
@@ -10554,22 +9197,6 @@ client.tools.update(
 <dd>
 
 **request:** `UpdateToolRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -10658,22 +9285,6 @@ client.tools.test(
 <dd>
 
 **input:** `typing.Dict[str, typing.Any]` — The input parameters to pass to the function. Must match the tool's input schema.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -10797,22 +9408,6 @@ client.instructions.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -10894,7 +9489,7 @@ A successful response returns the full instruction definition, including its uni
 <dd>
 
 ```python
-from vectara import Vectara
+from vectara import Vectara, CreateInstructionRequest_Initial
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -10904,11 +9499,10 @@ client = Vectara(
 )
 
 client.instructions.create(
-    request={
-        "type": "initial",
-        "name": "Customer Support Initial Instruction",
-        "template": "You are an expert customer support agent for $agent.name. Available tools: #foreach($tool in $tools)${tool.name}#if($foreach.hasNext), #end#end"
-    },
+    request=CreateInstructionRequest_Initial(
+        name="Customer Support Initial Instruction",
+        template="You are an expert customer support agent for $agent.name. Available tools: #foreach($tool in $tools)${tool.name}#if($foreach.hasNext), #end#end",
+    ),
 )
 
 ```
@@ -10926,22 +9520,6 @@ client.instructions.create(
 <dd>
 
 **request:** `CreateInstructionRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -11032,22 +9610,6 @@ client.instructions.get(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -11126,22 +9688,6 @@ client.instructions.delete(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -11193,7 +9739,7 @@ Disabling an instruction prevents it from being added to new agents, but agents 
 <dd>
 
 ```python
-from vectara import Vectara
+from vectara import Vectara, UpdateInstructionRequest_Initial
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -11204,9 +9750,7 @@ client = Vectara(
 
 client.instructions.update(
     instruction_id="ins_customer_support_init",
-    request={
-        "type": "initial"
-    },
+    request=UpdateInstructionRequest_Initial(),
 )
 
 ```
@@ -11232,22 +9776,6 @@ client.instructions.update(
 <dd>
 
 **request:** `UpdateInstructionRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -11331,22 +9859,6 @@ client.instructions.test(
 <dd>
 
 **version:** `typing.Optional[int]` — The specific version of the instruction to test. If not specified, the latest version will be used.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -11457,22 +9969,6 @@ client.instructions.delete_version(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -11573,22 +10069,6 @@ client.agents.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -11659,7 +10139,7 @@ When agents interact with LLMs, transient failures like network interruptions ca
 <dd>
 
 ```python
-from vectara import Vectara, AgentCorporaSearchQueryConfiguration, AgentSearchCorporaParameters, AgentModel
+from vectara import Vectara, AgentToolConfiguration_CorporaSearch, AgentCorporaSearchQueryConfiguration, AgentModel
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -11671,12 +10151,9 @@ client = Vectara(
 client.agents.create(
     name="Customer Support Agent",
     tool_configurations={
-        "customer_search": {
-            "type": "corpora_search",
-            "query_configuration": AgentCorporaSearchQueryConfiguration(
-                search=AgentSearchCorporaParameters(),
-            )
-        }
+        "customer_search": AgentToolConfiguration_CorporaSearch(
+            query_configuration=AgentCorporaSearchQueryConfiguration(),
+        )
     },
     model=AgentModel(
         name="gpt-4",
@@ -11698,22 +10175,6 @@ client.agents.create(
 <dd>
 
 **request:** `CreateAgentRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -11797,22 +10258,6 @@ client.agents.get(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -11852,7 +10297,7 @@ The Replace Agent API enables you to completely replace an existing agent config
 <dd>
 
 ```python
-from vectara import Vectara, AgentCorporaSearchQueryConfiguration, AgentSearchCorporaParameters, AgentModel
+from vectara import Vectara, AgentToolConfiguration_CorporaSearch, AgentCorporaSearchQueryConfiguration, AgentModel
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -11865,12 +10310,9 @@ client.agents.replace(
     agent_key="customer_support",
     name="Customer Support Agent",
     tool_configurations={
-        "customer_search": {
-            "type": "corpora_search",
-            "query_configuration": AgentCorporaSearchQueryConfiguration(
-                search=AgentSearchCorporaParameters(),
-            )
-        }
+        "customer_search": AgentToolConfiguration_CorporaSearch(
+            query_configuration=AgentCorporaSearchQueryConfiguration(),
+        )
     },
     model=AgentModel(
         name="gpt-4",
@@ -11900,22 +10342,6 @@ client.agents.replace(
 <dd>
 
 **request:** `CreateAgentRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -11999,22 +10425,6 @@ client.agents.delete(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -12084,22 +10494,6 @@ client.agents.update(
 <dd>
 
 **agent_key:** `AgentKey` — The unique key of the agent to update.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -12298,22 +10692,6 @@ client.agents.get_identity(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -12385,22 +10763,6 @@ client.agents.update_identity(
 <dd>
 
 **agent_key:** `AgentKey` — The unique key of the agent.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -12540,22 +10902,6 @@ client.agent_sessions.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -12644,22 +10990,6 @@ client.agent_sessions.create(
 <dd>
 
 **agent_key:** `AgentKey` — The unique key of the agent to create a session for.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -12811,22 +11141,6 @@ client.agent_sessions.get(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -12903,22 +11217,6 @@ client.agent_sessions.delete(
 <dd>
 
 **session_key:** `AgentSessionKey` — The unique key of the session to delete.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -13004,22 +11302,6 @@ client.agent_sessions.update(
 <dd>
 
 **session_key:** `AgentSessionKey` — The unique key of the session to update.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -13175,22 +11457,6 @@ client.agent_events.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -13230,8 +11496,9 @@ Create a new input to an agent to interact with it.
 <dd>
 
 ```python
-from vectara import Vectara
+from vectara import Vectara, AgentInput_Text
 from vectara.environment import VectaraEnvironment
+from vectara.agent_events import CreateAgentEventsStreamRequestBody_InputMessage
 
 client = Vectara(
     client_id="<clientId>",
@@ -13242,17 +11509,14 @@ client = Vectara(
 client.agent_events.create_stream(
     agent_key="customer_support",
     session_key="customer_support_chat",
-    request={
-        "type": "input_message",
-        "stream_response": True,
-        "messages": [
-            {
-                "type": "text",
-                "content": "I need help with my widget installation"
-            }
+    request=CreateAgentEventsStreamRequestBody_InputMessage(
+        stream_response=True,
+        messages=[
+            AgentInput_Text(
+                content="I need help with my widget installation",
+            )
         ],
-        "stream_response": True
-    },
+    ),
 )
 
 ```
@@ -13286,22 +11550,6 @@ client.agent_events.create_stream(
 <dd>
 
 **request:** `CreateAgentEventsStreamRequestBody` — A request to create input for an agent session.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -13348,8 +11596,9 @@ Create a new input to an agent to interact with it.
 <dd>
 
 ```python
-from vectara import Vectara
+from vectara import Vectara, AgentInput_Text
 from vectara.environment import VectaraEnvironment
+from vectara.agent_events import CreateAgentEventsStreamRequestBody_InputMessage
 
 client = Vectara(
     client_id="<clientId>",
@@ -13360,17 +11609,14 @@ client = Vectara(
 client.agent_events.create_stream(
     agent_key="customer_support",
     session_key="customer_support_chat",
-    request={
-        "type": "input_message",
-        "stream_response": False,
-        "messages": [
-            {
-                "type": "text",
-                "content": "I need help with my widget installation"
-            }
+    request=CreateAgentEventsStreamRequestBody_InputMessage(
+        stream_response=False,
+        messages=[
+            AgentInput_Text(
+                content="I need help with my widget installation",
+            )
         ],
-        "stream_response": False
-    },
+    ),
 )
 
 ```
@@ -13404,22 +11650,6 @@ client.agent_events.create_stream(
 <dd>
 
 **request:** `CreateAgentEventsRequestBody` — A request to create input for an agent session.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -13519,22 +11749,6 @@ client.agent_events.get(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -13620,22 +11834,6 @@ client.agent_events.delete(
 <dd>
 
 **event_id:** `str` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -13735,22 +11933,6 @@ client.agent_events.hide(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -13836,22 +12018,6 @@ client.agent_events.unhide(
 <dd>
 
 **event_id:** `str` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -13975,22 +12141,6 @@ client.agent_artifacts.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -14076,22 +12226,6 @@ client.agent_artifacts.get(
 <dd>
 
 **artifact_id:** `str` — The unique identifier of the artifact to retrieve.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -14190,22 +12324,6 @@ client.agent_schedules.list(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -14268,7 +12386,7 @@ A successful response includes the unique schedule key, configuration, and creat
 <dd>
 
 ```python
-from vectara import Vectara
+from vectara import Vectara, AgentInput_Text, ScheduleConfiguration_Interval
 from vectara.environment import VectaraEnvironment
 
 client = Vectara(
@@ -14281,15 +12399,13 @@ client.agent_schedules.create(
     agent_key="customer_support",
     name="Daily Summary Report",
     message=[
-        {
-            "type": "text",
-            "content": "I need help with my widget installation"
-        }
+        AgentInput_Text(
+            content="I need help with my widget installation",
+        )
     ],
-    schedule={
-        "type": "interval",
-        "interval": "PT24H"
-    },
+    schedule=ScheduleConfiguration_Interval(
+        interval="PT24H",
+    ),
 )
 
 ```
@@ -14331,22 +12447,6 @@ client.agent_schedules.create(
 <dd>
 
 **schedule:** `ScheduleConfiguration` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -14477,22 +12577,6 @@ client.agent_schedules.get(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -14578,22 +12662,6 @@ client.agent_schedules.delete(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
 **request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
     
 </dd>
@@ -14672,22 +12740,6 @@ client.agent_schedules.update(
 <dd>
 
 **schedule_key:** `AgentScheduleKey` — The unique key of the schedule to update.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
     
 </dd>
 </dl>
@@ -14850,7 +12902,72 @@ client.agent_schedules.list_executions(
 <dl>
 <dd>
 
-**request_timeout:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified seconds or time out.
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Pipelines
+<details><summary><code>client.pipelines.<a href="src/vectara/pipelines/client.py">list</a>(...) -> ListPipelinesResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+List all pipelines with optional filtering by source type, status, or enabled state.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.pipelines.list()
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**source_type:** `typing.Optional[ListPipelinesRequestSourceType]` — Filter pipelines by source type.
     
 </dd>
 </dl>
@@ -14858,7 +12975,1922 @@ client.agent_schedules.list_executions(
 <dl>
 <dd>
 
-**request_timeout_millis:** `typing.Optional[int]` — The API will make a best effort to complete the request in the specified milliseconds or time out.
+**status:** `typing.Optional[PipelineStatus]` — Filter pipelines by status.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` — Filter pipelines by enabled state.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**filter:** `typing.Optional[str]` — A regex filter on pipeline name and description.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — The maximum number of pipelines to return.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of pipelines after the limit has been reached.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.pipelines.<a href="src/vectara/pipelines/client.py">create</a>(...) -> Pipeline</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a new pipeline that continuously ingests data from a source system and sends each record to an agent for processing. A new agent session is created per source record. A pipeline is distinct from an agent schedule (which is a recurring single execution of an agent) and from a connector (which is a bidirectional chat integration like Slack). A pipeline is an automated, one-directional flow of all source data through an agent.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara, PipelineSource_S3, PipelineTrigger_Cron, PipelineTransform_Agent
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.pipelines.create(
+    name="SharePoint Legal Docs Ingest",
+    source=PipelineSource_S3(
+        type="string",
+    ),
+    trigger=PipelineTrigger_Cron(
+        expression="0 */6 * * *",
+    ),
+    transform=PipelineTransform_Agent(
+        agent_key="customer_support",
+    ),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `CreatePipelineRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.pipelines.<a href="src/vectara/pipelines/client.py">get</a>(...) -> Pipeline</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve a pipeline by its key, including its current status, watermark, and configuration.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.pipelines.get(
+    pipeline_key="sharepoint-legal-ingest",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**pipeline_key:** `PipelineKey` — The unique key of the pipeline.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.pipelines.<a href="src/vectara/pipelines/client.py">replace</a>(...) -> Pipeline</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Replace a pipeline's configuration. The full pipeline definition must be provided.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara, PipelineSource_S3, PipelineTrigger_Cron, PipelineTransform_Agent
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.pipelines.replace(
+    pipeline_key="sharepoint-legal-ingest",
+    name="SharePoint Legal Docs Ingest",
+    source=PipelineSource_S3(
+        type="string",
+    ),
+    trigger=PipelineTrigger_Cron(
+        expression="0 */6 * * *",
+    ),
+    transform=PipelineTransform_Agent(
+        agent_key="customer_support",
+    ),
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**pipeline_key:** `PipelineKey` — The unique key of the pipeline to replace.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request:** `CreatePipelineRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.pipelines.<a href="src/vectara/pipelines/client.py">delete</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Permanently delete a pipeline and its run history. This cancels any in-progress runs. Agent sessions created by this pipeline are not deleted.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.pipelines.delete(
+    pipeline_key="sharepoint-legal-ingest",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**pipeline_key:** `PipelineKey` — The unique key of the pipeline to delete.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.pipelines.<a href="src/vectara/pipelines/client.py">update</a>(...) -> Pipeline</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Partially update a pipeline's configuration. Omitted fields are preserved.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.pipelines.update(
+    pipeline_key="sharepoint-legal-ingest",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**pipeline_key:** `PipelineKey` — The unique key of the pipeline to update.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**name:** `typing.Optional[PipelineName]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**source:** `typing.Optional[UpdatePipelineSource]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**trigger:** `typing.Optional[PipelineTrigger]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**transform:** `typing.Optional[PipelineTransform]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**sync_mode:** `typing.Optional[PipelineSyncMode]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `typing.Optional[bool]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**metadata:** `typing.Optional[typing.Dict[str, typing.Optional[str]]]` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.pipelines.<a href="src/vectara/pipelines/client.py">trigger</a>(...) -> PipelineRun</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Manually trigger a pipeline run outside of the normal schedule. The pipeline will fetch new data from the source and process it through the agent. Returns the created run.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.pipelines.trigger(
+    pipeline_key="sharepoint-legal-ingest",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**pipeline_key:** `PipelineKey` — The unique key of the pipeline to trigger.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## PipelineDeadLetterEntries
+<details><summary><code>client.pipeline_dead_letter_entries.<a href="src/vectara/pipeline_dead_letter_entries/client.py">list</a>(...) -> ListPipelineDeadLetterEntriesResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+List dead letters for a pipeline, with optional filtering by status or run.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.pipeline_dead_letter_entries.list(
+    pipeline_key="sharepoint-legal-ingest",
+    last_run_id="run_pip_abc_manual_550e8400",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**pipeline_key:** `PipelineKey` — The unique key of the pipeline.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**status:** `typing.Optional[DeadLetterStatus]` — Filter dead letters by status.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**last_run_id:** `typing.Optional[PipelineRunId]` — Filter dead letters to those from a specific run.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**origin:** `typing.Optional[DeadLetterOrigin]` — Filter dead letters by origin.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — The maximum number of dead letters to return.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of dead letters after the limit has been reached.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.pipeline_dead_letter_entries.<a href="src/vectara/pipeline_dead_letter_entries/client.py">create</a>(...) -> PipelineDeadLetterEntry</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Manually add a source record to the dead letter queue for reprocessing. Use this when you want to force a record through the pipeline again, for example when the agent or judge made an incorrect decision.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.pipeline_dead_letter_entries.create(
+    pipeline_key="sharepoint-legal-ingest",
+    source_record_id="source_record_id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**pipeline_key:** `PipelineKey` — The unique key of the pipeline.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**source_record_id:** `str` 
+
+The identifier for the source record to add. Format depends on connector type:
+- S3: the object key (e.g. `legal/contracts/doc.pdf`)
+- SharePoint: the drive item ID
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**error_message:** `typing.Optional[str]` — Optional reason for manually adding this record.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.pipeline_dead_letter_entries.<a href="src/vectara/pipeline_dead_letter_entries/client.py">get</a>(...) -> PipelineDeadLetterEntry</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve a specific dead letter by its ID.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.pipeline_dead_letter_entries.get(
+    pipeline_key="sharepoint-legal-ingest",
+    dead_letter_id="dead_letter_id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**pipeline_key:** `PipelineKey` — The unique key of the pipeline.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**dead_letter_id:** `str` — The unique identifier of the dead letter.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.pipeline_dead_letter_entries.<a href="src/vectara/pipeline_dead_letter_entries/client.py">delete</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Remove a dead letter from the queue. Use this to dismiss a known failure that does not need retrying.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.pipeline_dead_letter_entries.delete(
+    pipeline_key="sharepoint-legal-ingest",
+    dead_letter_id="dead_letter_id",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**pipeline_key:** `PipelineKey` — The unique key of the pipeline.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**dead_letter_id:** `str` — The unique identifier of the dead letter.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.pipeline_dead_letter_entries.<a href="src/vectara/pipeline_dead_letter_entries/client.py">process</a>(...) -> PipelineRun</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Process dead letters by creating a new pipeline run that re-fetches the specified records from source and sends them through the agent. If no filters are provided, all pending dead letters are processed.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.pipeline_dead_letter_entries.process(
+    pipeline_key="sharepoint-legal-ingest",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**pipeline_key:** `PipelineKey` — The unique key of the pipeline.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**source_record_ids:** `typing.Optional[typing.List[str]]` — Specific source record IDs to process. If omitted, processes all matching dead letters.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**last_run_id:** `typing.Optional[PipelineRunId]` — Only process dead letters from this specific run.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**origin:** `typing.Optional[DeadLetterOrigin]` — Only process dead letters with this origin.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Pipeline Runs
+<details><summary><code>client.pipeline_runs.<a href="src/vectara/pipeline_runs/client.py">list</a>(...) -> ListPipelineRunsResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+List execution runs for a pipeline, with optional filtering by status.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.pipeline_runs.list(
+    pipeline_key="sharepoint-legal-ingest",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**pipeline_key:** `PipelineKey` — The unique key of the pipeline.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**status:** `typing.Optional[PipelineRunStatus]` — Filter runs by status.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**after:** `typing.Optional[datetime.datetime]` — Only return runs created after this timestamp.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — The maximum number of runs to return.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of runs after the limit has been reached.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.pipeline_runs.<a href="src/vectara/pipeline_runs/client.py">get</a>(...) -> PipelineRun</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Retrieve details of a specific pipeline run including record counts, session keys, and status.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.pipeline_runs.get(
+    pipeline_key="sharepoint-legal-ingest",
+    run_id="run_pip_abc_manual_550e8400",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**pipeline_key:** `PipelineKey` — The unique key of the pipeline.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**run_id:** `PipelineRunId` — The unique identifier of the run.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Glossaries
+<details><summary><code>client.glossaries.<a href="src/vectara/glossaries/client.py">list</a>(...) -> ListGlossariesResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+List all glossaries available to the authenticated user.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.glossaries.list(
+    filter="engineering",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**filter:** `typing.Optional[str]` — A case-insensitive substring to filter glossary names and descriptions.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — The maximum number of glossaries to return.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of glossaries.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.glossaries.<a href="src/vectara/glossaries/client.py">create</a>(...) -> Glossary</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Create a new glossary. A glossary is a reusable mapping of terms to expanded forms that agents use to expand abbreviations and acronyms in user messages.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.glossaries.create(
+    name="Engineering Acronyms",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**name:** `str` — Human-readable name for the glossary.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**key:** `typing.Optional[GlossaryKey]` — A unique key for the glossary. If not provided, one will be auto-generated from the name.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` — A description of what this glossary covers.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.glossaries.<a href="src/vectara/glossaries/client.py">get</a>(...) -> Glossary</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Get the metadata of a specific glossary.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.glossaries.get(
+    glossary_key="eng-acronyms",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**glossary_key:** `GlossaryKey` — The unique key of the glossary.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.glossaries.<a href="src/vectara/glossaries/client.py">delete</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Delete a glossary and all its entries.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.glossaries.delete(
+    glossary_key="eng-acronyms",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**glossary_key:** `GlossaryKey` — The unique key of the glossary to delete.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.glossaries.<a href="src/vectara/glossaries/client.py">update</a>(...) -> Glossary</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Update the metadata of a glossary.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.glossaries.update(
+    glossary_key="eng-acronyms",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**glossary_key:** `GlossaryKey` — The unique key of the glossary to update.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**name:** `typing.Optional[str]` — Updated name for the glossary.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**description:** `typing.Optional[str]` — Updated description.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.glossaries.<a href="src/vectara/glossaries/client.py">list_entries</a>(...) -> GlossaryEntriesResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+List the entries in a glossary.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.glossaries.list_entries(
+    glossary_key="eng-acronyms",
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**glossary_key:** `GlossaryKey` — The unique key of the glossary.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `typing.Optional[int]` — The maximum number of entries to return.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**page_key:** `typing.Optional[str]` — Used to retrieve the next page of entries.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.glossaries.<a href="src/vectara/glossaries/client.py">upsert_entries</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Bulk upsert entries into a glossary. Entries with existing terms are updated and new terms are inserted. The glossary index blob is rebuilt after the upsert.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.glossaries.upsert_entries(
+    glossary_key="eng-acronyms",
+    entries={
+        "k8s": "Kubernetes",
+        "tf": "Terraform"
+    },
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**glossary_key:** `GlossaryKey` — The unique key of the glossary.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**entries:** `typing.Dict[str, str]` 
+
+A map of terms to their expanded forms. Keys are terms (1–200 characters);
+values are expansions (1–1000 characters).
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**request_options:** `typing.Optional[RequestOptions]` — Request-specific configuration.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.glossaries.<a href="src/vectara/glossaries/client.py">delete_entries</a>(...)</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Bulk delete entries from a glossary by term. The glossary index blob is rebuilt after deletion.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```python
+from vectara import Vectara
+from vectara.environment import VectaraEnvironment
+
+client = Vectara(
+    client_id="<clientId>",
+    client_secret="<clientSecret>",
+    environment=VectaraEnvironment.PRODUCTION,
+)
+
+client.glossaries.delete_entries(
+    glossary_key="eng-acronyms",
+    terms=[
+        "terms"
+    ],
+)
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**glossary_key:** `GlossaryKey` — The unique key of the glossary.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**terms:** `typing.List[str]` — The terms to remove from the glossary.
     
 </dd>
 </dl>

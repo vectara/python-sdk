@@ -6,7 +6,6 @@ import os
 import typing
 
 import httpx
-from .core.api_error import ApiError
 from .core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from .core.logging import LogConfig, Logger
 from .core.oauth_token_provider import AsyncOAuthTokenProvider, OAuthTokenProvider
@@ -27,12 +26,19 @@ if typing.TYPE_CHECKING:
     from .encoders.client import AsyncEncodersClient, EncodersClient
     from .factual_consistency.client import AsyncFactualConsistencyClient, FactualConsistencyClient
     from .generation_presets.client import AsyncGenerationPresetsClient, GenerationPresetsClient
+    from .glossaries.client import AsyncGlossariesClient, GlossariesClient
     from .hallucination_correctors.client import AsyncHallucinationCorrectorsClient, HallucinationCorrectorsClient
     from .instructions.client import AsyncInstructionsClient, InstructionsClient
     from .jobs.client import AsyncJobsClient, JobsClient
     from .llm.client import AsyncLlmClient, LlmClient
     from .llms.client import AsyncLlmsClient, LlmsClient
     from .metadata.client import AsyncMetadataClient, MetadataClient
+    from .pipeline_dead_letter_entries.client import (
+        AsyncPipelineDeadLetterEntriesClient,
+        PipelineDeadLetterEntriesClient,
+    )
+    from .pipeline_runs.client import AsyncPipelineRunsClient, PipelineRunsClient
+    from .pipelines.client import AsyncPipelinesClient, PipelinesClient
     from .queries.client import AsyncQueriesClient, QueriesClient
     from .query_history.client import AsyncQueryHistoryClient, QueryHistoryClient
     from .rerankers.client import AsyncRerankersClient, RerankersClient
@@ -83,7 +89,10 @@ class BaseVectara:
     --------
     from vectara import Vectara
 
-    client = Vectara()
+    client = Vectara(
+        client_id="YOUR_CLIENT_ID",
+        client_secret="YOUR_CLIENT_SECRET",
+    )
 
     # or ...
 
@@ -100,6 +109,8 @@ class BaseVectara:
         self,
         *,
         environment: VectaraEnvironment = VectaraEnvironment.PRODUCTION,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         api_key: typing.Optional[str] = os.getenv("VECTARA_API_KEY"),
         headers: typing.Optional[typing.Dict[str, str]] = None,
         timeout: typing.Optional[float] = None,
@@ -114,6 +125,8 @@ class BaseVectara:
         self,
         *,
         environment: VectaraEnvironment = VectaraEnvironment.PRODUCTION,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         api_key: typing.Optional[str] = os.getenv("VECTARA_API_KEY"),
         headers: typing.Optional[typing.Dict[str, str]] = None,
         timeout: typing.Optional[float] = None,
@@ -126,6 +139,8 @@ class BaseVectara:
         self,
         *,
         environment: VectaraEnvironment = VectaraEnvironment.PRODUCTION,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         api_key: typing.Optional[str] = os.getenv("VECTARA_API_KEY"),
         headers: typing.Optional[typing.Dict[str, str]] = None,
         client_id: typing.Optional[str] = os.getenv("VECTARA_CLIENT_ID"),
@@ -143,6 +158,8 @@ class BaseVectara:
         if token is not None:
             self._client_wrapper = SyncClientWrapper(
                 environment=environment,
+                request_timeout=request_timeout,
+                request_timeout_millis=request_timeout_millis,
                 api_key=api_key,
                 headers=headers,
                 httpx_client=httpx_client
@@ -160,9 +177,13 @@ class BaseVectara:
                 client_secret=client_secret,
                 client_wrapper=SyncClientWrapper(
                     environment=environment,
+                    request_timeout=request_timeout,
+                    request_timeout_millis=request_timeout_millis,
                     api_key=api_key,
                     headers=headers,
-                    httpx_client=httpx.Client(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
+                    httpx_client=httpx_client
+                    if httpx_client is not None
+                    else httpx.Client(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
                     if follow_redirects is not None
                     else httpx.Client(timeout=_defaulted_timeout),
                     timeout=_defaulted_timeout,
@@ -171,6 +192,8 @@ class BaseVectara:
             )
             self._client_wrapper = SyncClientWrapper(
                 environment=environment,
+                request_timeout=request_timeout,
+                request_timeout_millis=request_timeout_millis,
                 api_key=api_key,
                 headers=headers,
                 token=_token_getter_override if _token_getter_override is not None else oauth_token_provider.get_token,
@@ -182,9 +205,11 @@ class BaseVectara:
                 timeout=_defaulted_timeout,
                 logging=logging,
             )
-        elif api_key is not None:
+        else:
             self._client_wrapper = SyncClientWrapper(
                 environment=environment,
+                request_timeout=request_timeout,
+                request_timeout_millis=request_timeout_millis,
                 api_key=api_key,
                 headers=headers,
                 httpx_client=httpx_client
@@ -194,10 +219,6 @@ class BaseVectara:
                 else httpx.Client(timeout=_defaulted_timeout),
                 timeout=_defaulted_timeout,
                 logging=logging,
-            )
-        else:
-            raise ApiError(
-                body="The client must be instantiated with either 'api_key', 'token', or both 'client_id' and 'client_secret'"
             )
         self._corpora: typing.Optional[CorporaClient] = None
         self._upload: typing.Optional[UploadClient] = None
@@ -227,6 +248,10 @@ class BaseVectara:
         self._agent_events: typing.Optional[AgentEventsClient] = None
         self._agent_artifacts: typing.Optional[AgentArtifactsClient] = None
         self._agent_schedules: typing.Optional[AgentSchedulesClient] = None
+        self._pipelines: typing.Optional[PipelinesClient] = None
+        self._pipeline_dead_letter_entries: typing.Optional[PipelineDeadLetterEntriesClient] = None
+        self._pipeline_runs: typing.Optional[PipelineRunsClient] = None
+        self._glossaries: typing.Optional[GlossariesClient] = None
 
     @property
     def corpora(self):
@@ -452,6 +477,56 @@ class BaseVectara:
             self._agent_schedules = AgentSchedulesClient(client_wrapper=self._client_wrapper)
         return self._agent_schedules
 
+    @property
+    def pipelines(self):
+        if self._pipelines is None:
+            from .pipelines.client import PipelinesClient  # noqa: E402
+
+            self._pipelines = PipelinesClient(client_wrapper=self._client_wrapper)
+        return self._pipelines
+
+    @property
+    def pipeline_dead_letter_entries(self):
+        if self._pipeline_dead_letter_entries is None:
+            from .pipeline_dead_letter_entries.client import PipelineDeadLetterEntriesClient  # noqa: E402
+
+            self._pipeline_dead_letter_entries = PipelineDeadLetterEntriesClient(client_wrapper=self._client_wrapper)
+        return self._pipeline_dead_letter_entries
+
+    @property
+    def pipeline_runs(self):
+        if self._pipeline_runs is None:
+            from .pipeline_runs.client import PipelineRunsClient  # noqa: E402
+
+            self._pipeline_runs = PipelineRunsClient(client_wrapper=self._client_wrapper)
+        return self._pipeline_runs
+
+    @property
+    def glossaries(self):
+        if self._glossaries is None:
+            from .glossaries.client import GlossariesClient  # noqa: E402
+
+            self._glossaries = GlossariesClient(client_wrapper=self._client_wrapper)
+        return self._glossaries
+
+
+def _make_default_async_client(
+    timeout: typing.Optional[float],
+    follow_redirects: typing.Optional[bool],
+) -> httpx.AsyncClient:
+    try:
+        import httpx_aiohttp  # type: ignore[import-not-found]
+    except ImportError:
+        pass
+    else:
+        if follow_redirects is not None:
+            return httpx_aiohttp.HttpxAiohttpClient(timeout=timeout, follow_redirects=follow_redirects)
+        return httpx_aiohttp.HttpxAiohttpClient(timeout=timeout)
+
+    if follow_redirects is not None:
+        return httpx.AsyncClient(timeout=timeout, follow_redirects=follow_redirects)
+    return httpx.AsyncClient(timeout=timeout)
+
 
 class AsyncBaseVectara:
     """
@@ -493,7 +568,10 @@ class AsyncBaseVectara:
     --------
     from vectara import AsyncVectara
 
-    client = AsyncVectara()
+    client = AsyncVectara(
+        client_id="YOUR_CLIENT_ID",
+        client_secret="YOUR_CLIENT_SECRET",
+    )
 
     # or ...
 
@@ -510,6 +588,8 @@ class AsyncBaseVectara:
         self,
         *,
         environment: VectaraEnvironment = VectaraEnvironment.PRODUCTION,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         api_key: typing.Optional[str] = os.getenv("VECTARA_API_KEY"),
         headers: typing.Optional[typing.Dict[str, str]] = None,
         timeout: typing.Optional[float] = None,
@@ -524,6 +604,8 @@ class AsyncBaseVectara:
         self,
         *,
         environment: VectaraEnvironment = VectaraEnvironment.PRODUCTION,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         api_key: typing.Optional[str] = os.getenv("VECTARA_API_KEY"),
         headers: typing.Optional[typing.Dict[str, str]] = None,
         timeout: typing.Optional[float] = None,
@@ -536,6 +618,8 @@ class AsyncBaseVectara:
         self,
         *,
         environment: VectaraEnvironment = VectaraEnvironment.PRODUCTION,
+        request_timeout: typing.Optional[int] = None,
+        request_timeout_millis: typing.Optional[int] = None,
         api_key: typing.Optional[str] = os.getenv("VECTARA_API_KEY"),
         headers: typing.Optional[typing.Dict[str, str]] = None,
         client_id: typing.Optional[str] = os.getenv("VECTARA_CLIENT_ID"),
@@ -553,13 +637,13 @@ class AsyncBaseVectara:
         if token is not None:
             self._client_wrapper = AsyncClientWrapper(
                 environment=environment,
+                request_timeout=request_timeout,
+                request_timeout_millis=request_timeout_millis,
                 api_key=api_key,
                 headers=headers,
                 httpx_client=httpx_client
                 if httpx_client is not None
-                else httpx.AsyncClient(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
-                if follow_redirects is not None
-                else httpx.AsyncClient(timeout=_defaulted_timeout),
+                else _make_default_async_client(timeout=_defaulted_timeout, follow_redirects=follow_redirects),
                 timeout=_defaulted_timeout,
                 logging=logging,
                 token=_token_getter_override if _token_getter_override is not None else token,
@@ -570,9 +654,13 @@ class AsyncBaseVectara:
                 client_secret=client_secret,
                 client_wrapper=AsyncClientWrapper(
                     environment=environment,
+                    request_timeout=request_timeout,
+                    request_timeout_millis=request_timeout_millis,
                     api_key=api_key,
                     headers=headers,
-                    httpx_client=httpx.AsyncClient(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
+                    httpx_client=httpx_client
+                    if httpx_client is not None
+                    else httpx.AsyncClient(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
                     if follow_redirects is not None
                     else httpx.AsyncClient(timeout=_defaulted_timeout),
                     timeout=_defaulted_timeout,
@@ -581,34 +669,30 @@ class AsyncBaseVectara:
             )
             self._client_wrapper = AsyncClientWrapper(
                 environment=environment,
+                request_timeout=request_timeout,
+                request_timeout_millis=request_timeout_millis,
                 api_key=api_key,
                 headers=headers,
                 token=_token_getter_override,
                 async_token=oauth_token_provider.get_token,
                 httpx_client=httpx_client
                 if httpx_client is not None
-                else httpx.AsyncClient(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
-                if follow_redirects is not None
-                else httpx.AsyncClient(timeout=_defaulted_timeout),
-                timeout=_defaulted_timeout,
-                logging=logging,
-            )
-        elif api_key is not None:
-            self._client_wrapper = AsyncClientWrapper(
-                environment=environment,
-                api_key=api_key,
-                headers=headers,
-                httpx_client=httpx_client
-                if httpx_client is not None
-                else httpx.AsyncClient(timeout=_defaulted_timeout, follow_redirects=follow_redirects)
-                if follow_redirects is not None
-                else httpx.AsyncClient(timeout=_defaulted_timeout),
+                else _make_default_async_client(timeout=_defaulted_timeout, follow_redirects=follow_redirects),
                 timeout=_defaulted_timeout,
                 logging=logging,
             )
         else:
-            raise ApiError(
-                body="The client must be instantiated with either 'api_key', 'token', or both 'client_id' and 'client_secret'"
+            self._client_wrapper = AsyncClientWrapper(
+                environment=environment,
+                request_timeout=request_timeout,
+                request_timeout_millis=request_timeout_millis,
+                api_key=api_key,
+                headers=headers,
+                httpx_client=httpx_client
+                if httpx_client is not None
+                else _make_default_async_client(timeout=_defaulted_timeout, follow_redirects=follow_redirects),
+                timeout=_defaulted_timeout,
+                logging=logging,
             )
         self._corpora: typing.Optional[AsyncCorporaClient] = None
         self._upload: typing.Optional[AsyncUploadClient] = None
@@ -638,6 +722,10 @@ class AsyncBaseVectara:
         self._agent_events: typing.Optional[AsyncAgentEventsClient] = None
         self._agent_artifacts: typing.Optional[AsyncAgentArtifactsClient] = None
         self._agent_schedules: typing.Optional[AsyncAgentSchedulesClient] = None
+        self._pipelines: typing.Optional[AsyncPipelinesClient] = None
+        self._pipeline_dead_letter_entries: typing.Optional[AsyncPipelineDeadLetterEntriesClient] = None
+        self._pipeline_runs: typing.Optional[AsyncPipelineRunsClient] = None
+        self._glossaries: typing.Optional[AsyncGlossariesClient] = None
 
     @property
     def corpora(self):
@@ -862,3 +950,37 @@ class AsyncBaseVectara:
 
             self._agent_schedules = AsyncAgentSchedulesClient(client_wrapper=self._client_wrapper)
         return self._agent_schedules
+
+    @property
+    def pipelines(self):
+        if self._pipelines is None:
+            from .pipelines.client import AsyncPipelinesClient  # noqa: E402
+
+            self._pipelines = AsyncPipelinesClient(client_wrapper=self._client_wrapper)
+        return self._pipelines
+
+    @property
+    def pipeline_dead_letter_entries(self):
+        if self._pipeline_dead_letter_entries is None:
+            from .pipeline_dead_letter_entries.client import AsyncPipelineDeadLetterEntriesClient  # noqa: E402
+
+            self._pipeline_dead_letter_entries = AsyncPipelineDeadLetterEntriesClient(
+                client_wrapper=self._client_wrapper
+            )
+        return self._pipeline_dead_letter_entries
+
+    @property
+    def pipeline_runs(self):
+        if self._pipeline_runs is None:
+            from .pipeline_runs.client import AsyncPipelineRunsClient  # noqa: E402
+
+            self._pipeline_runs = AsyncPipelineRunsClient(client_wrapper=self._client_wrapper)
+        return self._pipeline_runs
+
+    @property
+    def glossaries(self):
+        if self._glossaries is None:
+            from .glossaries.client import AsyncGlossariesClient  # noqa: E402
+
+            self._glossaries = AsyncGlossariesClient(client_wrapper=self._client_wrapper)
+        return self._glossaries

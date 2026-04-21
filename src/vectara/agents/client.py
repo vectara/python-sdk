@@ -51,8 +51,6 @@ class AgentsClient:
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Agent, ListAgentsResponse]:
         """
@@ -72,12 +70,6 @@ class AgentsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of agents after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -90,7 +82,10 @@ class AgentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.agents.list(
             filter="support.*",
             enabled=True,
@@ -102,13 +97,7 @@ class AgentsClient:
             yield page
         """
         return self._raw_client.list(
-            filter=filter,
-            enabled=enabled,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            filter=filter, enabled=enabled, limit=limit, page_key=page_key, request_options=request_options
         )
 
     def create(
@@ -117,8 +106,6 @@ class AgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
         skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
@@ -174,12 +161,6 @@ class AgentsClient:
 
         model : AgentModel
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         key : typing.Optional[AgentKey]
             A user provided key that uniquely identifies this agent. If not provided, one will be auto-generated based on the agent name.
 
@@ -229,19 +210,19 @@ class AgentsClient:
         from vectara import (
             AgentCorporaSearchQueryConfiguration,
             AgentModel,
-            AgentSearchCorporaParameters,
             AgentToolConfiguration_CorporaSearch,
             Vectara,
         )
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agents.create(
             name="Customer Support Agent",
             tool_configurations={
                 "customer_search": AgentToolConfiguration_CorporaSearch(
-                    query_configuration=AgentCorporaSearchQueryConfiguration(
-                        search=AgentSearchCorporaParameters(),
-                    ),
+                    query_configuration=AgentCorporaSearchQueryConfiguration(),
                 )
             },
             model=AgentModel(
@@ -253,8 +234,6 @@ class AgentsClient:
             name=name,
             tool_configurations=tool_configurations,
             model=model,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             key=key,
             description=description,
             skills=skills,
@@ -269,14 +248,7 @@ class AgentsClient:
         )
         return _response.data
 
-    def get(
-        self,
-        agent_key: AgentKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Agent:
+    def get(self, agent_key: AgentKey, *, request_options: typing.Optional[RequestOptions] = None) -> Agent:
         """
         The Get Agent API enables you to retrieve the complete configuration and operational details of a specific AI agent, providing comprehensive visibility into agent capabilities, tool integrations, behavioral instructions, and metadata.
 
@@ -286,12 +258,6 @@ class AgentsClient:
         ----------
         agent_key : AgentKey
             The unique key of the agent to retrieve.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -305,17 +271,15 @@ class AgentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agents.get(
             agent_key="customer_support",
         )
         """
-        _response = self._raw_client.get(
-            agent_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(agent_key, request_options=request_options)
         return _response.data
 
     def replace(
@@ -325,8 +289,6 @@ class AgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
         skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
@@ -353,12 +315,6 @@ class AgentsClient:
             A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
 
         model : AgentModel
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         key : typing.Optional[AgentKey]
             A user provided key that uniquely identifies this agent. If not provided, one will be auto-generated based on the agent name.
@@ -409,20 +365,20 @@ class AgentsClient:
         from vectara import (
             AgentCorporaSearchQueryConfiguration,
             AgentModel,
-            AgentSearchCorporaParameters,
             AgentToolConfiguration_CorporaSearch,
             Vectara,
         )
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agents.replace(
             agent_key="customer_support",
             name="Customer Support Agent",
             tool_configurations={
                 "customer_search": AgentToolConfiguration_CorporaSearch(
-                    query_configuration=AgentCorporaSearchQueryConfiguration(
-                        search=AgentSearchCorporaParameters(),
-                    ),
+                    query_configuration=AgentCorporaSearchQueryConfiguration(),
                 )
             },
             model=AgentModel(
@@ -435,8 +391,6 @@ class AgentsClient:
             name=name,
             tool_configurations=tool_configurations,
             model=model,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             key=key,
             description=description,
             skills=skills,
@@ -451,14 +405,7 @@ class AgentsClient:
         )
         return _response.data
 
-    def delete(
-        self,
-        agent_key: AgentKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    def delete(self, agent_key: AgentKey, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         The Delete Agent API enables you to permanently remove an AI agent and its configuration from the Vectara platform, supporting agent lifecycle management and resource cleanup in enterprise environments.
 
@@ -468,12 +415,6 @@ class AgentsClient:
         ----------
         agent_key : AgentKey
             The unique key of the agent to delete.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -486,25 +427,21 @@ class AgentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agents.delete(
             agent_key="customer_support",
         )
         """
-        _response = self._raw_client.delete(
-            agent_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete(agent_key, request_options=request_options)
         return _response.data
 
     def update(
         self,
         agent_key: AgentKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[AgentName] = OMIT,
         description: typing.Optional[str] = OMIT,
         tool_configurations: typing.Optional[typing.Dict[str, typing.Optional[AgentToolConfiguration]]] = OMIT,
@@ -528,12 +465,6 @@ class AgentsClient:
         ----------
         agent_key : AgentKey
             The unique key of the agent to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[AgentName]
 
@@ -588,15 +519,16 @@ class AgentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agents.update(
             agent_key="customer_support",
         )
         """
         _response = self._raw_client.update(
             agent_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             name=name,
             description=description,
             tool_configurations=tool_configurations,
@@ -614,12 +546,7 @@ class AgentsClient:
         return _response.data
 
     def get_identity(
-        self,
-        agent_key: AgentKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, agent_key: AgentKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AgentIdentity:
         """
         Retrieve the identity associated with an agent. The identity is the service account the agent uses when executing tools.
@@ -633,12 +560,6 @@ class AgentsClient:
         agent_key : AgentKey
             The unique key of the agent.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -651,25 +572,21 @@ class AgentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agents.get_identity(
             agent_key="customer_support",
         )
         """
-        _response = self._raw_client.get_identity(
-            agent_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get_identity(agent_key, request_options=request_options)
         return _response.data
 
     def update_identity(
         self,
         agent_key: AgentKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         mode: typing.Optional[AgentIdentityMode] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
@@ -687,12 +604,6 @@ class AgentsClient:
         ----------
         agent_key : AgentKey
             The unique key of the agent.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         mode : typing.Optional[AgentIdentityMode]
 
@@ -717,15 +628,16 @@ class AgentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agents.update_identity(
             agent_key="customer_support",
         )
         """
         _response = self._raw_client.update_identity(
             agent_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             mode=mode,
             api_roles=api_roles,
             corpus_roles=corpus_roles,
@@ -757,8 +669,6 @@ class AsyncAgentsClient:
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Agent, ListAgentsResponse]:
         """
@@ -778,12 +688,6 @@ class AsyncAgentsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of agents after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -798,7 +702,10 @@ class AsyncAgentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -817,13 +724,7 @@ class AsyncAgentsClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
-            filter=filter,
-            enabled=enabled,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            filter=filter, enabled=enabled, limit=limit, page_key=page_key, request_options=request_options
         )
 
     async def create(
@@ -832,8 +733,6 @@ class AsyncAgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
         skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
@@ -889,12 +788,6 @@ class AsyncAgentsClient:
 
         model : AgentModel
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         key : typing.Optional[AgentKey]
             A user provided key that uniquely identifies this agent. If not provided, one will be auto-generated based on the agent name.
 
@@ -946,12 +839,14 @@ class AsyncAgentsClient:
         from vectara import (
             AgentCorporaSearchQueryConfiguration,
             AgentModel,
-            AgentSearchCorporaParameters,
             AgentToolConfiguration_CorporaSearch,
             AsyncVectara,
         )
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -959,9 +854,7 @@ class AsyncAgentsClient:
                 name="Customer Support Agent",
                 tool_configurations={
                     "customer_search": AgentToolConfiguration_CorporaSearch(
-                        query_configuration=AgentCorporaSearchQueryConfiguration(
-                            search=AgentSearchCorporaParameters(),
-                        ),
+                        query_configuration=AgentCorporaSearchQueryConfiguration(),
                     )
                 },
                 model=AgentModel(
@@ -976,8 +869,6 @@ class AsyncAgentsClient:
             name=name,
             tool_configurations=tool_configurations,
             model=model,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             key=key,
             description=description,
             skills=skills,
@@ -992,14 +883,7 @@ class AsyncAgentsClient:
         )
         return _response.data
 
-    async def get(
-        self,
-        agent_key: AgentKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Agent:
+    async def get(self, agent_key: AgentKey, *, request_options: typing.Optional[RequestOptions] = None) -> Agent:
         """
         The Get Agent API enables you to retrieve the complete configuration and operational details of a specific AI agent, providing comprehensive visibility into agent capabilities, tool integrations, behavioral instructions, and metadata.
 
@@ -1009,12 +893,6 @@ class AsyncAgentsClient:
         ----------
         agent_key : AgentKey
             The unique key of the agent to retrieve.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1030,7 +908,10 @@ class AsyncAgentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1041,12 +922,7 @@ class AsyncAgentsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            agent_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(agent_key, request_options=request_options)
         return _response.data
 
     async def replace(
@@ -1056,8 +932,6 @@ class AsyncAgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
         skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
@@ -1084,12 +958,6 @@ class AsyncAgentsClient:
             A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
 
         model : AgentModel
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         key : typing.Optional[AgentKey]
             A user provided key that uniquely identifies this agent. If not provided, one will be auto-generated based on the agent name.
@@ -1142,12 +1010,14 @@ class AsyncAgentsClient:
         from vectara import (
             AgentCorporaSearchQueryConfiguration,
             AgentModel,
-            AgentSearchCorporaParameters,
             AgentToolConfiguration_CorporaSearch,
             AsyncVectara,
         )
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1156,9 +1026,7 @@ class AsyncAgentsClient:
                 name="Customer Support Agent",
                 tool_configurations={
                     "customer_search": AgentToolConfiguration_CorporaSearch(
-                        query_configuration=AgentCorporaSearchQueryConfiguration(
-                            search=AgentSearchCorporaParameters(),
-                        ),
+                        query_configuration=AgentCorporaSearchQueryConfiguration(),
                     )
                 },
                 model=AgentModel(
@@ -1174,8 +1042,6 @@ class AsyncAgentsClient:
             name=name,
             tool_configurations=tool_configurations,
             model=model,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             key=key,
             description=description,
             skills=skills,
@@ -1190,14 +1056,7 @@ class AsyncAgentsClient:
         )
         return _response.data
 
-    async def delete(
-        self,
-        agent_key: AgentKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    async def delete(self, agent_key: AgentKey, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         The Delete Agent API enables you to permanently remove an AI agent and its configuration from the Vectara platform, supporting agent lifecycle management and resource cleanup in enterprise environments.
 
@@ -1207,12 +1066,6 @@ class AsyncAgentsClient:
         ----------
         agent_key : AgentKey
             The unique key of the agent to delete.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1227,7 +1080,10 @@ class AsyncAgentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1238,20 +1094,13 @@ class AsyncAgentsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete(
-            agent_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete(agent_key, request_options=request_options)
         return _response.data
 
     async def update(
         self,
         agent_key: AgentKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[AgentName] = OMIT,
         description: typing.Optional[str] = OMIT,
         tool_configurations: typing.Optional[typing.Dict[str, typing.Optional[AgentToolConfiguration]]] = OMIT,
@@ -1275,12 +1124,6 @@ class AsyncAgentsClient:
         ----------
         agent_key : AgentKey
             The unique key of the agent to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[AgentName]
 
@@ -1337,7 +1180,10 @@ class AsyncAgentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1350,8 +1196,6 @@ class AsyncAgentsClient:
         """
         _response = await self._raw_client.update(
             agent_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             name=name,
             description=description,
             tool_configurations=tool_configurations,
@@ -1369,12 +1213,7 @@ class AsyncAgentsClient:
         return _response.data
 
     async def get_identity(
-        self,
-        agent_key: AgentKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, agent_key: AgentKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AgentIdentity:
         """
         Retrieve the identity associated with an agent. The identity is the service account the agent uses when executing tools.
@@ -1387,12 +1226,6 @@ class AsyncAgentsClient:
         ----------
         agent_key : AgentKey
             The unique key of the agent.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1408,7 +1241,10 @@ class AsyncAgentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1419,20 +1255,13 @@ class AsyncAgentsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get_identity(
-            agent_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get_identity(agent_key, request_options=request_options)
         return _response.data
 
     async def update_identity(
         self,
         agent_key: AgentKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         mode: typing.Optional[AgentIdentityMode] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
@@ -1450,12 +1279,6 @@ class AsyncAgentsClient:
         ----------
         agent_key : AgentKey
             The unique key of the agent.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         mode : typing.Optional[AgentIdentityMode]
 
@@ -1482,7 +1305,10 @@ class AsyncAgentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1495,8 +1321,6 @@ class AsyncAgentsClient:
         """
         _response = await self._raw_client.update_identity(
             agent_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             mode=mode,
             api_roles=api_roles,
             corpus_roles=corpus_roles,

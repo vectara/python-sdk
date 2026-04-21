@@ -42,8 +42,6 @@ class ChatsClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Chat, ListChatsResponse]:
         """
@@ -57,12 +55,6 @@ class ChatsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of chats after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -75,7 +67,10 @@ class ChatsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.chats.list()
         for item in response:
             yield item
@@ -83,21 +78,13 @@ class ChatsClient:
         for page in response.iter_pages():
             yield page
         """
-        return self._raw_client.list(
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        return self._raw_client.list(limit=limit, page_key=page_key, request_options=request_options)
 
     def create_stream(
         self,
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -113,12 +100,6 @@ class ChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -151,7 +132,10 @@ class ChatsClient:
             Vectara,
         )
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.chats.create_stream(
             query="What is a hallucination?",
             search=SearchCorporaParameters(
@@ -187,8 +171,6 @@ class ChatsClient:
         with self._raw_client.create_stream(
             query=query,
             search=search,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             generation=generation,
             chat=chat,
             save_history=save_history,
@@ -202,8 +184,6 @@ class ChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -219,12 +199,6 @@ class ChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -257,7 +231,10 @@ class ChatsClient:
             Vectara,
         )
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.chats.create(
             query="What is a hallucination?",
             search=SearchCorporaParameters(
@@ -291,8 +268,6 @@ class ChatsClient:
         _response = self._raw_client.create(
             query=query,
             search=search,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             generation=generation,
             chat=chat,
             save_history=save_history,
@@ -301,14 +276,7 @@ class ChatsClient:
         )
         return _response.data
 
-    def get(
-        self,
-        chat_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Chat:
+    def get(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Chat:
         """
         Get a chat summary to view what started the chat, but not subsequent turns.
 
@@ -316,12 +284,6 @@ class ChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -335,27 +297,18 @@ class ChatsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.chats.get(
             chat_id="chat_id",
         )
         """
-        _response = self._raw_client.get(
-            chat_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(chat_id, request_options=request_options)
         return _response.data
 
-    def delete(
-        self,
-        chat_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    def delete(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Delete a chat and any turns it contains permanently.
 
@@ -363,12 +316,6 @@ class ChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -381,26 +328,19 @@ class ChatsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.chats.delete(
             chat_id="chat_id",
         )
         """
-        _response = self._raw_client.delete(
-            chat_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete(chat_id, request_options=request_options)
         return _response.data
 
     def list_turns(
-        self,
-        chat_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> ListChatTurnsResponse:
         """
         List all turns in a chat to see all message and response pairs that make up the dialog.
@@ -409,12 +349,6 @@ class ChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -428,17 +362,15 @@ class ChatsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.chats.list_turns(
             chat_id="cht_1234567890",
         )
         """
-        _response = self._raw_client.list_turns(
-            chat_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.list_turns(chat_id, request_options=request_options)
         return _response.data
 
     def create_turns_stream(
@@ -447,8 +379,6 @@ class ChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -467,12 +397,6 @@ class ChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -496,7 +420,10 @@ class ChatsClient:
         --------
         from vectara import KeyedSearchCorpus, SearchCorporaParameters, Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.chats.create_turns_stream(
             chat_id="chat_id",
             query="What are the carbon reduction efforts by EU banks in 2023?",
@@ -515,8 +442,6 @@ class ChatsClient:
             chat_id,
             query=query,
             search=search,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             generation=generation,
             chat=chat,
             save_history=save_history,
@@ -531,8 +456,6 @@ class ChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -551,12 +474,6 @@ class ChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -580,7 +497,10 @@ class ChatsClient:
         --------
         from vectara import KeyedSearchCorpus, SearchCorporaParameters, Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.chats.create_turns(
             chat_id="chat_id",
             query="What are the carbon reduction efforts by EU banks in 2023?",
@@ -597,8 +517,6 @@ class ChatsClient:
             chat_id,
             query=query,
             search=search,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             generation=generation,
             chat=chat,
             save_history=save_history,
@@ -607,15 +525,7 @@ class ChatsClient:
         )
         return _response.data
 
-    def get_turn(
-        self,
-        chat_id: str,
-        turn_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Turn:
+    def get_turn(self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Turn:
         """
         Get a specific turn from a chat, which is a message and response pair from the conversation.
 
@@ -626,12 +536,6 @@ class ChatsClient:
 
         turn_id : str
             The ID of the turn.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -645,29 +549,20 @@ class ChatsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.chats.get_turn(
             chat_id="chat_id",
             turn_id="turn_id",
         )
         """
-        _response = self._raw_client.get_turn(
-            chat_id,
-            turn_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get_turn(chat_id, turn_id, request_options=request_options)
         return _response.data
 
     def delete_turn(
-        self,
-        chat_id: str,
-        turn_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
         Delete a turn from a chat. This will delete all subsequent turns in the chat.
@@ -680,12 +575,6 @@ class ChatsClient:
         turn_id : str
             The ID of the turn.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -697,19 +586,16 @@ class ChatsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.chats.delete_turn(
             chat_id="chat_id",
             turn_id="turn_id",
         )
         """
-        _response = self._raw_client.delete_turn(
-            chat_id,
-            turn_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete_turn(chat_id, turn_id, request_options=request_options)
         return _response.data
 
     def update_turn(
@@ -717,8 +603,6 @@ class ChatsClient:
         chat_id: str,
         turn_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Turn:
@@ -732,12 +616,6 @@ class ChatsClient:
 
         turn_id : str
             The ID of the turn.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Indicates whether to disable a turn. It will disable this turn and all subsequent turns. Enabling a turn is not implemented.
@@ -754,20 +632,16 @@ class ChatsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.chats.update_turn(
             chat_id="cht_1234567890",
             turn_id="trn_987654321",
         )
         """
-        _response = self._raw_client.update_turn(
-            chat_id,
-            turn_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            enabled=enabled,
-            request_options=request_options,
-        )
+        _response = self._raw_client.update_turn(chat_id, turn_id, enabled=enabled, request_options=request_options)
         return _response.data
 
 
@@ -791,8 +665,6 @@ class AsyncChatsClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Chat, ListChatsResponse]:
         """
@@ -805,12 +677,6 @@ class AsyncChatsClient:
 
         page_key : typing.Optional[str]
             Used to retrieve the next page of chats after the limit has been reached.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -826,7 +692,10 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -841,21 +710,13 @@ class AsyncChatsClient:
 
         asyncio.run(main())
         """
-        return await self._raw_client.list(
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        return await self._raw_client.list(limit=limit, page_key=page_key, request_options=request_options)
 
     async def create_stream(
         self,
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -871,12 +732,6 @@ class AsyncChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -911,7 +766,10 @@ class AsyncChatsClient:
             SearchReranker_CustomerReranker,
         )
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -953,8 +811,6 @@ class AsyncChatsClient:
         async with self._raw_client.create_stream(
             query=query,
             search=search,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             generation=generation,
             chat=chat,
             save_history=save_history,
@@ -969,8 +825,6 @@ class AsyncChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -986,12 +840,6 @@ class AsyncChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -1026,7 +874,10 @@ class AsyncChatsClient:
             SearchReranker_CustomerReranker,
         )
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1066,8 +917,6 @@ class AsyncChatsClient:
         _response = await self._raw_client.create(
             query=query,
             search=search,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             generation=generation,
             chat=chat,
             save_history=save_history,
@@ -1076,14 +925,7 @@ class AsyncChatsClient:
         )
         return _response.data
 
-    async def get(
-        self,
-        chat_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Chat:
+    async def get(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Chat:
         """
         Get a chat summary to view what started the chat, but not subsequent turns.
 
@@ -1091,12 +933,6 @@ class AsyncChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1112,7 +948,10 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1123,22 +962,10 @@ class AsyncChatsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            chat_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(chat_id, request_options=request_options)
         return _response.data
 
-    async def delete(
-        self,
-        chat_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    async def delete(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Delete a chat and any turns it contains permanently.
 
@@ -1146,12 +973,6 @@ class AsyncChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1166,7 +987,10 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1177,21 +1001,11 @@ class AsyncChatsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete(
-            chat_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete(chat_id, request_options=request_options)
         return _response.data
 
     async def list_turns(
-        self,
-        chat_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> ListChatTurnsResponse:
         """
         List all turns in a chat to see all message and response pairs that make up the dialog.
@@ -1200,12 +1014,6 @@ class AsyncChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1221,7 +1029,10 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1232,12 +1043,7 @@ class AsyncChatsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.list_turns(
-            chat_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.list_turns(chat_id, request_options=request_options)
         return _response.data
 
     async def create_turns_stream(
@@ -1246,8 +1052,6 @@ class AsyncChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -1266,12 +1070,6 @@ class AsyncChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -1297,7 +1095,10 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara, KeyedSearchCorpus, SearchCorporaParameters
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1322,8 +1123,6 @@ class AsyncChatsClient:
             chat_id,
             query=query,
             search=search,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             generation=generation,
             chat=chat,
             save_history=save_history,
@@ -1339,8 +1138,6 @@ class AsyncChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -1359,12 +1156,6 @@ class AsyncChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -1390,7 +1181,10 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara, KeyedSearchCorpus, SearchCorporaParameters
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1413,8 +1207,6 @@ class AsyncChatsClient:
             chat_id,
             query=query,
             search=search,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             generation=generation,
             chat=chat,
             save_history=save_history,
@@ -1424,13 +1216,7 @@ class AsyncChatsClient:
         return _response.data
 
     async def get_turn(
-        self,
-        chat_id: str,
-        turn_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> Turn:
         """
         Get a specific turn from a chat, which is a message and response pair from the conversation.
@@ -1442,12 +1228,6 @@ class AsyncChatsClient:
 
         turn_id : str
             The ID of the turn.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1463,7 +1243,10 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1475,23 +1258,11 @@ class AsyncChatsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get_turn(
-            chat_id,
-            turn_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get_turn(chat_id, turn_id, request_options=request_options)
         return _response.data
 
     async def delete_turn(
-        self,
-        chat_id: str,
-        turn_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
         Delete a turn from a chat. This will delete all subsequent turns in the chat.
@@ -1503,12 +1274,6 @@ class AsyncChatsClient:
 
         turn_id : str
             The ID of the turn.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1523,7 +1288,10 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1535,13 +1303,7 @@ class AsyncChatsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete_turn(
-            chat_id,
-            turn_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete_turn(chat_id, turn_id, request_options=request_options)
         return _response.data
 
     async def update_turn(
@@ -1549,8 +1311,6 @@ class AsyncChatsClient:
         chat_id: str,
         turn_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Turn:
@@ -1564,12 +1324,6 @@ class AsyncChatsClient:
 
         turn_id : str
             The ID of the turn.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Indicates whether to disable a turn. It will disable this turn and all subsequent turns. Enabling a turn is not implemented.
@@ -1588,7 +1342,10 @@ class AsyncChatsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1601,11 +1358,6 @@ class AsyncChatsClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.update_turn(
-            chat_id,
-            turn_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            enabled=enabled,
-            request_options=request_options,
+            chat_id, turn_id, enabled=enabled, request_options=request_options
         )
         return _response.data

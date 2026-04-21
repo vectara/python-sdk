@@ -20,23 +20,13 @@ class RawTableExtractorsClient:
         self._client_wrapper = client_wrapper
 
     def list(
-        self,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ListTableExtractorsResponse]:
         """
         Table extractors are used to extract tabular data from documents during indexing.
 
         Parameters
         ----------
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -49,10 +39,6 @@ class RawTableExtractorsClient:
             "v2/table_extractors",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -91,23 +77,13 @@ class AsyncRawTableExtractorsClient:
         self._client_wrapper = client_wrapper
 
     async def list(
-        self,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ListTableExtractorsResponse]:
         """
         Table extractors are used to extract tabular data from documents during indexing.
 
         Parameters
         ----------
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -120,10 +96,6 @@ class AsyncRawTableExtractorsClient:
             "v2/table_extractors",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:

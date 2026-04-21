@@ -34,8 +34,6 @@ class GenerationPresetsClient:
         llm_name: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[GenerationPreset, ListGenerationPresetsResponse]:
         """
@@ -62,12 +60,6 @@ class GenerationPresetsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of generation presets after the limit has been reached. This parameter is not needed for the first page of results.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -80,7 +72,10 @@ class GenerationPresetsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.generation_presets.list(
             llm_name="mockingbird-2.0",
         )
@@ -90,20 +85,11 @@ class GenerationPresetsClient:
         for page in response.iter_pages():
             yield page
         """
-        return self._raw_client.list(
-            llm_name=llm_name,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        return self._raw_client.list(llm_name=llm_name, limit=limit, page_key=page_key, request_options=request_options)
 
     def create(
         self,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         id: typing.Optional[str] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -126,12 +112,6 @@ class GenerationPresetsClient:
 
         Parameters
         ----------
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         id : typing.Optional[str]
             The ID of the generation preset.
 
@@ -183,12 +163,13 @@ class GenerationPresetsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.generation_presets.create()
         """
         _response = self._raw_client.create(
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             id=id,
             name=name,
             description=description,
@@ -210,8 +191,6 @@ class GenerationPresetsClient:
         self,
         generation_preset_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         id: typing.Optional[str] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -235,12 +214,6 @@ class GenerationPresetsClient:
         ----------
         generation_preset_id : str
             The ID of the generation preset to replace.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         id : typing.Optional[str]
             The ID of the generation preset.
@@ -293,15 +266,16 @@ class GenerationPresetsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.generation_presets.replace(
             generation_preset_id="generation_preset_id",
         )
         """
         _response = self._raw_client.replace(
             generation_preset_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             id=id,
             name=name,
             description=description,
@@ -319,14 +293,7 @@ class GenerationPresetsClient:
         )
         return _response.data
 
-    def delete(
-        self,
-        generation_preset_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    def delete(self, generation_preset_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Delete an existing custom generation preset.
         The preset must have been created by the customer (platform presets cannot be deleted).
@@ -335,12 +302,6 @@ class GenerationPresetsClient:
         ----------
         generation_preset_id : str
             The ID of the generation preset to delete.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -353,17 +314,15 @@ class GenerationPresetsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.generation_presets.delete(
             generation_preset_id="generation_preset_id",
         )
         """
-        _response = self._raw_client.delete(
-            generation_preset_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete(generation_preset_id, request_options=request_options)
         return _response.data
 
 
@@ -388,8 +347,6 @@ class AsyncGenerationPresetsClient:
         llm_name: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[GenerationPreset, ListGenerationPresetsResponse]:
         """
@@ -416,12 +373,6 @@ class AsyncGenerationPresetsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of generation presets after the limit has been reached. This parameter is not needed for the first page of results.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -436,7 +387,10 @@ class AsyncGenerationPresetsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -454,19 +408,12 @@ class AsyncGenerationPresetsClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
-            llm_name=llm_name,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            llm_name=llm_name, limit=limit, page_key=page_key, request_options=request_options
         )
 
     async def create(
         self,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         id: typing.Optional[str] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -489,12 +436,6 @@ class AsyncGenerationPresetsClient:
 
         Parameters
         ----------
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         id : typing.Optional[str]
             The ID of the generation preset.
 
@@ -548,7 +489,10 @@ class AsyncGenerationPresetsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -558,8 +502,6 @@ class AsyncGenerationPresetsClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.create(
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             id=id,
             name=name,
             description=description,
@@ -581,8 +523,6 @@ class AsyncGenerationPresetsClient:
         self,
         generation_preset_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         id: typing.Optional[str] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -606,12 +546,6 @@ class AsyncGenerationPresetsClient:
         ----------
         generation_preset_id : str
             The ID of the generation preset to replace.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         id : typing.Optional[str]
             The ID of the generation preset.
@@ -666,7 +600,10 @@ class AsyncGenerationPresetsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -679,8 +616,6 @@ class AsyncGenerationPresetsClient:
         """
         _response = await self._raw_client.replace(
             generation_preset_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             id=id,
             name=name,
             description=description,
@@ -699,12 +634,7 @@ class AsyncGenerationPresetsClient:
         return _response.data
 
     async def delete(
-        self,
-        generation_preset_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, generation_preset_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
         Delete an existing custom generation preset.
@@ -714,12 +644,6 @@ class AsyncGenerationPresetsClient:
         ----------
         generation_preset_id : str
             The ID of the generation preset to delete.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -734,7 +658,10 @@ class AsyncGenerationPresetsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -745,10 +672,5 @@ class AsyncGenerationPresetsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete(
-            generation_preset_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete(generation_preset_id, request_options=request_options)
         return _response.data

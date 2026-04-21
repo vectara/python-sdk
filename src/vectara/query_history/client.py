@@ -27,14 +27,7 @@ class QueryHistoryClient:
         """
         return self._raw_client
 
-    def get(
-        self,
-        query_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> QueryHistory:
+    def get(self, query_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> QueryHistory:
         """
         The Get Query History API allows you to retrieve detailed history about a specific query that was made against a corpus. The response includes detailed information about the query, such as latency, the time it was executed, and the various stages in the query pipeline.
 
@@ -44,12 +37,6 @@ class QueryHistoryClient:
         ----------
         query_id : str
             The ID of the query history
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -63,17 +50,15 @@ class QueryHistoryClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.query_history.get(
             query_id="qry_123456789",
         )
         """
-        _response = self._raw_client.get(
-            query_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(query_id, request_options=request_options)
         return _response.data
 
     def list(
@@ -86,8 +71,6 @@ class QueryHistoryClient:
         history_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[QueryHistorySummary, ListQueryHistoriesResponse]:
         """
@@ -118,12 +101,6 @@ class QueryHistoryClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of query histories after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -136,7 +113,10 @@ class QueryHistoryClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.query_history.list(
             corpus_key="my_corpus_key",
             chat_id="cht_123456789",
@@ -155,8 +135,6 @@ class QueryHistoryClient:
             history_id=history_id,
             limit=limit,
             page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
 
@@ -176,14 +154,7 @@ class AsyncQueryHistoryClient:
         """
         return self._raw_client
 
-    async def get(
-        self,
-        query_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> QueryHistory:
+    async def get(self, query_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> QueryHistory:
         """
         The Get Query History API allows you to retrieve detailed history about a specific query that was made against a corpus. The response includes detailed information about the query, such as latency, the time it was executed, and the various stages in the query pipeline.
 
@@ -193,12 +164,6 @@ class AsyncQueryHistoryClient:
         ----------
         query_id : str
             The ID of the query history
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -214,7 +179,10 @@ class AsyncQueryHistoryClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -225,12 +193,7 @@ class AsyncQueryHistoryClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            query_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(query_id, request_options=request_options)
         return _response.data
 
     async def list(
@@ -243,8 +206,6 @@ class AsyncQueryHistoryClient:
         history_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[QueryHistorySummary, ListQueryHistoriesResponse]:
         """
@@ -275,12 +236,6 @@ class AsyncQueryHistoryClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of query histories after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -295,7 +250,10 @@ class AsyncQueryHistoryClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -321,7 +279,5 @@ class AsyncQueryHistoryClient:
             history_id=history_id,
             limit=limit,
             page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )

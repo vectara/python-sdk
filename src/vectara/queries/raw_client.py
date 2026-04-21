@@ -37,8 +37,6 @@ class RawQueriesClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
@@ -60,12 +58,6 @@ class RawQueriesClient:
             The search query string, which is the question the user is asking.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -101,8 +93,6 @@ class RawQueriesClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -193,8 +183,6 @@ class RawQueriesClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
@@ -216,12 +204,6 @@ class RawQueriesClient:
             The search query string, which is the question the user is asking.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -257,8 +239,6 @@ class RawQueriesClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -326,8 +306,6 @@ class AsyncRawQueriesClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
@@ -349,12 +327,6 @@ class AsyncRawQueriesClient:
             The search query string, which is the question the user is asking.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -390,8 +362,6 @@ class AsyncRawQueriesClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -482,8 +452,6 @@ class AsyncRawQueriesClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
         intelligent_query_rewriting: typing.Optional[bool] = OMIT,
@@ -505,12 +473,6 @@ class AsyncRawQueriesClient:
             The search query string, which is the question the user is asking.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -546,8 +508,6 @@ class AsyncRawQueriesClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

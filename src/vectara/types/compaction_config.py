@@ -24,7 +24,7 @@ class CompactionConfig(UniversalBaseModel):
 
     keep_recent_inputs: typing.Optional[int] = pydantic.Field(default=None)
     """
-    Number of recent inputs to keep verbatim (not compacted).
+    Number of recent turns to keep verbatim (not compacted).
     """
 
     compaction_message: typing.Optional[str] = pydantic.Field(default=None)

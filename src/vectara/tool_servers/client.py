@@ -41,8 +41,6 @@ class ToolServersClient:
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[ToolServer, ListToolServersResponse]:
         """
@@ -65,12 +63,6 @@ class ToolServersClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of tool servers after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -83,7 +75,10 @@ class ToolServersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.tool_servers.list(
             filter="rag.*",
             enabled=True,
@@ -95,14 +90,7 @@ class ToolServersClient:
             yield page
         """
         return self._raw_client.list(
-            filter=filter,
-            type=type,
-            enabled=enabled,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            filter=filter, type=type, enabled=enabled, limit=limit, page_key=page_key, request_options=request_options
         )
 
     def create(
@@ -112,8 +100,6 @@ class ToolServersClient:
         type: ToolServerType,
         uri: str,
         transport: ToolServerTransport,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         headers: typing.Optional[typing.Dict[str, str]] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
@@ -134,12 +120,6 @@ class ToolServersClient:
             The URI of the tool server.
 
         transport : ToolServerTransport
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         description : typing.Optional[str]
             A detailed description of what this tool server does.
@@ -168,7 +148,10 @@ class ToolServersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.tool_servers.create(
             name="RAG Search Server",
             type="mcp",
@@ -181,8 +164,6 @@ class ToolServersClient:
             type=type,
             uri=uri,
             transport=transport,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             description=description,
             headers=headers,
             auth=auth,
@@ -192,14 +173,7 @@ class ToolServersClient:
         )
         return _response.data
 
-    def get(
-        self,
-        tool_server_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> ToolServer:
+    def get(self, tool_server_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> ToolServer:
         """
         Retrieve details about a specific tool server by its Id.
 
@@ -207,12 +181,6 @@ class ToolServersClient:
         ----------
         tool_server_id : str
             The unique identifier of the tool server to retrieve.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -226,27 +194,18 @@ class ToolServersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.tool_servers.get(
             tool_server_id="tsr_rag_search",
         )
         """
-        _response = self._raw_client.get(
-            tool_server_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(tool_server_id, request_options=request_options)
         return _response.data
 
-    def delete(
-        self,
-        tool_server_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    def delete(self, tool_server_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Permanently delete a tool server and all its associated configuration and tools. This action cannot be undone.
 
@@ -254,12 +213,6 @@ class ToolServersClient:
         ----------
         tool_server_id : str
             The unique identifier of the tool server to delete.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -272,25 +225,21 @@ class ToolServersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.tool_servers.delete(
             tool_server_id="tsr_rag_search",
         )
         """
-        _response = self._raw_client.delete(
-            tool_server_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete(tool_server_id, request_options=request_options)
         return _response.data
 
     def update(
         self,
         tool_server_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[ToolServerName] = OMIT,
         description: typing.Optional[str] = OMIT,
         uri: typing.Optional[str] = OMIT,
@@ -308,12 +257,6 @@ class ToolServersClient:
         ----------
         tool_server_id : str
             The unique identifier of the tool server to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[ToolServerName]
 
@@ -349,15 +292,16 @@ class ToolServersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.tool_servers.update(
             tool_server_id="tsr_rag_search",
         )
         """
         _response = self._raw_client.update(
             tool_server_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             name=name,
             description=description,
             uri=uri,
@@ -370,14 +314,7 @@ class ToolServersClient:
         )
         return _response.data
 
-    def sync(
-        self,
-        tool_server_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    def sync(self, tool_server_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Trigger a synchronization of the tool server to ensure it is up-to-date with the latest tools.
 
@@ -385,12 +322,6 @@ class ToolServersClient:
         ----------
         tool_server_id : str
             The unique identifier of the tool server to synchronize.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -403,17 +334,15 @@ class ToolServersClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.tool_servers.sync(
             tool_server_id="tsr_rag_search",
         )
         """
-        _response = self._raw_client.sync(
-            tool_server_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.sync(tool_server_id, request_options=request_options)
         return _response.data
 
 
@@ -440,8 +369,6 @@ class AsyncToolServersClient:
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[ToolServer, ListToolServersResponse]:
         """
@@ -464,12 +391,6 @@ class AsyncToolServersClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of tool servers after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -484,7 +405,10 @@ class AsyncToolServersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -503,14 +427,7 @@ class AsyncToolServersClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
-            filter=filter,
-            type=type,
-            enabled=enabled,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            filter=filter, type=type, enabled=enabled, limit=limit, page_key=page_key, request_options=request_options
         )
 
     async def create(
@@ -520,8 +437,6 @@ class AsyncToolServersClient:
         type: ToolServerType,
         uri: str,
         transport: ToolServerTransport,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         headers: typing.Optional[typing.Dict[str, str]] = OMIT,
         auth: typing.Optional[RemoteAuth] = OMIT,
@@ -542,12 +457,6 @@ class AsyncToolServersClient:
             The URI of the tool server.
 
         transport : ToolServerTransport
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         description : typing.Optional[str]
             A detailed description of what this tool server does.
@@ -578,7 +487,10 @@ class AsyncToolServersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -597,8 +509,6 @@ class AsyncToolServersClient:
             type=type,
             uri=uri,
             transport=transport,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             description=description,
             headers=headers,
             auth=auth,
@@ -608,14 +518,7 @@ class AsyncToolServersClient:
         )
         return _response.data
 
-    async def get(
-        self,
-        tool_server_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> ToolServer:
+    async def get(self, tool_server_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> ToolServer:
         """
         Retrieve details about a specific tool server by its Id.
 
@@ -623,12 +526,6 @@ class AsyncToolServersClient:
         ----------
         tool_server_id : str
             The unique identifier of the tool server to retrieve.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -644,7 +541,10 @@ class AsyncToolServersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -655,22 +555,10 @@ class AsyncToolServersClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            tool_server_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(tool_server_id, request_options=request_options)
         return _response.data
 
-    async def delete(
-        self,
-        tool_server_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    async def delete(self, tool_server_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Permanently delete a tool server and all its associated configuration and tools. This action cannot be undone.
 
@@ -678,12 +566,6 @@ class AsyncToolServersClient:
         ----------
         tool_server_id : str
             The unique identifier of the tool server to delete.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -698,7 +580,10 @@ class AsyncToolServersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -709,20 +594,13 @@ class AsyncToolServersClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete(
-            tool_server_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete(tool_server_id, request_options=request_options)
         return _response.data
 
     async def update(
         self,
         tool_server_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[ToolServerName] = OMIT,
         description: typing.Optional[str] = OMIT,
         uri: typing.Optional[str] = OMIT,
@@ -740,12 +618,6 @@ class AsyncToolServersClient:
         ----------
         tool_server_id : str
             The unique identifier of the tool server to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[ToolServerName]
 
@@ -783,7 +655,10 @@ class AsyncToolServersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -796,8 +671,6 @@ class AsyncToolServersClient:
         """
         _response = await self._raw_client.update(
             tool_server_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             name=name,
             description=description,
             uri=uri,
@@ -810,14 +683,7 @@ class AsyncToolServersClient:
         )
         return _response.data
 
-    async def sync(
-        self,
-        tool_server_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    async def sync(self, tool_server_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Trigger a synchronization of the tool server to ensure it is up-to-date with the latest tools.
 
@@ -825,12 +691,6 @@ class AsyncToolServersClient:
         ----------
         tool_server_id : str
             The unique identifier of the tool server to synchronize.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -845,7 +705,10 @@ class AsyncToolServersClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -856,10 +719,5 @@ class AsyncToolServersClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.sync(
-            tool_server_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.sync(tool_server_id, request_options=request_options)
         return _response.data

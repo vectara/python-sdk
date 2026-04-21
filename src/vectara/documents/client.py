@@ -41,8 +41,6 @@ class DocumentsClient:
         limit: typing.Optional[int] = None,
         metadata_filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Document, ListDocumentsResponse]:
         """
@@ -68,12 +66,6 @@ class DocumentsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of documents after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -86,7 +78,10 @@ class DocumentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.documents.list(
             corpus_key="my-corpus",
         )
@@ -97,13 +92,7 @@ class DocumentsClient:
             yield page
         """
         return self._raw_client.list(
-            corpus_key,
-            limit=limit,
-            metadata_filter=metadata_filter,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            corpus_key, limit=limit, metadata_filter=metadata_filter, page_key=page_key, request_options=request_options
         )
 
     def create(
@@ -112,8 +101,6 @@ class DocumentsClient:
         *,
         request: CreateDocumentRequest,
         wait_for: typing.Optional[CreateDocumentsRequestWaitFor] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
@@ -167,12 +154,6 @@ class DocumentsClient:
 
             Both modes return a successful response once the specified condition is met.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -189,7 +170,10 @@ class DocumentsClient:
             Vectara,
         )
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.documents.create(
             corpus_key="my-corpus-key",
             request=CreateDocumentRequest_Structured(
@@ -213,12 +197,7 @@ class DocumentsClient:
         )
         """
         _response = self._raw_client.create(
-            corpus_key,
-            request=request,
-            wait_for=wait_for,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            corpus_key, request=request, wait_for=wait_for, request_options=request_options
         )
         return _response.data
 
@@ -229,8 +208,6 @@ class DocumentsClient:
         metadata_filter: typing.Optional[str] = None,
         document_ids: typing.Optional[str] = None,
         async_: typing.Optional[bool] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> BulkDeleteDocumentsResponse:
         """
@@ -266,12 +243,6 @@ class DocumentsClient:
 
             The workflow continues running in the background even if the API wait times out.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -284,7 +255,10 @@ class DocumentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.documents.bulk_delete(
             corpus_key="my-corpus",
         )
@@ -294,20 +268,12 @@ class DocumentsClient:
             metadata_filter=metadata_filter,
             document_ids=document_ids,
             async_=async_,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
         return _response.data
 
     def get(
-        self,
-        corpus_key: CorpusKey,
-        document_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> Document:
         """
         The Retrieve Document API enables you to fetch the content and metadata of a specific document from a corpus, identified by its unique `document_id` from a specific corpus. Use this endpoint to view the full details of a document, including its text, metadata, and associated tables, if table extraction is enabled.
@@ -322,12 +288,6 @@ class DocumentsClient:
         document_id : str
             The document ID of the document to retrieve. This `document_id` must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -340,29 +300,20 @@ class DocumentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.documents.get(
             corpus_key="my-corpus",
             document_id="document_id",
         )
         """
-        _response = self._raw_client.get(
-            corpus_key,
-            document_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(corpus_key, document_id, request_options=request_options)
         return _response.data
 
     def delete(
-        self,
-        corpus_key: CorpusKey,
-        document_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
         Permanently delete a document identified by its unique `document_id` from a specific corpus. This operation cannot be undone, so use it with caution.
@@ -375,12 +326,6 @@ class DocumentsClient:
         document_id : str
             The document ID of the document to delete. This `document_id` must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -392,19 +337,16 @@ class DocumentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.documents.delete(
             corpus_key="my-corpus",
             document_id="document_id",
         )
         """
-        _response = self._raw_client.delete(
-            corpus_key,
-            document_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete(corpus_key, document_id, request_options=request_options)
         return _response.data
 
     def update(
@@ -412,8 +354,6 @@ class DocumentsClient:
         corpus_key: CorpusKey,
         document_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
@@ -428,12 +368,6 @@ class DocumentsClient:
         document_id : str
             The document ID of the document to update. This `document_id` must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         metadata : typing.Optional[typing.Dict[str, typing.Any]]
             The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
@@ -449,20 +383,16 @@ class DocumentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.documents.update(
             corpus_key="my-corpus",
             document_id="document_id",
         )
         """
-        _response = self._raw_client.update(
-            corpus_key,
-            document_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            metadata=metadata,
-            request_options=request_options,
-        )
+        _response = self._raw_client.update(corpus_key, document_id, metadata=metadata, request_options=request_options)
         return _response.data
 
     def update_metadata(
@@ -470,8 +400,6 @@ class DocumentsClient:
         corpus_key: CorpusKey,
         document_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
@@ -486,12 +414,6 @@ class DocumentsClient:
         document_id : str
             The document ID of the document to update. This `document_id` must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         metadata : typing.Optional[typing.Dict[str, typing.Any]]
             The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
@@ -507,19 +429,17 @@ class DocumentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.documents.update_metadata(
             corpus_key="my-corpus",
             document_id="document_id",
         )
         """
         _response = self._raw_client.update_metadata(
-            corpus_key,
-            document_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            metadata=metadata,
-            request_options=request_options,
+            corpus_key, document_id, metadata=metadata, request_options=request_options
         )
         return _response.data
 
@@ -529,8 +449,6 @@ class DocumentsClient:
         document_id: str,
         *,
         llm_name: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         prompt_template: typing.Optional[str] = OMIT,
         model_parameters: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         stream_response: typing.Optional[bool] = OMIT,
@@ -608,12 +526,6 @@ class DocumentsClient:
         llm_name : str
             The name of the LLM.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         prompt_template : typing.Optional[str]
             The prompt template to use when generating the summary. Vectara manages both system and user roles and prompts for the generative LLM out of the box by default. However, users can override the `prompt_template` via this variable. The `prompt_template` is in the form of an Apache Velocity template. For more details on how to configure the `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
 
@@ -635,7 +547,10 @@ class DocumentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.documents.summarize(
             corpus_key="my-corpus",
             document_id="document_id",
@@ -649,8 +564,6 @@ class DocumentsClient:
             corpus_key,
             document_id,
             llm_name=llm_name,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             prompt_template=prompt_template,
             model_parameters=model_parameters,
             stream_response=stream_response,
@@ -664,8 +577,6 @@ class DocumentsClient:
         document_id: str,
         image_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Image:
         """
@@ -682,12 +593,6 @@ class DocumentsClient:
         image_id : str
             The identifier of the image to retrieve from the specified document. Each image within a document has a unique `image_id`. This value must be percent-encoded when passed in the request URL.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -700,21 +605,17 @@ class DocumentsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.documents.get_image(
             corpus_key="my-corpus",
             document_id="document_id",
             image_id="image_id",
         )
         """
-        _response = self._raw_client.get_image(
-            corpus_key,
-            document_id,
-            image_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get_image(corpus_key, document_id, image_id, request_options=request_options)
         return _response.data
 
 
@@ -740,8 +641,6 @@ class AsyncDocumentsClient:
         limit: typing.Optional[int] = None,
         metadata_filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Document, ListDocumentsResponse]:
         """
@@ -767,12 +666,6 @@ class AsyncDocumentsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of documents after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -787,7 +680,10 @@ class AsyncDocumentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -805,13 +701,7 @@ class AsyncDocumentsClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
-            corpus_key,
-            limit=limit,
-            metadata_filter=metadata_filter,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            corpus_key, limit=limit, metadata_filter=metadata_filter, page_key=page_key, request_options=request_options
         )
 
     async def create(
@@ -820,8 +710,6 @@ class AsyncDocumentsClient:
         *,
         request: CreateDocumentRequest,
         wait_for: typing.Optional[CreateDocumentsRequestWaitFor] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
         """
@@ -875,12 +763,6 @@ class AsyncDocumentsClient:
 
             Both modes return a successful response once the specified condition is met.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -899,7 +781,10 @@ class AsyncDocumentsClient:
             StructuredDocumentSection,
         )
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -929,12 +814,7 @@ class AsyncDocumentsClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.create(
-            corpus_key,
-            request=request,
-            wait_for=wait_for,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            corpus_key, request=request, wait_for=wait_for, request_options=request_options
         )
         return _response.data
 
@@ -945,8 +825,6 @@ class AsyncDocumentsClient:
         metadata_filter: typing.Optional[str] = None,
         document_ids: typing.Optional[str] = None,
         async_: typing.Optional[bool] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> BulkDeleteDocumentsResponse:
         """
@@ -982,12 +860,6 @@ class AsyncDocumentsClient:
 
             The workflow continues running in the background even if the API wait times out.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1002,7 +874,10 @@ class AsyncDocumentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1018,20 +893,12 @@ class AsyncDocumentsClient:
             metadata_filter=metadata_filter,
             document_ids=document_ids,
             async_=async_,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
         return _response.data
 
     async def get(
-        self,
-        corpus_key: CorpusKey,
-        document_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> Document:
         """
         The Retrieve Document API enables you to fetch the content and metadata of a specific document from a corpus, identified by its unique `document_id` from a specific corpus. Use this endpoint to view the full details of a document, including its text, metadata, and associated tables, if table extraction is enabled.
@@ -1045,12 +912,6 @@ class AsyncDocumentsClient:
 
         document_id : str
             The document ID of the document to retrieve. This `document_id` must be percent encoded.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1066,7 +927,10 @@ class AsyncDocumentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1078,23 +942,11 @@ class AsyncDocumentsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            corpus_key,
-            document_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(corpus_key, document_id, request_options=request_options)
         return _response.data
 
     async def delete(
-        self,
-        corpus_key: CorpusKey,
-        document_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, corpus_key: CorpusKey, document_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
         Permanently delete a document identified by its unique `document_id` from a specific corpus. This operation cannot be undone, so use it with caution.
@@ -1106,12 +958,6 @@ class AsyncDocumentsClient:
 
         document_id : str
             The document ID of the document to delete. This `document_id` must be percent encoded.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1126,7 +972,10 @@ class AsyncDocumentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1138,13 +987,7 @@ class AsyncDocumentsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete(
-            corpus_key,
-            document_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete(corpus_key, document_id, request_options=request_options)
         return _response.data
 
     async def update(
@@ -1152,8 +995,6 @@ class AsyncDocumentsClient:
         corpus_key: CorpusKey,
         document_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
@@ -1168,12 +1009,6 @@ class AsyncDocumentsClient:
         document_id : str
             The document ID of the document to update. This `document_id` must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         metadata : typing.Optional[typing.Dict[str, typing.Any]]
             The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
@@ -1191,7 +1026,10 @@ class AsyncDocumentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1204,12 +1042,7 @@ class AsyncDocumentsClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.update(
-            corpus_key,
-            document_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            metadata=metadata,
-            request_options=request_options,
+            corpus_key, document_id, metadata=metadata, request_options=request_options
         )
         return _response.data
 
@@ -1218,8 +1051,6 @@ class AsyncDocumentsClient:
         corpus_key: CorpusKey,
         document_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Document:
@@ -1234,12 +1065,6 @@ class AsyncDocumentsClient:
         document_id : str
             The document ID of the document to update. This `document_id` must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         metadata : typing.Optional[typing.Dict[str, typing.Any]]
             The metadata for a document as an arbitrary object. Properties of this object can be used by document level filter attributes.
 
@@ -1257,7 +1082,10 @@ class AsyncDocumentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1270,12 +1098,7 @@ class AsyncDocumentsClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.update_metadata(
-            corpus_key,
-            document_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            metadata=metadata,
-            request_options=request_options,
+            corpus_key, document_id, metadata=metadata, request_options=request_options
         )
         return _response.data
 
@@ -1285,8 +1108,6 @@ class AsyncDocumentsClient:
         document_id: str,
         *,
         llm_name: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         prompt_template: typing.Optional[str] = OMIT,
         model_parameters: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         stream_response: typing.Optional[bool] = OMIT,
@@ -1364,12 +1185,6 @@ class AsyncDocumentsClient:
         llm_name : str
             The name of the LLM.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         prompt_template : typing.Optional[str]
             The prompt template to use when generating the summary. Vectara manages both system and user roles and prompts for the generative LLM out of the box by default. However, users can override the `prompt_template` via this variable. The `prompt_template` is in the form of an Apache Velocity template. For more details on how to configure the `prompt_template`, see the [long-form documentation](https://docs.vectara.com/docs/prompts/vectara-prompt-engine).
 
@@ -1393,7 +1208,10 @@ class AsyncDocumentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1413,8 +1231,6 @@ class AsyncDocumentsClient:
             corpus_key,
             document_id,
             llm_name=llm_name,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             prompt_template=prompt_template,
             model_parameters=model_parameters,
             stream_response=stream_response,
@@ -1428,8 +1244,6 @@ class AsyncDocumentsClient:
         document_id: str,
         image_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Image:
         """
@@ -1446,12 +1260,6 @@ class AsyncDocumentsClient:
         image_id : str
             The identifier of the image to retrieve from the specified document. Each image within a document has a unique `image_id`. This value must be percent-encoded when passed in the request URL.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1466,7 +1274,10 @@ class AsyncDocumentsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -1479,12 +1290,5 @@ class AsyncDocumentsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get_image(
-            corpus_key,
-            document_id,
-            image_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get_image(corpus_key, document_id, image_id, request_options=request_options)
         return _response.data

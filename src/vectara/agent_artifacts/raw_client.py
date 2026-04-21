@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
@@ -36,8 +36,6 @@ class RawAgentArtifactsClient:
         page_key: typing.Optional[str] = None,
         sort_by: typing.Optional[ListAgentArtifactsRequestSortBy] = None,
         order_by: typing.Optional[ListAgentArtifactsRequestOrderBy] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[SessionArtifact, ListSessionArtifactsResponse]:
         """
@@ -63,12 +61,6 @@ class RawAgentArtifactsClient:
         order_by : typing.Optional[ListAgentArtifactsRequestOrderBy]
             The ordering direction of the results.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -78,7 +70,7 @@ class RawAgentArtifactsClient:
             List of artifacts in the session.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/artifacts",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/artifacts",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
@@ -86,10 +78,6 @@ class RawAgentArtifactsClient:
                 "page_key": page_key,
                 "sort_by": sort_by,
                 "order_by": order_by,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -115,8 +103,6 @@ class RawAgentArtifactsClient:
                         page_key=_parsed_next,
                         sort_by=sort_by,
                         order_by=order_by,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -157,8 +143,6 @@ class RawAgentArtifactsClient:
         session_key: AgentSessionKey,
         artifact_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[SessionArtifact]:
         """
@@ -175,12 +159,6 @@ class RawAgentArtifactsClient:
         artifact_id : str
             The unique identifier of the artifact to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -190,13 +168,9 @@ class RawAgentArtifactsClient:
             The requested artifact with metadata and base64-encoded content.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/artifacts/{jsonable_encoder(artifact_id)}",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/artifacts/{encode_path_param(artifact_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -254,8 +228,6 @@ class AsyncRawAgentArtifactsClient:
         page_key: typing.Optional[str] = None,
         sort_by: typing.Optional[ListAgentArtifactsRequestSortBy] = None,
         order_by: typing.Optional[ListAgentArtifactsRequestOrderBy] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[SessionArtifact, ListSessionArtifactsResponse]:
         """
@@ -281,12 +253,6 @@ class AsyncRawAgentArtifactsClient:
         order_by : typing.Optional[ListAgentArtifactsRequestOrderBy]
             The ordering direction of the results.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -296,7 +262,7 @@ class AsyncRawAgentArtifactsClient:
             List of artifacts in the session.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/artifacts",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/artifacts",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
@@ -304,10 +270,6 @@ class AsyncRawAgentArtifactsClient:
                 "page_key": page_key,
                 "sort_by": sort_by,
                 "order_by": order_by,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -335,8 +297,6 @@ class AsyncRawAgentArtifactsClient:
                             page_key=_parsed_next,
                             sort_by=sort_by,
                             order_by=order_by,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 
@@ -378,8 +338,6 @@ class AsyncRawAgentArtifactsClient:
         session_key: AgentSessionKey,
         artifact_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[SessionArtifact]:
         """
@@ -396,12 +354,6 @@ class AsyncRawAgentArtifactsClient:
         artifact_id : str
             The unique identifier of the artifact to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -411,13 +363,9 @@ class AsyncRawAgentArtifactsClient:
             The requested artifact with metadata and base64-encoded content.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/artifacts/{jsonable_encoder(artifact_id)}",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/artifacts/{encode_path_param(artifact_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:

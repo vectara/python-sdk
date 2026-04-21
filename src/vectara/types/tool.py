@@ -27,6 +27,7 @@ class Tool_DynamicVectara(UniversalBaseModel):
     title: typing.Optional[str] = None
     description: str
     description_template: typing.Optional[ToolDescriptionTemplate] = None
+    documentation: typing.Optional[str] = None
     enabled: bool
     experimental: typing.Optional[bool] = None
     created_at: typing.Optional[dt.datetime] = None
@@ -60,6 +61,7 @@ class Tool_Mcp(UniversalBaseModel):
     title: typing.Optional[str] = None
     description: str
     description_template: typing.Optional[ToolDescriptionTemplate] = None
+    documentation: typing.Optional[str] = None
     enabled: bool
     experimental: typing.Optional[bool] = None
     created_at: typing.Optional[dt.datetime] = None
@@ -91,6 +93,7 @@ class Tool_CorporaSearch(UniversalBaseModel):
     title: typing.Optional[str] = None
     description: str
     description_template: typing.Optional[ToolDescriptionTemplate] = None
+    documentation: typing.Optional[str] = None
     enabled: bool
     experimental: typing.Optional[bool] = None
     created_at: typing.Optional[dt.datetime] = None
@@ -122,6 +125,7 @@ class Tool_WebSearch(UniversalBaseModel):
     title: typing.Optional[str] = None
     description: str
     description_template: typing.Optional[ToolDescriptionTemplate] = None
+    documentation: typing.Optional[str] = None
     enabled: bool
     experimental: typing.Optional[bool] = None
     created_at: typing.Optional[dt.datetime] = None
@@ -153,6 +157,7 @@ class Tool_WebGet(UniversalBaseModel):
     title: typing.Optional[str] = None
     description: str
     description_template: typing.Optional[ToolDescriptionTemplate] = None
+    documentation: typing.Optional[str] = None
     enabled: bool
     experimental: typing.Optional[bool] = None
     created_at: typing.Optional[dt.datetime] = None
@@ -187,6 +192,7 @@ class Tool_Lambda(UniversalBaseModel):
     title: typing.Optional[str] = None
     description: str
     description_template: typing.Optional[ToolDescriptionTemplate] = None
+    documentation: typing.Optional[str] = None
     enabled: bool
     experimental: typing.Optional[bool] = None
     created_at: typing.Optional[dt.datetime] = None
@@ -218,6 +224,7 @@ class Tool_SubAgent(UniversalBaseModel):
     title: typing.Optional[str] = None
     description: str
     description_template: typing.Optional[ToolDescriptionTemplate] = None
+    documentation: typing.Optional[str] = None
     enabled: bool
     experimental: typing.Optional[bool] = None
     created_at: typing.Optional[dt.datetime] = None
@@ -249,6 +256,7 @@ class Tool_ArtifactCreate(UniversalBaseModel):
     title: typing.Optional[str] = None
     description: str
     description_template: typing.Optional[ToolDescriptionTemplate] = None
+    documentation: typing.Optional[str] = None
     enabled: bool
     experimental: typing.Optional[bool] = None
     created_at: typing.Optional[dt.datetime] = None
@@ -280,6 +288,7 @@ class Tool_ArtifactRead(UniversalBaseModel):
     title: typing.Optional[str] = None
     description: str
     description_template: typing.Optional[ToolDescriptionTemplate] = None
+    documentation: typing.Optional[str] = None
     enabled: bool
     experimental: typing.Optional[bool] = None
     created_at: typing.Optional[dt.datetime] = None
@@ -311,6 +320,7 @@ class Tool_ArtifactGrep(UniversalBaseModel):
     title: typing.Optional[str] = None
     description: str
     description_template: typing.Optional[ToolDescriptionTemplate] = None
+    documentation: typing.Optional[str] = None
     enabled: bool
     experimental: typing.Optional[bool] = None
     created_at: typing.Optional[dt.datetime] = None
@@ -342,6 +352,7 @@ class Tool_ImageRead(UniversalBaseModel):
     title: typing.Optional[str] = None
     description: str
     description_template: typing.Optional[ToolDescriptionTemplate] = None
+    documentation: typing.Optional[str] = None
     enabled: bool
     experimental: typing.Optional[bool] = None
     created_at: typing.Optional[dt.datetime] = None
@@ -373,6 +384,7 @@ class Tool_DocumentConversion(UniversalBaseModel):
     title: typing.Optional[str] = None
     description: str
     description_template: typing.Optional[ToolDescriptionTemplate] = None
+    documentation: typing.Optional[str] = None
     enabled: bool
     experimental: typing.Optional[bool] = None
     created_at: typing.Optional[dt.datetime] = None
@@ -404,6 +416,7 @@ class Tool_GetDocumentText(UniversalBaseModel):
     title: typing.Optional[str] = None
     description: str
     description_template: typing.Optional[ToolDescriptionTemplate] = None
+    documentation: typing.Optional[str] = None
     enabled: bool
     experimental: typing.Optional[bool] = None
     created_at: typing.Optional[dt.datetime] = None

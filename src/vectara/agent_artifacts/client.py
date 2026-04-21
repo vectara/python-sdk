@@ -38,8 +38,6 @@ class AgentArtifactsClient:
         page_key: typing.Optional[str] = None,
         sort_by: typing.Optional[ListAgentArtifactsRequestSortBy] = None,
         order_by: typing.Optional[ListAgentArtifactsRequestOrderBy] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[SessionArtifact, ListSessionArtifactsResponse]:
         """
@@ -65,12 +63,6 @@ class AgentArtifactsClient:
         order_by : typing.Optional[ListAgentArtifactsRequestOrderBy]
             The ordering direction of the results.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -83,7 +75,10 @@ class AgentArtifactsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.agent_artifacts.list(
             agent_key="customer_support",
             session_key="customer_support_chat",
@@ -101,8 +96,6 @@ class AgentArtifactsClient:
             page_key=page_key,
             sort_by=sort_by,
             order_by=order_by,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
 
@@ -112,8 +105,6 @@ class AgentArtifactsClient:
         session_key: AgentSessionKey,
         artifact_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SessionArtifact:
         """
@@ -130,12 +121,6 @@ class AgentArtifactsClient:
         artifact_id : str
             The unique identifier of the artifact to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -148,21 +133,17 @@ class AgentArtifactsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agent_artifacts.get(
             agent_key="customer_support",
             session_key="customer_support_chat",
             artifact_id="art_report_pdf_a3f2",
         )
         """
-        _response = self._raw_client.get(
-            agent_key,
-            session_key,
-            artifact_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(agent_key, session_key, artifact_id, request_options=request_options)
         return _response.data
 
 
@@ -190,8 +171,6 @@ class AsyncAgentArtifactsClient:
         page_key: typing.Optional[str] = None,
         sort_by: typing.Optional[ListAgentArtifactsRequestSortBy] = None,
         order_by: typing.Optional[ListAgentArtifactsRequestOrderBy] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[SessionArtifact, ListSessionArtifactsResponse]:
         """
@@ -217,12 +196,6 @@ class AsyncAgentArtifactsClient:
         order_by : typing.Optional[ListAgentArtifactsRequestOrderBy]
             The ordering direction of the results.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -237,7 +210,10 @@ class AsyncAgentArtifactsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -262,8 +238,6 @@ class AsyncAgentArtifactsClient:
             page_key=page_key,
             sort_by=sort_by,
             order_by=order_by,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
 
@@ -273,8 +247,6 @@ class AsyncAgentArtifactsClient:
         session_key: AgentSessionKey,
         artifact_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SessionArtifact:
         """
@@ -291,12 +263,6 @@ class AsyncAgentArtifactsClient:
         artifact_id : str
             The unique identifier of the artifact to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -311,7 +277,10 @@ class AsyncAgentArtifactsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -324,12 +293,5 @@ class AsyncAgentArtifactsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            agent_key,
-            session_key,
-            artifact_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(agent_key, session_key, artifact_id, request_options=request_options)
         return _response.data

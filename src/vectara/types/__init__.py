@@ -56,7 +56,7 @@ if typing.TYPE_CHECKING:
         AgentStepInstruction_Inline,
         AgentStepInstruction_Reference,
     )
-    from .agent_step_reminder import AgentStepReminder, AgentStepReminder_Templated
+    from .agent_step_reminder import AgentStepReminder, AgentStepReminder_GlossaryExpansion, AgentStepReminder_Templated
     from .agent_streamed_response import (
         AgentStreamedResponse,
         AgentStreamedResponse_ArtifactUpload,
@@ -84,6 +84,7 @@ if typing.TYPE_CHECKING:
     from .agent_text_input import AgentTextInput
     from .agent_tool_configuration import (
         AgentToolConfiguration,
+        AgentToolConfiguration_ArtifactCreate,
         AgentToolConfiguration_ArtifactGrep,
         AgentToolConfiguration_ArtifactRead,
         AgentToolConfiguration_CorporaSearch,
@@ -97,6 +98,8 @@ if typing.TYPE_CHECKING:
         AgentToolConfiguration_WebGet,
         AgentToolConfiguration_WebSearch,
     )
+    from .agent_transform_configuration import AgentTransformConfiguration
+    from .agent_verification import AgentVerification
     from .anthropic_auth import (
         AnthropicAuth,
         AnthropicAuth_Bearer,
@@ -122,6 +125,7 @@ if typing.TYPE_CHECKING:
     from .artifact_reference import ArtifactReference
     from .artifact_upload_event import ArtifactUploadEvent
     from .bad_request_error_body import BadRequestErrorBody
+    from .base_s3source_configuration import BaseS3SourceConfiguration
     from .bearer_auth import BearerAuth
     from .bedrock_api_key_auth import BedrockApiKeyAuth
     from .bedrock_static_iam_auth import BedrockStaticIamAuth
@@ -167,6 +171,7 @@ if typing.TYPE_CHECKING:
     from .compaction_event import CompactionEvent
     from .compaction_started_event import CompactionStartedEvent
     from .compute_corpus_size_response import ComputeCorpusSizeResponse
+    from .condition_verification import ConditionVerification
     from .context_configuration import ContextConfiguration
     from .context_consumed_event import ContextConsumedEvent
     from .context_limit_exceeded_event import ContextLimitExceededEvent
@@ -220,12 +225,16 @@ if typing.TYPE_CHECKING:
     from .create_open_ai_encoder_request import CreateOpenAiEncoderRequest
     from .create_open_ai_responses_llm_request import CreateOpenAiResponsesLlmRequest
     from .create_open_aillm_request import CreateOpenAillmRequest
+    from .create_pipeline_request import CreatePipelineRequest
     from .create_tool_request import CreateToolRequest, CreateToolRequest_Lambda
     from .create_vertex_aillm_request import CreateVertexAillmRequest
     from .cron_schedule_configuration import CronScheduleConfiguration
+    from .cron_trigger_configuration import CronTriggerConfiguration
     from .custom_dimensions import CustomDimensions
     from .customer_specific_reranker import CustomerSpecificReranker
     from .data import Data
+    from .dead_letter_origin import DeadLetterOrigin
+    from .dead_letter_status import DeadLetterStatus
     from .default_output_parser import DefaultOutputParser
     from .document import Document
     from .document_conversion_tool import DocumentConversionTool
@@ -265,6 +274,11 @@ if typing.TYPE_CHECKING:
     from .get_document_text_parameters import GetDocumentTextParameters
     from .get_document_text_tool import GetDocumentTextTool
     from .get_filter_attribute_stats_response import GetFilterAttributeStatsResponse
+    from .glossary import Glossary
+    from .glossary_entries_response import GlossaryEntriesResponse
+    from .glossary_entry import GlossaryEntry
+    from .glossary_expansion_reminder import GlossaryExpansionReminder
+    from .glossary_key import GlossaryKey
     from .hallucination_correction_response import HallucinationCorrectionResponse
     from .hallucination_corrector import HallucinationCorrector
     from .hcm_source_document import HcmSourceDocument
@@ -280,6 +294,7 @@ if typing.TYPE_CHECKING:
     from .image_read_tool_parameters_detail import ImageReadToolParametersDetail
     from .individual_search_result import IndividualSearchResult
     from .initial_instruction import InitialInstruction
+    from .inline_artifact_create_tool_configuration import InlineArtifactCreateToolConfiguration
     from .inline_artifact_grep_tool_configuration import InlineArtifactGrepToolConfiguration
     from .inline_artifact_read_tool_configuration import InlineArtifactReadToolConfiguration
     from .inline_corpora_search_tool_configuration import InlineCorporaSearchToolConfiguration
@@ -303,6 +318,7 @@ if typing.TYPE_CHECKING:
     from .instruction_request_base import InstructionRequestBase
     from .instruction_template import InstructionTemplate
     from .interval_schedule_configuration import IntervalScheduleConfiguration
+    from .interval_trigger_configuration import IntervalTriggerConfiguration
     from .job import Job
     from .job_state import JobState
     from .job_type import JobType
@@ -326,11 +342,15 @@ if typing.TYPE_CHECKING:
     from .list_documents_response import ListDocumentsResponse
     from .list_encoders_response import ListEncodersResponse
     from .list_generation_presets_response import ListGenerationPresetsResponse
+    from .list_glossaries_response import ListGlossariesResponse
     from .list_hallucination_correctors_response import ListHallucinationCorrectorsResponse
     from .list_instructions_response import ListInstructionsResponse
     from .list_jobs_response import ListJobsResponse
     from .list_ll_ms_response import ListLlMsResponse
     from .list_metadata import ListMetadata
+    from .list_pipeline_dead_letter_entries_response import ListPipelineDeadLetterEntriesResponse
+    from .list_pipeline_runs_response import ListPipelineRunsResponse
+    from .list_pipelines_response import ListPipelinesResponse
     from .list_query_histories_response import ListQueryHistoriesResponse
     from .list_query_histories_response_metadata import ListQueryHistoriesResponseMetadata
     from .list_rerankers_response import ListRerankersResponse
@@ -342,6 +362,7 @@ if typing.TYPE_CHECKING:
     from .llm import Llm
     from .llm_capabilities import LlmCapabilities
     from .llm_ownership import LlmOwnership
+    from .manual_trigger_configuration import ManualTriggerConfiguration
     from .max_chars_chunking_strategy import MaxCharsChunkingStrategy
     from .mcp_tool import McpTool
     from .mcp_tool_annotations import McpToolAnnotations
@@ -354,6 +375,26 @@ if typing.TYPE_CHECKING:
     from .open_aillm_request_base import OpenAillmRequestBase
     from .open_aillm_update_base import OpenAillmUpdateBase
     from .output_tokens import OutputTokens
+    from .pipeline import Pipeline
+    from .pipeline_dead_letter_entry import PipelineDeadLetterEntry
+    from .pipeline_key import PipelineKey
+    from .pipeline_name import PipelineName
+    from .pipeline_run import PipelineRun
+    from .pipeline_run_id import PipelineRunId
+    from .pipeline_run_status import PipelineRunStatus
+    from .pipeline_run_trigger_type import PipelineRunTriggerType
+    from .pipeline_source import PipelineSource, PipelineSource_S3
+    from .pipeline_status import PipelineStatus
+    from .pipeline_sync_mode import PipelineSyncMode
+    from .pipeline_transform import PipelineTransform, PipelineTransform_Agent
+    from .pipeline_trigger import (
+        PipelineTrigger,
+        PipelineTrigger_Cron,
+        PipelineTrigger_Interval,
+        PipelineTrigger_Manual,
+    )
+    from .pipeline_verification import PipelineVerification, PipelineVerification_Agent, PipelineVerification_Condition
+    from .pipeline_watermark import PipelineWatermark
     from .prompt import Prompt
     from .query_corpus_request import QueryCorpusRequest
     from .query_corpus_request_search import QueryCorpusRequestSearch
@@ -395,6 +436,7 @@ if typing.TYPE_CHECKING:
     from .rewritten_query_span import RewrittenQuerySpan
     from .rewritten_query_warning import RewrittenQueryWarning
     from .row import Row
+    from .s3source_configuration import S3SourceConfiguration
     from .schedule_configuration import (
         ScheduleConfiguration,
         ScheduleConfiguration_Cron,
@@ -513,6 +555,8 @@ if typing.TYPE_CHECKING:
     from .update_mcp_tool_request import UpdateMcpToolRequest
     from .update_open_ai_responses_llm_request import UpdateOpenAiResponsesLlmRequest
     from .update_open_aillm_request import UpdateOpenAillmRequest
+    from .update_pipeline_source import UpdatePipelineSource, UpdatePipelineSource_S3
+    from .update_s3source_configuration import UpdateS3SourceConfiguration
     from .update_tool_request import UpdateToolRequest, UpdateToolRequest_Lambda, UpdateToolRequest_Mcp
     from .update_vertex_aillm_request import UpdateVertexAillmRequest
     from .user import User
@@ -589,6 +633,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "AgentStepInstruction_Inline": ".agent_step_instruction",
     "AgentStepInstruction_Reference": ".agent_step_instruction",
     "AgentStepReminder": ".agent_step_reminder",
+    "AgentStepReminder_GlossaryExpansion": ".agent_step_reminder",
     "AgentStepReminder_Templated": ".agent_step_reminder",
     "AgentStreamedResponse": ".agent_streamed_response",
     "AgentStreamedResponse_ArtifactUpload": ".agent_streamed_response",
@@ -614,6 +659,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "AgentStreamedResponse_ToolOutput": ".agent_streamed_response",
     "AgentTextInput": ".agent_text_input",
     "AgentToolConfiguration": ".agent_tool_configuration",
+    "AgentToolConfiguration_ArtifactCreate": ".agent_tool_configuration",
     "AgentToolConfiguration_ArtifactGrep": ".agent_tool_configuration",
     "AgentToolConfiguration_ArtifactRead": ".agent_tool_configuration",
     "AgentToolConfiguration_CorporaSearch": ".agent_tool_configuration",
@@ -626,6 +672,8 @@ _dynamic_imports: typing.Dict[str, str] = {
     "AgentToolConfiguration_SubAgent": ".agent_tool_configuration",
     "AgentToolConfiguration_WebGet": ".agent_tool_configuration",
     "AgentToolConfiguration_WebSearch": ".agent_tool_configuration",
+    "AgentTransformConfiguration": ".agent_transform_configuration",
+    "AgentVerification": ".agent_verification",
     "AnthropicAuth": ".anthropic_auth",
     "AnthropicAuth_Bearer": ".anthropic_auth",
     "AnthropicAuth_BedrockApiKey": ".anthropic_auth",
@@ -649,6 +697,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ArtifactReference": ".artifact_reference",
     "ArtifactUploadEvent": ".artifact_upload_event",
     "BadRequestErrorBody": ".bad_request_error_body",
+    "BaseS3SourceConfiguration": ".base_s3source_configuration",
     "BearerAuth": ".bearer_auth",
     "BedrockApiKeyAuth": ".bedrock_api_key_auth",
     "BedrockStaticIamAuth": ".bedrock_static_iam_auth",
@@ -688,6 +737,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "CompactionEvent": ".compaction_event",
     "CompactionStartedEvent": ".compaction_started_event",
     "ComputeCorpusSizeResponse": ".compute_corpus_size_response",
+    "ConditionVerification": ".condition_verification",
     "ContextConfiguration": ".context_configuration",
     "ContextConsumedEvent": ".context_consumed_event",
     "ContextLimitExceededEvent": ".context_limit_exceeded_event",
@@ -738,13 +788,17 @@ _dynamic_imports: typing.Dict[str, str] = {
     "CreateOpenAiEncoderRequest": ".create_open_ai_encoder_request",
     "CreateOpenAiResponsesLlmRequest": ".create_open_ai_responses_llm_request",
     "CreateOpenAillmRequest": ".create_open_aillm_request",
+    "CreatePipelineRequest": ".create_pipeline_request",
     "CreateToolRequest": ".create_tool_request",
     "CreateToolRequest_Lambda": ".create_tool_request",
     "CreateVertexAillmRequest": ".create_vertex_aillm_request",
     "CronScheduleConfiguration": ".cron_schedule_configuration",
+    "CronTriggerConfiguration": ".cron_trigger_configuration",
     "CustomDimensions": ".custom_dimensions",
     "CustomerSpecificReranker": ".customer_specific_reranker",
     "Data": ".data",
+    "DeadLetterOrigin": ".dead_letter_origin",
+    "DeadLetterStatus": ".dead_letter_status",
     "DefaultOutputParser": ".default_output_parser",
     "Document": ".document",
     "DocumentConversionTool": ".document_conversion_tool",
@@ -784,6 +838,11 @@ _dynamic_imports: typing.Dict[str, str] = {
     "GetDocumentTextParameters": ".get_document_text_parameters",
     "GetDocumentTextTool": ".get_document_text_tool",
     "GetFilterAttributeStatsResponse": ".get_filter_attribute_stats_response",
+    "Glossary": ".glossary",
+    "GlossaryEntriesResponse": ".glossary_entries_response",
+    "GlossaryEntry": ".glossary_entry",
+    "GlossaryExpansionReminder": ".glossary_expansion_reminder",
+    "GlossaryKey": ".glossary_key",
     "HallucinationCorrectionResponse": ".hallucination_correction_response",
     "HallucinationCorrector": ".hallucination_corrector",
     "HcmSourceDocument": ".hcm_source_document",
@@ -799,6 +858,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ImageReadToolParametersDetail": ".image_read_tool_parameters_detail",
     "IndividualSearchResult": ".individual_search_result",
     "InitialInstruction": ".initial_instruction",
+    "InlineArtifactCreateToolConfiguration": ".inline_artifact_create_tool_configuration",
     "InlineArtifactGrepToolConfiguration": ".inline_artifact_grep_tool_configuration",
     "InlineArtifactReadToolConfiguration": ".inline_artifact_read_tool_configuration",
     "InlineCorporaSearchToolConfiguration": ".inline_corpora_search_tool_configuration",
@@ -823,6 +883,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "InstructionTemplate": ".instruction_template",
     "Instruction_Initial": ".instruction",
     "IntervalScheduleConfiguration": ".interval_schedule_configuration",
+    "IntervalTriggerConfiguration": ".interval_trigger_configuration",
     "Job": ".job",
     "JobState": ".job_state",
     "JobType": ".job_type",
@@ -846,11 +907,15 @@ _dynamic_imports: typing.Dict[str, str] = {
     "ListDocumentsResponse": ".list_documents_response",
     "ListEncodersResponse": ".list_encoders_response",
     "ListGenerationPresetsResponse": ".list_generation_presets_response",
+    "ListGlossariesResponse": ".list_glossaries_response",
     "ListHallucinationCorrectorsResponse": ".list_hallucination_correctors_response",
     "ListInstructionsResponse": ".list_instructions_response",
     "ListJobsResponse": ".list_jobs_response",
     "ListLlMsResponse": ".list_ll_ms_response",
     "ListMetadata": ".list_metadata",
+    "ListPipelineDeadLetterEntriesResponse": ".list_pipeline_dead_letter_entries_response",
+    "ListPipelineRunsResponse": ".list_pipeline_runs_response",
+    "ListPipelinesResponse": ".list_pipelines_response",
     "ListQueryHistoriesResponse": ".list_query_histories_response",
     "ListQueryHistoriesResponseMetadata": ".list_query_histories_response_metadata",
     "ListRerankersResponse": ".list_rerankers_response",
@@ -862,6 +927,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "Llm": ".llm",
     "LlmCapabilities": ".llm_capabilities",
     "LlmOwnership": ".llm_ownership",
+    "ManualTriggerConfiguration": ".manual_trigger_configuration",
     "MaxCharsChunkingStrategy": ".max_chars_chunking_strategy",
     "McpTool": ".mcp_tool",
     "McpToolAnnotations": ".mcp_tool_annotations",
@@ -874,6 +940,28 @@ _dynamic_imports: typing.Dict[str, str] = {
     "OpenAillmRequestBase": ".open_aillm_request_base",
     "OpenAillmUpdateBase": ".open_aillm_update_base",
     "OutputTokens": ".output_tokens",
+    "Pipeline": ".pipeline",
+    "PipelineDeadLetterEntry": ".pipeline_dead_letter_entry",
+    "PipelineKey": ".pipeline_key",
+    "PipelineName": ".pipeline_name",
+    "PipelineRun": ".pipeline_run",
+    "PipelineRunId": ".pipeline_run_id",
+    "PipelineRunStatus": ".pipeline_run_status",
+    "PipelineRunTriggerType": ".pipeline_run_trigger_type",
+    "PipelineSource": ".pipeline_source",
+    "PipelineSource_S3": ".pipeline_source",
+    "PipelineStatus": ".pipeline_status",
+    "PipelineSyncMode": ".pipeline_sync_mode",
+    "PipelineTransform": ".pipeline_transform",
+    "PipelineTransform_Agent": ".pipeline_transform",
+    "PipelineTrigger": ".pipeline_trigger",
+    "PipelineTrigger_Cron": ".pipeline_trigger",
+    "PipelineTrigger_Interval": ".pipeline_trigger",
+    "PipelineTrigger_Manual": ".pipeline_trigger",
+    "PipelineVerification": ".pipeline_verification",
+    "PipelineVerification_Agent": ".pipeline_verification",
+    "PipelineVerification_Condition": ".pipeline_verification",
+    "PipelineWatermark": ".pipeline_watermark",
     "Prompt": ".prompt",
     "QueryCorpusRequest": ".query_corpus_request",
     "QueryCorpusRequestSearch": ".query_corpus_request_search",
@@ -914,6 +1002,7 @@ _dynamic_imports: typing.Dict[str, str] = {
     "RewrittenQuerySpan": ".rewritten_query_span",
     "RewrittenQueryWarning": ".rewritten_query_warning",
     "Row": ".row",
+    "S3SourceConfiguration": ".s3source_configuration",
     "ScheduleConfiguration": ".schedule_configuration",
     "ScheduleConfiguration_Cron": ".schedule_configuration",
     "ScheduleConfiguration_Interval": ".schedule_configuration",
@@ -1025,6 +1114,9 @@ _dynamic_imports: typing.Dict[str, str] = {
     "UpdateMcpToolRequest": ".update_mcp_tool_request",
     "UpdateOpenAiResponsesLlmRequest": ".update_open_ai_responses_llm_request",
     "UpdateOpenAillmRequest": ".update_open_aillm_request",
+    "UpdatePipelineSource": ".update_pipeline_source",
+    "UpdatePipelineSource_S3": ".update_pipeline_source",
+    "UpdateS3SourceConfiguration": ".update_s3source_configuration",
     "UpdateToolRequest": ".update_tool_request",
     "UpdateToolRequest_Lambda": ".update_tool_request",
     "UpdateToolRequest_Mcp": ".update_tool_request",
@@ -1129,6 +1221,7 @@ __all__ = [
     "AgentStepInstruction_Inline",
     "AgentStepInstruction_Reference",
     "AgentStepReminder",
+    "AgentStepReminder_GlossaryExpansion",
     "AgentStepReminder_Templated",
     "AgentStreamedResponse",
     "AgentStreamedResponse_ArtifactUpload",
@@ -1154,6 +1247,7 @@ __all__ = [
     "AgentStreamedResponse_ToolOutput",
     "AgentTextInput",
     "AgentToolConfiguration",
+    "AgentToolConfiguration_ArtifactCreate",
     "AgentToolConfiguration_ArtifactGrep",
     "AgentToolConfiguration_ArtifactRead",
     "AgentToolConfiguration_CorporaSearch",
@@ -1166,6 +1260,8 @@ __all__ = [
     "AgentToolConfiguration_SubAgent",
     "AgentToolConfiguration_WebGet",
     "AgentToolConfiguration_WebSearch",
+    "AgentTransformConfiguration",
+    "AgentVerification",
     "AnthropicAuth",
     "AnthropicAuth_Bearer",
     "AnthropicAuth_BedrockApiKey",
@@ -1189,6 +1285,7 @@ __all__ = [
     "ArtifactReference",
     "ArtifactUploadEvent",
     "BadRequestErrorBody",
+    "BaseS3SourceConfiguration",
     "BearerAuth",
     "BedrockApiKeyAuth",
     "BedrockStaticIamAuth",
@@ -1228,6 +1325,7 @@ __all__ = [
     "CompactionEvent",
     "CompactionStartedEvent",
     "ComputeCorpusSizeResponse",
+    "ConditionVerification",
     "ContextConfiguration",
     "ContextConsumedEvent",
     "ContextLimitExceededEvent",
@@ -1278,13 +1376,17 @@ __all__ = [
     "CreateOpenAiEncoderRequest",
     "CreateOpenAiResponsesLlmRequest",
     "CreateOpenAillmRequest",
+    "CreatePipelineRequest",
     "CreateToolRequest",
     "CreateToolRequest_Lambda",
     "CreateVertexAillmRequest",
     "CronScheduleConfiguration",
+    "CronTriggerConfiguration",
     "CustomDimensions",
     "CustomerSpecificReranker",
     "Data",
+    "DeadLetterOrigin",
+    "DeadLetterStatus",
     "DefaultOutputParser",
     "Document",
     "DocumentConversionTool",
@@ -1324,6 +1426,11 @@ __all__ = [
     "GetDocumentTextParameters",
     "GetDocumentTextTool",
     "GetFilterAttributeStatsResponse",
+    "Glossary",
+    "GlossaryEntriesResponse",
+    "GlossaryEntry",
+    "GlossaryExpansionReminder",
+    "GlossaryKey",
     "HallucinationCorrectionResponse",
     "HallucinationCorrector",
     "HcmSourceDocument",
@@ -1339,6 +1446,7 @@ __all__ = [
     "ImageReadToolParametersDetail",
     "IndividualSearchResult",
     "InitialInstruction",
+    "InlineArtifactCreateToolConfiguration",
     "InlineArtifactGrepToolConfiguration",
     "InlineArtifactReadToolConfiguration",
     "InlineCorporaSearchToolConfiguration",
@@ -1363,6 +1471,7 @@ __all__ = [
     "InstructionTemplate",
     "Instruction_Initial",
     "IntervalScheduleConfiguration",
+    "IntervalTriggerConfiguration",
     "Job",
     "JobState",
     "JobType",
@@ -1386,11 +1495,15 @@ __all__ = [
     "ListDocumentsResponse",
     "ListEncodersResponse",
     "ListGenerationPresetsResponse",
+    "ListGlossariesResponse",
     "ListHallucinationCorrectorsResponse",
     "ListInstructionsResponse",
     "ListJobsResponse",
     "ListLlMsResponse",
     "ListMetadata",
+    "ListPipelineDeadLetterEntriesResponse",
+    "ListPipelineRunsResponse",
+    "ListPipelinesResponse",
     "ListQueryHistoriesResponse",
     "ListQueryHistoriesResponseMetadata",
     "ListRerankersResponse",
@@ -1402,6 +1515,7 @@ __all__ = [
     "Llm",
     "LlmCapabilities",
     "LlmOwnership",
+    "ManualTriggerConfiguration",
     "MaxCharsChunkingStrategy",
     "McpTool",
     "McpToolAnnotations",
@@ -1414,6 +1528,28 @@ __all__ = [
     "OpenAillmRequestBase",
     "OpenAillmUpdateBase",
     "OutputTokens",
+    "Pipeline",
+    "PipelineDeadLetterEntry",
+    "PipelineKey",
+    "PipelineName",
+    "PipelineRun",
+    "PipelineRunId",
+    "PipelineRunStatus",
+    "PipelineRunTriggerType",
+    "PipelineSource",
+    "PipelineSource_S3",
+    "PipelineStatus",
+    "PipelineSyncMode",
+    "PipelineTransform",
+    "PipelineTransform_Agent",
+    "PipelineTrigger",
+    "PipelineTrigger_Cron",
+    "PipelineTrigger_Interval",
+    "PipelineTrigger_Manual",
+    "PipelineVerification",
+    "PipelineVerification_Agent",
+    "PipelineVerification_Condition",
+    "PipelineWatermark",
     "Prompt",
     "QueryCorpusRequest",
     "QueryCorpusRequestSearch",
@@ -1454,6 +1590,7 @@ __all__ = [
     "RewrittenQuerySpan",
     "RewrittenQueryWarning",
     "Row",
+    "S3SourceConfiguration",
     "ScheduleConfiguration",
     "ScheduleConfiguration_Cron",
     "ScheduleConfiguration_Interval",
@@ -1565,6 +1702,9 @@ __all__ = [
     "UpdateMcpToolRequest",
     "UpdateOpenAiResponsesLlmRequest",
     "UpdateOpenAillmRequest",
+    "UpdatePipelineSource",
+    "UpdatePipelineSource_S3",
+    "UpdateS3SourceConfiguration",
     "UpdateToolRequest",
     "UpdateToolRequest_Lambda",
     "UpdateToolRequest_Mcp",

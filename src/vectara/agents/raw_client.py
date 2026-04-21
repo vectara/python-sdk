@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
@@ -51,8 +51,6 @@ class RawAgentsClient:
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Agent, ListAgentsResponse]:
         """
@@ -72,12 +70,6 @@ class RawAgentsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of agents after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -95,10 +87,6 @@ class RawAgentsClient:
                 "enabled": enabled,
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -122,8 +110,6 @@ class RawAgentsClient:
                         enabled=enabled,
                         limit=limit,
                         page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -153,8 +139,6 @@ class RawAgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
         skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
@@ -209,12 +193,6 @@ class RawAgentsClient:
             A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
 
         model : AgentModel
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         key : typing.Optional[AgentKey]
             A user provided key that uniquely identifies this agent. If not provided, one will be auto-generated based on the agent name.
@@ -295,8 +273,6 @@ class RawAgentsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -343,12 +319,7 @@ class RawAgentsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
-        self,
-        agent_key: AgentKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, agent_key: AgentKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[Agent]:
         """
         The Get Agent API enables you to retrieve the complete configuration and operational details of a specific AI agent, providing comprehensive visibility into agent capabilities, tool integrations, behavioral instructions, and metadata.
@@ -360,12 +331,6 @@ class RawAgentsClient:
         agent_key : AgentKey
             The unique key of the agent to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -375,13 +340,9 @@ class RawAgentsClient:
             The response includes the complete agent configuration with all tools, instructions, model parameters, and metadata as originally configured during agent creation or subsequent updates.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -432,8 +393,6 @@ class RawAgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
         skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
@@ -460,12 +419,6 @@ class RawAgentsClient:
             A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
 
         model : AgentModel
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         key : typing.Optional[AgentKey]
             A user provided key that uniquely identifies this agent. If not provided, one will be auto-generated based on the agent name.
@@ -512,7 +465,7 @@ class RawAgentsClient:
             The agent has been replaced successfully.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PUT",
             json={
@@ -546,8 +499,6 @@ class RawAgentsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -605,12 +556,7 @@ class RawAgentsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
-        self,
-        agent_key: AgentKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, agent_key: AgentKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[None]:
         """
         The Delete Agent API enables you to permanently remove an AI agent and its configuration from the Vectara platform, supporting agent lifecycle management and resource cleanup in enterprise environments.
@@ -622,12 +568,6 @@ class RawAgentsClient:
         agent_key : AgentKey
             The unique key of the agent to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -636,13 +576,9 @@ class RawAgentsClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -683,8 +619,6 @@ class RawAgentsClient:
         self,
         agent_key: AgentKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[AgentName] = OMIT,
         description: typing.Optional[str] = OMIT,
         tool_configurations: typing.Optional[typing.Dict[str, typing.Optional[AgentToolConfiguration]]] = OMIT,
@@ -708,12 +642,6 @@ class RawAgentsClient:
         ----------
         agent_key : AgentKey
             The unique key of the agent to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[AgentName]
 
@@ -765,7 +693,7 @@ class RawAgentsClient:
             `updated_at` timestamp reflecting when the changes were applied.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -804,8 +732,6 @@ class RawAgentsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -863,12 +789,7 @@ class RawAgentsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get_identity(
-        self,
-        agent_key: AgentKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, agent_key: AgentKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[AgentIdentity]:
         """
         Retrieve the identity associated with an agent. The identity is the service account the agent uses when executing tools.
@@ -882,12 +803,6 @@ class RawAgentsClient:
         agent_key : AgentKey
             The unique key of the agent.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -897,13 +812,9 @@ class RawAgentsClient:
             The agent's identity details.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/identity",
+            f"v2/agents/{encode_path_param(agent_key)}/identity",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -951,8 +862,6 @@ class RawAgentsClient:
         self,
         agent_key: AgentKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         mode: typing.Optional[AgentIdentityMode] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
@@ -970,12 +879,6 @@ class RawAgentsClient:
         ----------
         agent_key : AgentKey
             The unique key of the agent.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         mode : typing.Optional[AgentIdentityMode]
 
@@ -997,7 +900,7 @@ class RawAgentsClient:
             The updated agent identity.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/identity",
+            f"v2/agents/{encode_path_param(agent_key)}/identity",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -1012,8 +915,6 @@ class RawAgentsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1082,8 +983,6 @@ class AsyncRawAgentsClient:
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Agent, ListAgentsResponse]:
         """
@@ -1103,12 +1002,6 @@ class AsyncRawAgentsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of agents after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1126,10 +1019,6 @@ class AsyncRawAgentsClient:
                 "enabled": enabled,
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -1155,8 +1044,6 @@ class AsyncRawAgentsClient:
                             enabled=enabled,
                             limit=limit,
                             page_key=_parsed_next,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 
@@ -1187,8 +1074,6 @@ class AsyncRawAgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
         skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
@@ -1243,12 +1128,6 @@ class AsyncRawAgentsClient:
             A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
 
         model : AgentModel
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         key : typing.Optional[AgentKey]
             A user provided key that uniquely identifies this agent. If not provided, one will be auto-generated based on the agent name.
@@ -1329,8 +1208,6 @@ class AsyncRawAgentsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1377,12 +1254,7 @@ class AsyncRawAgentsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
-        self,
-        agent_key: AgentKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, agent_key: AgentKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[Agent]:
         """
         The Get Agent API enables you to retrieve the complete configuration and operational details of a specific AI agent, providing comprehensive visibility into agent capabilities, tool integrations, behavioral instructions, and metadata.
@@ -1394,12 +1266,6 @@ class AsyncRawAgentsClient:
         agent_key : AgentKey
             The unique key of the agent to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1409,13 +1275,9 @@ class AsyncRawAgentsClient:
             The response includes the complete agent configuration with all tools, instructions, model parameters, and metadata as originally configured during agent creation or subsequent updates.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1466,8 +1328,6 @@ class AsyncRawAgentsClient:
         name: AgentName,
         tool_configurations: typing.Dict[str, AgentToolConfiguration],
         model: AgentModel,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentKey] = OMIT,
         description: typing.Optional[str] = OMIT,
         skills: typing.Optional[typing.Dict[str, AgentSkill]] = OMIT,
@@ -1494,12 +1354,6 @@ class AsyncRawAgentsClient:
             A map of tool configurations available to the agent. The key is the name of the tool configuration and the value is the AgentToolConfiguration.
 
         model : AgentModel
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         key : typing.Optional[AgentKey]
             A user provided key that uniquely identifies this agent. If not provided, one will be auto-generated based on the agent name.
@@ -1546,7 +1400,7 @@ class AsyncRawAgentsClient:
             The agent has been replaced successfully.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PUT",
             json={
@@ -1580,8 +1434,6 @@ class AsyncRawAgentsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1639,12 +1491,7 @@ class AsyncRawAgentsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
-        self,
-        agent_key: AgentKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, agent_key: AgentKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[None]:
         """
         The Delete Agent API enables you to permanently remove an AI agent and its configuration from the Vectara platform, supporting agent lifecycle management and resource cleanup in enterprise environments.
@@ -1656,12 +1503,6 @@ class AsyncRawAgentsClient:
         agent_key : AgentKey
             The unique key of the agent to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1670,13 +1511,9 @@ class AsyncRawAgentsClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1717,8 +1554,6 @@ class AsyncRawAgentsClient:
         self,
         agent_key: AgentKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[AgentName] = OMIT,
         description: typing.Optional[str] = OMIT,
         tool_configurations: typing.Optional[typing.Dict[str, typing.Optional[AgentToolConfiguration]]] = OMIT,
@@ -1742,12 +1577,6 @@ class AsyncRawAgentsClient:
         ----------
         agent_key : AgentKey
             The unique key of the agent to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[AgentName]
 
@@ -1799,7 +1628,7 @@ class AsyncRawAgentsClient:
             `updated_at` timestamp reflecting when the changes were applied.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -1838,8 +1667,6 @@ class AsyncRawAgentsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1897,12 +1724,7 @@ class AsyncRawAgentsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get_identity(
-        self,
-        agent_key: AgentKey,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, agent_key: AgentKey, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[AgentIdentity]:
         """
         Retrieve the identity associated with an agent. The identity is the service account the agent uses when executing tools.
@@ -1916,12 +1738,6 @@ class AsyncRawAgentsClient:
         agent_key : AgentKey
             The unique key of the agent.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1931,13 +1747,9 @@ class AsyncRawAgentsClient:
             The agent's identity details.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/identity",
+            f"v2/agents/{encode_path_param(agent_key)}/identity",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1985,8 +1797,6 @@ class AsyncRawAgentsClient:
         self,
         agent_key: AgentKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         mode: typing.Optional[AgentIdentityMode] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
@@ -2004,12 +1814,6 @@ class AsyncRawAgentsClient:
         ----------
         agent_key : AgentKey
             The unique key of the agent.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         mode : typing.Optional[AgentIdentityMode]
 
@@ -2031,7 +1835,7 @@ class AsyncRawAgentsClient:
             The updated agent identity.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/identity",
+            f"v2/agents/{encode_path_param(agent_key)}/identity",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -2046,8 +1850,6 @@ class AsyncRawAgentsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

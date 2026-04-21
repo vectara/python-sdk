@@ -38,8 +38,6 @@ class AgentSessionsClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[AgentSession, ListAgentSessionsResponse]:
         """
@@ -59,12 +57,6 @@ class AgentSessionsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of sessions after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -77,7 +69,10 @@ class AgentSessionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.agent_sessions.list(
             agent_key="customer_support",
             filter="support.*",
@@ -89,21 +84,13 @@ class AgentSessionsClient:
             yield page
         """
         return self._raw_client.list(
-            agent_key,
-            filter=filter,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            agent_key, filter=filter, limit=limit, page_key=page_key, request_options=request_options
         )
 
     def create(
         self,
         agent_key: AgentKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentSessionKey] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -142,12 +129,6 @@ class AgentSessionsClient:
         agent_key : AgentKey
             The unique key of the agent to create a session for.
         
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-        
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-        
         key : typing.Optional[AgentSessionKey]
             A user provided key that uniquely identifies this session. If not provided, one will be auto-generated based on the session name.
         
@@ -184,15 +165,16 @@ class AgentSessionsClient:
         --------
         from vectara import Vectara
         
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agent_sessions.create(
             agent_key="customer_support",
         )
         """
         _response = self._raw_client.create(
             agent_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             key=key,
             name=name,
             description=description,
@@ -209,8 +191,6 @@ class AgentSessionsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AgentSession:
         """
@@ -224,12 +204,6 @@ class AgentSessionsClient:
         session_key : AgentSessionKey
             The unique key of the session to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -242,19 +216,16 @@ class AgentSessionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agent_sessions.get(
             agent_key="customer_support",
             session_key="customer_support_chat",
         )
         """
-        _response = self._raw_client.get(
-            agent_key,
-            session_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(agent_key, session_key, request_options=request_options)
         return _response.data
 
     def delete(
@@ -262,8 +233,6 @@ class AgentSessionsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
@@ -277,12 +246,6 @@ class AgentSessionsClient:
         session_key : AgentSessionKey
             The unique key of the session to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -294,19 +257,16 @@ class AgentSessionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agent_sessions.delete(
             agent_key="customer_support",
             session_key="customer_support_chat",
         )
         """
-        _response = self._raw_client.delete(
-            agent_key,
-            session_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete(agent_key, session_key, request_options=request_options)
         return _response.data
 
     def update(
@@ -314,8 +274,6 @@ class AgentSessionsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
@@ -335,12 +293,6 @@ class AgentSessionsClient:
 
         session_key : AgentSessionKey
             The unique key of the session to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[str]
             Human-readable name for the session.
@@ -369,7 +321,10 @@ class AgentSessionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.agent_sessions.update(
             agent_key="customer_support",
             session_key="customer_support_chat",
@@ -378,8 +333,6 @@ class AgentSessionsClient:
         _response = self._raw_client.update(
             agent_key,
             session_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             name=name,
             description=description,
             metadata=metadata,
@@ -412,8 +365,6 @@ class AsyncAgentSessionsClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[AgentSession, ListAgentSessionsResponse]:
         """
@@ -433,12 +384,6 @@ class AsyncAgentSessionsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of sessions after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -453,7 +398,10 @@ class AsyncAgentSessionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -472,21 +420,13 @@ class AsyncAgentSessionsClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
-            agent_key,
-            filter=filter,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            agent_key, filter=filter, limit=limit, page_key=page_key, request_options=request_options
         )
 
     async def create(
         self,
         agent_key: AgentKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentSessionKey] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -524,12 +464,6 @@ class AsyncAgentSessionsClient:
         ----------
         agent_key : AgentKey
             The unique key of the agent to create a session for.
-        
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-        
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
         
         key : typing.Optional[AgentSessionKey]
             A user provided key that uniquely identifies this session. If not provided, one will be auto-generated based on the session name.
@@ -569,7 +503,10 @@ class AsyncAgentSessionsClient:
         
         from vectara import AsyncVectara
         
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         
         
         async def main() -> None:
@@ -582,8 +519,6 @@ class AsyncAgentSessionsClient:
         """
         _response = await self._raw_client.create(
             agent_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             key=key,
             name=name,
             description=description,
@@ -600,8 +535,6 @@ class AsyncAgentSessionsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AgentSession:
         """
@@ -614,12 +547,6 @@ class AsyncAgentSessionsClient:
 
         session_key : AgentSessionKey
             The unique key of the session to retrieve.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -635,7 +562,10 @@ class AsyncAgentSessionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -647,13 +577,7 @@ class AsyncAgentSessionsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            agent_key,
-            session_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(agent_key, session_key, request_options=request_options)
         return _response.data
 
     async def delete(
@@ -661,8 +585,6 @@ class AsyncAgentSessionsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> None:
         """
@@ -675,12 +597,6 @@ class AsyncAgentSessionsClient:
 
         session_key : AgentSessionKey
             The unique key of the session to delete.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -695,7 +611,10 @@ class AsyncAgentSessionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -707,13 +626,7 @@ class AsyncAgentSessionsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete(
-            agent_key,
-            session_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete(agent_key, session_key, request_options=request_options)
         return _response.data
 
     async def update(
@@ -721,8 +634,6 @@ class AsyncAgentSessionsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
@@ -742,12 +653,6 @@ class AsyncAgentSessionsClient:
 
         session_key : AgentSessionKey
             The unique key of the session to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[str]
             Human-readable name for the session.
@@ -778,7 +683,10 @@ class AsyncAgentSessionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -793,8 +701,6 @@ class AsyncAgentSessionsClient:
         _response = await self._raw_client.update(
             agent_key,
             session_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             name=name,
             description=description,
             metadata=metadata,

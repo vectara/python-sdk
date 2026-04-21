@@ -23,24 +23,12 @@ class TableExtractorsClient:
         """
         return self._raw_client
 
-    def list(
-        self,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListTableExtractorsResponse:
+    def list(self, *, request_options: typing.Optional[RequestOptions] = None) -> ListTableExtractorsResponse:
         """
         Table extractors are used to extract tabular data from documents during indexing.
 
         Parameters
         ----------
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -53,14 +41,13 @@ class TableExtractorsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.table_extractors.list()
         """
-        _response = self._raw_client.list(
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.list(request_options=request_options)
         return _response.data
 
 
@@ -79,24 +66,12 @@ class AsyncTableExtractorsClient:
         """
         return self._raw_client
 
-    async def list(
-        self,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> ListTableExtractorsResponse:
+    async def list(self, *, request_options: typing.Optional[RequestOptions] = None) -> ListTableExtractorsResponse:
         """
         Table extractors are used to extract tabular data from documents during indexing.
 
         Parameters
         ----------
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -111,7 +86,10 @@ class AsyncTableExtractorsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -120,9 +98,5 @@ class AsyncTableExtractorsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.list(
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.list(request_options=request_options)
         return _response.data

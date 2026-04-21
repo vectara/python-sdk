@@ -9,7 +9,7 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.http_sse._api import EventSource
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as, parse_sse_obj
@@ -45,8 +45,6 @@ class RawChatsClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Chat, ListChatsResponse]:
         """
@@ -59,12 +57,6 @@ class RawChatsClient:
 
         page_key : typing.Optional[str]
             Used to retrieve the next page of chats after the limit has been reached.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -81,10 +73,6 @@ class RawChatsClient:
             params={
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -106,8 +94,6 @@ class RawChatsClient:
                     _get_next = lambda: self.list(
                         limit=limit,
                         page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -148,8 +134,6 @@ class RawChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -165,12 +149,6 @@ class RawChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -211,8 +189,6 @@ class RawChatsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -303,8 +279,6 @@ class RawChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -320,12 +294,6 @@ class RawChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -366,8 +334,6 @@ class RawChatsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -424,14 +390,7 @@ class RawChatsClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def get(
-        self,
-        chat_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[Chat]:
+    def get(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[Chat]:
         """
         Get a chat summary to view what started the chat, but not subsequent turns.
 
@@ -439,12 +398,6 @@ class RawChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -455,13 +408,9 @@ class RawChatsClient:
             A chat.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}",
+            f"v2/chats/{encode_path_param(chat_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -505,14 +454,7 @@ class RawChatsClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def delete(
-        self,
-        chat_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[None]:
+    def delete(self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[None]:
         """
         Delete a chat and any turns it contains permanently.
 
@@ -520,12 +462,6 @@ class RawChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -535,13 +471,9 @@ class RawChatsClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}",
+            f"v2/chats/{encode_path_param(chat_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -579,12 +511,7 @@ class RawChatsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def list_turns(
-        self,
-        chat_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ListChatTurnsResponse]:
         """
         List all turns in a chat to see all message and response pairs that make up the dialog.
@@ -593,12 +520,6 @@ class RawChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -609,13 +530,9 @@ class RawChatsClient:
             List of turns.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            f"v2/chats/{encode_path_param(chat_id)}/turns",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -666,8 +583,6 @@ class RawChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -686,12 +601,6 @@ class RawChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -712,7 +621,7 @@ class RawChatsClient:
 
         """
         with self._client_wrapper.httpx_client.stream(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            f"v2/chats/{encode_path_param(chat_id)}/turns",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -732,8 +641,6 @@ class RawChatsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -825,8 +732,6 @@ class RawChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -845,12 +750,6 @@ class RawChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -871,7 +770,7 @@ class RawChatsClient:
 
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            f"v2/chats/{encode_path_param(chat_id)}/turns",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -891,8 +790,6 @@ class RawChatsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -950,13 +847,7 @@ class RawChatsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get_turn(
-        self,
-        chat_id: str,
-        turn_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[Turn]:
         """
         Get a specific turn from a chat, which is a message and response pair from the conversation.
@@ -969,12 +860,6 @@ class RawChatsClient:
         turn_id : str
             The ID of the turn.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -984,13 +869,9 @@ class RawChatsClient:
             The turn.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            f"v2/chats/{encode_path_param(chat_id)}/turns/{encode_path_param(turn_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1035,13 +916,7 @@ class RawChatsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete_turn(
-        self,
-        chat_id: str,
-        turn_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[None]:
         """
         Delete a turn from a chat. This will delete all subsequent turns in the chat.
@@ -1054,12 +929,6 @@ class RawChatsClient:
         turn_id : str
             The ID of the turn.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1068,13 +937,9 @@ class RawChatsClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            f"v2/chats/{encode_path_param(chat_id)}/turns/{encode_path_param(turn_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1116,8 +981,6 @@ class RawChatsClient:
         chat_id: str,
         turn_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Turn]:
@@ -1132,12 +995,6 @@ class RawChatsClient:
         turn_id : str
             The ID of the turn.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         enabled : typing.Optional[bool]
             Indicates whether to disable a turn. It will disable this turn and all subsequent turns. Enabling a turn is not implemented.
 
@@ -1150,7 +1007,7 @@ class RawChatsClient:
             Successfully modified the turn.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            f"v2/chats/{encode_path_param(chat_id)}/turns/{encode_path_param(turn_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -1158,8 +1015,6 @@ class RawChatsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1215,8 +1070,6 @@ class AsyncRawChatsClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Chat, ListChatsResponse]:
         """
@@ -1229,12 +1082,6 @@ class AsyncRawChatsClient:
 
         page_key : typing.Optional[str]
             Used to retrieve the next page of chats after the limit has been reached.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1251,10 +1098,6 @@ class AsyncRawChatsClient:
             params={
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -1278,8 +1121,6 @@ class AsyncRawChatsClient:
                         return await self.list(
                             limit=limit,
                             page_key=_parsed_next,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 
@@ -1321,8 +1162,6 @@ class AsyncRawChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -1338,12 +1177,6 @@ class AsyncRawChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -1384,8 +1217,6 @@ class AsyncRawChatsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1476,8 +1307,6 @@ class AsyncRawChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -1493,12 +1322,6 @@ class AsyncRawChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -1539,8 +1362,6 @@ class AsyncRawChatsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1598,12 +1419,7 @@ class AsyncRawChatsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
-        self,
-        chat_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[Chat]:
         """
         Get a chat summary to view what started the chat, but not subsequent turns.
@@ -1612,12 +1428,6 @@ class AsyncRawChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1628,13 +1438,9 @@ class AsyncRawChatsClient:
             A chat.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}",
+            f"v2/chats/{encode_path_param(chat_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1679,12 +1485,7 @@ class AsyncRawChatsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
-        self,
-        chat_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[None]:
         """
         Delete a chat and any turns it contains permanently.
@@ -1694,12 +1495,6 @@ class AsyncRawChatsClient:
         chat_id : str
             The ID of the chat.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1708,13 +1503,9 @@ class AsyncRawChatsClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}",
+            f"v2/chats/{encode_path_param(chat_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1752,12 +1543,7 @@ class AsyncRawChatsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def list_turns(
-        self,
-        chat_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, chat_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ListChatTurnsResponse]:
         """
         List all turns in a chat to see all message and response pairs that make up the dialog.
@@ -1766,12 +1552,6 @@ class AsyncRawChatsClient:
         ----------
         chat_id : str
             The ID of the chat.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1782,13 +1562,9 @@ class AsyncRawChatsClient:
             List of turns.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            f"v2/chats/{encode_path_param(chat_id)}/turns",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1839,8 +1615,6 @@ class AsyncRawChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -1859,12 +1633,6 @@ class AsyncRawChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -1885,7 +1653,7 @@ class AsyncRawChatsClient:
 
         """
         async with self._client_wrapper.httpx_client.stream(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            f"v2/chats/{encode_path_param(chat_id)}/turns",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -1905,8 +1673,6 @@ class AsyncRawChatsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1998,8 +1764,6 @@ class AsyncRawChatsClient:
         *,
         query: str,
         search: SearchCorporaParameters,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         generation: typing.Optional[GenerationParameters] = OMIT,
         chat: typing.Optional[ChatParameters] = OMIT,
         save_history: typing.Optional[bool] = OMIT,
@@ -2018,12 +1782,6 @@ class AsyncRawChatsClient:
             The chat message or question.
 
         search : SearchCorporaParameters
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         generation : typing.Optional[GenerationParameters]
 
@@ -2044,7 +1802,7 @@ class AsyncRawChatsClient:
 
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns",
+            f"v2/chats/{encode_path_param(chat_id)}/turns",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -2064,8 +1822,6 @@ class AsyncRawChatsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -2123,13 +1879,7 @@ class AsyncRawChatsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get_turn(
-        self,
-        chat_id: str,
-        turn_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[Turn]:
         """
         Get a specific turn from a chat, which is a message and response pair from the conversation.
@@ -2142,12 +1892,6 @@ class AsyncRawChatsClient:
         turn_id : str
             The ID of the turn.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -2157,13 +1901,9 @@ class AsyncRawChatsClient:
             The turn.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            f"v2/chats/{encode_path_param(chat_id)}/turns/{encode_path_param(turn_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -2208,13 +1948,7 @@ class AsyncRawChatsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete_turn(
-        self,
-        chat_id: str,
-        turn_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, chat_id: str, turn_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[None]:
         """
         Delete a turn from a chat. This will delete all subsequent turns in the chat.
@@ -2227,12 +1961,6 @@ class AsyncRawChatsClient:
         turn_id : str
             The ID of the turn.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -2241,13 +1969,9 @@ class AsyncRawChatsClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            f"v2/chats/{encode_path_param(chat_id)}/turns/{encode_path_param(turn_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -2289,8 +2013,6 @@ class AsyncRawChatsClient:
         chat_id: str,
         turn_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Turn]:
@@ -2305,12 +2027,6 @@ class AsyncRawChatsClient:
         turn_id : str
             The ID of the turn.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         enabled : typing.Optional[bool]
             Indicates whether to disable a turn. It will disable this turn and all subsequent turns. Enabling a turn is not implemented.
 
@@ -2323,7 +2039,7 @@ class AsyncRawChatsClient:
             Successfully modified the turn.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/chats/{jsonable_encoder(chat_id)}/turns/{jsonable_encoder(turn_id)}",
+            f"v2/chats/{encode_path_param(chat_id)}/turns/{encode_path_param(turn_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -2331,8 +2047,6 @@ class AsyncRawChatsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

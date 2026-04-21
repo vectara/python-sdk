@@ -201,6 +201,24 @@ class AgentToolConfiguration_ArtifactGrep(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
+class AgentToolConfiguration_ArtifactCreate(UniversalBaseModel):
+    """
+    A tool configuration that can be used by an agent, defined inline with a specific configuration type.
+    """
+
+    type: typing.Literal["artifact_create"] = "artifact_create"
+    description_template: typing.Optional[ToolDescriptionTemplate] = None
+
+    if IS_PYDANTIC_V2:
+        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+    else:
+
+        class Config:
+            frozen = True
+            smart_union = True
+            extra = pydantic.Extra.allow
+
+
 class AgentToolConfiguration_ImageRead(UniversalBaseModel):
     """
     A tool configuration that can be used by an agent, defined inline with a specific configuration type.
@@ -270,6 +288,7 @@ AgentToolConfiguration = typing_extensions.Annotated[
         AgentToolConfiguration_SubAgent,
         AgentToolConfiguration_ArtifactRead,
         AgentToolConfiguration_ArtifactGrep,
+        AgentToolConfiguration_ArtifactCreate,
         AgentToolConfiguration_ImageRead,
         AgentToolConfiguration_DocumentConversion,
         AgentToolConfiguration_GetDocumentText,

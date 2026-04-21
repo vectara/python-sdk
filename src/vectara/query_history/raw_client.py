@@ -8,7 +8,7 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.datetime_utils import serialize_datetime
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
@@ -28,12 +28,7 @@ class RawQueryHistoryClient:
         self._client_wrapper = client_wrapper
 
     def get(
-        self,
-        query_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, query_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[QueryHistory]:
         """
         The Get Query History API allows you to retrieve detailed history about a specific query that was made against a corpus. The response includes detailed information about the query, such as latency, the time it was executed, and the various stages in the query pipeline.
@@ -45,12 +40,6 @@ class RawQueryHistoryClient:
         query_id : str
             The ID of the query history
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -60,13 +49,9 @@ class RawQueryHistoryClient:
             The `spans` object provides information about the ordered parts of the query pipeline and you get information about what happens during each stage of the pipeline.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/queries/{jsonable_encoder(query_id)}",
+            f"v2/queries/{encode_path_param(query_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -120,8 +105,6 @@ class RawQueryHistoryClient:
         history_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[QueryHistorySummary, ListQueryHistoriesResponse]:
         """
@@ -152,12 +135,6 @@ class RawQueryHistoryClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of query histories after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -178,10 +155,6 @@ class RawQueryHistoryClient:
                 "history_id": history_id,
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -208,8 +181,6 @@ class RawQueryHistoryClient:
                         history_id=history_id,
                         limit=limit,
                         page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -250,12 +221,7 @@ class AsyncRawQueryHistoryClient:
         self._client_wrapper = client_wrapper
 
     async def get(
-        self,
-        query_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, query_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[QueryHistory]:
         """
         The Get Query History API allows you to retrieve detailed history about a specific query that was made against a corpus. The response includes detailed information about the query, such as latency, the time it was executed, and the various stages in the query pipeline.
@@ -267,12 +233,6 @@ class AsyncRawQueryHistoryClient:
         query_id : str
             The ID of the query history
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -282,13 +242,9 @@ class AsyncRawQueryHistoryClient:
             The `spans` object provides information about the ordered parts of the query pipeline and you get information about what happens during each stage of the pipeline.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/queries/{jsonable_encoder(query_id)}",
+            f"v2/queries/{encode_path_param(query_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -342,8 +298,6 @@ class AsyncRawQueryHistoryClient:
         history_id: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[QueryHistorySummary, ListQueryHistoriesResponse]:
         """
@@ -374,12 +328,6 @@ class AsyncRawQueryHistoryClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of query histories after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -400,10 +348,6 @@ class AsyncRawQueryHistoryClient:
                 "history_id": history_id,
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -432,8 +376,6 @@ class AsyncRawQueryHistoryClient:
                             history_id=history_id,
                             limit=limit,
                             page_key=_parsed_next,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 

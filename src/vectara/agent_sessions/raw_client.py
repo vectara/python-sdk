@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
@@ -38,8 +38,6 @@ class RawAgentSessionsClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[AgentSession, ListAgentSessionsResponse]:
         """
@@ -59,12 +57,6 @@ class RawAgentSessionsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of sessions after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -74,17 +66,13 @@ class RawAgentSessionsClient:
             List of available agent sessions.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "filter": filter,
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -108,8 +96,6 @@ class RawAgentSessionsClient:
                         filter=filter,
                         limit=limit,
                         page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -148,8 +134,6 @@ class RawAgentSessionsClient:
         self,
         agent_key: AgentKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentSessionKey] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -188,12 +172,6 @@ class RawAgentSessionsClient:
         agent_key : AgentKey
             The unique key of the agent to create a session for.
         
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-        
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-        
         key : typing.Optional[AgentSessionKey]
             A user provided key that uniquely identifies this session. If not provided, one will be auto-generated based on the session name.
         
@@ -227,7 +205,7 @@ class RawAgentSessionsClient:
             The response includes the complete session configuration including the unique session key, associated agent key, and creation timestamp.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -243,8 +221,6 @@ class RawAgentSessionsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -306,8 +282,6 @@ class RawAgentSessionsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[AgentSession]:
         """
@@ -321,12 +295,6 @@ class RawAgentSessionsClient:
         session_key : AgentSessionKey
             The unique key of the session to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -336,13 +304,9 @@ class RawAgentSessionsClient:
             The requested agent session details.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -391,8 +355,6 @@ class RawAgentSessionsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[None]:
         """
@@ -406,12 +368,6 @@ class RawAgentSessionsClient:
         session_key : AgentSessionKey
             The unique key of the session to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -420,13 +376,9 @@ class RawAgentSessionsClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -468,8 +420,6 @@ class RawAgentSessionsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
@@ -489,12 +439,6 @@ class RawAgentSessionsClient:
 
         session_key : AgentSessionKey
             The unique key of the session to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[str]
             Human-readable name for the session.
@@ -520,7 +464,7 @@ class RawAgentSessionsClient:
             The agent session has been updated successfully.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -532,8 +476,6 @@ class RawAgentSessionsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -602,8 +544,6 @@ class AsyncRawAgentSessionsClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[AgentSession, ListAgentSessionsResponse]:
         """
@@ -623,12 +563,6 @@ class AsyncRawAgentSessionsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of sessions after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -638,17 +572,13 @@ class AsyncRawAgentSessionsClient:
             List of available agent sessions.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "filter": filter,
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -674,8 +604,6 @@ class AsyncRawAgentSessionsClient:
                             filter=filter,
                             limit=limit,
                             page_key=_parsed_next,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 
@@ -715,8 +643,6 @@ class AsyncRawAgentSessionsClient:
         self,
         agent_key: AgentKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentSessionKey] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -755,12 +681,6 @@ class AsyncRawAgentSessionsClient:
         agent_key : AgentKey
             The unique key of the agent to create a session for.
         
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-        
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-        
         key : typing.Optional[AgentSessionKey]
             A user provided key that uniquely identifies this session. If not provided, one will be auto-generated based on the session name.
         
@@ -794,7 +714,7 @@ class AsyncRawAgentSessionsClient:
             The response includes the complete session configuration including the unique session key, associated agent key, and creation timestamp.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -810,8 +730,6 @@ class AsyncRawAgentSessionsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -873,8 +791,6 @@ class AsyncRawAgentSessionsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[AgentSession]:
         """
@@ -888,12 +804,6 @@ class AsyncRawAgentSessionsClient:
         session_key : AgentSessionKey
             The unique key of the session to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -903,13 +813,9 @@ class AsyncRawAgentSessionsClient:
             The requested agent session details.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -958,8 +864,6 @@ class AsyncRawAgentSessionsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[None]:
         """
@@ -973,12 +877,6 @@ class AsyncRawAgentSessionsClient:
         session_key : AgentSessionKey
             The unique key of the session to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -987,13 +885,9 @@ class AsyncRawAgentSessionsClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1035,8 +929,6 @@ class AsyncRawAgentSessionsClient:
         agent_key: AgentKey,
         session_key: AgentSessionKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
@@ -1056,12 +948,6 @@ class AsyncRawAgentSessionsClient:
 
         session_key : AgentSessionKey
             The unique key of the session to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[str]
             Human-readable name for the session.
@@ -1087,7 +973,7 @@ class AsyncRawAgentSessionsClient:
             The agent session has been updated successfully.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -1099,8 +985,6 @@ class AsyncRawAgentSessionsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

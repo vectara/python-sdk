@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
@@ -44,8 +44,6 @@ class RawInstructionsClient:
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Instruction, ListInstructionsResponse]:
         """
@@ -68,12 +66,6 @@ class RawInstructionsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of instructions after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -92,10 +84,6 @@ class RawInstructionsClient:
                 "enabled": enabled,
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -120,8 +108,6 @@ class RawInstructionsClient:
                         enabled=enabled,
                         limit=limit,
                         page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -146,12 +132,7 @@ class RawInstructionsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
-        self,
-        *,
-        request: CreateInstructionRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request: CreateInstructionRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[Instruction]:
         """
         Create a new instruction that defines how an agent should behave, reason, and respond. Instructions act as system-level guidelines that shape the agent's tone, style, constraints, and tool usage.
@@ -202,12 +183,6 @@ class RawInstructionsClient:
         ----------
         request : CreateInstructionRequest
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -225,8 +200,6 @@ class RawInstructionsClient:
             ),
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -277,8 +250,6 @@ class RawInstructionsClient:
         instruction_id: InstructionId,
         *,
         version: typing.Optional[int] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Instruction]:
         """
@@ -292,12 +263,6 @@ class RawInstructionsClient:
         version : typing.Optional[int]
             The specific version of the instruction to retrieve. If not specified, the latest version will be returned.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -307,15 +272,11 @@ class RawInstructionsClient:
             The requested instruction details.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/instructions/{jsonable_encoder(instruction_id)}",
+            f"v2/instructions/{encode_path_param(instruction_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "version": version,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -361,12 +322,7 @@ class RawInstructionsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
-        self,
-        instruction_id: InstructionId,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, instruction_id: InstructionId, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[None]:
         """
         Permanently delete an instruction and all its associated configuration.
@@ -380,12 +336,6 @@ class RawInstructionsClient:
         instruction_id : InstructionId
             The unique identifier of the instruction to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -394,13 +344,9 @@ class RawInstructionsClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/instructions/{jsonable_encoder(instruction_id)}",
+            f"v2/instructions/{encode_path_param(instruction_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -442,8 +388,6 @@ class RawInstructionsClient:
         instruction_id: InstructionId,
         *,
         request: UpdateInstructionRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[Instruction]:
         """
@@ -468,12 +412,6 @@ class RawInstructionsClient:
 
         request : UpdateInstructionRequest
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -483,7 +421,7 @@ class RawInstructionsClient:
             The instruction has been updated successfully.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/instructions/{jsonable_encoder(instruction_id)}",
+            f"v2/instructions/{encode_path_param(instruction_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json=convert_and_respect_annotation_metadata(
@@ -491,8 +429,6 @@ class RawInstructionsClient:
             ),
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -554,8 +490,6 @@ class RawInstructionsClient:
         instruction_id: InstructionId,
         *,
         version: typing.Optional[int] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         context: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         tools: typing.Optional[typing.Sequence[Tool]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -570,12 +504,6 @@ class RawInstructionsClient:
 
         version : typing.Optional[int]
             The specific version of the instruction to test. If not specified, the latest version will be used.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         context : typing.Optional[typing.Dict[str, typing.Any]]
             Context data to use when rendering the instruction template. This will be merged into `$session.metadata` for template access.
@@ -594,7 +522,7 @@ class RawInstructionsClient:
             The instruction has been tested successfully and the rendered result is returned.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/instructions/{jsonable_encoder(instruction_id)}/test",
+            f"v2/instructions/{encode_path_param(instruction_id)}/test",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             params={
@@ -608,8 +536,6 @@ class RawInstructionsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -678,13 +604,7 @@ class RawInstructionsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete_version(
-        self,
-        instruction_id: InstructionId,
-        version: int,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, instruction_id: InstructionId, version: int, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[None]:
         """
         Permanently delete the specified version of the instruction. This action cannot be undone.
@@ -697,12 +617,6 @@ class RawInstructionsClient:
         version : int
             The specific version of the instruction to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -711,13 +625,9 @@ class RawInstructionsClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/instructions/{jsonable_encoder(instruction_id)}/versions/{jsonable_encoder(version)}",
+            f"v2/instructions/{encode_path_param(instruction_id)}/versions/{encode_path_param(version)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -778,8 +688,6 @@ class AsyncRawInstructionsClient:
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Instruction, ListInstructionsResponse]:
         """
@@ -802,12 +710,6 @@ class AsyncRawInstructionsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of instructions after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -826,10 +728,6 @@ class AsyncRawInstructionsClient:
                 "enabled": enabled,
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -856,8 +754,6 @@ class AsyncRawInstructionsClient:
                             enabled=enabled,
                             limit=limit,
                             page_key=_parsed_next,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 
@@ -883,12 +779,7 @@ class AsyncRawInstructionsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
-        self,
-        *,
-        request: CreateInstructionRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request: CreateInstructionRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[Instruction]:
         """
         Create a new instruction that defines how an agent should behave, reason, and respond. Instructions act as system-level guidelines that shape the agent's tone, style, constraints, and tool usage.
@@ -939,12 +830,6 @@ class AsyncRawInstructionsClient:
         ----------
         request : CreateInstructionRequest
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -962,8 +847,6 @@ class AsyncRawInstructionsClient:
             ),
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1014,8 +897,6 @@ class AsyncRawInstructionsClient:
         instruction_id: InstructionId,
         *,
         version: typing.Optional[int] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Instruction]:
         """
@@ -1029,12 +910,6 @@ class AsyncRawInstructionsClient:
         version : typing.Optional[int]
             The specific version of the instruction to retrieve. If not specified, the latest version will be returned.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1044,15 +919,11 @@ class AsyncRawInstructionsClient:
             The requested instruction details.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/instructions/{jsonable_encoder(instruction_id)}",
+            f"v2/instructions/{encode_path_param(instruction_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "version": version,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -1098,12 +969,7 @@ class AsyncRawInstructionsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
-        self,
-        instruction_id: InstructionId,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, instruction_id: InstructionId, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[None]:
         """
         Permanently delete an instruction and all its associated configuration.
@@ -1117,12 +983,6 @@ class AsyncRawInstructionsClient:
         instruction_id : InstructionId
             The unique identifier of the instruction to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1131,13 +991,9 @@ class AsyncRawInstructionsClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/instructions/{jsonable_encoder(instruction_id)}",
+            f"v2/instructions/{encode_path_param(instruction_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1179,8 +1035,6 @@ class AsyncRawInstructionsClient:
         instruction_id: InstructionId,
         *,
         request: UpdateInstructionRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[Instruction]:
         """
@@ -1205,12 +1059,6 @@ class AsyncRawInstructionsClient:
 
         request : UpdateInstructionRequest
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1220,7 +1068,7 @@ class AsyncRawInstructionsClient:
             The instruction has been updated successfully.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/instructions/{jsonable_encoder(instruction_id)}",
+            f"v2/instructions/{encode_path_param(instruction_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json=convert_and_respect_annotation_metadata(
@@ -1228,8 +1076,6 @@ class AsyncRawInstructionsClient:
             ),
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1291,8 +1137,6 @@ class AsyncRawInstructionsClient:
         instruction_id: InstructionId,
         *,
         version: typing.Optional[int] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         context: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         tools: typing.Optional[typing.Sequence[Tool]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -1307,12 +1151,6 @@ class AsyncRawInstructionsClient:
 
         version : typing.Optional[int]
             The specific version of the instruction to test. If not specified, the latest version will be used.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         context : typing.Optional[typing.Dict[str, typing.Any]]
             Context data to use when rendering the instruction template. This will be merged into `$session.metadata` for template access.
@@ -1331,7 +1169,7 @@ class AsyncRawInstructionsClient:
             The instruction has been tested successfully and the rendered result is returned.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/instructions/{jsonable_encoder(instruction_id)}/test",
+            f"v2/instructions/{encode_path_param(instruction_id)}/test",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             params={
@@ -1345,8 +1183,6 @@ class AsyncRawInstructionsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1415,13 +1251,7 @@ class AsyncRawInstructionsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete_version(
-        self,
-        instruction_id: InstructionId,
-        version: int,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, instruction_id: InstructionId, version: int, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[None]:
         """
         Permanently delete the specified version of the instruction. This action cannot be undone.
@@ -1434,12 +1264,6 @@ class AsyncRawInstructionsClient:
         version : int
             The specific version of the instruction to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1448,13 +1272,9 @@ class AsyncRawInstructionsClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/instructions/{jsonable_encoder(instruction_id)}/versions/{jsonable_encoder(version)}",
+            f"v2/instructions/{encode_path_param(instruction_id)}/versions/{encode_path_param(version)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:

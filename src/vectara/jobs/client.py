@@ -36,8 +36,6 @@ class JobsClient:
         state: typing.Optional[typing.Union[JobState, typing.Sequence[JobState]]] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Job, ListJobsResponse]:
         """
@@ -60,12 +58,6 @@ class JobsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of jobs after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -78,8 +70,13 @@ class JobsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
-        response = client.jobs.list()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
+        response = client.jobs.list(
+            corpus_key=["my-corpus"],
+        )
         for item in response:
             yield item
         # alternatively, you can paginate page-by-page
@@ -92,19 +89,10 @@ class JobsClient:
             state=state,
             limit=limit,
             page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
 
-    def get(
-        self,
-        job_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Job:
+    def get(self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Job:
         """
         Get a job by a specific `job_id`. Jobs are background processes like replacing the filterable metadata attributes.
 
@@ -112,12 +100,6 @@ class JobsClient:
         ----------
         job_id : str
             The ID of the job to get.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -131,17 +113,15 @@ class JobsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.jobs.get(
             job_id="job_id",
         )
         """
-        _response = self._raw_client.get(
-            job_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(job_id, request_options=request_options)
         return _response.data
 
 
@@ -168,8 +148,6 @@ class AsyncJobsClient:
         state: typing.Optional[typing.Union[JobState, typing.Sequence[JobState]]] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Job, ListJobsResponse]:
         """
@@ -192,12 +170,6 @@ class AsyncJobsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of jobs after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -212,11 +184,16 @@ class AsyncJobsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
-            response = await client.jobs.list()
+            response = await client.jobs.list(
+                corpus_key=["my-corpus"],
+            )
             async for item in response:
                 yield item
 
@@ -233,19 +210,10 @@ class AsyncJobsClient:
             state=state,
             limit=limit,
             page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
 
-    async def get(
-        self,
-        job_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Job:
+    async def get(self, job_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Job:
         """
         Get a job by a specific `job_id`. Jobs are background processes like replacing the filterable metadata attributes.
 
@@ -253,12 +221,6 @@ class AsyncJobsClient:
         ----------
         job_id : str
             The ID of the job to get.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -274,7 +236,10 @@ class AsyncJobsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -285,10 +250,5 @@ class AsyncJobsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            job_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(job_id, request_options=request_options)
         return _response.data

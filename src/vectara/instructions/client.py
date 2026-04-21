@@ -42,8 +42,6 @@ class InstructionsClient:
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Instruction, ListInstructionsResponse]:
         """
@@ -66,12 +64,6 @@ class InstructionsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of instructions after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -84,7 +76,10 @@ class InstructionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.instructions.list(
             filter="support.*",
             enabled=True,
@@ -96,23 +91,11 @@ class InstructionsClient:
             yield page
         """
         return self._raw_client.list(
-            filter=filter,
-            type=type,
-            enabled=enabled,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            filter=filter, type=type, enabled=enabled, limit=limit, page_key=page_key, request_options=request_options
         )
 
     def create(
-        self,
-        *,
-        request: CreateInstructionRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request: CreateInstructionRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> Instruction:
         """
         Create a new instruction that defines how an agent should behave, reason, and respond. Instructions act as system-level guidelines that shape the agent's tone, style, constraints, and tool usage.
@@ -163,12 +146,6 @@ class InstructionsClient:
         ----------
         request : CreateInstructionRequest
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -181,7 +158,10 @@ class InstructionsClient:
         --------
         from vectara import CreateInstructionRequest_Initial, Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.instructions.create(
             request=CreateInstructionRequest_Initial(
                 name="Customer Support Initial Instruction",
@@ -189,12 +169,7 @@ class InstructionsClient:
             ),
         )
         """
-        _response = self._raw_client.create(
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.create(request=request, request_options=request_options)
         return _response.data
 
     def get(
@@ -202,8 +177,6 @@ class InstructionsClient:
         instruction_id: InstructionId,
         *,
         version: typing.Optional[int] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Instruction:
         """
@@ -217,12 +190,6 @@ class InstructionsClient:
         version : typing.Optional[int]
             The specific version of the instruction to retrieve. If not specified, the latest version will be returned.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -235,29 +202,19 @@ class InstructionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.instructions.get(
             instruction_id="ins_customer_support_init",
             version=1,
         )
         """
-        _response = self._raw_client.get(
-            instruction_id,
-            version=version,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(instruction_id, version=version, request_options=request_options)
         return _response.data
 
-    def delete(
-        self,
-        instruction_id: InstructionId,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    def delete(self, instruction_id: InstructionId, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Permanently delete an instruction and all its associated configuration.
 
@@ -270,12 +227,6 @@ class InstructionsClient:
         instruction_id : InstructionId
             The unique identifier of the instruction to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -287,17 +238,15 @@ class InstructionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.instructions.delete(
             instruction_id="ins_customer_support_init",
         )
         """
-        _response = self._raw_client.delete(
-            instruction_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete(instruction_id, request_options=request_options)
         return _response.data
 
     def update(
@@ -305,8 +254,6 @@ class InstructionsClient:
         instruction_id: InstructionId,
         *,
         request: UpdateInstructionRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Instruction:
         """
@@ -331,12 +278,6 @@ class InstructionsClient:
 
         request : UpdateInstructionRequest
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -349,19 +290,16 @@ class InstructionsClient:
         --------
         from vectara import UpdateInstructionRequest_Initial, Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.instructions.update(
             instruction_id="ins_customer_support_init",
             request=UpdateInstructionRequest_Initial(),
         )
         """
-        _response = self._raw_client.update(
-            instruction_id,
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.update(instruction_id, request=request, request_options=request_options)
         return _response.data
 
     def test(
@@ -369,8 +307,6 @@ class InstructionsClient:
         instruction_id: InstructionId,
         *,
         version: typing.Optional[int] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         context: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         tools: typing.Optional[typing.Sequence[Tool]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -385,12 +321,6 @@ class InstructionsClient:
 
         version : typing.Optional[int]
             The specific version of the instruction to test. If not specified, the latest version will be used.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         context : typing.Optional[typing.Dict[str, typing.Any]]
             Context data to use when rendering the instruction template. This will be merged into `$session.metadata` for template access.
@@ -412,31 +342,22 @@ class InstructionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.instructions.test(
             instruction_id="ins_customer_support_init",
             version=1,
         )
         """
         _response = self._raw_client.test(
-            instruction_id,
-            version=version,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            context=context,
-            tools=tools,
-            request_options=request_options,
+            instruction_id, version=version, context=context, tools=tools, request_options=request_options
         )
         return _response.data
 
     def delete_version(
-        self,
-        instruction_id: InstructionId,
-        version: int,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, instruction_id: InstructionId, version: int, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
         Permanently delete the specified version of the instruction. This action cannot be undone.
@@ -449,12 +370,6 @@ class InstructionsClient:
         version : int
             The specific version of the instruction to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -466,19 +381,16 @@ class InstructionsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.instructions.delete_version(
             instruction_id="ins_customer_support_init",
             version=1,
         )
         """
-        _response = self._raw_client.delete_version(
-            instruction_id,
-            version,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete_version(instruction_id, version, request_options=request_options)
         return _response.data
 
 
@@ -505,8 +417,6 @@ class AsyncInstructionsClient:
         enabled: typing.Optional[bool] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Instruction, ListInstructionsResponse]:
         """
@@ -529,12 +439,6 @@ class AsyncInstructionsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of instructions after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -549,7 +453,10 @@ class AsyncInstructionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -568,23 +475,11 @@ class AsyncInstructionsClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
-            filter=filter,
-            type=type,
-            enabled=enabled,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            filter=filter, type=type, enabled=enabled, limit=limit, page_key=page_key, request_options=request_options
         )
 
     async def create(
-        self,
-        *,
-        request: CreateInstructionRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request: CreateInstructionRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> Instruction:
         """
         Create a new instruction that defines how an agent should behave, reason, and respond. Instructions act as system-level guidelines that shape the agent's tone, style, constraints, and tool usage.
@@ -635,12 +530,6 @@ class AsyncInstructionsClient:
         ----------
         request : CreateInstructionRequest
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -655,7 +544,10 @@ class AsyncInstructionsClient:
 
         from vectara import AsyncVectara, CreateInstructionRequest_Initial
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -669,12 +561,7 @@ class AsyncInstructionsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.create(
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.create(request=request, request_options=request_options)
         return _response.data
 
     async def get(
@@ -682,8 +569,6 @@ class AsyncInstructionsClient:
         instruction_id: InstructionId,
         *,
         version: typing.Optional[int] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Instruction:
         """
@@ -696,12 +581,6 @@ class AsyncInstructionsClient:
 
         version : typing.Optional[int]
             The specific version of the instruction to retrieve. If not specified, the latest version will be returned.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -717,7 +596,10 @@ class AsyncInstructionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -729,22 +611,11 @@ class AsyncInstructionsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            instruction_id,
-            version=version,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(instruction_id, version=version, request_options=request_options)
         return _response.data
 
     async def delete(
-        self,
-        instruction_id: InstructionId,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, instruction_id: InstructionId, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
         Permanently delete an instruction and all its associated configuration.
@@ -757,12 +628,6 @@ class AsyncInstructionsClient:
         ----------
         instruction_id : InstructionId
             The unique identifier of the instruction to delete.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -777,7 +642,10 @@ class AsyncInstructionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -788,12 +656,7 @@ class AsyncInstructionsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete(
-            instruction_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete(instruction_id, request_options=request_options)
         return _response.data
 
     async def update(
@@ -801,8 +664,6 @@ class AsyncInstructionsClient:
         instruction_id: InstructionId,
         *,
         request: UpdateInstructionRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> Instruction:
         """
@@ -827,12 +688,6 @@ class AsyncInstructionsClient:
 
         request : UpdateInstructionRequest
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -847,7 +702,10 @@ class AsyncInstructionsClient:
 
         from vectara import AsyncVectara, UpdateInstructionRequest_Initial
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -859,13 +717,7 @@ class AsyncInstructionsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.update(
-            instruction_id,
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.update(instruction_id, request=request, request_options=request_options)
         return _response.data
 
     async def test(
@@ -873,8 +725,6 @@ class AsyncInstructionsClient:
         instruction_id: InstructionId,
         *,
         version: typing.Optional[int] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         context: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         tools: typing.Optional[typing.Sequence[Tool]] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
@@ -889,12 +739,6 @@ class AsyncInstructionsClient:
 
         version : typing.Optional[int]
             The specific version of the instruction to test. If not specified, the latest version will be used.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         context : typing.Optional[typing.Dict[str, typing.Any]]
             Context data to use when rendering the instruction template. This will be merged into `$session.metadata` for template access.
@@ -918,7 +762,10 @@ class AsyncInstructionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -931,24 +778,12 @@ class AsyncInstructionsClient:
         asyncio.run(main())
         """
         _response = await self._raw_client.test(
-            instruction_id,
-            version=version,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            context=context,
-            tools=tools,
-            request_options=request_options,
+            instruction_id, version=version, context=context, tools=tools, request_options=request_options
         )
         return _response.data
 
     async def delete_version(
-        self,
-        instruction_id: InstructionId,
-        version: int,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, instruction_id: InstructionId, version: int, *, request_options: typing.Optional[RequestOptions] = None
     ) -> None:
         """
         Permanently delete the specified version of the instruction. This action cannot be undone.
@@ -960,12 +795,6 @@ class AsyncInstructionsClient:
 
         version : int
             The specific version of the instruction to delete.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -980,7 +809,10 @@ class AsyncInstructionsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -992,11 +824,5 @@ class AsyncInstructionsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete_version(
-            instruction_id,
-            version,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete_version(instruction_id, version, request_options=request_options)
         return _response.data

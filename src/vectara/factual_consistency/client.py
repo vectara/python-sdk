@@ -34,8 +34,6 @@ class FactualConsistencyClient:
         *,
         generated_text: str,
         source_texts: typing.Sequence[str],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         model_parameters: typing.Optional[EvaluateFactualConsistencyRequestModelParameters] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> EvaluateFactualConsistencyResponse:
@@ -87,12 +85,6 @@ class FactualConsistencyClient:
         source_texts : typing.Sequence[str]
             The source documents or text snippets against which to evaluate factual consistency.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         model_parameters : typing.Optional[EvaluateFactualConsistencyRequestModelParameters]
             The model parameters for the evaluation.
 
@@ -108,7 +100,10 @@ class FactualConsistencyClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.factual_consistency.evaluate(
             generated_text="generated_text",
             source_texts=["source_texts"],
@@ -117,8 +112,6 @@ class FactualConsistencyClient:
         _response = self._raw_client.evaluate(
             generated_text=generated_text,
             source_texts=source_texts,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             model_parameters=model_parameters,
             request_options=request_options,
         )
@@ -145,8 +138,6 @@ class AsyncFactualConsistencyClient:
         *,
         generated_text: str,
         source_texts: typing.Sequence[str],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         model_parameters: typing.Optional[EvaluateFactualConsistencyRequestModelParameters] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> EvaluateFactualConsistencyResponse:
@@ -198,12 +189,6 @@ class AsyncFactualConsistencyClient:
         source_texts : typing.Sequence[str]
             The source documents or text snippets against which to evaluate factual consistency.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         model_parameters : typing.Optional[EvaluateFactualConsistencyRequestModelParameters]
             The model parameters for the evaluation.
 
@@ -221,7 +206,10 @@ class AsyncFactualConsistencyClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -236,8 +224,6 @@ class AsyncFactualConsistencyClient:
         _response = await self._raw_client.evaluate(
             generated_text=generated_text,
             source_texts=source_texts,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             model_parameters=model_parameters,
             request_options=request_options,
         )

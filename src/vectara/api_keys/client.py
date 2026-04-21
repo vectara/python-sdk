@@ -40,8 +40,6 @@ class ApiKeysClient:
         page_key: typing.Optional[str] = None,
         corpus_key: typing.Optional[CorpusKey] = None,
         api_key_role: typing.Optional[ApiKeyRole] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[ApiKey, ListApiKeysResponse]:
         """
@@ -61,12 +59,6 @@ class ApiKeysClient:
         api_key_role : typing.Optional[ApiKeyRole]
             Filter API keys by their role.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -80,7 +72,10 @@ class ApiKeysClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.api_keys.list(
             corpus_key="my-corpus",
         )
@@ -95,8 +90,6 @@ class ApiKeysClient:
             page_key=page_key,
             corpus_key=corpus_key,
             api_key_role=api_key_role,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
 
@@ -104,8 +97,6 @@ class ApiKeysClient:
         self,
         *,
         name: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         api_key_role: typing.Optional[ApiKeyRole] = OMIT,
         corpus_keys: typing.Optional[typing.Sequence[CorpusKey]] = OMIT,
@@ -126,12 +117,6 @@ class ApiKeysClient:
         ----------
         name : str
             The human-readable name of the API key.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
             Customer-level roles for this API key.
@@ -160,15 +145,16 @@ class ApiKeysClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.api_keys.create(
             name="name",
         )
         """
         _response = self._raw_client.create(
             name=name,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             api_roles=api_roles,
             api_key_role=api_key_role,
             corpus_keys=corpus_keys,
@@ -178,14 +164,7 @@ class ApiKeysClient:
         )
         return _response.data
 
-    def get(
-        self,
-        api_key_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> ApiKey:
+    def get(self, api_key_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> ApiKey:
         """
         The Get API Key API lists all existing API keys for a customer ID. It also shows what corpora are accessed by these keys and with what permissions.
 
@@ -195,12 +174,6 @@ class ApiKeysClient:
         ----------
         api_key_id : str
             The ID of the API key.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -214,27 +187,18 @@ class ApiKeysClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.api_keys.get(
             api_key_id="api_key_id",
         )
         """
-        _response = self._raw_client.get(
-            api_key_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(api_key_id, request_options=request_options)
         return _response.data
 
-    def delete(
-        self,
-        api_key_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    def delete(self, api_key_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         The Delete API Key API lets you delete one or more existing API keys.
         This capability is useful for managing the lifecycle and security of
@@ -244,12 +208,6 @@ class ApiKeysClient:
         ----------
         api_key_id : str
             The ID of the API key.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -262,25 +220,21 @@ class ApiKeysClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.api_keys.delete(
             api_key_id="api_key_id",
         )
         """
-        _response = self._raw_client.delete(
-            api_key_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete(api_key_id, request_options=request_options)
         return _response.data
 
     def update(
         self,
         api_key_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ApiKey:
@@ -293,12 +247,6 @@ class ApiKeysClient:
         ----------
         api_key_id : str
             The ID of the API key.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Indicates whether to disable or enable an API key.
@@ -315,18 +263,15 @@ class ApiKeysClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.api_keys.update(
             api_key_id="api_key_id",
         )
         """
-        _response = self._raw_client.update(
-            api_key_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            enabled=enabled,
-            request_options=request_options,
-        )
+        _response = self._raw_client.update(api_key_id, enabled=enabled, request_options=request_options)
         return _response.data
 
 
@@ -352,8 +297,6 @@ class AsyncApiKeysClient:
         page_key: typing.Optional[str] = None,
         corpus_key: typing.Optional[CorpusKey] = None,
         api_key_role: typing.Optional[ApiKeyRole] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[ApiKey, ListApiKeysResponse]:
         """
@@ -373,12 +316,6 @@ class AsyncApiKeysClient:
         api_key_role : typing.Optional[ApiKeyRole]
             Filter API keys by their role.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -394,7 +331,10 @@ class AsyncApiKeysClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -416,8 +356,6 @@ class AsyncApiKeysClient:
             page_key=page_key,
             corpus_key=corpus_key,
             api_key_role=api_key_role,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             request_options=request_options,
         )
 
@@ -425,8 +363,6 @@ class AsyncApiKeysClient:
         self,
         *,
         name: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         api_key_role: typing.Optional[ApiKeyRole] = OMIT,
         corpus_keys: typing.Optional[typing.Sequence[CorpusKey]] = OMIT,
@@ -447,12 +383,6 @@ class AsyncApiKeysClient:
         ----------
         name : str
             The human-readable name of the API key.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         api_roles : typing.Optional[typing.Sequence[ApiRole]]
             Customer-level roles for this API key.
@@ -483,7 +413,10 @@ class AsyncApiKeysClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -496,8 +429,6 @@ class AsyncApiKeysClient:
         """
         _response = await self._raw_client.create(
             name=name,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             api_roles=api_roles,
             api_key_role=api_key_role,
             corpus_keys=corpus_keys,
@@ -507,14 +438,7 @@ class AsyncApiKeysClient:
         )
         return _response.data
 
-    async def get(
-        self,
-        api_key_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> ApiKey:
+    async def get(self, api_key_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> ApiKey:
         """
         The Get API Key API lists all existing API keys for a customer ID. It also shows what corpora are accessed by these keys and with what permissions.
 
@@ -524,12 +448,6 @@ class AsyncApiKeysClient:
         ----------
         api_key_id : str
             The ID of the API key.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -545,7 +463,10 @@ class AsyncApiKeysClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -556,22 +477,10 @@ class AsyncApiKeysClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            api_key_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(api_key_id, request_options=request_options)
         return _response.data
 
-    async def delete(
-        self,
-        api_key_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    async def delete(self, api_key_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         The Delete API Key API lets you delete one or more existing API keys.
         This capability is useful for managing the lifecycle and security of
@@ -581,12 +490,6 @@ class AsyncApiKeysClient:
         ----------
         api_key_id : str
             The ID of the API key.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -601,7 +504,10 @@ class AsyncApiKeysClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -612,20 +518,13 @@ class AsyncApiKeysClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete(
-            api_key_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete(api_key_id, request_options=request_options)
         return _response.data
 
     async def update(
         self,
         api_key_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> ApiKey:
@@ -638,12 +537,6 @@ class AsyncApiKeysClient:
         ----------
         api_key_id : str
             The ID of the API key.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Indicates whether to disable or enable an API key.
@@ -662,7 +555,10 @@ class AsyncApiKeysClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -673,11 +569,5 @@ class AsyncApiKeysClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.update(
-            api_key_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            enabled=enabled,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.update(api_key_id, enabled=enabled, request_options=request_options)
         return _response.data

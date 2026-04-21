@@ -15,7 +15,7 @@ class AgentCorporaSearchQueryConfiguration(UniversalBaseModel):
     Agent-specific query configuration that supports eager references. Use this in agent tool configurations when turn-start resolution is needed.
     """
 
-    search: AgentSearchCorporaParameters
+    search: typing.Optional[AgentSearchCorporaParameters] = None
     generation: typing.Optional[GenerationParameters] = None
     save_history: typing.Optional[bool] = pydantic.Field(default=None)
     """

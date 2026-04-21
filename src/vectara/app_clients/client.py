@@ -38,8 +38,6 @@ class AppClientsClient:
         limit: typing.Optional[int] = None,
         filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[AppClient, ListAppClientsResponse]:
         """
@@ -56,12 +54,6 @@ class AppClientsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of App Clients after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -74,7 +66,10 @@ class AppClientsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.app_clients.list()
         for item in response:
             yield item
@@ -82,22 +77,10 @@ class AppClientsClient:
         for page in response.iter_pages():
             yield page
         """
-        return self._raw_client.list(
-            limit=limit,
-            filter=filter,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        return self._raw_client.list(limit=limit, filter=filter, page_key=page_key, request_options=request_options)
 
     def create(
-        self,
-        *,
-        request: CreateAppClientRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request: CreateAppClientRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> AppClient:
         """
         An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
@@ -105,12 +88,6 @@ class AppClientsClient:
         Parameters
         ----------
         request : CreateAppClientRequest
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -124,29 +101,20 @@ class AppClientsClient:
         --------
         from vectara import CreateAppClientRequest_ClientCredentials, Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.app_clients.create(
             request=CreateAppClientRequest_ClientCredentials(
                 name="name",
             ),
         )
         """
-        _response = self._raw_client.create(
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.create(request=request, request_options=request_options)
         return _response.data
 
-    def get(
-        self,
-        app_client_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> AppClient:
+    def get(self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> AppClient:
         """
         Retrieve details of a specific application client by its ID.
 
@@ -154,12 +122,6 @@ class AppClientsClient:
         ----------
         app_client_id : str
             The ID of the App Client.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -173,27 +135,18 @@ class AppClientsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.app_clients.get(
             app_client_id="app_client_id",
         )
         """
-        _response = self._raw_client.get(
-            app_client_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(app_client_id, request_options=request_options)
         return _response.data
 
-    def delete(
-        self,
-        app_client_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    def delete(self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Remove an application client configuration from the customer account.
 
@@ -201,12 +154,6 @@ class AppClientsClient:
         ----------
         app_client_id : str
             The ID of App Client.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -219,25 +166,21 @@ class AppClientsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.app_clients.delete(
             app_client_id="app_client_id",
         )
         """
-        _response = self._raw_client.delete(
-            app_client_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete(app_client_id, request_options=request_options)
         return _response.data
 
     def update(
         self,
         app_client_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
@@ -251,12 +194,6 @@ class AppClientsClient:
         ----------
         app_client_id : str
             The name of App Client.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         description : typing.Optional[str]
             The new App Client description.
@@ -282,15 +219,16 @@ class AppClientsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.app_clients.update(
             app_client_id="app_client_id",
         )
         """
         _response = self._raw_client.update(
             app_client_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             description=description,
             api_roles=api_roles,
             corpus_roles=corpus_roles,
@@ -321,8 +259,6 @@ class AsyncAppClientsClient:
         limit: typing.Optional[int] = None,
         filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[AppClient, ListAppClientsResponse]:
         """
@@ -339,12 +275,6 @@ class AsyncAppClientsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of App Clients after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -359,7 +289,10 @@ class AsyncAppClientsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -375,21 +308,11 @@ class AsyncAppClientsClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
-            limit=limit,
-            filter=filter,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            limit=limit, filter=filter, page_key=page_key, request_options=request_options
         )
 
     async def create(
-        self,
-        *,
-        request: CreateAppClientRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request: CreateAppClientRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> AppClient:
         """
         An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
@@ -397,12 +320,6 @@ class AsyncAppClientsClient:
         Parameters
         ----------
         request : CreateAppClientRequest
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -418,7 +335,10 @@ class AsyncAppClientsClient:
 
         from vectara import AsyncVectara, CreateAppClientRequest_ClientCredentials
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -431,22 +351,10 @@ class AsyncAppClientsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.create(
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.create(request=request, request_options=request_options)
         return _response.data
 
-    async def get(
-        self,
-        app_client_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> AppClient:
+    async def get(self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> AppClient:
         """
         Retrieve details of a specific application client by its ID.
 
@@ -454,12 +362,6 @@ class AsyncAppClientsClient:
         ----------
         app_client_id : str
             The ID of the App Client.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -475,7 +377,10 @@ class AsyncAppClientsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -486,22 +391,10 @@ class AsyncAppClientsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            app_client_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(app_client_id, request_options=request_options)
         return _response.data
 
-    async def delete(
-        self,
-        app_client_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    async def delete(self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         Remove an application client configuration from the customer account.
 
@@ -509,12 +402,6 @@ class AsyncAppClientsClient:
         ----------
         app_client_id : str
             The ID of App Client.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -529,7 +416,10 @@ class AsyncAppClientsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -540,20 +430,13 @@ class AsyncAppClientsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete(
-            app_client_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete(app_client_id, request_options=request_options)
         return _response.data
 
     async def update(
         self,
         app_client_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
@@ -567,12 +450,6 @@ class AsyncAppClientsClient:
         ----------
         app_client_id : str
             The name of App Client.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         description : typing.Optional[str]
             The new App Client description.
@@ -600,7 +477,10 @@ class AsyncAppClientsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -613,8 +493,6 @@ class AsyncAppClientsClient:
         """
         _response = await self._raw_client.update(
             app_client_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             description=description,
             api_roles=api_roles,
             corpus_roles=corpus_roles,

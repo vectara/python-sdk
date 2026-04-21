@@ -9,7 +9,7 @@ from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
 from ..core.http_sse._api import EventSource
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as, parse_sse_obj
@@ -48,8 +48,6 @@ class RawAgentEventsClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         include_hidden: typing.Optional[bool] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[AgentEvent, ListAgentEventsResponse]:
         """
@@ -72,12 +70,6 @@ class RawAgentEventsClient:
         include_hidden : typing.Optional[bool]
             Include hidden events (compacted or manually hidden) in the response. Defaults to false.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -87,17 +79,13 @@ class RawAgentEventsClient:
             List of events in the session.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/events",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/events",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
                 "page_key": page_key,
                 "include_hidden": include_hidden,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -122,8 +110,6 @@ class RawAgentEventsClient:
                         limit=limit,
                         page_key=_parsed_next,
                         include_hidden=include_hidden,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -165,8 +151,6 @@ class RawAgentEventsClient:
         session_key: AgentSessionKey,
         *,
         request: CreateAgentEventsStreamRequestBody,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.Iterator[HttpResponse[typing.Iterator[AgentStreamedResponse]]]:
         """
@@ -182,12 +166,6 @@ class RawAgentEventsClient:
 
         request : CreateAgentEventsStreamRequestBody
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -197,7 +175,7 @@ class RawAgentEventsClient:
 
         """
         with self._client_wrapper.httpx_client.stream(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/events",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/events",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json=convert_and_respect_annotation_metadata(
@@ -205,8 +183,6 @@ class RawAgentEventsClient:
             ),
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -331,8 +307,6 @@ class RawAgentEventsClient:
         session_key: AgentSessionKey,
         *,
         request: CreateAgentEventsRequestBody,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[AgentResponse]:
         """
@@ -348,12 +322,6 @@ class RawAgentEventsClient:
 
         request : CreateAgentEventsRequestBody
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -363,7 +331,7 @@ class RawAgentEventsClient:
 
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/events",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/events",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json=convert_and_respect_annotation_metadata(
@@ -371,8 +339,6 @@ class RawAgentEventsClient:
             ),
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -468,8 +434,6 @@ class RawAgentEventsClient:
         session_key: AgentSessionKey,
         event_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[AgentEvent]:
         """
@@ -486,12 +450,6 @@ class RawAgentEventsClient:
         event_id : str
             The unique identifier of the event to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -501,13 +459,9 @@ class RawAgentEventsClient:
             The requested event details.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/events/{jsonable_encoder(event_id)}",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/events/{encode_path_param(event_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -557,8 +511,6 @@ class RawAgentEventsClient:
         session_key: AgentSessionKey,
         event_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[None]:
         """
@@ -572,12 +524,6 @@ class RawAgentEventsClient:
 
         event_id : str
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -586,13 +532,9 @@ class RawAgentEventsClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/events/{jsonable_encoder(event_id)}",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/events/{encode_path_param(event_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -624,8 +566,6 @@ class RawAgentEventsClient:
         session_key: AgentSessionKey,
         event_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[AgentEvent]:
         """
@@ -639,12 +579,6 @@ class RawAgentEventsClient:
 
         event_id : str
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -654,13 +588,9 @@ class RawAgentEventsClient:
             Event hidden.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/events/{jsonable_encoder(event_id)}/hide",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/events/{encode_path_param(event_id)}/hide",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -699,8 +629,6 @@ class RawAgentEventsClient:
         session_key: AgentSessionKey,
         event_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[AgentEvent]:
         """
@@ -714,12 +642,6 @@ class RawAgentEventsClient:
 
         event_id : str
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -729,13 +651,9 @@ class RawAgentEventsClient:
             Event unhidden.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/events/{jsonable_encoder(event_id)}/unhide",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/events/{encode_path_param(event_id)}/unhide",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -781,8 +699,6 @@ class AsyncRawAgentEventsClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         include_hidden: typing.Optional[bool] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[AgentEvent, ListAgentEventsResponse]:
         """
@@ -805,12 +721,6 @@ class AsyncRawAgentEventsClient:
         include_hidden : typing.Optional[bool]
             Include hidden events (compacted or manually hidden) in the response. Defaults to false.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -820,17 +730,13 @@ class AsyncRawAgentEventsClient:
             List of events in the session.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/events",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/events",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
                 "page_key": page_key,
                 "include_hidden": include_hidden,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -857,8 +763,6 @@ class AsyncRawAgentEventsClient:
                             limit=limit,
                             page_key=_parsed_next,
                             include_hidden=include_hidden,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 
@@ -901,8 +805,6 @@ class AsyncRawAgentEventsClient:
         session_key: AgentSessionKey,
         *,
         request: CreateAgentEventsStreamRequestBody,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> typing.AsyncIterator[AsyncHttpResponse[typing.AsyncIterator[AgentStreamedResponse]]]:
         """
@@ -918,12 +820,6 @@ class AsyncRawAgentEventsClient:
 
         request : CreateAgentEventsStreamRequestBody
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -933,7 +829,7 @@ class AsyncRawAgentEventsClient:
 
         """
         async with self._client_wrapper.httpx_client.stream(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/events",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/events",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json=convert_and_respect_annotation_metadata(
@@ -941,8 +837,6 @@ class AsyncRawAgentEventsClient:
             ),
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1067,8 +961,6 @@ class AsyncRawAgentEventsClient:
         session_key: AgentSessionKey,
         *,
         request: CreateAgentEventsRequestBody,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[AgentResponse]:
         """
@@ -1084,12 +976,6 @@ class AsyncRawAgentEventsClient:
 
         request : CreateAgentEventsRequestBody
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1099,7 +985,7 @@ class AsyncRawAgentEventsClient:
 
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/events",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/events",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json=convert_and_respect_annotation_metadata(
@@ -1107,8 +993,6 @@ class AsyncRawAgentEventsClient:
             ),
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1204,8 +1088,6 @@ class AsyncRawAgentEventsClient:
         session_key: AgentSessionKey,
         event_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[AgentEvent]:
         """
@@ -1222,12 +1104,6 @@ class AsyncRawAgentEventsClient:
         event_id : str
             The unique identifier of the event to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1237,13 +1113,9 @@ class AsyncRawAgentEventsClient:
             The requested event details.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/events/{jsonable_encoder(event_id)}",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/events/{encode_path_param(event_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1293,8 +1165,6 @@ class AsyncRawAgentEventsClient:
         session_key: AgentSessionKey,
         event_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[None]:
         """
@@ -1308,12 +1178,6 @@ class AsyncRawAgentEventsClient:
 
         event_id : str
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1322,13 +1186,9 @@ class AsyncRawAgentEventsClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/events/{jsonable_encoder(event_id)}",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/events/{encode_path_param(event_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1360,8 +1220,6 @@ class AsyncRawAgentEventsClient:
         session_key: AgentSessionKey,
         event_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[AgentEvent]:
         """
@@ -1375,12 +1233,6 @@ class AsyncRawAgentEventsClient:
 
         event_id : str
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1390,13 +1242,9 @@ class AsyncRawAgentEventsClient:
             Event hidden.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/events/{jsonable_encoder(event_id)}/hide",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/events/{encode_path_param(event_id)}/hide",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1435,8 +1283,6 @@ class AsyncRawAgentEventsClient:
         session_key: AgentSessionKey,
         event_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[AgentEvent]:
         """
@@ -1450,12 +1296,6 @@ class AsyncRawAgentEventsClient:
 
         event_id : str
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1465,13 +1305,9 @@ class AsyncRawAgentEventsClient:
             Event unhidden.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/sessions/{jsonable_encoder(session_key)}/events/{jsonable_encoder(event_id)}/unhide",
+            f"v2/agents/{encode_path_param(agent_key)}/sessions/{encode_path_param(session_key)}/events/{encode_path_param(event_id)}/unhide",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:

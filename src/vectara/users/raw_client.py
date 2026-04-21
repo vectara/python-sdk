@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
@@ -40,8 +40,6 @@ class RawUsersClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         corpus_key: typing.Optional[CorpusKey] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[User, ListUsersResponse]:
         """
@@ -60,12 +58,6 @@ class RawUsersClient:
         corpus_key : typing.Optional[CorpusKey]
             Filter users by access to this corpus.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -82,10 +74,6 @@ class RawUsersClient:
                 "limit": limit,
                 "page_key": page_key,
                 "corpus_key": corpus_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -108,8 +96,6 @@ class RawUsersClient:
                         limit=limit,
                         page_key=_parsed_next,
                         corpus_key=corpus_key,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -137,8 +123,6 @@ class RawUsersClient:
         self,
         *,
         email: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         username: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
@@ -153,12 +137,6 @@ class RawUsersClient:
         ----------
         email : str
             The email address for the user.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         username : typing.Optional[str]
             The username for the user. The value defaults to the email.
@@ -201,8 +179,6 @@ class RawUsersClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -248,14 +224,7 @@ class RawUsersClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def get(
-        self,
-        username: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[User]:
+    def get(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[User]:
         """
         Get a user and view details like the email, username, and associated roles.
 
@@ -263,12 +232,6 @@ class RawUsersClient:
         ----------
         username : str
             Specifies the user ID that to retrieve. Note that the username must be percent encoded.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -279,13 +242,9 @@ class RawUsersClient:
             A user.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/users/{jsonable_encoder(username)}",
+            f"v2/users/{encode_path_param(username)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -329,14 +288,7 @@ class RawUsersClient:
             )
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
-    def delete(
-        self,
-        username: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> HttpResponse[None]:
+    def delete(self, username: str, *, request_options: typing.Optional[RequestOptions] = None) -> HttpResponse[None]:
         """
         Delete a user from the account.
 
@@ -344,12 +296,6 @@ class RawUsersClient:
         ----------
         username : str
             Specifies the user ID to delete. Note that the username must be percent encoded.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -359,13 +305,9 @@ class RawUsersClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/users/{jsonable_encoder(username)}",
+            f"v2/users/{encode_path_param(username)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -406,8 +348,6 @@ class RawUsersClient:
         self,
         username: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
@@ -422,12 +362,6 @@ class RawUsersClient:
         ----------
         username : str
             Specifies the user ID to update. Note that the username must be percent encoded.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Indicates whether to enable or disable the user.
@@ -453,7 +387,7 @@ class RawUsersClient:
             New user after modification.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/users/{jsonable_encoder(username)}",
+            f"v2/users/{encode_path_param(username)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -469,8 +403,6 @@ class RawUsersClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -517,12 +449,7 @@ class RawUsersClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def reset_password(
-        self,
-        username: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, username: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[ResetPasswordUsersResponse]:
         """
         Reset the password for a user.
@@ -531,12 +458,6 @@ class RawUsersClient:
         ----------
         username : str
             Specifies the user ID to update. Note that the username must be percent encoded and URI safe.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -547,13 +468,9 @@ class RawUsersClient:
             User was sent the password reset email.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/users/{jsonable_encoder(username)}/reset_password",
+            f"v2/users/{encode_path_param(username)}/reset_password",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -608,8 +525,6 @@ class AsyncRawUsersClient:
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
         corpus_key: typing.Optional[CorpusKey] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[User, ListUsersResponse]:
         """
@@ -628,12 +543,6 @@ class AsyncRawUsersClient:
         corpus_key : typing.Optional[CorpusKey]
             Filter users by access to this corpus.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -650,10 +559,6 @@ class AsyncRawUsersClient:
                 "limit": limit,
                 "page_key": page_key,
                 "corpus_key": corpus_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -678,8 +583,6 @@ class AsyncRawUsersClient:
                             limit=limit,
                             page_key=_parsed_next,
                             corpus_key=corpus_key,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 
@@ -708,8 +611,6 @@ class AsyncRawUsersClient:
         self,
         *,
         email: str,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         username: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
@@ -724,12 +625,6 @@ class AsyncRawUsersClient:
         ----------
         email : str
             The email address for the user.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         username : typing.Optional[str]
             The username for the user. The value defaults to the email.
@@ -772,8 +667,6 @@ class AsyncRawUsersClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -820,12 +713,7 @@ class AsyncRawUsersClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
-        self,
-        username: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, username: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[User]:
         """
         Get a user and view details like the email, username, and associated roles.
@@ -834,12 +722,6 @@ class AsyncRawUsersClient:
         ----------
         username : str
             Specifies the user ID that to retrieve. Note that the username must be percent encoded.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -850,13 +732,9 @@ class AsyncRawUsersClient:
             A user.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/users/{jsonable_encoder(username)}",
+            f"v2/users/{encode_path_param(username)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -901,12 +779,7 @@ class AsyncRawUsersClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
-        self,
-        username: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, username: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[None]:
         """
         Delete a user from the account.
@@ -916,12 +789,6 @@ class AsyncRawUsersClient:
         username : str
             Specifies the user ID to delete. Note that the username must be percent encoded.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -930,13 +797,9 @@ class AsyncRawUsersClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/users/{jsonable_encoder(username)}",
+            f"v2/users/{encode_path_param(username)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -977,8 +840,6 @@ class AsyncRawUsersClient:
         self,
         username: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         enabled: typing.Optional[bool] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
@@ -993,12 +854,6 @@ class AsyncRawUsersClient:
         ----------
         username : str
             Specifies the user ID to update. Note that the username must be percent encoded.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         enabled : typing.Optional[bool]
             Indicates whether to enable or disable the user.
@@ -1024,7 +879,7 @@ class AsyncRawUsersClient:
             New user after modification.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/users/{jsonable_encoder(username)}",
+            f"v2/users/{encode_path_param(username)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -1040,8 +895,6 @@ class AsyncRawUsersClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1088,12 +941,7 @@ class AsyncRawUsersClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def reset_password(
-        self,
-        username: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, username: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[ResetPasswordUsersResponse]:
         """
         Reset the password for a user.
@@ -1102,12 +950,6 @@ class AsyncRawUsersClient:
         ----------
         username : str
             Specifies the user ID to update. Note that the username must be percent encoded and URI safe.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -1118,13 +960,9 @@ class AsyncRawUsersClient:
             User was sent the password reset email.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/users/{jsonable_encoder(username)}/reset_password",
+            f"v2/users/{encode_path_param(username)}/reset_password",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:

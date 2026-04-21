@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
@@ -42,8 +42,6 @@ class RawAgentSchedulesClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[AgentSchedule, ListAgentSchedulesResponse]:
         """
@@ -60,12 +58,6 @@ class RawAgentSchedulesClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of schedules after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -75,16 +67,12 @@ class RawAgentSchedulesClient:
             List of agent schedules.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/schedules",
+            f"v2/agents/{encode_path_param(agent_key)}/schedules",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -107,8 +95,6 @@ class RawAgentSchedulesClient:
                         agent_key,
                         limit=limit,
                         page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -150,8 +136,6 @@ class RawAgentSchedulesClient:
         name: AgentScheduleName,
         message: typing.Sequence[AgentInput],
         schedule: ScheduleConfiguration,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentScheduleKey] = OMIT,
         description: typing.Optional[str] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
@@ -197,12 +181,6 @@ class RawAgentSchedulesClient:
         
         schedule : ScheduleConfiguration
         
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-        
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-        
         key : typing.Optional[AgentScheduleKey]
             Optional unique key for the schedule. If not provided, will be auto-generated.
         
@@ -227,7 +205,7 @@ class RawAgentSchedulesClient:
             The response includes the complete schedule configuration including the unique schedule key, interval, and timestamps.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/schedules",
+            f"v2/agents/{encode_path_param(agent_key)}/schedules",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -246,8 +224,6 @@ class RawAgentSchedulesClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -320,8 +296,6 @@ class RawAgentSchedulesClient:
         agent_key: AgentKey,
         schedule_key: AgentScheduleKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[AgentSchedule]:
         """
@@ -335,12 +309,6 @@ class RawAgentSchedulesClient:
         schedule_key : AgentScheduleKey
             The unique key of the schedule.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -350,13 +318,9 @@ class RawAgentSchedulesClient:
             Agent schedule details.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/schedules/{jsonable_encoder(schedule_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}/schedules/{encode_path_param(schedule_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -405,8 +369,6 @@ class RawAgentSchedulesClient:
         agent_key: AgentKey,
         schedule_key: AgentScheduleKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> HttpResponse[None]:
         """
@@ -422,12 +384,6 @@ class RawAgentSchedulesClient:
         schedule_key : AgentScheduleKey
             The unique key of the schedule to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -436,13 +392,9 @@ class RawAgentSchedulesClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/schedules/{jsonable_encoder(schedule_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}/schedules/{encode_path_param(schedule_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -484,8 +436,6 @@ class RawAgentSchedulesClient:
         agent_key: AgentKey,
         schedule_key: AgentScheduleKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[AgentScheduleName] = OMIT,
         description: typing.Optional[str] = OMIT,
         message: typing.Optional[typing.Sequence[AgentInput]] = OMIT,
@@ -507,12 +457,6 @@ class RawAgentSchedulesClient:
 
         schedule_key : AgentScheduleKey
             The unique key of the schedule to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[AgentScheduleName]
 
@@ -542,7 +486,7 @@ class RawAgentSchedulesClient:
             Updated schedule.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/schedules/{jsonable_encoder(schedule_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}/schedules/{encode_path_param(schedule_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -560,8 +504,6 @@ class RawAgentSchedulesClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -625,8 +567,6 @@ class RawAgentSchedulesClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[AgentScheduleExecution, ListAgentScheduleExecutionsResponse]:
         """
@@ -642,12 +582,6 @@ class RawAgentSchedulesClient:
 
         page_key : typing.Optional[str]
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -657,16 +591,12 @@ class RawAgentSchedulesClient:
             List of schedule execution attempts.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/schedules/{jsonable_encoder(schedule_key)}/executions",
+            f"v2/agents/{encode_path_param(agent_key)}/schedules/{encode_path_param(schedule_key)}/executions",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -690,8 +620,6 @@ class RawAgentSchedulesClient:
                         schedule_key,
                         limit=limit,
                         page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -715,8 +643,6 @@ class AsyncRawAgentSchedulesClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[AgentSchedule, ListAgentSchedulesResponse]:
         """
@@ -733,12 +659,6 @@ class AsyncRawAgentSchedulesClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of schedules after the limit has been reached.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -748,16 +668,12 @@ class AsyncRawAgentSchedulesClient:
             List of agent schedules.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/schedules",
+            f"v2/agents/{encode_path_param(agent_key)}/schedules",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -782,8 +698,6 @@ class AsyncRawAgentSchedulesClient:
                             agent_key,
                             limit=limit,
                             page_key=_parsed_next,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 
@@ -826,8 +740,6 @@ class AsyncRawAgentSchedulesClient:
         name: AgentScheduleName,
         message: typing.Sequence[AgentInput],
         schedule: ScheduleConfiguration,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         key: typing.Optional[AgentScheduleKey] = OMIT,
         description: typing.Optional[str] = OMIT,
         enabled: typing.Optional[bool] = OMIT,
@@ -873,12 +785,6 @@ class AsyncRawAgentSchedulesClient:
         
         schedule : ScheduleConfiguration
         
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-        
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-        
         key : typing.Optional[AgentScheduleKey]
             Optional unique key for the schedule. If not provided, will be auto-generated.
         
@@ -903,7 +809,7 @@ class AsyncRawAgentSchedulesClient:
             The response includes the complete schedule configuration including the unique schedule key, interval, and timestamps.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/schedules",
+            f"v2/agents/{encode_path_param(agent_key)}/schedules",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -922,8 +828,6 @@ class AsyncRawAgentSchedulesClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -996,8 +900,6 @@ class AsyncRawAgentSchedulesClient:
         agent_key: AgentKey,
         schedule_key: AgentScheduleKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[AgentSchedule]:
         """
@@ -1011,12 +913,6 @@ class AsyncRawAgentSchedulesClient:
         schedule_key : AgentScheduleKey
             The unique key of the schedule.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1026,13 +922,9 @@ class AsyncRawAgentSchedulesClient:
             Agent schedule details.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/schedules/{jsonable_encoder(schedule_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}/schedules/{encode_path_param(schedule_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1081,8 +973,6 @@ class AsyncRawAgentSchedulesClient:
         agent_key: AgentKey,
         schedule_key: AgentScheduleKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncHttpResponse[None]:
         """
@@ -1098,12 +988,6 @@ class AsyncRawAgentSchedulesClient:
         schedule_key : AgentScheduleKey
             The unique key of the schedule to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1112,13 +996,9 @@ class AsyncRawAgentSchedulesClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/schedules/{jsonable_encoder(schedule_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}/schedules/{encode_path_param(schedule_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -1160,8 +1040,6 @@ class AsyncRawAgentSchedulesClient:
         agent_key: AgentKey,
         schedule_key: AgentScheduleKey,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         name: typing.Optional[AgentScheduleName] = OMIT,
         description: typing.Optional[str] = OMIT,
         message: typing.Optional[typing.Sequence[AgentInput]] = OMIT,
@@ -1183,12 +1061,6 @@ class AsyncRawAgentSchedulesClient:
 
         schedule_key : AgentScheduleKey
             The unique key of the schedule to update.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         name : typing.Optional[AgentScheduleName]
 
@@ -1218,7 +1090,7 @@ class AsyncRawAgentSchedulesClient:
             Updated schedule.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/schedules/{jsonable_encoder(schedule_key)}",
+            f"v2/agents/{encode_path_param(agent_key)}/schedules/{encode_path_param(schedule_key)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -1236,8 +1108,6 @@ class AsyncRawAgentSchedulesClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -1301,8 +1171,6 @@ class AsyncRawAgentSchedulesClient:
         *,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[AgentScheduleExecution, ListAgentScheduleExecutionsResponse]:
         """
@@ -1318,12 +1186,6 @@ class AsyncRawAgentSchedulesClient:
 
         page_key : typing.Optional[str]
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -1333,16 +1195,12 @@ class AsyncRawAgentSchedulesClient:
             List of schedule execution attempts.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/agents/{jsonable_encoder(agent_key)}/schedules/{jsonable_encoder(schedule_key)}/executions",
+            f"v2/agents/{encode_path_param(agent_key)}/schedules/{encode_path_param(schedule_key)}/executions",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
             params={
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -1368,8 +1226,6 @@ class AsyncRawAgentSchedulesClient:
                             schedule_key,
                             limit=limit,
                             page_key=_parsed_next,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 

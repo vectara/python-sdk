@@ -36,8 +36,6 @@ class LlmsClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[Llm, ListLlMsResponse]:
         """
@@ -54,12 +52,6 @@ class LlmsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of LLMs after the limit has been reached. This parameter is not needed for the first page of results.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -72,7 +64,10 @@ class LlmsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         response = client.llms.list()
         for item in response:
             yield item
@@ -80,23 +75,9 @@ class LlmsClient:
         for page in response.iter_pages():
             yield page
         """
-        return self._raw_client.list(
-            filter=filter,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        return self._raw_client.list(filter=filter, limit=limit, page_key=page_key, request_options=request_options)
 
-    def create(
-        self,
-        *,
-        request: CreateLlmRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Llm:
+    def create(self, *, request: CreateLlmRequest, request_options: typing.Optional[RequestOptions] = None) -> Llm:
         """
         Integrate external Large Language Models (LLMs) into Vectara for Retrieval Augmented Generation (RAG) and chat. Connect OpenAI API-compatible models from providers like Anthropic, Azure, Google, or custom-hosted endpoints. Once created, reference your custom LLM by name in query generation parameters.
         - Connect external LLMs using OpenAI-compatible API format
@@ -251,12 +232,6 @@ class LlmsClient:
         ----------
         request : CreateLlmRequest
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -269,7 +244,10 @@ class LlmsClient:
         --------
         from vectara import CreateLlmRequest_OpenaiCompatible, Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.llms.create(
             request=CreateLlmRequest_OpenaiCompatible(
                 name="Claude 3.7 Sonnet",
@@ -278,22 +256,10 @@ class LlmsClient:
             ),
         )
         """
-        _response = self._raw_client.create(
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.create(request=request, request_options=request_options)
         return _response.data
 
-    def get(
-        self,
-        llm_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Llm:
+    def get(self, llm_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Llm:
         """
         The Get LLM API allows users to retrieve details about a specific Large Language Model (LLM) that has been configured within the Vectara platform. This API provides metadata about the LLM, including its name, description, model type, API endpoint, and authentication method.
 
@@ -307,12 +273,6 @@ class LlmsClient:
         llm_id : str
             The name of the LLM to retrieve.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -325,27 +285,18 @@ class LlmsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.llms.get(
             llm_id="llm_id",
         )
         """
-        _response = self._raw_client.get(
-            llm_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.get(llm_id, request_options=request_options)
         return _response.data
 
-    def delete(
-        self,
-        llm_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    def delete(self, llm_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         The Delete LLM API enables users to remove a previously configured custom Large Language Model (LLM) from their Vectara account. This functionality is essential for managing active LLM configurations and ensuring that only relevant models are available for use. Built-in LLMs cannot be deleted, ensuring that core system models remain accessible.
 
@@ -358,12 +309,6 @@ class LlmsClient:
         llm_id : str
             The name of the LLM to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -375,27 +320,19 @@ class LlmsClient:
         --------
         from vectara import Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.llms.delete(
             llm_id="llm_id",
         )
         """
-        _response = self._raw_client.delete(
-            llm_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.delete(llm_id, request_options=request_options)
         return _response.data
 
     def update(
-        self,
-        llm_id: str,
-        *,
-        request: UpdateLlmRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, llm_id: str, *, request: UpdateLlmRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> Llm:
         """
         Update an existing LLM's configuration. This endpoint allows partial updates - only provide fields you want to change. Only the name field is immutable.
@@ -425,12 +362,6 @@ class LlmsClient:
 
         request : UpdateLlmRequest
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -443,19 +374,16 @@ class LlmsClient:
         --------
         from vectara import UpdateLlmRequest_OpenaiCompatible, Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.llms.update(
             llm_id="llm_id",
             request=UpdateLlmRequest_OpenaiCompatible(),
         )
         """
-        _response = self._raw_client.update(
-            llm_id,
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = self._raw_client.update(llm_id, request=request, request_options=request_options)
         return _response.data
 
 
@@ -480,8 +408,6 @@ class AsyncLlmsClient:
         filter: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[Llm, ListLlMsResponse]:
         """
@@ -498,12 +424,6 @@ class AsyncLlmsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of LLMs after the limit has been reached. This parameter is not needed for the first page of results.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -518,7 +438,10 @@ class AsyncLlmsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -534,21 +457,11 @@ class AsyncLlmsClient:
         asyncio.run(main())
         """
         return await self._raw_client.list(
-            filter=filter,
-            limit=limit,
-            page_key=page_key,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
+            filter=filter, limit=limit, page_key=page_key, request_options=request_options
         )
 
     async def create(
-        self,
-        *,
-        request: CreateLlmRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request: CreateLlmRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> Llm:
         """
         Integrate external Large Language Models (LLMs) into Vectara for Retrieval Augmented Generation (RAG) and chat. Connect OpenAI API-compatible models from providers like Anthropic, Azure, Google, or custom-hosted endpoints. Once created, reference your custom LLM by name in query generation parameters.
@@ -704,12 +617,6 @@ class AsyncLlmsClient:
         ----------
         request : CreateLlmRequest
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -724,7 +631,10 @@ class AsyncLlmsClient:
 
         from vectara import AsyncVectara, CreateLlmRequest_OpenaiCompatible
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -739,22 +649,10 @@ class AsyncLlmsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.create(
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.create(request=request, request_options=request_options)
         return _response.data
 
-    async def get(
-        self,
-        llm_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> Llm:
+    async def get(self, llm_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> Llm:
         """
         The Get LLM API allows users to retrieve details about a specific Large Language Model (LLM) that has been configured within the Vectara platform. This API provides metadata about the LLM, including its name, description, model type, API endpoint, and authentication method.
 
@@ -767,12 +665,6 @@ class AsyncLlmsClient:
         ----------
         llm_id : str
             The name of the LLM to retrieve.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -788,7 +680,10 @@ class AsyncLlmsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -799,22 +694,10 @@ class AsyncLlmsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.get(
-            llm_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.get(llm_id, request_options=request_options)
         return _response.data
 
-    async def delete(
-        self,
-        llm_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
-    ) -> None:
+    async def delete(self, llm_id: str, *, request_options: typing.Optional[RequestOptions] = None) -> None:
         """
         The Delete LLM API enables users to remove a previously configured custom Large Language Model (LLM) from their Vectara account. This functionality is essential for managing active LLM configurations and ensuring that only relevant models are available for use. Built-in LLMs cannot be deleted, ensuring that core system models remain accessible.
 
@@ -826,12 +709,6 @@ class AsyncLlmsClient:
         ----------
         llm_id : str
             The name of the LLM to delete.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -846,7 +723,10 @@ class AsyncLlmsClient:
 
         from vectara import AsyncVectara
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -857,22 +737,11 @@ class AsyncLlmsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.delete(
-            llm_id,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.delete(llm_id, request_options=request_options)
         return _response.data
 
     async def update(
-        self,
-        llm_id: str,
-        *,
-        request: UpdateLlmRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, llm_id: str, *, request: UpdateLlmRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> Llm:
         """
         Update an existing LLM's configuration. This endpoint allows partial updates - only provide fields you want to change. Only the name field is immutable.
@@ -902,12 +771,6 @@ class AsyncLlmsClient:
 
         request : UpdateLlmRequest
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -922,7 +785,10 @@ class AsyncLlmsClient:
 
         from vectara import AsyncVectara, UpdateLlmRequest_OpenaiCompatible
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -934,11 +800,5 @@ class AsyncLlmsClient:
 
         asyncio.run(main())
         """
-        _response = await self._raw_client.update(
-            llm_id,
-            request=request,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
-            request_options=request_options,
-        )
+        _response = await self._raw_client.update(llm_id, request=request, request_options=request_options)
         return _response.data

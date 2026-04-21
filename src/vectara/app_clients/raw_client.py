@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
@@ -37,8 +37,6 @@ class RawAppClientsClient:
         limit: typing.Optional[int] = None,
         filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[AppClient, ListAppClientsResponse]:
         """
@@ -54,12 +52,6 @@ class RawAppClientsClient:
 
         page_key : typing.Optional[str]
             Used to retrieve the next page of App Clients after the limit has been reached.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -77,10 +69,6 @@ class RawAppClientsClient:
                 "limit": limit,
                 "filter": filter,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -103,8 +91,6 @@ class RawAppClientsClient:
                         limit=limit,
                         filter=filter,
                         page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -140,12 +126,7 @@ class RawAppClientsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def create(
-        self,
-        *,
-        request: CreateAppClientRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request: CreateAppClientRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[AppClient]:
         """
         An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
@@ -153,12 +134,6 @@ class RawAppClientsClient:
         Parameters
         ----------
         request : CreateAppClientRequest
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -177,8 +152,6 @@ class RawAppClientsClient:
             ),
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -225,12 +198,7 @@ class RawAppClientsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def get(
-        self,
-        app_client_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[AppClient]:
         """
         Retrieve details of a specific application client by its ID.
@@ -239,12 +207,6 @@ class RawAppClientsClient:
         ----------
         app_client_id : str
             The ID of the App Client.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -255,13 +217,9 @@ class RawAppClientsClient:
             The App Client.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            f"v2/app_clients/{encode_path_param(app_client_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -295,12 +253,7 @@ class RawAppClientsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
-        self,
-        app_client_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[None]:
         """
         Remove an application client configuration from the customer account.
@@ -310,12 +263,6 @@ class RawAppClientsClient:
         app_client_id : str
             The ID of App Client.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -324,13 +271,9 @@ class RawAppClientsClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            f"v2/app_clients/{encode_path_param(app_client_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -360,8 +303,6 @@ class RawAppClientsClient:
         self,
         app_client_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
@@ -375,12 +316,6 @@ class RawAppClientsClient:
         ----------
         app_client_id : str
             The name of App Client.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         description : typing.Optional[str]
             The new App Client description.
@@ -403,7 +338,7 @@ class RawAppClientsClient:
             The App Client.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            f"v2/app_clients/{encode_path_param(app_client_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -418,8 +353,6 @@ class RawAppClientsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -465,8 +398,6 @@ class AsyncRawAppClientsClient:
         limit: typing.Optional[int] = None,
         filter: typing.Optional[str] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[AppClient, ListAppClientsResponse]:
         """
@@ -482,12 +413,6 @@ class AsyncRawAppClientsClient:
 
         page_key : typing.Optional[str]
             Used to retrieve the next page of App Clients after the limit has been reached.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -505,10 +430,6 @@ class AsyncRawAppClientsClient:
                 "limit": limit,
                 "filter": filter,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -533,8 +454,6 @@ class AsyncRawAppClientsClient:
                             limit=limit,
                             filter=filter,
                             page_key=_parsed_next,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 
@@ -571,12 +490,7 @@ class AsyncRawAppClientsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def create(
-        self,
-        *,
-        request: CreateAppClientRequest,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, *, request: CreateAppClientRequest, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[AppClient]:
         """
         An App Client is used for OAuth 2.0 authentication when calling Vectara APIs.
@@ -584,12 +498,6 @@ class AsyncRawAppClientsClient:
         Parameters
         ----------
         request : CreateAppClientRequest
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -608,8 +516,6 @@ class AsyncRawAppClientsClient:
             ),
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -656,12 +562,7 @@ class AsyncRawAppClientsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def get(
-        self,
-        app_client_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[AppClient]:
         """
         Retrieve details of a specific application client by its ID.
@@ -670,12 +571,6 @@ class AsyncRawAppClientsClient:
         ----------
         app_client_id : str
             The ID of the App Client.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
@@ -686,13 +581,9 @@ class AsyncRawAppClientsClient:
             The App Client.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            f"v2/app_clients/{encode_path_param(app_client_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="GET",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -726,12 +617,7 @@ class AsyncRawAppClientsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
-        self,
-        app_client_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, app_client_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[None]:
         """
         Remove an application client configuration from the customer account.
@@ -741,12 +627,6 @@ class AsyncRawAppClientsClient:
         app_client_id : str
             The ID of App Client.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -755,13 +635,9 @@ class AsyncRawAppClientsClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            f"v2/app_clients/{encode_path_param(app_client_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -791,8 +667,6 @@ class AsyncRawAppClientsClient:
         self,
         app_client_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         description: typing.Optional[str] = OMIT,
         api_roles: typing.Optional[typing.Sequence[ApiRole]] = OMIT,
         corpus_roles: typing.Optional[typing.Sequence[CorpusRole]] = OMIT,
@@ -806,12 +680,6 @@ class AsyncRawAppClientsClient:
         ----------
         app_client_id : str
             The name of App Client.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         description : typing.Optional[str]
             The new App Client description.
@@ -834,7 +702,7 @@ class AsyncRawAppClientsClient:
             The App Client.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/app_clients/{jsonable_encoder(app_client_id)}",
+            f"v2/app_clients/{encode_path_param(app_client_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PATCH",
             json={
@@ -849,8 +717,6 @@ class AsyncRawAppClientsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

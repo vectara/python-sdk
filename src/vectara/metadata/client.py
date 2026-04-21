@@ -34,8 +34,6 @@ class MetadataClient:
         corpus_key: CorpusKey,
         *,
         queries: typing.Sequence[FieldQuery],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         level: typing.Optional[MetadataQueryRequestLevel] = OMIT,
         metadata_filter: typing.Optional[str] = OMIT,
         limit: typing.Optional[int] = OMIT,
@@ -52,12 +50,6 @@ class MetadataClient:
 
         queries : typing.Sequence[FieldQuery]
             List of field-specific queries to apply fuzzy matching.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         level : typing.Optional[MetadataQueryRequestLevel]
             Whether to search document-level or part-level metadata. Document-level returns unique documents, part-level can return multiple parts from the same document.
@@ -84,7 +76,10 @@ class MetadataClient:
         --------
         from vectara import FieldQuery, Vectara
 
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.metadata.query_metadata(
             corpus_key="my-corpus",
             queries=[
@@ -104,8 +99,6 @@ class MetadataClient:
         _response = self._raw_client.query_metadata(
             corpus_key,
             queries=queries,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             level=level,
             metadata_filter=metadata_filter,
             limit=limit,
@@ -135,8 +128,6 @@ class AsyncMetadataClient:
         corpus_key: CorpusKey,
         *,
         queries: typing.Sequence[FieldQuery],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         level: typing.Optional[MetadataQueryRequestLevel] = OMIT,
         metadata_filter: typing.Optional[str] = OMIT,
         limit: typing.Optional[int] = OMIT,
@@ -153,12 +144,6 @@ class AsyncMetadataClient:
 
         queries : typing.Sequence[FieldQuery]
             List of field-specific queries to apply fuzzy matching.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         level : typing.Optional[MetadataQueryRequestLevel]
             Whether to search document-level or part-level metadata. Document-level returns unique documents, part-level can return multiple parts from the same document.
@@ -187,7 +172,10 @@ class AsyncMetadataClient:
 
         from vectara import AsyncVectara, FieldQuery
 
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
 
 
         async def main() -> None:
@@ -213,8 +201,6 @@ class AsyncMetadataClient:
         _response = await self._raw_client.query_metadata(
             corpus_key,
             queries=queries,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             level=level,
             metadata_filter=metadata_filter,
             limit=limit,

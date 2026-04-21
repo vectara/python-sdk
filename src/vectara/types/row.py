@@ -5,3 +5,6 @@ import typing
 from .cell import Cell
 
 Row = typing.List[Cell]
+"""
+A row in a table.
+"""

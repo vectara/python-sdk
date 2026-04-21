@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.pagination import AsyncPager, SyncPager
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
@@ -33,8 +33,6 @@ class RawGenerationPresetsClient:
         llm_name: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> SyncPager[GenerationPreset, ListGenerationPresetsResponse]:
         """
@@ -61,12 +59,6 @@ class RawGenerationPresetsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of generation presets after the limit has been reached. This parameter is not needed for the first page of results.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -83,10 +75,6 @@ class RawGenerationPresetsClient:
                 "llm_name": llm_name,
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -109,8 +97,6 @@ class RawGenerationPresetsClient:
                         llm_name=llm_name,
                         limit=limit,
                         page_key=_parsed_next,
-                        request_timeout=request_timeout,
-                        request_timeout_millis=request_timeout_millis,
                         request_options=request_options,
                     )
                 return SyncPager(has_next=_has_next, items=_items, get_next=_get_next, response=_parsed_response)
@@ -137,8 +123,6 @@ class RawGenerationPresetsClient:
     def create(
         self,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         id: typing.Optional[str] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -161,12 +145,6 @@ class RawGenerationPresetsClient:
 
         Parameters
         ----------
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         id : typing.Optional[str]
             The ID of the generation preset.
 
@@ -235,8 +213,6 @@ class RawGenerationPresetsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -286,8 +262,6 @@ class RawGenerationPresetsClient:
         self,
         generation_preset_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         id: typing.Optional[str] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -311,12 +285,6 @@ class RawGenerationPresetsClient:
         ----------
         generation_preset_id : str
             The ID of the generation preset to replace.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         id : typing.Optional[str]
             The ID of the generation preset.
@@ -366,7 +334,7 @@ class RawGenerationPresetsClient:
             The replaced generation preset.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/generation_presets/{jsonable_encoder(generation_preset_id)}",
+            f"v2/generation_presets/{encode_path_param(generation_preset_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PUT",
             json={
@@ -386,8 +354,6 @@ class RawGenerationPresetsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -445,12 +411,7 @@ class RawGenerationPresetsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     def delete(
-        self,
-        generation_preset_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, generation_preset_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> HttpResponse[None]:
         """
         Delete an existing custom generation preset.
@@ -461,12 +422,6 @@ class RawGenerationPresetsClient:
         generation_preset_id : str
             The ID of the generation preset to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -475,13 +430,9 @@ class RawGenerationPresetsClient:
         HttpResponse[None]
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/generation_presets/{jsonable_encoder(generation_preset_id)}",
+            f"v2/generation_presets/{encode_path_param(generation_preset_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:
@@ -540,8 +491,6 @@ class AsyncRawGenerationPresetsClient:
         llm_name: typing.Optional[str] = None,
         limit: typing.Optional[int] = None,
         page_key: typing.Optional[str] = None,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         request_options: typing.Optional[RequestOptions] = None,
     ) -> AsyncPager[GenerationPreset, ListGenerationPresetsResponse]:
         """
@@ -568,12 +517,6 @@ class AsyncRawGenerationPresetsClient:
         page_key : typing.Optional[str]
             Used to retrieve the next page of generation presets after the limit has been reached. This parameter is not needed for the first page of results.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -590,10 +533,6 @@ class AsyncRawGenerationPresetsClient:
                 "llm_name": llm_name,
                 "limit": limit,
                 "page_key": page_key,
-            },
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
         )
@@ -618,8 +557,6 @@ class AsyncRawGenerationPresetsClient:
                             llm_name=llm_name,
                             limit=limit,
                             page_key=_parsed_next,
-                            request_timeout=request_timeout,
-                            request_timeout_millis=request_timeout_millis,
                             request_options=request_options,
                         )
 
@@ -647,8 +584,6 @@ class AsyncRawGenerationPresetsClient:
     async def create(
         self,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         id: typing.Optional[str] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -671,12 +606,6 @@ class AsyncRawGenerationPresetsClient:
 
         Parameters
         ----------
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         id : typing.Optional[str]
             The ID of the generation preset.
 
@@ -745,8 +674,6 @@ class AsyncRawGenerationPresetsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -796,8 +723,6 @@ class AsyncRawGenerationPresetsClient:
         self,
         generation_preset_id: str,
         *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         id: typing.Optional[str] = OMIT,
         name: typing.Optional[str] = OMIT,
         description: typing.Optional[str] = OMIT,
@@ -821,12 +746,6 @@ class AsyncRawGenerationPresetsClient:
         ----------
         generation_preset_id : str
             The ID of the generation preset to replace.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         id : typing.Optional[str]
             The ID of the generation preset.
@@ -876,7 +795,7 @@ class AsyncRawGenerationPresetsClient:
             The replaced generation preset.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/generation_presets/{jsonable_encoder(generation_preset_id)}",
+            f"v2/generation_presets/{encode_path_param(generation_preset_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="PUT",
             json={
@@ -896,8 +815,6 @@ class AsyncRawGenerationPresetsClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -955,12 +872,7 @@ class AsyncRawGenerationPresetsClient:
         raise ApiError(status_code=_response.status_code, headers=dict(_response.headers), body=_response_json)
 
     async def delete(
-        self,
-        generation_preset_id: str,
-        *,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
-        request_options: typing.Optional[RequestOptions] = None,
+        self, generation_preset_id: str, *, request_options: typing.Optional[RequestOptions] = None
     ) -> AsyncHttpResponse[None]:
         """
         Delete an existing custom generation preset.
@@ -971,12 +883,6 @@ class AsyncRawGenerationPresetsClient:
         generation_preset_id : str
             The ID of the generation preset to delete.
 
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-
         request_options : typing.Optional[RequestOptions]
             Request-specific configuration.
 
@@ -985,13 +891,9 @@ class AsyncRawGenerationPresetsClient:
         AsyncHttpResponse[None]
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/generation_presets/{jsonable_encoder(generation_preset_id)}",
+            f"v2/generation_presets/{encode_path_param(generation_preset_id)}",
             base_url=self._client_wrapper.get_environment().default,
             method="DELETE",
-            headers={
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
-            },
             request_options=request_options,
         )
         try:

@@ -35,8 +35,6 @@ class UploadClient:
         corpus_key: CorpusKey,
         *,
         file: core.File,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         chunking_strategy: typing.Optional[ChunkingStrategy] = OMIT,
         table_extraction_config: typing.Optional[TableExtractionConfig] = OMIT,
@@ -139,12 +137,6 @@ class UploadClient:
         file : core.File
             See core.File for more documentation
         
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-        
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-        
         metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary object that will be attached as document metadata to the extracted document.
         
@@ -167,7 +159,10 @@ class UploadClient:
         --------
         from vectara import Vectara
         
-        client = Vectara()
+        client = Vectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         client.upload.file(
             corpus_key="my-corpus",
         )
@@ -175,8 +170,6 @@ class UploadClient:
         _response = self._raw_client.file(
             corpus_key,
             file=file,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             metadata=metadata,
             chunking_strategy=chunking_strategy,
             table_extraction_config=table_extraction_config,
@@ -206,8 +199,6 @@ class AsyncUploadClient:
         corpus_key: CorpusKey,
         *,
         file: core.File,
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         metadata: typing.Optional[typing.Dict[str, typing.Any]] = OMIT,
         chunking_strategy: typing.Optional[ChunkingStrategy] = OMIT,
         table_extraction_config: typing.Optional[TableExtractionConfig] = OMIT,
@@ -310,12 +301,6 @@ class AsyncUploadClient:
         file : core.File
             See core.File for more documentation
         
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-        
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
-        
         metadata : typing.Optional[typing.Dict[str, typing.Any]]
             Arbitrary object that will be attached as document metadata to the extracted document.
         
@@ -340,7 +325,10 @@ class AsyncUploadClient:
         
         from vectara import AsyncVectara
         
-        client = AsyncVectara()
+        client = AsyncVectara(
+            client_id="YOUR_CLIENT_ID",
+            client_secret="YOUR_CLIENT_SECRET",
+        )
         
         
         async def main() -> None:
@@ -354,8 +342,6 @@ class AsyncUploadClient:
         _response = await self._raw_client.file(
             corpus_key,
             file=file,
-            request_timeout=request_timeout,
-            request_timeout_millis=request_timeout_millis,
             metadata=metadata,
             chunking_strategy=chunking_strategy,
             table_extraction_config=table_extraction_config,

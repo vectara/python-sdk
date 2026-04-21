@@ -5,7 +5,9 @@ from __future__ import annotations
 import typing
 
 import pydantic
+import typing_extensions
 from ..core.pydantic_utilities import IS_PYDANTIC_V2, UniversalBaseModel
+from .glossary_key import GlossaryKey
 from .instruction_template import InstructionTemplate
 from .template_type import TemplateType
 from .templated_reminder_hooks_item import TemplatedReminderHooksItem
@@ -31,4 +33,24 @@ class AgentStepReminder_Templated(UniversalBaseModel):
             extra = pydantic.Extra.allow
 
 
-AgentStepReminder = AgentStepReminder_Templated
+class AgentStepReminder_GlossaryExpansion(UniversalBaseModel):
+    """
+    A reminder that is injected into the agent conversation when specific event types occur.
+    """
+
+    type: typing.Literal["glossary_expansion"] = "glossary_expansion"
+    glossary_key: GlossaryKey
+
+    if IS_PYDANTIC_V2:
+        model_config: typing.ClassVar[pydantic.ConfigDict] = pydantic.ConfigDict(extra="allow", frozen=True)  # type: ignore # Pydantic v2
+    else:
+
+        class Config:
+            frozen = True
+            smart_union = True
+            extra = pydantic.Extra.allow
+
+
+AgentStepReminder = typing_extensions.Annotated[
+    typing.Union[AgentStepReminder_Templated, AgentStepReminder_GlossaryExpansion], pydantic.Field(discriminator="type")
+]

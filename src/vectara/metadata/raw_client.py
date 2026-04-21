@@ -6,7 +6,7 @@ from json.decoder import JSONDecodeError
 from ..core.api_error import ApiError
 from ..core.client_wrapper import AsyncClientWrapper, SyncClientWrapper
 from ..core.http_response import AsyncHttpResponse, HttpResponse
-from ..core.jsonable_encoder import jsonable_encoder
+from ..core.jsonable_encoder import encode_path_param
 from ..core.parse_error import ParsingError
 from ..core.pydantic_utilities import parse_obj_as
 from ..core.request_options import RequestOptions
@@ -34,8 +34,6 @@ class RawMetadataClient:
         corpus_key: CorpusKey,
         *,
         queries: typing.Sequence[FieldQuery],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         level: typing.Optional[MetadataQueryRequestLevel] = OMIT,
         metadata_filter: typing.Optional[str] = OMIT,
         limit: typing.Optional[int] = OMIT,
@@ -52,12 +50,6 @@ class RawMetadataClient:
 
         queries : typing.Sequence[FieldQuery]
             List of field-specific queries to apply fuzzy matching.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         level : typing.Optional[MetadataQueryRequestLevel]
             Whether to search document-level or part-level metadata. Document-level returns unique documents, part-level can return multiple parts from the same document.
@@ -81,7 +73,7 @@ class RawMetadataClient:
             List of matching documents with relevance scores and field-level match details.
         """
         _response = self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/metadata_query",
+            f"v2/corpora/{encode_path_param(corpus_key)}/metadata_query",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -95,8 +87,6 @@ class RawMetadataClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,
@@ -163,8 +153,6 @@ class AsyncRawMetadataClient:
         corpus_key: CorpusKey,
         *,
         queries: typing.Sequence[FieldQuery],
-        request_timeout: typing.Optional[int] = None,
-        request_timeout_millis: typing.Optional[int] = None,
         level: typing.Optional[MetadataQueryRequestLevel] = OMIT,
         metadata_filter: typing.Optional[str] = OMIT,
         limit: typing.Optional[int] = OMIT,
@@ -181,12 +169,6 @@ class AsyncRawMetadataClient:
 
         queries : typing.Sequence[FieldQuery]
             List of field-specific queries to apply fuzzy matching.
-
-        request_timeout : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified seconds or time out.
-
-        request_timeout_millis : typing.Optional[int]
-            The API will make a best effort to complete the request in the specified milliseconds or time out.
 
         level : typing.Optional[MetadataQueryRequestLevel]
             Whether to search document-level or part-level metadata. Document-level returns unique documents, part-level can return multiple parts from the same document.
@@ -210,7 +192,7 @@ class AsyncRawMetadataClient:
             List of matching documents with relevance scores and field-level match details.
         """
         _response = await self._client_wrapper.httpx_client.request(
-            f"v2/corpora/{jsonable_encoder(corpus_key)}/metadata_query",
+            f"v2/corpora/{encode_path_param(corpus_key)}/metadata_query",
             base_url=self._client_wrapper.get_environment().default,
             method="POST",
             json={
@@ -224,8 +206,6 @@ class AsyncRawMetadataClient:
             },
             headers={
                 "content-type": "application/json",
-                "Request-Timeout": str(request_timeout) if request_timeout is not None else None,
-                "Request-Timeout-Millis": str(request_timeout_millis) if request_timeout_millis is not None else None,
             },
             request_options=request_options,
             omit=OMIT,

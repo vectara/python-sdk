@@ -5,3 +5,6 @@ import typing
 from .cell import Cell
 
 Header = typing.List[Cell]
+"""
+The header of a table.
+"""
